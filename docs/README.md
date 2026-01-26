@@ -1,0 +1,1 @@
+A mobile idle / light tower‑defense game where the player takes the role of a god. The player influences a living world by drawing divine gestures to cast spells, gain worship, and ultimately prevent humanity from completing the Tower of Babylon.
