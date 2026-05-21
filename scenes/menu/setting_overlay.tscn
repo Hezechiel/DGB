@@ -1,0 +1,92 @@
+[gd_scene format=3 uid="uid://bbav7qxtv7i6x"]
+
+[ext_resource type="Script" uid="uid://gahrs3cqde4y" path="res://scripts/ui/setting_overlay.gd" id="1_3t2qt"]
+[ext_resource type="Texture2D" uid="uid://c75dnwx2feln7" path="res://assets/menu/UI_note_large.png" id="1_ol5sx"]
+[ext_resource type="FontFile" uid="uid://bd2krjnr7cav" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="2_3g7hk"]
+[ext_resource type="Script" uid="uid://b112ll4m8h56y" path="res://scripts/ui/audio_control.gd" id="4_04rkv"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_3g7hk"]
+texture = ExtResource("1_ol5sx")
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_3g7hk"]
+
+[node name="SettingOverlay" type="Control" unique_id=470544241]
+process_mode = 2
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_3t2qt")
+
+[node name="SettingsPanel" type="Panel" parent="." unique_id=2013401128]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -215.0
+offset_top = -250.0
+offset_right = 216.0
+offset_bottom = 311.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxTexture_3g7hk")
+
+[node name="Settings" type="Label" parent="SettingsPanel" unique_id=1516085762]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 77.5
+offset_bottom = 117.5
+grow_horizontal = 2
+mouse_filter = 0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = -5
+theme_override_constants/shadow_offset_y = 8
+theme_override_fonts/font = ExtResource("2_3g7hk")
+theme_override_font_sizes/font_size = 40
+text = "Settings"
+horizontal_alignment = 1
+
+[node name="CloseSettings" type="TouchScreenButton" parent="SettingsPanel" unique_id=159458134]
+process_mode = 3
+position = Vector2(215, 512)
+scale = Vector2(4, 4)
+shape = SubResource("CircleShape2D_3g7hk")
+
+[node name="Settings2" type="Label" parent="SettingsPanel" unique_id=1821686478]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 71.0
+offset_top = 136.0
+offset_right = -65.0
+offset_bottom = 176.0
+grow_horizontal = 2
+mouse_filter = 0
+theme_override_colors/font_color = Color(0, 0, 0.87058824, 1)
+theme_override_constants/shadow_offset_x = -5
+theme_override_constants/shadow_offset_y = 8
+theme_override_fonts/font = ExtResource("2_3g7hk")
+theme_override_font_sizes/font_size = 27
+text = "Audio"
+
+[node name="AudioControl" type="HSlider" parent="SettingsPanel" unique_id=1180824782]
+process_mode = 3
+layout_mode = 0
+offset_left = 71.0
+offset_top = 163.0
+offset_right = 366.0
+offset_bottom = 197.0
+max_value = 1.0
+step = 0.05
+value = 1.0
+script = ExtResource("4_04rkv")
+audio_bus_name = "Music"
+
+[connection signal="pressed" from="SettingsPanel/CloseSettings" to="." method="_on_close_settings_pressed"]
+[connection signal="value_changed" from="SettingsPanel/AudioControl" to="SettingsPanel/AudioControl" method="_on_value_changed"]

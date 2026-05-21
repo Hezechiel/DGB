@@ -1,0 +1,229 @@
+[gd_scene format=3 uid="uid://pfm88dv1cava"]
+
+[ext_resource type="Texture2D" uid="uid://c75dnwx2feln7" path="res://assets/menu/UI_note_large.png" id="1_fykfa"]
+[ext_resource type="Script" uid="uid://js76c4c65g3y" path="res://scripts/ui/credits_overlay.gd" id="1_yelri"]
+[ext_resource type="FontFile" uid="uid://bd2krjnr7cav" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="2_74oyc"]
+[ext_resource type="Script" uid="uid://5dp3eu06t38m" path="res://scripts/ui/scrollable.gd" id="4_05wj5"]
+[ext_resource type="FontFile" uid="uid://pbr51rvqyhv3" path="res://assets/fonts/PixelOperator8.ttf" id="4_perpt"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_74oyc"]
+texture = ExtResource("1_fykfa")
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_74oyc"]
+
+[node name="CreditsOverlay" type="Control" unique_id=1311075437]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_yelri")
+
+[node name="CreditsPanel" type="Panel" parent="." unique_id=750235869]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -215.0
+offset_top = -250.0
+offset_right = 216.0
+offset_bottom = 311.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 1
+theme_override_styles/panel = SubResource("StyleBoxTexture_74oyc")
+
+[node name="MarginContainer" type="MarginContainer" parent="CreditsPanel" unique_id=289841729]
+layout_mode = 0
+offset_left = 49.0
+offset_top = 70.0
+offset_right = 385.0
+offset_bottom = 466.0
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CreditsPanel/MarginContainer" unique_id=1448385503]
+layout_mode = 2
+theme_override_constants/separation = 22
+
+[node name="TitleLabel" type="Label" parent="CreditsPanel/MarginContainer/VBoxContainer" unique_id=1619798418]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = -5
+theme_override_constants/shadow_offset_y = 8
+theme_override_fonts/font = ExtResource("2_74oyc")
+theme_override_font_sizes/font_size = 40
+text = "Credits"
+horizontal_alignment = 1
+
+[node name="ScrollContainer" type="ScrollContainer" parent="CreditsPanel/MarginContainer/VBoxContainer" unique_id=1012523393]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 0
+horizontal_scroll_mode = 0
+script = ExtResource("4_05wj5")
+
+[node name="CreditList" type="VBoxContainer" parent="CreditsPanel/MarginContainer/VBoxContainer/ScrollContainer" unique_id=1401393195]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 2
+theme_override_constants/separation = 10
+
+[node name="Label1" type="Label" parent="CreditsPanel/MarginContainer/VBoxContainer/ScrollContainer/CreditList" unique_id=159195392]
+layout_mode = 2
+theme_override_colors/font_color = Color(4.5242905e-06, 0, 0.86988366, 1)
+theme_override_constants/shadow_offset_x = -5
+theme_override_constants/shadow_offset_y = 8
+theme_override_fonts/font = ExtResource("4_perpt")
+theme_override_font_sizes/font_size = 18
+text = "Creative Direction"
+
+[node name="Label2" type="Label" parent="CreditsPanel/MarginContainer/VBoxContainer/ScrollContainer/CreditList" unique_id=1582642415]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = -5
+theme_override_constants/shadow_offset_y = 8
+theme_override_fonts/font = ExtResource("4_perpt")
+theme_override_font_sizes/font_size = 21
+text = "Milos
+"
+horizontal_alignment = 1
+
+[node name="Label3" type="Label" parent="CreditsPanel/MarginContainer/VBoxContainer/ScrollContainer/CreditList" unique_id=268183325]
+layout_mode = 2
+theme_override_colors/font_color = Color(4.5242905e-06, 0, 0.86988366, 1)
+theme_override_constants/shadow_offset_x = -5
+theme_override_constants/shadow_offset_y = 8
+theme_override_fonts/font = ExtResource("4_perpt")
+theme_override_font_sizes/font_size = 18
+text = "Gameplay Programming"
+
+[node name="Label4" type="Label" parent="CreditsPanel/MarginContainer/VBoxContainer/ScrollContainer/CreditList" unique_id=524804986]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = -5
+theme_override_constants/shadow_offset_y = 8
+theme_override_fonts/font = ExtResource("4_perpt")
+theme_override_font_sizes/font_size = 21
+text = "Milos
+"
+horizontal_alignment = 1
+
+[node name="Label5" type="Label" parent="CreditsPanel/MarginContainer/VBoxContainer/ScrollContainer/CreditList" unique_id=1210440545]
+layout_mode = 2
+theme_override_colors/font_color = Color(4.5242905e-06, 0, 0.86988366, 1)
+theme_override_constants/shadow_offset_x = -5
+theme_override_constants/shadow_offset_y = 8
+theme_override_fonts/font = ExtResource("4_perpt")
+theme_override_font_sizes/font_size = 18
+text = "UI / UX"
+
+[node name="Label6" type="Label" parent="CreditsPanel/MarginContainer/VBoxContainer/ScrollContainer/CreditList" unique_id=424050763]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = -5
+theme_override_constants/shadow_offset_y = 8
+theme_override_fonts/font = ExtResource("4_perpt")
+theme_override_font_sizes/font_size = 21
+text = "Milos
+"
+horizontal_alignment = 1
+
+[node name="Label7" type="Label" parent="CreditsPanel/MarginContainer/VBoxContainer/ScrollContainer/CreditList" unique_id=49705410]
+layout_mode = 2
+theme_override_colors/font_color = Color(4.5242905e-06, 0, 0.86988366, 1)
+theme_override_constants/shadow_offset_x = -5
+theme_override_constants/shadow_offset_y = 8
+theme_override_fonts/font = ExtResource("4_perpt")
+theme_override_font_sizes/font_size = 18
+text = "Art"
+
+[node name="Label8" type="Label" parent="CreditsPanel/MarginContainer/VBoxContainer/ScrollContainer/CreditList" unique_id=694398794]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = -5
+theme_override_constants/shadow_offset_y = 8
+theme_override_fonts/font = ExtResource("4_perpt")
+theme_override_font_sizes/font_size = 21
+text = "Oliver
+"
+horizontal_alignment = 1
+
+[node name="Label9" type="Label" parent="CreditsPanel/MarginContainer/VBoxContainer/ScrollContainer/CreditList" unique_id=1237628744]
+layout_mode = 2
+theme_override_colors/font_color = Color(4.5242905e-06, 0, 0.86988366, 1)
+theme_override_constants/shadow_offset_x = -5
+theme_override_constants/shadow_offset_y = 8
+theme_override_fonts/font = ExtResource("4_perpt")
+theme_override_font_sizes/font_size = 18
+text = "Sound"
+
+[node name="Label10" type="Label" parent="CreditsPanel/MarginContainer/VBoxContainer/ScrollContainer/CreditList" unique_id=335665545]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = -5
+theme_override_constants/shadow_offset_y = 8
+theme_override_fonts/font = ExtResource("4_perpt")
+theme_override_font_sizes/font_size = 21
+text = "Milos
+"
+horizontal_alignment = 1
+
+[node name="Label11" type="Label" parent="CreditsPanel/MarginContainer/VBoxContainer/ScrollContainer/CreditList" unique_id=1266012398]
+layout_mode = 2
+theme_override_colors/font_color = Color(4.5242905e-06, 0, 0.86988366, 1)
+theme_override_constants/shadow_offset_x = -5
+theme_override_constants/shadow_offset_y = 8
+theme_override_fonts/font = ExtResource("4_perpt")
+theme_override_font_sizes/font_size = 18
+text = "Pinding"
+
+[node name="Label12" type="Label" parent="CreditsPanel/MarginContainer/VBoxContainer/ScrollContainer/CreditList" unique_id=1538027920]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = -5
+theme_override_constants/shadow_offset_y = 8
+theme_override_fonts/font = ExtResource("4_perpt")
+theme_override_font_sizes/font_size = 21
+text = "Simona
+"
+horizontal_alignment = 1
+
+[node name="Label13" type="Label" parent="CreditsPanel/MarginContainer/VBoxContainer/ScrollContainer/CreditList" unique_id=1511957357]
+layout_mode = 2
+theme_override_colors/font_color = Color(4.5242905e-06, 0, 0.86988366, 1)
+theme_override_constants/shadow_offset_x = -5
+theme_override_constants/shadow_offset_y = 8
+theme_override_fonts/font = ExtResource("4_perpt")
+theme_override_font_sizes/font_size = 18
+text = "Nerving"
+
+[node name="Label14" type="Label" parent="CreditsPanel/MarginContainer/VBoxContainer/ScrollContainer/CreditList" unique_id=1634585229]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_constants/shadow_offset_x = -5
+theme_override_constants/shadow_offset_y = 8
+theme_override_fonts/font = ExtResource("4_perpt")
+theme_override_font_sizes/font_size = 21
+text = "Bilbanek
+"
+horizontal_alignment = 1
+
+[node name="CloseCredits" type="TouchScreenButton" parent="CreditsPanel" unique_id=2122519792]
+position = Vector2(215.49998, 511.5)
+scale = Vector2(4, 4)
+shape = SubResource("CircleShape2D_74oyc")
+
+[connection signal="pressed" from="CreditsPanel/CloseCredits" to="." method="_on_close_credits_pressed"]

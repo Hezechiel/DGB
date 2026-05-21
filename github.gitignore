@@ -1,0 +1,13 @@
+# Godot generated files
+.godot/
+*.tmp
+*.uid
+
+# Export files
+android/
+*.apk
+*.aab
+
+# OS junk
+.DS_Store
+Thumbs.db

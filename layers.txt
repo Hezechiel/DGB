@@ -1,0 +1,32 @@
+Rozdelenie vrstiev:
+	Layer 1: PlayerBody
+	Layer 2: EnemyBody
+	Layer 3: Walls
+	Layer 4: PlayerHurtbox
+	Layer 5: EnemyAttack
+
+Player (God)
+	CollisionLayer: 1 (PlayerBody)
+	CollisionMask: 3 (Walls)
+	(nebude kolidovať s enemy)
+
+Player Hurtbox (Area2D):
+	CollisionLayer: 4 (Hurtbox)
+	CollisionMask: 5 (EnemyAttack)
+	(detekuje enemy utoky)
+
+Enemy (Human):
+	CollisionLayer: 2 (EnemyBody)
+	CollisionMask: 3 (Walls)
+	(nebude kolidovať s playerom)
+
+
+Enemy Attack Area (Area2D):
+	CollisionLayer: 5 (EnemyAttack)
+	CollisionMask: 4 (Player Hurtbox)
+	(Takto sa budú Hurtbox a AttackArea navzájom “vidieť”)
+
+Lightning projectile (Area2D):
+	CollisionLayer: 6 (Lightning)
+	CollisionMask: 2 (EnemyBody)
+	(Takto sa budú Hurtbox a AttackArea navzájom “vidieť”)
