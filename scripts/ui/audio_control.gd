@@ -22,8 +22,8 @@ func _gui_input(event: InputEvent) -> void:
 
 func _apply_touch_position(local_pos: Vector2) -> void:
 	# Convert touch X position to 0.0–1.0 range based on slider width
-	var ratio = clamp(local_pos.x / size.x, 0.0, 1.0)
-	value = min_value + ratio * (max_value - min_value)
+	var touch_ratio = clamp(local_pos.x / size.x, 0.0, 1.0)
+	value = min_value + touch_ratio * (max_value - min_value)
 	#print(value)
 
 func _on_value_changed(val: float) -> void:
