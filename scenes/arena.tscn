@@ -1,16 +1,16 @@
 [gd_scene format=4 uid="uid://cel13t20juq3n"]
 
-[ext_resource type="Texture2D" uid="uid://di5q1wn6p6wmm" path="res://assets/sprites/world_map.png" id="1_lnu2h"]
-[ext_resource type="Script" uid="uid://cprjw58lfuvba" path="res://scripts/game.gd" id="1_u5sy4"]
-[ext_resource type="PackedScene" uid="uid://bjivk7ksw0cr7" path="res://scenes/player.tscn" id="1_uwrxv"]
-[ext_resource type="Texture2D" uid="uid://b81r7so454vot" path="res://assets/sprites/world_tileset.png" id="2_yqjtg"]
-[ext_resource type="PackedScene" uid="uid://b3ygtyp1ktxnt" path="res://scenes/enemy_spawner.tscn" id="4_iywne"]
-[ext_resource type="PackedScene" uid="uid://b8jfst32rpdy" path="res://scenes/MobileControls.tscn" id="5_iywne"]
-[ext_resource type="PackedScene" uid="uid://bbav7qxtv7i6x" path="res://scenes/menu/setting_overlay.tscn" id="7_u5sy4"]
-[ext_resource type="Texture2D" uid="uid://blimfrmn54f5n" path="res://assets/menu/UI_exit.png" id="8_gee14"]
+[ext_resource type="Script" uid="uid://cprjw58lfuvba" path="res://scripts/game.gd" id="1_oexds"]
+[ext_resource type="Texture2D" uid="uid://di5q1wn6p6wmm" path="res://assets/sprites/world_map.png" id="2_naajo"]
+[ext_resource type="Texture2D" uid="uid://b81r7so454vot" path="res://assets/sprites/world_tileset.png" id="3_41jku"]
+[ext_resource type="PackedScene" uid="uid://b3ygtyp1ktxnt" path="res://scenes/enemy_spawner.tscn" id="4_k1k1x"]
+[ext_resource type="PackedScene" uid="uid://bjivk7ksw0cr7" path="res://scenes/player.tscn" id="5_ajq0i"]
+[ext_resource type="PackedScene" uid="uid://b8jfst32rpdy" path="res://scenes/MobileControls.tscn" id="6_8vbsj"]
+[ext_resource type="PackedScene" uid="uid://bbav7qxtv7i6x" path="res://scenes/menu/setting_overlay.tscn" id="7_xsx6r"]
+[ext_resource type="Texture2D" uid="uid://blimfrmn54f5n" path="res://assets/menu/UI_exit.png" id="8_ixwup"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lnu2h"]
-texture = ExtResource("2_yqjtg")
+texture = ExtResource("3_41jku")
 0:0/0 = 0
 1:0/0 = 0
 2:0/0 = 0
@@ -142,13 +142,13 @@ sources/0 = SubResource("TileSetAtlasSource_lnu2h")
 [sub_resource type="CircleShape2D" id="CircleShape2D_lbhrr"]
 radius = 7.0
 
-[node name="Game" type="Node2D" unique_id=1679629269]
-script = ExtResource("1_u5sy4")
+[node name="Arena" type="Node2D" unique_id=1679629269]
+script = ExtResource("1_oexds")
 
 [node name="WorldMap" type="Sprite2D" parent="." unique_id=1145271735]
 position = Vector2(24.999996, 21)
 scale = Vector2(0.49609378, 0.32226563)
-texture = ExtResource("1_lnu2h")
+texture = ExtResource("2_naajo")
 
 [node name="TileMapLayer" type="TileMapLayer" parent="." unique_id=1072615601]
 use_parent_material = true
@@ -156,11 +156,11 @@ position = Vector2(-25, -13)
 tile_map_data = PackedByteArray("AAD2//b/AAABAAEAAAD3//b/AAABAAEAAAD4//b/AAABAAEAAAD5//b/AAABAAEAAAD6//b/AAABAAEAAAD7//b/AAABAAEAAAD8//b/AAABAAEAAAD9//b/AAABAAEAAAD+//b/AAABAAEAAAD///b/AAABAAEAAAAAAPb/AAABAAEAAAABAPb/AAABAAEAAAACAPb/AAABAAEAAAADAPb/AAABAAEAAAAEAPb/AAABAAEAAAAFAPb/AAABAAEAAAAGAPb/AAABAAEAAAAHAPb/AAABAAEAAAAIAPb/AAABAAEAAAAJAPb/AAABAAEAAAAKAPb/AAABAAEAAAALAPb/AAABAAEAAAAMAPb/AAABAAEAAAD2//f/AAABAAEAAAD2//j/AAABAAEAAAD2//n/AAABAAEAAAD2//r/AAABAAEAAAD2//v/AAABAAEAAAD2//z/AAABAAEAAAD2//3/AAABAAEAAAD2////AAABAAEAAAD2/wAAAAABAAEAAAD2/wEAAAABAAEAAAD2/wIAAAABAAEAAAD2/wMAAAABAAEAAAD2/wQAAAABAAEAAAD2/wUAAAABAAEAAAD2/wYAAAABAAEAAAD2/wcAAAABAAEAAAD2/wgAAAABAAEAAAD2/wkAAAABAAEAAAD2/woAAAABAAEAAAD2/wsAAAABAAEAAAD3/wsAAAABAAEAAAD4/wsAAAABAAEAAAD5/wsAAAABAAEAAAD6/wsAAAABAAEAAAD7/wsAAAABAAEAAAD8/wsAAAABAAEAAAD9/wsAAAABAAEAAAD+/wsAAAABAAEAAAD//wsAAAABAAEAAAAAAAsAAAABAAEAAAABAAsAAAABAAEAAAACAAsAAAABAAEAAAADAAsAAAABAAEAAAAEAAsAAAABAAEAAAAFAAsAAAABAAEAAAAGAAsAAAABAAEAAAAHAAsAAAABAAEAAAAIAAsAAAABAAEAAAAJAAsAAAABAAEAAAAKAAsAAAABAAEAAAALAAsAAAABAAEAAAAMAAsAAAABAAEAAAAMAPf/AAABAAEAAAAMAPj/AAABAAEAAAAMAPn/AAABAAEAAAAMAPr/AAABAAEAAAAMAPv/AAABAAEAAAAMAPz/AAABAAEAAAAMAP3/AAABAAEAAAAMAP7/AAABAAEAAAAMAP//AAABAAEAAAAMAAAAAAABAAEAAAAMAAEAAAABAAEAAAAMAAIAAAABAAEAAAAMAAMAAAABAAEAAAAMAAQAAAABAAEAAAAMAAUAAAABAAEAAAAMAAYAAAABAAEAAAAMAAcAAAABAAEAAAAMAAgAAAABAAEAAAAMAAkAAAABAAEAAAAMAAoAAAABAAEAAAD5//j/AAAIAAMAAAD2//7/AAABAAEAAAAIAAUAAAABAAYAAAD9/wYAAAABAAYAAAD6////AAABAAYAAAAJAPv/AAAFAAcAAAD///7/AAAFAAcAAAAJAP//AAAAAAMAAAAJAAAAAAAAAAQAAAAJAAEAAAAAAAUAAAD9//n/AAAAAAMAAAD9//r/AAAAAAQAAAD9//v/AAAAAAUAAAA=")
 tile_set = SubResource("TileSet_lbhrr")
 
-[node name="EnemySpawner" parent="." unique_id=1872486208 node_paths=PackedStringArray("player") instance=ExtResource("4_iywne")]
+[node name="EnemySpawner" parent="." unique_id=1872486208 node_paths=PackedStringArray("player") instance=ExtResource("4_k1k1x")]
 position = Vector2(-172, -101)
 player = NodePath("../Player")
 
-[node name="Player" parent="." unique_id=425268589 instance=ExtResource("1_uwrxv")]
+[node name="Player" parent="." unique_id=425268589 instance=ExtResource("5_ajq0i")]
 
 [node name="Camera2D" type="Camera2D" parent="Player" unique_id=869680081]
 position = Vector2(0, -10)
@@ -180,12 +180,12 @@ collision_mask = 16
 position = Vector2(0, -8)
 shape = SubResource("CircleShape2D_lbhrr")
 
-[node name="MobileControls" parent="." unique_id=1338696544 instance=ExtResource("5_iywne")]
+[node name="MobileControls" parent="." unique_id=1338696544 instance=ExtResource("6_8vbsj")]
 
 [node name="UI" type="CanvasLayer" parent="." unique_id=661909964]
 process_mode = 2
 
-[node name="SettingOverlay" parent="UI" unique_id=470544241 instance=ExtResource("7_u5sy4")]
+[node name="SettingOverlay" parent="UI" unique_id=470544241 instance=ExtResource("7_xsx6r")]
 custom_minimum_size = Vector2(520, 340)
 anchors_preset = 8
 anchor_left = 0.5
@@ -202,7 +202,7 @@ size_flags_horizontal = 4
 visible = false
 position = Vector2(0, 520)
 scale = Vector2(0.7, 0.7)
-texture_normal = ExtResource("8_gee14")
+texture_normal = ExtResource("8_ixwup")
 
 [connection signal="closed_requested" from="UI/SettingOverlay" to="." method="_on_setting_overlay_close_requested"]
 [connection signal="pressed" from="UI/ExitButton" to="." method="_on_exit_button_pressed"]

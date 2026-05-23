@@ -6,7 +6,7 @@ extends Control
 @onready var setting_overlay: SettingsOverlay = $SettingOverlay
 @onready var credits_overlay: CreditsOverlay = $CreditsOverlay
 
-const GAME_SCENE := "res://scenes/game.tscn"
+const ARENA_SCENE := "res://scenes/arena.tscn"
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -18,7 +18,7 @@ func _ready() -> void:
 	#setting_overlay.visible = false
 
 func _on_start_game_buton_pressed() -> void:
-	get_tree().change_scene_to_file(GAME_SCENE)
+	get_tree().change_scene_to_file(ARENA_SCENE)
 
 func _on_settings_button_pressed() -> void:
 	# overlay version
