@@ -1,0 +1,33 @@
+[gd_scene format=3 uid="uid://bifny4d63qhux"]
+
+[ext_resource type="Script" uid="uid://3davspj6ei2w" path="res://scripts/world/world_map.gd" id="1_wmscr"]
+[ext_resource type="Texture2D" uid="uid://di5q1wn6p6wmm" path="res://assets/world/world_map.png" id="2_kqtdn"]
+[ext_resource type="Script" uid="uid://brbkqnf6t7j50" path="res://scripts/world/world_camera.gd" id="2_wcscr"]
+[ext_resource type="PackedScene" uid="uid://csxt6cu424jaa" path="res://scenes/world/GodPresence.tscn" id="3_gp"]
+[ext_resource type="PackedScene" uid="uid://b6j8b5sjieal7" path="res://scenes/world/Village.tscn" id="3_xqia6"]
+
+[node name="WorldMap" type="Node2D" unique_id=1592278912]
+script = ExtResource("1_wmscr")
+
+[node name="MapBackground" type="Sprite2D" parent="." unique_id=1531547940]
+position = Vector2(0, -7.6293945e-06)
+scale = Vector2(1.7470703, 1.2317709)
+texture = ExtResource("2_kqtdn")
+
+[node name="WorldCamera" type="Camera2D" parent="." unique_id=1942042393]
+limit_left = -886
+limit_top = -938
+limit_right = 889
+limit_bottom = 937
+script = ExtResource("2_wcscr")
+
+[node name="LocationsLayer" type="Node2D" parent="." unique_id=281832727]
+
+[node name="Village" parent="LocationsLayer" unique_id=1570248138 instance=ExtResource("3_xqia6")]
+position = Vector2(170, -159)
+village_name = "Village1"
+starting_faith = 50.0
+
+[node name="GodPresenceLayer" type="CanvasLayer" parent="." unique_id=1270359131]
+
+[node name="GodPresence" parent="GodPresenceLayer" unique_id=1671945585 instance=ExtResource("3_gp")]

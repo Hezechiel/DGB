@@ -1,0 +1,23 @@
+[gd_scene format=3 uid="uid://csxt6cu424jaa"]
+
+[ext_resource type="Script" uid="uid://bir15neo3rbef" path="res://scripts/world/god_presence.gd" id="1_gpscr"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_gp"]
+animations = [{
+"frames": [],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}, {
+"frames": [],
+"loop": true,
+"name": &"hover",
+"speed": 5.0
+}]
+
+[node name="GodPresence" type="Node2D"]
+script = ExtResource("1_gpscr")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_gp")
+autoplay = "idle"
