@@ -4,6 +4,8 @@
 [ext_resource type="Texture2D" uid="uid://c75dnwx2feln7" path="res://assets/menu/UI_note_large.png" id="1_ol5sx"]
 [ext_resource type="FontFile" uid="uid://bd2krjnr7cav" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="2_3g7hk"]
 [ext_resource type="Script" uid="uid://b112ll4m8h56y" path="res://scripts/ui/audio_control.gd" id="4_04rkv"]
+[ext_resource type="Texture2D" uid="uid://blimfrmn54f5n" path="res://assets/menu/UI_exit.png" id="5_exit"]
+[ext_resource type="Script" uid="uid://5dp3eu06t38m" path="res://scripts/ui/scrollable.gd" id="6_scroll"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_3g7hk"]
 texture = ExtResource("1_ol5sx")
@@ -36,14 +38,43 @@ grow_vertical = 2
 mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxTexture_3g7hk")
 
-[node name="Settings" type="Label" parent="SettingsPanel" unique_id=1516085762]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_top = 77.5
-offset_bottom = 117.5
-grow_horizontal = 2
+[node name="MarginContainer" type="MarginContainer" parent="SettingsPanel" unique_id=289841729]
+layout_mode = 0
+offset_left = 49.0
+offset_top = 70.0
+offset_right = 385.0
+offset_bottom = 466.0
+theme_override_constants/margin_left = 0
+theme_override_constants/margin_top = 0
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="SettingsPanel/MarginContainer" unique_id=1448385503]
+layout_mode = 2
+theme_override_constants/separation = 22
+
+[node name="ExitButton" type="TextureButton" parent="SettingsPanel/MarginContainer/VBoxContainer" unique_id=-838178284]
+process_mode = 3
+layout_mode = 2
+size_flags_horizontal = 4
+texture_normal = ExtResource("5_exit")
+
+[node name="ScrollContainer" type="ScrollContainer" parent="SettingsPanel/MarginContainer/VBoxContainer" unique_id=1012523393]
+layout_mode = 2
+size_flags_vertical = 3
 mouse_filter = 0
+horizontal_scroll_mode = 0
+script = ExtResource("6_scroll")
+
+[node name="SettingsContent" type="VBoxContainer" parent="SettingsPanel/MarginContainer/VBoxContainer/ScrollContainer" unique_id=1401393195]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 2
+theme_override_constants/separation = 10
+
+[node name="Settings" type="Label" parent="SettingsPanel/MarginContainer/VBoxContainer/ScrollContainer/SettingsContent" unique_id=1516085762]
+layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_constants/shadow_offset_x = -5
 theme_override_constants/shadow_offset_y = 8
@@ -52,22 +83,8 @@ theme_override_font_sizes/font_size = 40
 text = "Settings"
 horizontal_alignment = 1
 
-[node name="CloseSettings" type="TouchScreenButton" parent="SettingsPanel" unique_id=159458134]
-process_mode = 3
-position = Vector2(215, 512)
-scale = Vector2(4, 4)
-shape = SubResource("CircleShape2D_3g7hk")
-
-[node name="Settings2" type="Label" parent="SettingsPanel" unique_id=1821686478]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_left = 71.0
-offset_top = 136.0
-offset_right = -65.0
-offset_bottom = 176.0
-grow_horizontal = 2
-mouse_filter = 0
+[node name="Settings2" type="Label" parent="SettingsPanel/MarginContainer/VBoxContainer/ScrollContainer/SettingsContent" unique_id=1821686478]
+layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0.87058824, 1)
 theme_override_constants/shadow_offset_x = -5
 theme_override_constants/shadow_offset_y = 8
@@ -75,18 +92,21 @@ theme_override_fonts/font = ExtResource("2_3g7hk")
 theme_override_font_sizes/font_size = 27
 text = "Audio"
 
-[node name="AudioControl" type="HSlider" parent="SettingsPanel" unique_id=1180824782]
+[node name="AudioControl" type="HSlider" parent="SettingsPanel/MarginContainer/VBoxContainer/ScrollContainer/SettingsContent" unique_id=1180824782]
 process_mode = 3
-layout_mode = 0
-offset_left = 71.0
-offset_top = 163.0
-offset_right = 366.0
-offset_bottom = 197.0
+layout_mode = 2
 max_value = 1.0
 step = 0.05
 value = 1.0
 script = ExtResource("4_04rkv")
 audio_bus_name = "Music"
 
+[node name="CloseSettings" type="TouchScreenButton" parent="SettingsPanel" unique_id=159458134]
+process_mode = 3
+position = Vector2(215, 512)
+scale = Vector2(4, 4)
+shape = SubResource("CircleShape2D_3g7hk")
+
+[connection signal="pressed" from="SettingsPanel/MarginContainer/VBoxContainer/ExitButton" to="." method="_on_exit_button_pressed"]
+[connection signal="value_changed" from="SettingsPanel/MarginContainer/VBoxContainer/ScrollContainer/SettingsContent/AudioControl" to="SettingsPanel/MarginContainer/VBoxContainer/ScrollContainer/SettingsContent/AudioControl" method="_on_value_changed"]
 [connection signal="pressed" from="SettingsPanel/CloseSettings" to="." method="_on_close_settings_pressed"]
-[connection signal="value_changed" from="SettingsPanel/AudioControl" to="SettingsPanel/AudioControl" method="_on_value_changed"]

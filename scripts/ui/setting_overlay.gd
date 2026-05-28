@@ -2,8 +2,10 @@ extends Control
 class_name SettingsOverlay
 
 signal closed_requested
+signal exit_requested
 
 @onready var close_settings: TouchScreenButton = $SettingsPanel/CloseSettings
+@onready var exit_button: TextureButton = $SettingsPanel/MarginContainer/VBoxContainer/ExitButton
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -21,3 +23,6 @@ func close() -> void:
 func _on_close_settings_pressed() -> void:
 	#print("Close_request emited")
 	closed_requested.emit()
+
+func _on_exit_button_pressed() -> void:
+	exit_requested.emit()

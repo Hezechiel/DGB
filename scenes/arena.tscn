@@ -7,7 +7,6 @@
 [ext_resource type="PackedScene" uid="uid://bjivk7ksw0cr7" path="res://scenes/player.tscn" id="5_ajq0i"]
 [ext_resource type="PackedScene" uid="uid://b8jfst32rpdy" path="res://scenes/MobileControls.tscn" id="6_8vbsj"]
 [ext_resource type="PackedScene" uid="uid://bbav7qxtv7i6x" path="res://scenes/menu/setting_overlay.tscn" id="7_xsx6r"]
-[ext_resource type="Texture2D" uid="uid://blimfrmn54f5n" path="res://assets/menu/UI_exit.png" id="8_ixwup"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lnu2h"]
 texture = ExtResource("3_41jku")
@@ -198,11 +197,5 @@ offset_right = 272.0
 offset_bottom = 156.0
 size_flags_horizontal = 4
 
-[node name="ExitButton" type="TouchScreenButton" parent="UI" unique_id=1530645835]
-visible = false
-position = Vector2(0, 520)
-scale = Vector2(0.7, 0.7)
-texture_normal = ExtResource("8_ixwup")
 
 [connection signal="closed_requested" from="UI/SettingOverlay" to="." method="_on_setting_overlay_close_requested"]
-[connection signal="pressed" from="UI/ExitButton" to="." method="_on_exit_button_pressed"]
