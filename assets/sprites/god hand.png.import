@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b7qxyppfqd5uh"
-path="res://.godot/imported/icon_test.png-cde187f809ad7f44b656b5ae6be2490c.ctex"
+uid="uid://bxj22v4d4vhg5"
+path="res://.godot/imported/god hand.png-6703590b8c9168802bef22c7c90e77b3.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/icon_test.png"
-dest_files=["res://.godot/imported/icon_test.png-cde187f809ad7f44b656b5ae6be2490c.ctex"]
+source_file="res://assets/sprites/god hand.png"
+dest_files=["res://.godot/imported/god hand.png-6703590b8c9168802bef22c7c90e77b3.ctex"]
 
 [params]
 

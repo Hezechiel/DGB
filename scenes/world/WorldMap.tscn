@@ -28,6 +28,10 @@ position = Vector2(170, -159)
 village_name = "Village1"
 starting_faith = 50.0
 
+[node name="Village2" parent="LocationsLayer" unique_id=1410706545 instance=ExtResource("3_xqia6")]
+village_name = "Spicbergy"
+starting_faith = 32.0
+
 [node name="GodPresenceLayer" type="CanvasLayer" parent="." unique_id=1270359131]
 
 [node name="GodPresence" parent="GodPresenceLayer" unique_id=1671945585 instance=ExtResource("3_gp")]

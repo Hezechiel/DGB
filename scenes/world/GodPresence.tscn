@@ -1,23 +1,61 @@
 [gd_scene format=3 uid="uid://csxt6cu424jaa"]
 
 [ext_resource type="Script" uid="uid://bir15neo3rbef" path="res://scripts/world/god_presence.gd" id="1_gpscr"]
+[ext_resource type="Texture2D" uid="uid://bxj22v4d4vhg5" path="res://assets/sprites/god hand.png" id="2_sx5iy"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mewkl"]
+atlas = ExtResource("2_sx5iy")
+region = Rect2(0, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_acxim"]
+atlas = ExtResource("2_sx5iy")
+region = Rect2(32, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_pn2dn"]
+atlas = ExtResource("2_sx5iy")
+region = Rect2(64, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_0gcv2"]
+atlas = ExtResource("2_sx5iy")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_a0o4d"]
+atlas = ExtResource("2_sx5iy")
+region = Rect2(32, 0, 32, 32)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_gp"]
 animations = [{
-"frames": [],
-"loop": true,
-"name": &"idle",
-"speed": 5.0
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mewkl")
 }, {
-"frames": [],
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_acxim")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_pn2dn")
+}],
 "loop": true,
 "name": &"hover",
-"speed": 5.0
+"speed": 3.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_0gcv2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_a0o4d")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 2.0
 }]
 
-[node name="GodPresence" type="Node2D"]
+[node name="GodPresence" type="Node2D" unique_id=1887762149]
 script = ExtResource("1_gpscr")
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1484605151]
 sprite_frames = SubResource("SpriteFrames_gp")
+animation = &"hover"
 autoplay = "idle"
+frame_progress = 0.43285394

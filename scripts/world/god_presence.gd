@@ -1,52 +1,75 @@
 extends Node2D
-# Runs inside a CanvasLayer — position is in screen space (pixels), not world space.
-# Follows the active finger with lerp lag. Floats in place when idle.
 
 @export var smoothing: float = 8.0
 @export var idle_float_speed: float = 1.5
 @export var idle_float_amplitude: float = 6.0
 
-# Swap SpriteFrames on this node to change god type (hand / eye / etc.) — no script changes needed.
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 
 enum State { IDLE, HOVER }
 var _state := State.IDLE
-
-var _target_pos: Vector2
-var _base_pos: Vector2      # screen position around which idle float oscillates
-var _float_time := 0.0
 var _touch_id := -1
+var _move_dest: Vector2   # always tracks the last intended destination
+var _tween: Tween
+
 
 func _ready() -> void:
-	_target_pos = get_viewport().get_visible_rect().size * 0.5
-	_base_pos = _target_pos
-	position = _target_pos
+	_move_dest = get_viewport().get_visible_rect().size * 0.5
+	position = _move_dest
+	_start_idle_float(_move_dest)
+
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventScreenTouch:
 		if event.pressed and _touch_id == -1:
 			_touch_id = event.index
-			_target_pos = event.position
 			_state = State.HOVER
-			if sprite:
-				sprite.play("hover")
+			sprite.play("hover")
+			_move_to(event.position)
+
 		elif not event.pressed and event.index == _touch_id:
 			_touch_id = -1
 			_state = State.IDLE
-			_base_pos = position      # float around where the hand currently is
-			_float_time = 0.0         # restart phase so sin starts at 0 (no position jump)
-			if sprite:
-				sprite.play("idle")
+			sprite.play("idle")
+			_finish_then_float()   # let hand reach dest first, then float
 
 	elif event is InputEventScreenDrag and event.index == _touch_id:
-		_target_pos = event.position
+		_move_to(event.position)
 
-func _process(delta: float) -> void:
-	var dest: Vector2
-	if _state == State.IDLE:
-		_float_time += delta
-		dest = _base_pos + Vector2(0.0, sin(_float_time * idle_float_speed) * idle_float_amplitude)
-	else:
-		dest = _target_pos
 
-	position = position.lerp(dest, smoothing * delta)
+func _move_to(dest: Vector2) -> void:
+	_move_dest = dest
+	_kill_tween()
+	_tween = create_tween()
+	var duration := clampf(position.distance_to(dest) / 800.0, 0.05, 0.2)
+	_tween.tween_property(self, "position", dest, duration).set_trans(Tween.TRANS_SINE)
+
+
+func _finish_then_float() -> void:
+	# Complete the move to _move_dest, then chain into the idle loop.
+	# If already there, the property step is instant.
+	_kill_tween()
+	_tween = create_tween()
+	var duration := clampf(position.distance_to(_move_dest) / 500.0, 0.10, 0.35)
+	_tween.tween_property(self, "position", _move_dest, duration).set_trans(Tween.TRANS_SINE)
+	_tween.tween_callback(_begin_loop_float.bind(_move_dest))
+
+
+func _begin_loop_float(base: Vector2) -> void:
+	# Called from a finished tween — create a fresh looping one, no kill needed.
+	_tween = create_tween().set_loops()
+	var half := 1.0 / idle_float_speed
+	_tween.tween_property(self, "position", base + Vector2(0, -idle_float_amplitude), half) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+	_tween.tween_property(self, "position", base + Vector2(0,  idle_float_amplitude), half) \
+		.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
+
+
+func _start_idle_float(base: Vector2) -> void:
+	_kill_tween()
+	_begin_loop_float(base)
+
+
+func _kill_tween() -> void:
+	if _tween and _tween.is_valid():
+		_tween.kill()
