@@ -1,0 +1,35 @@
+[gd_scene format=3 uid="uid://bhudscenemain"]
+
+[ext_resource type="Script" uid="uid://copu2xbrg6361" path="res://scripts/hud/HUD.gd" id="1_hud"]
+[ext_resource type="PackedScene" uid="uid://bbav7qxtv7i6x" path="res://scenes/menu/setting_overlay.tscn" id="2_setov"]
+[ext_resource type="Texture2D" uid="uid://br7wobrrnnlw2" path="res://assets/menu/UI_pause_basic.png" id="3_pausenorm"]
+[ext_resource type="Texture2D" uid="uid://0mm8l214npdt" path="res://assets/menu/UI_pause_presed.png" id="4_pausepress"]
+
+[node name="HUD" type="CanvasLayer" unique_id=200000001]
+process_mode = 2
+layer = 10
+script = ExtResource("1_hud")
+
+[node name="Root" type="Control" parent="." unique_id=200000002]
+process_mode = 2
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="PauseButton" type="TextureButton" parent="Root" unique_id=200000010]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -100.0
+offset_bottom = 100.0
+grow_horizontal = 0
+texture_normal = ExtResource("3_pausenorm")
+texture_pressed = ExtResource("4_pausepress")
+
+[node name="SettingOverlay" parent="." unique_id=200000011 instance=ExtResource("2_setov")]

@@ -2,8 +2,6 @@
 
 [ext_resource type="Script" uid="uid://wxuwk8rjiujy" path="res://scripts/joystick.gd" id="1_0i7bk"]
 [ext_resource type="Texture2D" uid="uid://c65vg25i2wwaa" path="res://assets/virtual_joystick/joystick_tip.png" id="2_c6u6f"]
-[ext_resource type="Texture2D" uid="uid://br7wobrrnnlw2" path="res://assets/menu/UI_pause_basic.png" id="3_oueyw"]
-[ext_resource type="Texture2D" uid="uid://0mm8l214npdt" path="res://assets/menu/UI_pause_presed.png" id="4_sotbg"]
 
 [sub_resource type="CompressedTexture2D" id="CompressedTexture2D_c6u6f"]
 load_path = "res://.godot/imported/joystick_base_outline.png-c68e3d27899a7700b749a4bc969caacc.ctex"
@@ -114,15 +112,3 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 texture = ExtResource("2_c6u6f")
-
-[node name="PauseAnchor" type="Control" parent="Root" unique_id=24906388]
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-grow_horizontal = 0
-
-[node name="PauseButton" type="TouchScreenButton" parent="Root/PauseAnchor" unique_id=635730919]
-position = Vector2(-100, 0)
-texture_normal = ExtResource("3_oueyw")
-texture_pressed = ExtResource("4_sotbg")

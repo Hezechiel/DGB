@@ -9,6 +9,7 @@
 [ext_resource type="Texture2D" uid="uid://blimfrmn54f5n" path="res://assets/menu/UI_exit.png" id="7_bvc5d"]
 [ext_resource type="PackedScene" uid="uid://bbav7qxtv7i6x" path="res://scenes/menu/setting_overlay.tscn" id="8_e1dod"]
 [ext_resource type="PackedScene" uid="uid://pfm88dv1cava" path="res://scenes/menu/credits_overlay.tscn" id="9_bvc5d"]
+[ext_resource type="PackedScene" uid="uid://bhudscenemain" path="res://scenes/hud/HUD.tscn" id="10_ekkse"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_mgsx5"]
 texture = ExtResource("1_uwj7d")
@@ -79,8 +80,7 @@ scale = Vector2(1.0023696, 0.94915265)
 texture_normal = ExtResource("6_e1dod")
 
 [node name="ExitButton" type="TouchScreenButton" parent="." unique_id=1405606220]
-position = Vector2(2.2737368e-13, 518.99994)
-scale = Vector2(0.7, 0.7)
+position = Vector2(0, 465)
 texture_normal = ExtResource("7_bvc5d")
 
 [node name="SettingOverlay" parent="." unique_id=470544241 instance=ExtResource("8_e1dod")]
@@ -91,6 +91,8 @@ layout_mode = 1
 [node name="CreditsOverlay" parent="." unique_id=1311075437 instance=ExtResource("9_bvc5d")]
 visible = false
 layout_mode = 1
+
+[node name="HUD" parent="." unique_id=200000001 instance=ExtResource("10_ekkse")]
 
 [connection signal="pressed" from="MainButtons/StartGameButon" to="." method="_on_start_game_buton_pressed"]
 [connection signal="pressed" from="MainButtons/SettingsButton" to="." method="_on_settings_button_pressed"]
