@@ -5,12 +5,19 @@ extends Node2D
 # God Presence following is handled directly by god_presence.gd.
 # This script coordinates cross-node logic: spell resolution, faith HUD, etc. (added in later steps).
 
+@onready var hud: HUD = $HUD
+
 @onready var locations_layer: Node2D = $LocationsLayer
 @onready var god_presence_layer: CanvasLayer = $GodPresenceLayer
 
+const MAIN_MENU_SCENE := "res://scenes/menu/MainMenu.tscn"
+
 func _ready() -> void:
-	pass
+	hud.exit_requested.connect(_on_hud_exit_requested)
 
 # Returns all Village nodes currently on the map.
 func get_villages() -> Array[Node]:
 	return locations_layer.get_children().filter(func(n): return n.has_method("receive_spell"))
+
+func _on_hud_exit_requested() -> void:
+	get_tree().change_scene_to_file(MAIN_MENU_SCENE)

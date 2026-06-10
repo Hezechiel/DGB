@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://cxqr40v74ph0n" path="res://scripts/ui/main_menu.gd" id="1_2nud1"]
 [ext_resource type="Texture2D" uid="uid://dpwysouaqe413" path="res://assets/menu/olymp_progress_4.png" id="1_uwj7d"]
 [ext_resource type="FontFile" uid="uid://bd2krjnr7cav" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="3_iv2fv"]
+[ext_resource type="Texture2D" uid="uid://daihsup2dxt8s" path="res://assets/menu/UI_start_arena.png" id="4_ekkse"]
 [ext_resource type="Texture2D" uid="uid://co8rbqqm8ugfk" path="res://assets/menu/UI_start_game.png" id="4_iv2fv"]
 [ext_resource type="Texture2D" uid="uid://vf1kfk1g3yh6" path="res://assets/menu/UI_settings.png" id="5_bvc5d"]
 [ext_resource type="Texture2D" uid="uid://dp32wph4gla6s" path="res://assets/menu/UI_credits.png" id="6_e1dod"]
@@ -64,9 +65,14 @@ grow_vertical = 2
 theme_override_constants/separation = 10
 
 [node name="StartGameButon" type="TouchScreenButton" parent="MainButtons" unique_id=870295830]
-position = Vector2(15.999999, 34)
+position = Vector2(246.99997, 15.000002)
 scale = Vector2(1.0023696, 0.94915265)
 texture_normal = ExtResource("4_iv2fv")
+
+[node name="StartArenaButon" type="TouchScreenButton" parent="MainButtons" unique_id=457122722]
+position = Vector2(-190, 15.000002)
+scale = Vector2(1.0023696, 0.94915265)
+texture_normal = ExtResource("4_ekkse")
 
 [node name="SettingsButton" type="TouchScreenButton" parent="MainButtons" unique_id=973327295]
 position = Vector2(16.000004, 195.25002)
@@ -91,9 +97,6 @@ layout_mode = 1
 visible = false
 layout_mode = 1
 
-[connection signal="pressed" from="MainButtons/StartGameButon" to="." method="_on_start_game_buton_pressed"]
-[connection signal="pressed" from="MainButtons/SettingsButton" to="." method="_on_settings_button_pressed"]
-[connection signal="pressed" from="MainButtons/CreditsButton" to="." method="_on_credits_button_pressed"]
 [connection signal="pressed" from="ExitButton" to="." method="_on_exit_button_pressed"]
 [connection signal="closed_requested" from="SettingOverlay" to="." method="_on_setting_overlay_close_requested"]
 [connection signal="closed" from="CreditsOverlay" to="." method="_on_credits_overlay_closed"]

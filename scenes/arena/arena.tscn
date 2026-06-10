@@ -1,6 +1,6 @@
 [gd_scene format=4 uid="uid://cel13t20juq3n"]
 
-[ext_resource type="Script" uid="uid://cprjw58lfuvba" path="res://scripts/game.gd" id="1_u52cf"]
+[ext_resource type="Script" uid="uid://cprjw58lfuvba" path="res://scripts/arena/arena.gd" id="1_u52cf"]
 [ext_resource type="Texture2D" uid="uid://di5q1wn6p6wmm" path="res://assets/world/world_map.png" id="2_ii07k"]
 [ext_resource type="Texture2D" uid="uid://b81r7so454vot" path="res://assets/sprites/world_tileset.png" id="3_6w4xk"]
 [ext_resource type="PackedScene" uid="uid://b3ygtyp1ktxnt" path="res://scenes/arena/enemy_spawner.tscn" id="4_2ml6w"]
@@ -182,4 +182,3 @@ shape = SubResource("CircleShape2D_lbhrr")
 [node name="MobileControls" parent="." unique_id=1338696544 instance=ExtResource("6_vmsrg")]
 
 [node name="HUD" parent="." unique_id=661909964 instance=ExtResource("7_hud")]
-mobile_controls = NodePath("../MobileControls")

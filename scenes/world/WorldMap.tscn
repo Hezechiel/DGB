@@ -5,6 +5,7 @@
 [ext_resource type="Script" uid="uid://brbkqnf6t7j50" path="res://scripts/world/world_camera.gd" id="2_wcscr"]
 [ext_resource type="PackedScene" uid="uid://csxt6cu424jaa" path="res://scenes/world/GodPresence.tscn" id="3_gp"]
 [ext_resource type="PackedScene" uid="uid://b6j8b5sjieal7" path="res://scenes/world/Village.tscn" id="3_xqia6"]
+[ext_resource type="PackedScene" uid="uid://bhudscenemain" path="res://scenes/hud/HUD.tscn" id="6_5uq7a"]
 
 [node name="WorldMap" type="Node2D" unique_id=1592278912]
 script = ExtResource("1_wmscr")
@@ -35,3 +36,5 @@ starting_faith = 32.0
 [node name="GodPresenceLayer" type="CanvasLayer" parent="." unique_id=1270359131]
 
 [node name="GodPresence" parent="GodPresenceLayer" unique_id=1671945585 instance=ExtResource("3_gp")]
+
+[node name="HUD" parent="." unique_id=200000001 instance=ExtResource("6_5uq7a")]

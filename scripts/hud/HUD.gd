@@ -34,7 +34,7 @@ func _ready() -> void:
 	#pause_button.offset_bottom = top_inset + MARGIN + BUTTON_SIZE
 
 func _on_pause_pressed() -> void:
-	print("pause pressed")
+	#print("pause pressed")
 	get_tree().paused = true
 	if mobile_controls:
 		mobile_controls.visible = false
