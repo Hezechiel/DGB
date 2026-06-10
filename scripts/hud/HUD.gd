@@ -13,27 +13,28 @@ const BUTTON_SIZE := 80.0
 const MARGIN := 8.0
 
 func _ready() -> void:
-	_apply_safe_area()
+	#_apply_safe_area()
 	pause_button.pressed.connect(_on_pause_pressed)
 	setting_overlay.closed_requested.connect(_on_close_requested)
 	setting_overlay.exit_requested.connect(_on_exit_requested)
 
-func _apply_safe_area() -> void:
-	var safe_rect := DisplayServer.get_display_safe_area()
-	var screen_size := Vector2(DisplayServer.screen_get_size())
-	if screen_size.x == 0.0:
-		return
-	# Scale safe-area pixels (screen coords) down to viewport/UI coords.
-	var vp_size := get_viewport().get_visible_rect().size
-	var scale := vp_size / screen_size
-	var top_inset := maxf(0.0, safe_rect.position.y * scale.y)
-	var right_inset := maxf(0.0, (screen_size.x - safe_rect.end.x) * scale.x)
-	pause_button.offset_left = -(BUTTON_SIZE + right_inset + MARGIN)
-	pause_button.offset_right = -(right_inset + MARGIN)
-	pause_button.offset_top = top_inset + MARGIN
-	pause_button.offset_bottom = top_inset + MARGIN + BUTTON_SIZE
+#func _apply_safe_area() -> void:
+	#var safe_rect := DisplayServer.get_display_safe_area()
+	#var screen_size := Vector2(DisplayServer.screen_get_size())
+	#if screen_size.x == 0.0:
+		#return
+	## Scale safe-area pixels (screen coords) down to viewport/UI coords.
+	#var vp_size := get_viewport().get_visible_rect().size
+	#var scale := vp_size / screen_size
+	#var top_inset := maxf(0.0, safe_rect.position.y * scale.y)
+	#var right_inset := maxf(0.0, (screen_size.x - safe_rect.end.x) * scale.x)
+	#pause_button.offset_left = -(BUTTON_SIZE + right_inset + MARGIN)
+	#pause_button.offset_right = -(right_inset + MARGIN)
+	#pause_button.offset_top = top_inset + MARGIN
+	#pause_button.offset_bottom = top_inset + MARGIN + BUTTON_SIZE
 
 func _on_pause_pressed() -> void:
+	print("pause pressed")
 	get_tree().paused = true
 	if mobile_controls:
 		mobile_controls.visible = false
