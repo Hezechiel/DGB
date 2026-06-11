@@ -11,6 +11,7 @@ var invuln_left: float = 0.0
 # vlastnosti Lightning projektilu
 @export var bolt_scene: PackedScene
 @export var fire_cooldown: float = 0.5
+@export var attack_range: float = 50.0
 var fire_left: float = 0.0
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
@@ -22,19 +23,22 @@ var last_direction := Vector2.DOWN #default pozera dole
 func _ready() -> void:
 	health_points = max_hp
 	hurtbox.area_entered.connect(_on_hurtbox_area_entered)
-	
+	InputR.clear_move_target() # zmaz stary ciel po reloade sceny
+
 func _physics_process(delta):
 	invuln_left = max(invuln_left - delta, 0.0)
 	fire_left = max(fire_left - delta, 0.0)
 	
-	# 1) HYBRID MOVE INPUT
+	# 1) MOVE INPUT (tap-to-move)
 	var move_dir : Vector2 = get_move_input()
-	var aim_dir : Vector2 = get_aim_input()
-	
-	# 2) HYBRID ATTACK INPUT
-	if aim_dir.length() > 0.15 and fire_left <= 0.0:
+
+	# 2) AUTO-ATTACK na najblizsieho enemy v dosahu
+	var enemy := find_nearest_enemy()
+	if enemy != null and fire_left <= 0.0:
+		var dir := (enemy.global_position - global_position).normalized()
+		fire_bolt(dir)
 		fire_left = fire_cooldown
-		fire_bolt(aim_dir.normalized())
+		last_direction = dir # animacia sa otoci k cielu
 	
 	# Normalizacia (aby diagonalna nebola rychlejsia)
 	if move_dir != Vector2.ZERO:
@@ -48,40 +52,32 @@ func _physics_process(delta):
 	move_and_slide()
 
 func get_move_input() -> Vector2:
-	# PC / gamepad (Input Map)
-	var v := Input.get_vector("move_left", "move_right", "move_up", "move_down")
-	
-	# Mobile joystick (autoload InputRouter)
-	# deadzone aby to "neplavalo"
-	if InputR.move_vector.length() > 0.10:
-		v = InputR.move_vector
-	
-	return v
+	# Tap-to-move (autoload InputRouter)
+	if InputR.has_move_target:
+		var to_target := InputR.move_target - global_position
+		if to_target.length() <= 8.0:
+			InputR.clear_move_target() # sme dost blizko, stop
+			return Vector2.ZERO
+		return to_target.normalized()
 
-func get_aim_input() -> Vector2:
-	var v: Vector2 = Vector2.ZERO
-	
-	# Desktop fallback - attack + last movement direction, alebo myš neskôr
-	if Input.is_action_pressed("attack"):
-		v = last_direction
-	
-	# Mobile aim jyostick
-	if InputR.aim_vector.length() > 0.10:
-		v = InputR.aim_vector
-	
-	return v
-	
+	return Vector2.ZERO
+
 # =========================
 # FIGHTING LOGIC
 # =========================
 
-func is_attack_pressed() -> bool:
-	# PC (Input Map)
-	if Input.is_action_pressed("attack"):
-		return true
-	
-	# Mobile button (autoload InputRouter "InputR")
-	return InputR.attack_pressed
+func find_nearest_enemy() -> Node2D:
+	var nearest: Node2D = null
+	var nearest_d2 := attack_range * attack_range
+	for child in get_parent().get_children():
+		if child == self:
+			continue
+		if child is Node2D and child.is_in_group("enemies"):
+			var d2: float = child.global_position.distance_squared_to(global_position)
+			if d2 <= nearest_d2:
+				nearest_d2 = d2
+				nearest = child
+	return nearest
 
 func take_damage(amount: int) -> void:
 	if invuln_left > 0.0:
@@ -120,7 +116,7 @@ func fire_bolt(dir: Vector2) -> void:
 
 # Tato funkcia sa zavola ked nieco vstupi do Hurtboxu
 # V nasom modeli ale damage bide "tahat" enemy cez cooldown,
-# takze tu zazial nemusis nic riesit.
+# takze tu zatial nemusis nic riesit.
 func _on_hurtbox_area_entered(_area: Area2D) -> void:
 	pass
 

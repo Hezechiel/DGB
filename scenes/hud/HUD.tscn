@@ -20,15 +20,8 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
-[node name="PauseButton" type="TextureButton" parent="Root" unique_id=200000010]
-custom_minimum_size = Vector2(80, 80)
-layout_mode = 1
-anchors_preset = 1
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -100.0
-offset_bottom = 100.0
-grow_horizontal = 0
+[node name="PauseButton" type="TouchScreenButton" parent="Root" unique_id=915885119]
+position = Vector2(977, 0)
 texture_normal = ExtResource("3_pausenorm")
 texture_pressed = ExtResource("4_pausepress")
 

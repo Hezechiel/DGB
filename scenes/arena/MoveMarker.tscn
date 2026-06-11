@@ -1,0 +1,56 @@
+[gd_scene format=3 uid="uid://bx5ubwkcebqbx"]
+
+[ext_resource type="Script" uid="uid://3diy3wsx1eq8" path="res://scripts/arena/move_marker.gd" id="1_mvmrk"]
+[ext_resource type="Texture2D" uid="uid://cm4moc1f3inxy" path="res://assets/sprites/MoveMarker/ring.png" id="2_ring"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f1cal"]
+atlas = ExtResource("2_ring")
+region = Rect2(0, 0, 50, 50)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_sx3pm"]
+atlas = ExtResource("2_ring")
+region = Rect2(50, 0, 50, 50)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_jv7i3"]
+atlas = ExtResource("2_ring")
+region = Rect2(100, 0, 50, 50)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_psj82"]
+atlas = ExtResource("2_ring")
+region = Rect2(0, 50, 50, 50)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5hmu4"]
+atlas = ExtResource("2_ring")
+region = Rect2(150, 50, 50, 50)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_ring"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f1cal")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_sx3pm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_jv7i3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_psj82")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5hmu4")
+}],
+"loop": false,
+"name": &"play",
+"speed": 8.0
+}]
+
+[node name="MoveMarker" type="Node2D" unique_id=1012190877]
+script = ExtResource("1_mvmrk")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1782056755]
+visible = false
+scale = Vector2(0.3, 0.3)
+sprite_frames = SubResource("SpriteFrames_ring")
+animation = &"play"

@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://c75dnwx2feln7" path="res://assets/menu/UI_note_large.png" id="1_ol5sx"]
 [ext_resource type="FontFile" uid="uid://bd2krjnr7cav" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="2_3g7hk"]
 [ext_resource type="Script" uid="uid://b112ll4m8h56y" path="res://scripts/ui/audio_control.gd" id="4_04rkv"]
-[ext_resource type="Texture2D" uid="uid://blimfrmn54f5n" path="res://assets/menu/UI_exit.png" id="5_exit"]
+[ext_resource type="Texture2D" uid="uid://bu5q7kjsae7rh" path="res://assets/menu/UI_main_menu.png" id="6_8twik"]
 [ext_resource type="Script" uid="uid://5dp3eu06t38m" path="res://scripts/ui/scrollable.gd" id="6_scroll"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_3g7hk"]
@@ -107,8 +107,7 @@ offset_top = -175.0
 offset_right = 320.0
 grow_vertical = 0
 size_flags_horizontal = 4
-texture_normal = ExtResource("5_exit")
+texture_normal = ExtResource("6_8twik")
 
 [connection signal="value_changed" from="SettingsPanel/MarginContainer/ScrollContainer/SettingsContent/AudioControl" to="SettingsPanel/MarginContainer/ScrollContainer/SettingsContent/AudioControl" method="_on_value_changed"]
 [connection signal="pressed" from="SettingsPanel/CloseSettings" to="." method="_on_close_settings_pressed"]
-[connection signal="pressed" from="ExitButton" to="." method="_on_exit_button_pressed"]

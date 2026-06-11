@@ -6,7 +6,8 @@ signal exit_requested
 ## Node wired in arena.tscn inspector — hidden when settings are open.
 @export var mobile_controls: CanvasLayer
 
-@onready var pause_button: TextureButton = $Root/PauseButton
+#@onready var pause_button: TextureButton = $Root/PauseButton
+@onready var pause_button: TouchScreenButton = $Root/PauseButton
 @onready var setting_overlay: SettingsOverlay = $SettingOverlay
 
 const BUTTON_SIZE := 80.0

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bvnoh21ehcbi2"
-path="res://.godot/imported/joystick_base_outline.png-c68e3d27899a7700b749a4bc969caacc.ctex"
+uid="uid://dxe0ew54ttwbr"
+path="res://.godot/imported/turret1.png-31a8bb883e88115fba606fbb782a2d1e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/virtual_joystick/joystick_base_outline.png"
-dest_files=["res://.godot/imported/joystick_base_outline.png-c68e3d27899a7700b749a4bc969caacc.ctex"]
+source_file="res://assets/sprites/turrets/turret1.png"
+dest_files=["res://.godot/imported/turret1.png-31a8bb883e88115fba606fbb782a2d1e.ctex"]
 
 [params]
 

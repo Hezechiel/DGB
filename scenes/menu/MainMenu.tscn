@@ -97,6 +97,5 @@ layout_mode = 1
 visible = false
 layout_mode = 1
 
-[connection signal="pressed" from="ExitButton" to="." method="_on_exit_button_pressed"]
 [connection signal="closed_requested" from="SettingOverlay" to="." method="_on_setting_overlay_close_requested"]
 [connection signal="closed" from="CreditsOverlay" to="." method="_on_credits_overlay_closed"]

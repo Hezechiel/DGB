@@ -1,7 +1,7 @@
 extends CharacterBody2D
 
 # Pohyb enemy po mape
-@export var speed: float = 50.0
+@export var speed: float = 30.0
 @export var separation_radius: float = 5.0
 @export var separation_strength: float = 1.3
 @export var separation_update_interval: float = 0.10
@@ -20,7 +20,7 @@ var hurtbox_in_range: Area2D = null
 var target: Node2D
 @onready var attack_area: Area2D = $AttackArea
 var enemy_manager: Node = null
-@export var max_hp: int = 50
+@export var max_hp: int = 150
 var hp: int
 
 # animacia enemy
@@ -29,6 +29,7 @@ var last_direction := Vector2.DOWN
 
 func _ready() -> void:
 	hp = max_hp
+	add_to_group("enemies") # aby hrac vedel najst ciel pre auto-attack
 	#attack_area.area_entered.connect(_on_attack_area_area_entered)
 	#attack_area.area_exited.connect(_on_attack_area_area_exited)
 

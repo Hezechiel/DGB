@@ -39,7 +39,7 @@ func _on_settings_button_pressed() -> void:
 	#get_tree().paused = true
 	main_buttons.visible = false
 	exit_button.visible = false
-	setting_overlay.open()
+	setting_overlay.open(false)
 
 func _on_credits_button_pressed() -> void:
 	# overlay version

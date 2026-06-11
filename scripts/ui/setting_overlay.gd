@@ -9,10 +9,14 @@ signal exit_requested
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
+	exit_button.pressed.connect(_on_exit_button_pressed)
 	visible = false
 
-func open() -> void:
+#show_return_to_mainmenu_button sluzi na skritie alebo ukazanie Main Menu tlacidla
+#toto tlacidlo nie je vzdy ziaduce na obrazovke
+func open(show_return_to_mainmenu_button: bool = true) -> void:
 	#print("menu opened")
+	exit_button.visible = show_return_to_mainmenu_button
 	visible = true
 
 func close() -> void:
