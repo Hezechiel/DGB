@@ -20,7 +20,7 @@ var hurtbox_in_range: Area2D = null
 var target: Node2D
 @onready var attack_area: Area2D = $AttackArea
 var enemy_manager: Node = null
-@export var max_hp: int = 150
+@export var max_hp: int = 50
 var hp: int
 
 # animacia enemy

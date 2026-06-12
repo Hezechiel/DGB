@@ -5,7 +5,7 @@ signal closed_requested
 signal exit_requested
 
 @onready var close_settings: TouchScreenButton = $SettingsPanel/CloseSettings
-@onready var exit_button: TextureButton = $ExitButton
+@onready var exit_button: TouchScreenButton = $ExitButton
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:

@@ -97,16 +97,8 @@ position = Vector2(215, 512)
 scale = Vector2(4, 4)
 shape = SubResource("CircleShape2D_3g7hk")
 
-[node name="ExitButton" type="TextureButton" parent="." unique_id=-838178284]
+[node name="ExitButton" type="TouchScreenButton" parent="." unique_id=1265412763]
 process_mode = 3
-layout_mode = 1
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_top = -175.0
-offset_right = 320.0
-grow_vertical = 0
-size_flags_horizontal = 4
 texture_normal = ExtResource("6_8twik")
 
 [connection signal="value_changed" from="SettingsPanel/MarginContainer/ScrollContainer/SettingsContent/AudioControl" to="SettingsPanel/MarginContainer/ScrollContainer/SettingsContent/AudioControl" method="_on_value_changed"]

@@ -64,15 +64,15 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 10
 
-[node name="StartGameButon" type="TouchScreenButton" parent="MainButtons" unique_id=870295830]
-position = Vector2(246.99997, 15.000002)
-scale = Vector2(1.0023696, 0.94915265)
-texture_normal = ExtResource("4_iv2fv")
-
 [node name="StartArenaButon" type="TouchScreenButton" parent="MainButtons" unique_id=457122722]
 position = Vector2(-190, 15.000002)
 scale = Vector2(1.0023696, 0.94915265)
 texture_normal = ExtResource("4_ekkse")
+
+[node name="StartGameButon" type="TouchScreenButton" parent="MainButtons" unique_id=870295830]
+position = Vector2(247, 15)
+scale = Vector2(1.0023696, 0.94915265)
+texture_normal = ExtResource("4_iv2fv")
 
 [node name="SettingsButton" type="TouchScreenButton" parent="MainButtons" unique_id=973327295]
 position = Vector2(16.000004, 195.25002)

@@ -5,9 +5,8 @@
 [ext_resource type="Texture2D" uid="uid://b81r7so454vot" path="res://assets/sprites/world_tileset.png" id="3_6w4xk"]
 [ext_resource type="PackedScene" uid="uid://b3ygtyp1ktxnt" path="res://scenes/arena/enemy_spawner.tscn" id="4_2ml6w"]
 [ext_resource type="PackedScene" uid="uid://bjivk7ksw0cr7" path="res://scenes/arena/player.tscn" id="5_xgbxb"]
-[ext_resource type="PackedScene" uid="uid://b8jfst32rpdy" path="res://scenes/MobileControls.tscn" id="6_vmsrg"]
 [ext_resource type="PackedScene" uid="uid://bhudscenemain" path="res://scenes/hud/HUD.tscn" id="7_hud"]
-[ext_resource type="PackedScene" path="res://scenes/arena/MoveMarker.tscn" id="8_mvmrk"]
+[ext_resource type="PackedScene" uid="uid://bx5ubwkcebqbx" path="res://scenes/arena/MoveMarker.tscn" id="8_mvmrk"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lnu2h"]
 texture = ExtResource("3_6w4xk")
@@ -181,7 +180,5 @@ collision_mask = 16
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Player/Hurtbox" unique_id=1496432866]
 position = Vector2(0, -8)
 shape = SubResource("CircleShape2D_lbhrr")
-
-[node name="MobileControls" parent="." unique_id=1338696544 instance=ExtResource("6_vmsrg")]
 
 [node name="HUD" parent="." unique_id=661909964 instance=ExtResource("7_hud")]
