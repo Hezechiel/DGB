@@ -14,8 +14,8 @@ extends Node2D
 @export var edge_padding: float = 8.0
 
 # Vlny
-@export var max_enemies_alive: int = 100
-@export var enemies_per_wave: int = 12
+@export var max_enemies_alive: int = 10
+@export var enemies_per_wave: int = 3
 @export var time_between_waves: float = 2.0
 @export var spawn_interval_inside_wave: float = 0.12
 

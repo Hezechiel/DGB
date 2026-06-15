@@ -3,6 +3,8 @@ extends Area2D
 @export var speed: float = 250.0
 @export var lifetime: float = 0.5
 @export var damage: int = 25
+@export var hit_group: String = "team_enemy" # which group this bolt can damage
+var _hit_ids: Array[int] = [] # avoid hitting the same body twice while overlapping
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 
@@ -11,13 +13,9 @@ var direction: Vector2 = Vector2.RIGHT
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
-	# pre istotu zapneme spracovanie (niekedy to byva vypnute)
-	#set_process(true)
-	
-	# prechadza cez enemy -> po zasahu sa neznici
-	#body_entered.connect (_on_body_entered)
-
-	pass # Replace with function body.
+	# prechadza cez enemy -> po zasahu sa neznici (znici ho az lifetime)
+	body_entered.connect(_on_body_entered)
+	area_entered.connect(_on_area_entered)
 
 func setup(start_pos: Vector2, dir: Vector2) -> void:
 	global_position = start_pos
@@ -33,9 +31,19 @@ func _physics_process(delta: float) -> void:
 		queue_free()
 
 func _on_body_entered(body: Node) -> void:
-	# trafi enemy telo (CharacterBody2D)
-	if body.has_method("take_damage"):
-		body.take_damage(damage)
+	_try_damage(body)
+
+func _on_area_entered(area: Area2D) -> void:
+	_try_damage(area.get_parent())
+
+func _try_damage(target: Node) -> void:
+	if target == null:
+		return
+	if _hit_ids.has(target.get_instance_id()):
+		return
+	if target.is_in_group(hit_group) and target.has_method("take_damage"):
+		target.take_damage(damage)
+		_hit_ids.append(target.get_instance_id())
 
 # =========================
 # ANIMATION LOGIC

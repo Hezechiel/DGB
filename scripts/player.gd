@@ -22,6 +22,9 @@ var last_direction := Vector2.DOWN #default pozera dole
 
 func _ready() -> void:
 	health_points = max_hp
+	add_to_group("team_player")
+	BattleManager.register(self, "player")
+	hurtbox.add_to_group("player_hurtbox")
 	hurtbox.area_entered.connect(_on_hurtbox_area_entered)
 	InputR.clear_move_target() # zmaz stary ciel po reloade sceny
 
@@ -72,7 +75,7 @@ func find_nearest_enemy() -> Node2D:
 	for child in get_parent().get_children():
 		if child == self:
 			continue
-		if child is Node2D and child.is_in_group("enemies"):
+		if child is Node2D and child.is_in_group("team_enemy"):
 			var d2: float = child.global_position.distance_squared_to(global_position)
 			if d2 <= nearest_d2:
 				nearest_d2 = d2
@@ -112,6 +115,7 @@ func fire_bolt(dir: Vector2) -> void:
 	# po pridani nastav poziciu/direction
 	var start_pos = global_position + dir * 12.0
 	bolt.call_deferred("setup", start_pos, dir)
+	bolt.set("hit_group", "team_enemy")
 	
 
 # Tato funkcia sa zavola ked nieco vstupi do Hurtboxu

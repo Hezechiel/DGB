@@ -18,7 +18,7 @@ var cached_sep: Vector2 = Vector2.ZERO
 var attack_left: float = 0.0
 var hurtbox_in_range: Area2D = null
 var target: Node2D
-@onready var attack_area: Area2D = $AttackArea
+@onready var attack_range: Area2D = $AttackRange
 var enemy_manager: Node = null
 @export var max_hp: int = 50
 var hp: int
@@ -29,9 +29,10 @@ var last_direction := Vector2.DOWN
 
 func _ready() -> void:
 	hp = max_hp
-	add_to_group("enemies") # aby hrac vedel najst ciel pre auto-attack
-	#attack_area.area_entered.connect(_on_attack_area_area_entered)
-	#attack_area.area_exited.connect(_on_attack_area_area_exited)
+	add_to_group("team_enemy") # aby hrac vedel najst ciel pre auto-attack
+	BattleManager.register(self, "enemy")
+	attack_range.area_entered.connect(_on_attack_range_area_entered)
+	attack_range.area_exited.connect(_on_attack_range_area_exited)
 
 # funkcie enemy
 func _physics_process(delta: float) -> void:
@@ -114,12 +115,12 @@ func update_idle_animation() -> void:
 	# zatial nech ostane posledna animacia (bez idle setov)
 	update_animation(last_direction)
 
-func _on_attack_area_area_entered(area: Area2D) -> void:
+func _on_attack_range_area_entered(area: Area2D) -> void:
 	# filtruj iba hracov hurtbox
 	if area.is_in_group("player_hurtbox"):
 		hurtbox_in_range = area
 
-func _on_attack_area_area_exited(area: Area2D) -> void:
+func _on_attack_range_area_exited(area: Area2D) -> void:
 	if area == hurtbox_in_range:
 		hurtbox_in_range = null
 

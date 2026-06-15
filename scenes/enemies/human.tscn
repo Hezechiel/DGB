@@ -238,7 +238,11 @@ size = Vector2(2, 5)
 [sub_resource type="CircleShape2D" id="CircleShape2D_neqx1"]
 radius = 4.0
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_hurtbox"]
+radius = 4.0
+
 [node name="Enemy" type="CharacterBody2D" unique_id=231895734]
+scale = Vector2(2, 2)
 collision_layer = 2
 collision_mask = 4
 script = ExtResource("1_4khng")
@@ -249,17 +253,22 @@ sprite_frames = SubResource("SpriteFrames_wvat0")
 animation = &"attack"
 autoplay = "down"
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=253596810]
+[node name="CollisionBody" type="CollisionShape2D" parent="." unique_id=253596810]
 position = Vector2(0, -2.5)
 shape = SubResource("RectangleShape2D_47qqk")
 
-[node name="AttackArea" type="Area2D" parent="." unique_id=934233619]
-collision_layer = 16
+[node name="AttackRange" type="Area2D" parent="." unique_id=934233619]
+collision_layer = 64
 collision_mask = 8
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackArea" unique_id=959826573]
+[node name="AttackRange" type="CollisionShape2D" parent="AttackRange" unique_id=959826573]
 position = Vector2(0, -3)
 shape = SubResource("CircleShape2D_neqx1")
 
-[connection signal="area_entered" from="AttackArea" to="." method="_on_attack_area_area_entered"]
-[connection signal="area_exited" from="AttackArea" to="." method="_on_attack_area_area_exited"]
+[node name="Hurtbox" type="Area2D" parent="." unique_id=388394023]
+collision_layer = 16
+collision_mask = 0
+
+[node name="Hurtbox" type="CollisionShape2D" parent="Hurtbox" unique_id=1769984495]
+position = Vector2(0, -3)
+shape = SubResource("CircleShape2D_hurtbox")

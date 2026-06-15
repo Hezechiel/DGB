@@ -15,6 +15,8 @@ const FRAME_DESTROYED := 3 # row 1 col 3 — znicena vezicka (0% hp wreck)
 @export var armor: float = 0.0              # flat damage reduction (0 = no armor)
 @export var aggro_drop_range: float = 240.0 # target released beyond this distance
 @export var bolt_scene: PackedScene         # assign LightningBolt.tscn in Inspector
+@export var target_group: String = "team_enemy" # which group this turret shoots at
+@export var owner_team: String = "player"        # "player" or "enemy" — for BattleManager registration
 
 var hp: int
 var fire_left: float = 0.0
@@ -26,12 +28,20 @@ var regen_buffer: float = 0.0               # zbiera zlomky HP (int heal by ich 
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var detection_range: Area2D = $DetectionRange
-@onready var detection_shape: CollisionShape2D = $DetectionRange/CollisionShape2D
+@onready var detection_shape: CollisionShape2D = $DetectionRange/DetectionRange
+
 
 
 func _ready() -> void:
 	hp = max_hp
 	add_to_group("turrets")
+	BattleManager.register(self, owner_team)
+
+	# tim podla vlastnika — aby bolt.is_in_group(hit_group) sedel
+	if owner_team == "player":
+		add_to_group("team_player")
+	else:
+		add_to_group("team_enemy")
 
 	# polomer detekcie podla exportu — duplicate, aby viac veziciek
 	# nezdielalo jeden CircleShape2D resource
@@ -123,6 +133,7 @@ func _fire_at(target: Node2D) -> void:
 
 	var bolt := bolt_scene.instantiate()
 	bolt.set("damage", projectile_damage)
+	bolt.set("hit_group", target_group)
 	get_parent().add_child.call_deferred(bolt)
 
 	# po pridani nastav poziciu/direction
@@ -162,7 +173,7 @@ func _on_destroyed() -> void:
 	sprite.frame = FRAME_DESTROYED
 
 	# vrak ostava na mape len ako vizual — bez kolizie a detekcie
-	$CollisionShape2D.set_deferred("disabled", true)
+	$CollisionBody.set_deferred("disabled", true)
 	detection_shape.set_deferred("disabled", true)
 	remove_from_group("turrets")
 	set_physics_process(false)
@@ -173,7 +184,7 @@ func _on_destroyed() -> void:
 # =========================
 
 func _on_body_entered(body: Node2D) -> void:
-	if current_target == null and body.is_in_group("enemies"):
+	if current_target == null and body.is_in_group(target_group):
 		current_target = body
 
 

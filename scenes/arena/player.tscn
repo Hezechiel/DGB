@@ -142,6 +142,9 @@ animations = [{
 [sub_resource type="CircleShape2D" id="CircleShape2D_g2els"]
 radius = 7.0
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_hurtbox"]
+radius = 8.0
+
 [node name="Player" type="CharacterBody2D" unique_id=425268589]
 collision_mask = 4
 script = ExtResource("1_g2els")
@@ -155,6 +158,14 @@ autoplay = "down"
 frame = 2
 frame_progress = 0.15374784
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1518345647]
+[node name="CollisionBody" type="CollisionShape2D" parent="." unique_id=1518345647]
 position = Vector2(0, -8)
 shape = SubResource("CircleShape2D_g2els")
+
+[node name="Hurtbox" type="Area2D" parent="." unique_id=1521158122]
+collision_layer = 8
+collision_mask = 0
+
+[node name="Hurtbox" type="CollisionShape2D" parent="Hurtbox" unique_id=802050379]
+position = Vector2(0, -8)
+shape = SubResource("CircleShape2D_hurtbox")
