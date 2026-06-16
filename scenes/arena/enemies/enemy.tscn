@@ -1,0 +1,61 @@
+[gd_scene format=3 uid="uid://bmlvgts214cto"]
+
+[ext_resource type="Script" uid="uid://cbqduhuw1wkoq" path="res://scripts/arena/enemies/enemy.gd" id="1_hrefa"]
+[ext_resource type="Texture2D" uid="uid://dscrchtfih3ht" path="res://assets/sprites/enemies/enemy.png" id="2_14qrv"]
+[ext_resource type="PackedScene" uid="uid://dvwpf0hx27680" path="res://scenes/ui/HealthBar.tscn" id="3_l0sew"]
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_wvat0"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("2_14qrv")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_47qqk"]
+size = Vector2(16, 26)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_neqx1"]
+radius = 11.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hurtbox"]
+radius = 11.0
+
+[node name="Enemy" type="CharacterBody2D" unique_id=231895734]
+collision_layer = 2
+collision_mask = 4
+script = ExtResource("1_hrefa")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=939097824]
+position = Vector2(0, -16)
+sprite_frames = SubResource("SpriteFrames_wvat0")
+animation = &"idle"
+
+[node name="CollisionBody" type="CollisionShape2D" parent="." unique_id=253596810]
+position = Vector2(0, -13)
+shape = SubResource("RectangleShape2D_47qqk")
+
+[node name="AttackRange" type="Area2D" parent="." unique_id=934233619]
+collision_layer = 64
+collision_mask = 8
+
+[node name="AttackRange" type="CollisionShape2D" parent="AttackRange" unique_id=959826573]
+position = Vector2(0, -15)
+shape = SubResource("CircleShape2D_neqx1")
+
+[node name="Hurtbox" type="Area2D" parent="." unique_id=388394023]
+collision_layer = 16
+collision_mask = 0
+
+[node name="CollisionShape2" type="CollisionShape2D" parent="Hurtbox" unique_id=1769984495]
+position = Vector2(0, -15)
+shape = SubResource("CircleShape2D_hurtbox")
+
+[node name="HealthBar" parent="." unique_id=1295574187 instance=ExtResource("3_l0sew")]
+offset_left = -16.0
+offset_top = -35.0
+offset_right = -16.0
+offset_bottom = -35.0

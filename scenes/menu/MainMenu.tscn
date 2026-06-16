@@ -2,12 +2,9 @@
 
 [ext_resource type="Script" uid="uid://cxqr40v74ph0n" path="res://scripts/ui/main_menu.gd" id="1_2nud1"]
 [ext_resource type="Texture2D" uid="uid://dpwysouaqe413" path="res://assets/menu/olymp_progress_4.png" id="1_uwj7d"]
-[ext_resource type="FontFile" uid="uid://bd2krjnr7cav" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="3_iv2fv"]
-[ext_resource type="Texture2D" uid="uid://daihsup2dxt8s" path="res://assets/menu/UI_start_arena.png" id="4_ekkse"]
-[ext_resource type="Texture2D" uid="uid://co8rbqqm8ugfk" path="res://assets/menu/UI_start_game.png" id="4_iv2fv"]
-[ext_resource type="Texture2D" uid="uid://vf1kfk1g3yh6" path="res://assets/menu/UI_settings.png" id="5_bvc5d"]
-[ext_resource type="Texture2D" uid="uid://dp32wph4gla6s" path="res://assets/menu/UI_credits.png" id="6_e1dod"]
-[ext_resource type="Texture2D" uid="uid://blimfrmn54f5n" path="res://assets/menu/UI_exit.png" id="7_bvc5d"]
+[ext_resource type="FontFile" uid="uid://dkw824f3uvxf6" path="res://assets/fonts/CinzelDecorative-Bold.ttf" id="3_ekkse"]
+[ext_resource type="Texture2D" uid="uid://bsquqbowm0moo" path="res://assets/menu/UI_note.png" id="4_84lro"]
+[ext_resource type="FontFile" uid="uid://bweqmg7kjyyai" path="res://assets/fonts/CinzelDecorative-Black.ttf" id="5_y6vun"]
 [ext_resource type="PackedScene" uid="uid://bbav7qxtv7i6x" path="res://scenes/menu/setting_overlay.tscn" id="8_e1dod"]
 [ext_resource type="PackedScene" uid="uid://pfm88dv1cava" path="res://scenes/menu/credits_overlay.tscn" id="9_bvc5d"]
 
@@ -34,59 +31,145 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_mgsx5")
 
-[node name="Title" type="Label" parent="." unique_id=965943811]
-layout_mode = 1
-anchors_preset = 10
-anchor_right = 1.0
-offset_top = 10.0
-offset_bottom = 55.0
-grow_horizontal = 2
-theme_override_colors/font_shadow_color = Color(0, 0, 0, 1)
-theme_override_constants/shadow_offset_x = -5
-theme_override_constants/shadow_offset_y = 8
-theme_override_fonts/font = ExtResource("3_iv2fv")
+[node name="HBoxContainer" type="VBoxContainer" parent="Background" unique_id=1309924478]
+layout_mode = 0
+offset_right = 816.0
+offset_bottom = 124.0
+
+[node name="Title" type="Label" parent="Background/HBoxContainer" unique_id=965943811]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.827451, 0, 1)
+theme_override_constants/shadow_offset_x = 1
+theme_override_constants/shadow_offset_y = 1
+theme_override_fonts/font = ExtResource("3_ekkse")
 theme_override_font_sizes/font_size = 44
 text = "Divine Gestures: Babylon"
 horizontal_alignment = 1
 
-[node name="MainButtons" type="VBoxContainer" parent="." unique_id=148114719]
+[node name="MarginContainer" type="MarginContainer" parent="Background/HBoxContainer" unique_id=1844618724]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="MainButtons" type="HBoxContainer" parent="Background/HBoxContainer/MarginContainer" unique_id=1823648996]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Background/HBoxContainer/MarginContainer/MainButtons" unique_id=148114719]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="StartArenaButon" type="TextureButton" parent="Background/HBoxContainer/MarginContainer/MainButtons/VBoxContainer" unique_id=1319778161]
+layout_mode = 2
+texture_normal = ExtResource("4_84lro")
+
+[node name="Label" type="Label" parent="Background/HBoxContainer/MarginContainer/MainButtons/VBoxContainer/StartArenaButon" unique_id=168207067]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -243.0
-offset_top = -219.0
-offset_right = 243.0
-offset_bottom = 287.0
+offset_left = -23.5
+offset_top = -11.5
+offset_right = 23.5
+offset_bottom = 11.5
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/separation = 10
+theme_override_colors/font_color = Color(0, 0.25882354, 0.42745098, 1)
+theme_override_fonts/font = ExtResource("5_y6vun")
+theme_override_font_sizes/font_size = 24
+text = "Arena"
 
-[node name="StartArenaButon" type="TouchScreenButton" parent="MainButtons" unique_id=457122722]
-position = Vector2(-190, 15.000002)
-scale = Vector2(1.0023696, 0.94915265)
-texture_normal = ExtResource("4_ekkse")
+[node name="StartGameButon" type="TextureButton" parent="Background/HBoxContainer/MarginContainer/MainButtons/VBoxContainer" unique_id=1423620565]
+layout_mode = 2
+texture_normal = ExtResource("4_84lro")
 
-[node name="StartGameButon" type="TouchScreenButton" parent="MainButtons" unique_id=870295830]
-position = Vector2(247, 15)
-scale = Vector2(1.0023696, 0.94915265)
-texture_normal = ExtResource("4_iv2fv")
+[node name="Label" type="Label" parent="Background/HBoxContainer/MarginContainer/MainButtons/VBoxContainer/StartGameButon" unique_id=939427083]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -31.0
+offset_top = -16.5
+offset_right = 31.0
+offset_bottom = 16.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0, 0.25882354, 0.42745098, 1)
+theme_override_fonts/font = ExtResource("5_y6vun")
+theme_override_font_sizes/font_size = 24
+text = "World"
 
-[node name="SettingsButton" type="TouchScreenButton" parent="MainButtons" unique_id=973327295]
-position = Vector2(16.000004, 195.25002)
-scale = Vector2(1.0023696, 0.94915265)
-texture_normal = ExtResource("5_bvc5d")
+[node name="VBoxContainer2" type="VBoxContainer" parent="Background/HBoxContainer/MarginContainer/MainButtons" unique_id=1358639640]
+layout_mode = 2
 
-[node name="CreditsButton" type="TouchScreenButton" parent="MainButtons" unique_id=158406077]
-position = Vector2(16.000004, 354.24997)
-scale = Vector2(1.0023696, 0.94915265)
-texture_normal = ExtResource("6_e1dod")
+[node name="SettingsButton" type="TextureButton" parent="Background/HBoxContainer/MarginContainer/MainButtons/VBoxContainer2" unique_id=307822656]
+layout_mode = 2
+texture_normal = ExtResource("4_84lro")
 
-[node name="ExitButton" type="TouchScreenButton" parent="." unique_id=1405606220]
-position = Vector2(0, 465)
-texture_normal = ExtResource("7_bvc5d")
+[node name="SettingsLabel" type="Label" parent="Background/HBoxContainer/MarginContainer/MainButtons/VBoxContainer2/SettingsButton" unique_id=300481940]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -50.0
+offset_top = -12.5
+offset_right = 50.0
+offset_bottom = 12.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0, 0.25882354, 0.42745098, 1)
+theme_override_fonts/font = ExtResource("5_y6vun")
+theme_override_font_sizes/font_size = 18
+text = "Settings"
+
+[node name="CreditsButton" type="TextureButton" parent="Background/HBoxContainer/MarginContainer/MainButtons/VBoxContainer2" unique_id=951025125]
+layout_mode = 2
+texture_normal = ExtResource("4_84lro")
+
+[node name="CreditsLabel" type="Label" parent="Background/HBoxContainer/MarginContainer/MainButtons/VBoxContainer2/CreditsButton" unique_id=689204712]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -53.5
+offset_top = -15.5
+offset_right = 53.5
+offset_bottom = 15.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0, 0.25882354, 0.42745098, 1)
+theme_override_fonts/font = ExtResource("5_y6vun")
+theme_override_font_sizes/font_size = 22
+text = "Credits"
+
+[node name="ExitButton" type="TextureButton" parent="Background/HBoxContainer/MarginContainer/MainButtons/VBoxContainer2" unique_id=1470635400]
+layout_mode = 2
+texture_normal = ExtResource("4_84lro")
+
+[node name="ExitLabel" type="Label" parent="Background/HBoxContainer/MarginContainer/MainButtons/VBoxContainer2/ExitButton" unique_id=1921600793]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -31.0
+offset_top = -16.5
+offset_right = 31.0
+offset_bottom = 16.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0, 0.25882354, 0.42745098, 1)
+theme_override_fonts/font = ExtResource("5_y6vun")
+theme_override_font_sizes/font_size = 24
+text = "Exit"
 
 [node name="SettingOverlay" parent="." unique_id=470544241 instance=ExtResource("8_e1dod")]
 process_mode = 0

@@ -1,12 +1,11 @@
 extends Control
 
-@onready var main_buttons: VBoxContainer = $MainButtons
-@onready var start_game_buton: TouchScreenButton = $MainButtons/StartGameButon
-@onready var start_arena_buton: TouchScreenButton = $MainButtons/StartArenaButon
-@onready var settings_button: TouchScreenButton = $MainButtons/SettingsButton
-@onready var credits_button: TouchScreenButton = $MainButtons/CreditsButton
-
-@onready var exit_button: TouchScreenButton = $ExitButton
+@onready var main_buttons: HBoxContainer = $Background/HBoxContainer/MarginContainer/MainButtons
+@onready var start_arena_buton: TextureButton = $Background/HBoxContainer/MarginContainer/MainButtons/VBoxContainer/StartArenaButon
+@onready var start_game_buton: TextureButton = $Background/HBoxContainer/MarginContainer/MainButtons/VBoxContainer/StartGameButon
+@onready var settings_button: TextureButton = $Background/HBoxContainer/MarginContainer/MainButtons/VBoxContainer2/SettingsButton
+@onready var credits_button: TextureButton = $Background/HBoxContainer/MarginContainer/MainButtons/VBoxContainer2/CreditsButton
+@onready var exit_button: TextureButton = $Background/HBoxContainer/MarginContainer/MainButtons/VBoxContainer2/ExitButton
 
 @onready var setting_overlay: SettingsOverlay = $SettingOverlay
 @onready var credits_overlay: CreditsOverlay = $CreditsOverlay

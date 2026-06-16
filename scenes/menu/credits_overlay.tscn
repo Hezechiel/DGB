@@ -1,57 +1,46 @@
 [gd_scene format=3 uid="uid://pfm88dv1cava"]
 
-[ext_resource type="Texture2D" uid="uid://c75dnwx2feln7" path="res://assets/menu/UI_note_large.png" id="1_fykfa"]
 [ext_resource type="Script" uid="uid://js76c4c65g3y" path="res://scripts/ui/credits_overlay.gd" id="1_yelri"]
-[ext_resource type="FontFile" uid="uid://bd2krjnr7cav" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="2_74oyc"]
+[ext_resource type="Texture2D" uid="uid://dk16fd82k42u8" path="res://assets/menu/UI_note_large_landscape.png" id="2_05wj5"]
+[ext_resource type="FontFile" uid="uid://v1n7s30p30ib" path="res://assets/fonts/Marcellus-Regular.ttf" id="3_perpt"]
 [ext_resource type="Script" uid="uid://5dp3eu06t38m" path="res://scripts/ui/scrollable.gd" id="4_05wj5"]
-[ext_resource type="FontFile" uid="uid://pbr51rvqyhv3" path="res://assets/fonts/PixelOperator8.ttf" id="4_perpt"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_74oyc"]
-texture = ExtResource("1_fykfa")
+texture = ExtResource("2_05wj5")
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_74oyc"]
 
 [node name="CreditsOverlay" type="Control" unique_id=1311075437]
 layout_mode = 3
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -20.0
-offset_right = 20.0
-offset_bottom = 20.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_yelri")
 
 [node name="CreditsPanel" type="Panel" parent="." unique_id=750235869]
+clip_contents = true
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -215.0
-offset_top = -250.0
-offset_right = 216.0
-offset_bottom = 311.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxTexture_74oyc")
 
 [node name="MarginContainer" type="MarginContainer" parent="CreditsPanel" unique_id=289841729]
-layout_mode = 0
-offset_left = 49.0
-offset_top = 70.0
-offset_right = 385.0
-offset_bottom = 466.0
-theme_override_constants/margin_left = 0
-theme_override_constants/margin_top = 0
-theme_override_constants/margin_right = 0
-theme_override_constants/margin_bottom = 0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 60
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 80
+theme_override_constants/margin_bottom = 30
 
 [node name="VBoxContainer" type="VBoxContainer" parent="CreditsPanel/MarginContainer" unique_id=1448385503]
 layout_mode = 2
@@ -62,8 +51,8 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_constants/shadow_offset_x = -5
 theme_override_constants/shadow_offset_y = 8
-theme_override_fonts/font = ExtResource("2_74oyc")
-theme_override_font_sizes/font_size = 40
+theme_override_fonts/font = ExtResource("3_perpt")
+theme_override_font_sizes/font_size = 30
 text = "Credits"
 horizontal_alignment = 1
 
@@ -86,7 +75,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(4.5242905e-06, 0, 0.86988366, 1)
 theme_override_constants/shadow_offset_x = -5
 theme_override_constants/shadow_offset_y = 8
-theme_override_fonts/font = ExtResource("4_perpt")
+theme_override_fonts/font = ExtResource("3_perpt")
 theme_override_font_sizes/font_size = 18
 text = "Creative Direction"
 
@@ -95,10 +84,9 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_constants/shadow_offset_x = -5
 theme_override_constants/shadow_offset_y = 8
-theme_override_fonts/font = ExtResource("4_perpt")
+theme_override_fonts/font = ExtResource("3_perpt")
 theme_override_font_sizes/font_size = 21
-text = "Milos
-"
+text = "Milos"
 horizontal_alignment = 1
 
 [node name="Label3" type="Label" parent="CreditsPanel/MarginContainer/VBoxContainer/ScrollContainer/CreditList" unique_id=268183325]
@@ -106,7 +94,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(4.5242905e-06, 0, 0.86988366, 1)
 theme_override_constants/shadow_offset_x = -5
 theme_override_constants/shadow_offset_y = 8
-theme_override_fonts/font = ExtResource("4_perpt")
+theme_override_fonts/font = ExtResource("3_perpt")
 theme_override_font_sizes/font_size = 18
 text = "Gameplay Programming"
 
@@ -115,10 +103,9 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_constants/shadow_offset_x = -5
 theme_override_constants/shadow_offset_y = 8
-theme_override_fonts/font = ExtResource("4_perpt")
+theme_override_fonts/font = ExtResource("3_perpt")
 theme_override_font_sizes/font_size = 21
-text = "Milos
-"
+text = "Milos"
 horizontal_alignment = 1
 
 [node name="Label5" type="Label" parent="CreditsPanel/MarginContainer/VBoxContainer/ScrollContainer/CreditList" unique_id=1210440545]
@@ -126,7 +113,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(4.5242905e-06, 0, 0.86988366, 1)
 theme_override_constants/shadow_offset_x = -5
 theme_override_constants/shadow_offset_y = 8
-theme_override_fonts/font = ExtResource("4_perpt")
+theme_override_fonts/font = ExtResource("3_perpt")
 theme_override_font_sizes/font_size = 18
 text = "UI / UX"
 
@@ -135,10 +122,9 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_constants/shadow_offset_x = -5
 theme_override_constants/shadow_offset_y = 8
-theme_override_fonts/font = ExtResource("4_perpt")
+theme_override_fonts/font = ExtResource("3_perpt")
 theme_override_font_sizes/font_size = 21
-text = "Milos
-"
+text = "Milos"
 horizontal_alignment = 1
 
 [node name="Label7" type="Label" parent="CreditsPanel/MarginContainer/VBoxContainer/ScrollContainer/CreditList" unique_id=49705410]
@@ -146,7 +132,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(4.5242905e-06, 0, 0.86988366, 1)
 theme_override_constants/shadow_offset_x = -5
 theme_override_constants/shadow_offset_y = 8
-theme_override_fonts/font = ExtResource("4_perpt")
+theme_override_fonts/font = ExtResource("3_perpt")
 theme_override_font_sizes/font_size = 18
 text = "Art"
 
@@ -155,10 +141,9 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_constants/shadow_offset_x = -5
 theme_override_constants/shadow_offset_y = 8
-theme_override_fonts/font = ExtResource("4_perpt")
+theme_override_fonts/font = ExtResource("3_perpt")
 theme_override_font_sizes/font_size = 21
-text = "Oliver
-"
+text = "Oliver"
 horizontal_alignment = 1
 
 [node name="Label9" type="Label" parent="CreditsPanel/MarginContainer/VBoxContainer/ScrollContainer/CreditList" unique_id=1237628744]
@@ -166,7 +151,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(4.5242905e-06, 0, 0.86988366, 1)
 theme_override_constants/shadow_offset_x = -5
 theme_override_constants/shadow_offset_y = 8
-theme_override_fonts/font = ExtResource("4_perpt")
+theme_override_fonts/font = ExtResource("3_perpt")
 theme_override_font_sizes/font_size = 18
 text = "Sound"
 
@@ -175,10 +160,9 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_constants/shadow_offset_x = -5
 theme_override_constants/shadow_offset_y = 8
-theme_override_fonts/font = ExtResource("4_perpt")
+theme_override_fonts/font = ExtResource("3_perpt")
 theme_override_font_sizes/font_size = 21
-text = "Milos
-"
+text = "Milos"
 horizontal_alignment = 1
 
 [node name="Label11" type="Label" parent="CreditsPanel/MarginContainer/VBoxContainer/ScrollContainer/CreditList" unique_id=1266012398]
@@ -186,7 +170,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(4.5242905e-06, 0, 0.86988366, 1)
 theme_override_constants/shadow_offset_x = -5
 theme_override_constants/shadow_offset_y = 8
-theme_override_fonts/font = ExtResource("4_perpt")
+theme_override_fonts/font = ExtResource("3_perpt")
 theme_override_font_sizes/font_size = 18
 text = "Pinding"
 
@@ -195,10 +179,9 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_constants/shadow_offset_x = -5
 theme_override_constants/shadow_offset_y = 8
-theme_override_fonts/font = ExtResource("4_perpt")
+theme_override_fonts/font = ExtResource("3_perpt")
 theme_override_font_sizes/font_size = 21
-text = "Simona
-"
+text = "Simona"
 horizontal_alignment = 1
 
 [node name="Label13" type="Label" parent="CreditsPanel/MarginContainer/VBoxContainer/ScrollContainer/CreditList" unique_id=1511957357]
@@ -206,7 +189,7 @@ layout_mode = 2
 theme_override_colors/font_color = Color(4.5242905e-06, 0, 0.86988366, 1)
 theme_override_constants/shadow_offset_x = -5
 theme_override_constants/shadow_offset_y = 8
-theme_override_fonts/font = ExtResource("4_perpt")
+theme_override_fonts/font = ExtResource("3_perpt")
 theme_override_font_sizes/font_size = 18
 text = "Nerving"
 
@@ -215,14 +198,13 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_constants/shadow_offset_x = -5
 theme_override_constants/shadow_offset_y = 8
-theme_override_fonts/font = ExtResource("4_perpt")
+theme_override_fonts/font = ExtResource("3_perpt")
 theme_override_font_sizes/font_size = 21
-text = "Bilbanek
-"
+text = "Bilbanek"
 horizontal_alignment = 1
 
 [node name="CloseCredits" type="TouchScreenButton" parent="CreditsPanel" unique_id=2122519792]
-position = Vector2(215.49998, 511.5)
+position = Vector2(730, 180)
 scale = Vector2(4, 4)
 shape = SubResource("CircleShape2D_74oyc")
 

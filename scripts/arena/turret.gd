@@ -29,11 +29,13 @@ var regen_buffer: float = 0.0               # zbiera zlomky HP (int heal by ich 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var detection_range: Area2D = $DetectionRange
 @onready var detection_shape: CollisionShape2D = $DetectionRange/DetectionRange
+@onready var health_bar: Control = $HealthBar
 
 
 
 func _ready() -> void:
 	hp = max_hp
+	health_bar.init(max_hp, owner_team)
 	add_to_group("turrets")
 	BattleManager.register(self, owner_team)
 
@@ -96,6 +98,8 @@ func take_damage(amount: int) -> void:
 	var effective := maxi(1, amount - int(armor))
 	hp -= effective
 
+	health_bar.set_health(hp)
+
 	if hp <= 0:
 		_on_destroyed()
 	else:
@@ -107,6 +111,7 @@ func heal(amount: float) -> void:
 		return # vrak sa regenom neopravuje (revive bude riesit ability)
 
 	hp = mini(max_hp, hp + int(amount))
+	health_bar.set_health(hp)
 	_update_damage_visual()
 
 
@@ -166,6 +171,7 @@ func _update_damage_visual() -> void:
 
 func _on_destroyed() -> void:
 	hp = 0
+	health_bar.visible = false
 	current_target = null
 
 	sprite.stop()

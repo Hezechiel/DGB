@@ -1,0 +1,118 @@
+[gd_scene format=3 uid="uid://8nnp84nrmapf"]
+
+[ext_resource type="Script" uid="uid://b5tq8kxw2vrne" path="res://scripts/arena/turret.gd" id="1_turret"]
+[ext_resource type="Texture2D" uid="uid://dxe0ew54ttwbr" path="res://assets/sprites/turrets/turret1.png" id="2_tex"]
+[ext_resource type="PackedScene" uid="uid://dyxn10n333b4k" path="res://scenes/arena/projectiles/LightningBolt.tscn" id="3_bolt"]
+[ext_resource type="PackedScene" uid="uid://dvwpf0hx27680" path="res://scenes/ui/HealthBar.tscn" id="4_hbar"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rp4y7"]
+atlas = ExtResource("2_tex")
+region = Rect2(0, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_h6dg3"]
+atlas = ExtResource("2_tex")
+region = Rect2(64, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_hvqbb"]
+atlas = ExtResource("2_tex")
+region = Rect2(128, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3oe1p"]
+atlas = ExtResource("2_tex")
+region = Rect2(192, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wvh7g"]
+atlas = ExtResource("2_tex")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_u4lak"]
+atlas = ExtResource("2_tex")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_oqniq"]
+atlas = ExtResource("2_tex")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ubgqe"]
+atlas = ExtResource("2_tex")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_turret"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rp4y7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_h6dg3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_hvqbb")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3oe1p")
+}],
+"loop": false,
+"name": &"damaged",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_wvh7g")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_u4lak")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_oqniq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ubgqe")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 3.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
+size = Vector2(32, 32)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_range"]
+radius = 128.0
+
+[node name="Turret" type="StaticBody2D" unique_id=163942178]
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("1_turret")
+bolt_scene = ExtResource("3_bolt")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1709766615]
+position = Vector2(0, -30)
+sprite_frames = SubResource("SpriteFrames_turret")
+animation = &"idle"
+autoplay = "idle"
+
+[node name="CollisionBody" type="CollisionShape2D" parent="." unique_id=675142562]
+position = Vector2(0, -16)
+shape = SubResource("RectangleShape2D_body")
+
+[node name="DetectionRange" type="Area2D" parent="." unique_id=1225977766]
+collision_layer = 0
+collision_mask = 2
+
+[node name="DetectionRange" type="CollisionShape2D" parent="DetectionRange" unique_id=2033128387]
+shape = SubResource("CircleShape2D_range")
+
+[node name="Hurtbox" type="Area2D" parent="." unique_id=1102908719]
+collision_layer = 8
+collision_mask = 0
+
+[node name="CollisionShape2" type="CollisionShape2D" parent="Hurtbox" unique_id=152489228]
+position = Vector2(0, -16)
+shape = SubResource("RectangleShape2D_body")
+
+[node name="HealthBar" parent="." unique_id=1242868380 instance=ExtResource("4_hbar")]
+offset_left = -16.0
+offset_top = -65.0
+offset_right = -16.0
+offset_bottom = -65.0

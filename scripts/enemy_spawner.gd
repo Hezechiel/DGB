@@ -1,6 +1,6 @@
 extends Node2D
 
-@export var human_scene: PackedScene
+@export var enemy_scene: PackedScene
 @export var player: Node2D
 
 # Arena bounds (svetové súradnice)
@@ -26,8 +26,8 @@ var enemies: Array[Node2D] = []
 
 func _ready() -> void:
 	randomize()
-	if human_scene == null:
-		push_error("EnemySpawner: human_scene nie je nastavene!")
+	if enemy_scene == null:
+		push_error("EnemySpawner: enemy_scene nie je nastavene!")
 		return
 		
 	wave_timer.wait_time = time_between_waves
@@ -68,18 +68,18 @@ func spawn_one_enemy() -> void:
 	if pos.distance_to(player.global_position) < 5:
 		return
 	
-	# nastav target (tvoj human.gd musi mat: var target: Node2D)
-	var human := human_scene.instantiate()
-	human.global_position = pos
-	human.target = player
-	human.tree_exited.connect(func(): enemies.erase(human))
-	human.enemy_manager = self
+	# nastav target (tvoj enemy.gd musi mat: var target: Node2D)
+	var enemy := enemy_scene.instantiate()
+	enemy.global_position = pos
+	enemy.target = player
+	enemy.tree_exited.connect(func(): enemies.erase(enemy))
+	enemy.enemy_manager = self
 	
 	# aby sme vedely rychlo hladat existujucich enemy
-	enemies.append(human)
+	enemies.append(enemy)
 	
 	# predpoklad: spawner je pod rootom Game
-	get_parent().add_child.call_deferred(human)
+	get_parent().add_child.call_deferred(enemy)
 
 func find_valid_spawn_position() -> Vector2:
 	for attempt in range(max_spawn_attempts):

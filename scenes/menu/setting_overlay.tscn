@@ -1,14 +1,14 @@
 [gd_scene format=3 uid="uid://bbav7qxtv7i6x"]
 
 [ext_resource type="Script" uid="uid://gahrs3cqde4y" path="res://scripts/ui/setting_overlay.gd" id="1_3t2qt"]
-[ext_resource type="Texture2D" uid="uid://c75dnwx2feln7" path="res://assets/menu/UI_note_large.png" id="1_ol5sx"]
-[ext_resource type="FontFile" uid="uid://bd2krjnr7cav" path="res://assets/fonts/PixelOperator8-Bold.ttf" id="2_3g7hk"]
+[ext_resource type="Texture2D" uid="uid://dk16fd82k42u8" path="res://assets/menu/UI_note_large_landscape.png" id="2_8twik"]
 [ext_resource type="Script" uid="uid://b112ll4m8h56y" path="res://scripts/ui/audio_control.gd" id="4_04rkv"]
-[ext_resource type="Texture2D" uid="uid://bu5q7kjsae7rh" path="res://assets/menu/UI_main_menu.png" id="6_8twik"]
+[ext_resource type="FontFile" uid="uid://v1n7s30p30ib" path="res://assets/fonts/Marcellus-Regular.ttf" id="4_8twik"]
+[ext_resource type="Texture2D" uid="uid://bsquqbowm0moo" path="res://assets/menu/UI_note.png" id="6_aby01"]
 [ext_resource type="Script" uid="uid://5dp3eu06t38m" path="res://scripts/ui/scrollable.gd" id="6_scroll"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_3g7hk"]
-texture = ExtResource("1_ol5sx")
+texture = ExtResource("2_8twik")
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_3g7hk"]
 
@@ -24,30 +24,25 @@ script = ExtResource("1_3t2qt")
 
 [node name="SettingsPanel" type="Panel" parent="." unique_id=2013401128]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -215.0
-offset_top = -250.0
-offset_right = 216.0
-offset_bottom = 311.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 1
 theme_override_styles/panel = SubResource("StyleBoxTexture_3g7hk")
 
 [node name="MarginContainer" type="MarginContainer" parent="SettingsPanel" unique_id=289841729]
-layout_mode = 0
-offset_left = 49.0
-offset_top = 70.0
-offset_right = 385.0
-offset_bottom = 466.0
-theme_override_constants/margin_left = 0
-theme_override_constants/margin_top = 0
-theme_override_constants/margin_right = 0
-theme_override_constants/margin_bottom = 0
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 60
+theme_override_constants/margin_top = 30
+theme_override_constants/margin_right = 80
+theme_override_constants/margin_bottom = 30
 
 [node name="ScrollContainer" type="ScrollContainer" parent="SettingsPanel/MarginContainer" unique_id=1012523393]
 layout_mode = 2
@@ -68,8 +63,8 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_constants/shadow_offset_x = -5
 theme_override_constants/shadow_offset_y = 8
-theme_override_fonts/font = ExtResource("2_3g7hk")
-theme_override_font_sizes/font_size = 40
+theme_override_fonts/font = ExtResource("4_8twik")
+theme_override_font_sizes/font_size = 30
 text = "Settings"
 horizontal_alignment = 1
 
@@ -78,8 +73,8 @@ layout_mode = 2
 theme_override_colors/font_color = Color(0, 0, 0.87058824, 1)
 theme_override_constants/shadow_offset_x = -5
 theme_override_constants/shadow_offset_y = 8
-theme_override_fonts/font = ExtResource("2_3g7hk")
-theme_override_font_sizes/font_size = 27
+theme_override_fonts/font = ExtResource("4_8twik")
+theme_override_font_sizes/font_size = 20
 text = "Audio"
 
 [node name="AudioControl" type="HSlider" parent="SettingsPanel/MarginContainer/ScrollContainer/SettingsContent" unique_id=1180824782]
@@ -93,13 +88,33 @@ audio_bus_name = "Music"
 
 [node name="CloseSettings" type="TouchScreenButton" parent="SettingsPanel" unique_id=159458134]
 process_mode = 3
-position = Vector2(215, 512)
+position = Vector2(730, 180)
 scale = Vector2(4, 4)
 shape = SubResource("CircleShape2D_3g7hk")
 
 [node name="ExitButton" type="TouchScreenButton" parent="." unique_id=1265412763]
 process_mode = 3
-texture_normal = ExtResource("6_8twik")
+position = Vector2(0, 300)
+texture_normal = ExtResource("6_aby01")
+
+[node name="Label" type="Label" parent="ExitButton" unique_id=426003475]
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -54.5
+offset_top = -7.5
+offset_right = 54.5
+offset_bottom = 7.5
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("4_8twik")
+theme_override_font_sizes/font_size = 18
+text = "Main Menu"
 
 [connection signal="value_changed" from="SettingsPanel/MarginContainer/ScrollContainer/SettingsContent/AudioControl" to="SettingsPanel/MarginContainer/ScrollContainer/SettingsContent/AudioControl" method="_on_value_changed"]
 [connection signal="pressed" from="SettingsPanel/CloseSettings" to="." method="_on_close_settings_pressed"]

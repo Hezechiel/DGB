@@ -5,8 +5,8 @@
 [ext_resource type="Texture2D" uid="uid://b81r7so454vot" path="res://assets/sprites/world_tileset.png" id="3_6w4xk"]
 [ext_resource type="PackedScene" uid="uid://b3ygtyp1ktxnt" path="res://scenes/arena/enemy_spawner.tscn" id="4_2ml6w"]
 [ext_resource type="PackedScene" uid="uid://bjivk7ksw0cr7" path="res://scenes/arena/player.tscn" id="5_xgbxb"]
-[ext_resource type="PackedScene" uid="uid://8nnp84nrmapf" path="res://scenes/arena/PlayerTurret.tscn" id="6_ii07k"]
-[ext_resource type="PackedScene" uid="uid://b7xkqe2n8wt4r" path="res://scenes/arena/EnemyTurret.tscn" id="7_6w4xk"]
+[ext_resource type="PackedScene" uid="uid://8nnp84nrmapf" path="res://scenes/arena/turrets/PlayerTurret.tscn" id="6_ii07k"]
+[ext_resource type="PackedScene" uid="uid://b7xkqe2n8wt4r" path="res://scenes/arena/turrets/EnemyTurret.tscn" id="7_6w4xk"]
 [ext_resource type="PackedScene" uid="uid://bhudscenemain" path="res://scenes/hud/HUD.tscn" id="7_hud"]
 [ext_resource type="PackedScene" uid="uid://bx5ubwkcebqbx" path="res://scenes/arena/MoveMarker.tscn" id="8_mvmrk"]
 
@@ -140,9 +140,6 @@ physics_layer_0/collision_layer = 4
 physics_layer_0/collision_mask = 4
 sources/0 = SubResource("TileSetAtlasSource_lnu2h")
 
-[sub_resource type="CircleShape2D" id="CircleShape2D_lbhrr"]
-radius = 7.0
-
 [node name="Arena" type="Node2D" unique_id=1679629269]
 script = ExtResource("1_u52cf")
 
@@ -165,11 +162,9 @@ player = NodePath("../Player")
 
 [node name="Turret" parent="." unique_id=163942178 instance=ExtResource("6_ii07k")]
 position = Vector2(-141, 137)
-scale = Vector2(0.4, 0.4)
 
 [node name="EnemyTurret" parent="." unique_id=96380130 instance=ExtResource("7_6w4xk")]
 position = Vector2(85.99999, -58.999996)
-scale = Vector2(0.4, 0.4)
 
 [node name="Player" parent="." unique_id=425268589 instance=ExtResource("5_xgbxb")]
 
@@ -183,12 +178,8 @@ limit_bottom = 200
 limit_smoothed = true
 position_smoothing_enabled = true
 
-[node name="Hurtbox" type="Area2D" parent="Player" unique_id=1083837960 groups=["player_hurtbox"]]
+[node name="Hurtbox2" type="Area2D" parent="Player" unique_id=1083837960 groups=["player_hurtbox"]]
 collision_layer = 8
 collision_mask = 16
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Player/Hurtbox" unique_id=1496432866]
-position = Vector2(0, -8)
-shape = SubResource("CircleShape2D_lbhrr")
 
 [node name="HUD" parent="." unique_id=661909964 instance=ExtResource("7_hud")]

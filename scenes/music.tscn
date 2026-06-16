@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cj52s8x0yvd85"]
 
-[ext_resource type="AudioStream" uid="uid://bfi76lms8tcbd" path="res://assets/music/time_for_adventure.mp3" id="1_05ggv"]
+[ext_resource type="AudioStream" uid="uid://b2l3vkcg0ei82" path="res://assets/music/soundtrack1.mp3" id="1_05ggv"]
 
 [node name="Music" type="AudioStreamPlayer2D" unique_id=704986715]
 process_mode = 3
