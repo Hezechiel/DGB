@@ -27,8 +27,8 @@ BattleManager="*res://scripts/BattleManager.gd"
 
 [display]
 
-window/size/viewport_width=780
-window/size/viewport_height=360
+window/size/viewport_width=1170
+window/size/viewport_height=540
 window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 

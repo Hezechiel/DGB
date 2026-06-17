@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://b5tq8kxw2vrne" path="res://scripts/arena/turret.gd" id="1_turret"]
 [ext_resource type="Texture2D" uid="uid://dxe0ew54ttwbr" path="res://assets/sprites/turrets/turret1.png" id="2_tex"]
-[ext_resource type="PackedScene" uid="uid://dyxn10n333b4k" path="res://scenes/arena/projectiles/LightningBolt.tscn" id="3_bolt"]
+[ext_resource type="PackedScene" uid="uid://dyxn10n333b4k" path="res://scenes/arena/projectiles/projectile.tscn" id="3_bolt"]
 [ext_resource type="PackedScene" uid="uid://dvwpf0hx27680" path="res://scenes/ui/HealthBar.tscn" id="4_hbar"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_myp8c"]

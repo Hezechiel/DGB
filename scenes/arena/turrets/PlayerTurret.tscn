@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://b5tq8kxw2vrne" path="res://scripts/arena/turret.gd" id="1_turret"]
 [ext_resource type="Texture2D" uid="uid://dxe0ew54ttwbr" path="res://assets/sprites/turrets/turret1.png" id="2_tex"]
-[ext_resource type="PackedScene" uid="uid://dyxn10n333b4k" path="res://scenes/arena/projectiles/LightningBolt.tscn" id="3_bolt"]
+[ext_resource type="PackedScene" uid="uid://dyxn10n333b4k" path="res://scenes/arena/projectiles/projectile.tscn" id="3_bolt"]
 [ext_resource type="PackedScene" uid="uid://dvwpf0hx27680" path="res://scenes/ui/HealthBar.tscn" id="4_hbar"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_rp4y7"]
@@ -78,12 +78,14 @@ animations = [{
 size = Vector2(32, 32)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_range"]
-radius = 128.0
+radius = 120.0
 
 [node name="Turret" type="StaticBody2D" unique_id=163942178]
 collision_layer = 4
 collision_mask = 0
 script = ExtResource("1_turret")
+max_range = 150.0
+aggro_drop_range = 180.0
 bolt_scene = ExtResource("3_bolt")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1709766615]
@@ -107,7 +109,7 @@ shape = SubResource("CircleShape2D_range")
 collision_layer = 8
 collision_mask = 0
 
-[node name="CollisionShape2" type="CollisionShape2D" parent="Hurtbox" unique_id=152489228]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=152489228]
 position = Vector2(0, -16)
 shape = SubResource("RectangleShape2D_body")
 

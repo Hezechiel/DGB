@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bjivk7ksw0cr7"]
 
 [ext_resource type="Script" uid="uid://cyp86e8wyfv18" path="res://scripts/arena/player.gd" id="1_g2els"]
-[ext_resource type="PackedScene" uid="uid://dyxn10n333b4k" path="res://scenes/arena/projectiles/LightningBolt.tscn" id="2_dqkch"]
+[ext_resource type="PackedScene" uid="uid://dyxn10n333b4k" path="res://scenes/arena/projectiles/projectile.tscn" id="2_dqkch"]
 [ext_resource type="Texture2D" uid="uid://orifl2llgneu" path="res://assets/sprites/gods/zeus.png" id="2_qhqgy"]
 [ext_resource type="PackedScene" uid="uid://dvwpf0hx27680" path="res://scenes/ui/HealthBar.tscn" id="4_hbar"]
 

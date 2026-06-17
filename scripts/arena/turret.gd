@@ -9,14 +9,15 @@ extends StaticBody2D
 const FRAME_DESTROYED := 3 # row 1 col 3 — znicena vezicka (0% hp wreck)
 
 @export var max_hp: int = 300
-@export var max_range: float = 180.0        # detection radius in pixels
+@export var max_range: float = 120.0        # detection radius in pixels
 @export var fire_cooldown: float = 1.5      # seconds between shots
 @export var projectile_damage: int = 20
 @export var armor: float = 0.0              # flat damage reduction (0 = no armor)
-@export var aggro_drop_range: float = 240.0 # target released beyond this distance
+@export var aggro_drop_range: float = 150.0 # target released beyond this distance
 @export var bolt_scene: PackedScene         # assign LightningBolt.tscn in Inspector
 @export var target_group: String = "team_enemy" # which group this turret shoots at
 @export var owner_team: String = "player"        # "player" or "enemy" — for BattleManager registration
+@export var lane: String = "top"   # "top" alebo "bot" — pre BattleManager sledovanie pruhu
 
 var hp: int
 var fire_left: float = 0.0
@@ -38,8 +39,9 @@ func _ready() -> void:
 	health_bar.init(max_hp, owner_team)
 	add_to_group("turrets")
 	BattleManager.register(self, owner_team)
+	BattleManager.register_turret(self, owner_team, lane)
 
-	# tim podla vlastnika — aby bolt.is_in_group(hit_group) sedel
+	# tim podla vlastnika — pre targeting (find_nearest_enemy / detection groups)
 	if owner_team == "player":
 		add_to_group("team_player")
 	else:
@@ -52,7 +54,7 @@ func _ready() -> void:
 	detection_shape.shape = circle
 
 	detection_range.body_entered.connect(_on_body_entered)
-	detection_range.body_exited.connect(_on_body_exited)
+	#detection_range.body_exited.connect(_on_body_exited)
 
 	sprite.play("idle")
 
@@ -134,15 +136,10 @@ func _fire_at(target: Node2D) -> void:
 		push_error("Turret: bolt_scene nie je nastavene!")
 		return
 
-	var dir := (target.global_position - global_position).normalized()
-
 	var bolt := bolt_scene.instantiate()
 	bolt.set("damage", projectile_damage)
-	bolt.set("hit_group", target_group)
 	get_parent().add_child.call_deferred(bolt)
-
-	# po pridani nastav poziciu/direction
-	bolt.call_deferred("setup", global_position, dir)
+	bolt.call_deferred("setup", global_position, target)
 
 
 # =========================
@@ -182,6 +179,7 @@ func _on_destroyed() -> void:
 	$CollisionBody.set_deferred("disabled", true)
 	detection_shape.set_deferred("disabled", true)
 	remove_from_group("turrets")
+	BattleManager.on_turret_destroyed(owner_team, lane)
 	set_physics_process(false)
 
 
@@ -194,9 +192,9 @@ func _on_body_entered(body: Node2D) -> void:
 		current_target = body
 
 
-func _on_body_exited(body: Node2D) -> void:
-	if body == current_target:
-		_drop_target()
+#func _on_body_exited(body: Node2D) -> void:
+	#if body == current_target:
+		#_drop_target()
 
 
 func _drop_target() -> void:

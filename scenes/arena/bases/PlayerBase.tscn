@@ -1,0 +1,104 @@
+[gd_scene format=3 uid="uid://c0pbasepl4yr1"]
+
+[ext_resource type="Script" uid="uid://bw3ya5eoqnsuy" path="res://scripts/arena/base.gd" id="1_base"]
+[ext_resource type="Texture2D" uid="uid://bqepsap2ujkcd" path="res://assets/sprites/turrets/base.png" id="2_tex"]
+[ext_resource type="PackedScene" uid="uid://dvwpf0hx27680" path="res://scenes/ui/HealthBar.tscn" id="3_hbar"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dmg0"]
+atlas = ExtResource("2_tex")
+region = Rect2(0, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dmg1"]
+atlas = ExtResource("2_tex")
+region = Rect2(64, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dmg2"]
+atlas = ExtResource("2_tex")
+region = Rect2(128, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_dmg3"]
+atlas = ExtResource("2_tex")
+region = Rect2(192, 64, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_idle0"]
+atlas = ExtResource("2_tex")
+region = Rect2(0, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_idle1"]
+atlas = ExtResource("2_tex")
+region = Rect2(64, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_idle2"]
+atlas = ExtResource("2_tex")
+region = Rect2(128, 0, 64, 64)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_idle3"]
+atlas = ExtResource("2_tex")
+region = Rect2(192, 0, 64, 64)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_base"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dmg0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dmg1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dmg2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_dmg3")
+}],
+"loop": false,
+"name": &"damaged",
+"speed": 1.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_idle0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_idle1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_idle2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_idle3")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 4.0
+}]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_base"]
+size = Vector2(60, 60)
+
+[node name="PlayerBase" type="StaticBody2D" unique_id=2039741575]
+collision_layer = 4
+collision_mask = 0
+script = ExtResource("1_base")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1339458437]
+sprite_frames = SubResource("SpriteFrames_base")
+animation = &"damaged"
+autoplay = "idle"
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=451103111]
+shape = SubResource("RectangleShape2D_base")
+
+[node name="Hurtbox" type="Area2D" parent="." unique_id=569187378]
+collision_layer = 8
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=634254184]
+shape = SubResource("RectangleShape2D_base")
+
+[node name="HealthBar" parent="." unique_id=174678652 instance=ExtResource("3_hbar")]
+offset_left = -40.0
+offset_top = -50.0
+offset_right = -40.0
+offset_bottom = -50.0
+always_visible = true

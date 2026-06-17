@@ -1,41 +1,38 @@
 [gd_scene format=3 uid="uid://dyxn10n333b4k"]
 
-[ext_resource type="Script" uid="uid://d4lwq001o3mst" path="res://scripts/arena/projectiles/lightning_bolt.gd" id="1_qj0ft"]
-[ext_resource type="Texture2D" uid="uid://bvo3o08ub38xj" path="res://assets/sprites/projectiles/projectile.png" id="2_rn6pm"]
-
-[sub_resource type="CircleShape2D" id="CircleShape2D_3owhe"]
-radius = 9.055386
+[ext_resource type="Script" uid="uid://d4lwq001o3mst" path="res://scripts/arena/projectiles/projectile.gd" id="1_gq61f"]
+[ext_resource type="Texture2D" uid="uid://bvo3o08ub38xj" path="res://assets/sprites/projectiles/projectile.png" id="2_s7i0n"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_g7abk"]
-atlas = ExtResource("2_rn6pm")
+atlas = ExtResource("2_s7i0n")
 region = Rect2(0, 0, 8, 8)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_fr2hu"]
-atlas = ExtResource("2_rn6pm")
+atlas = ExtResource("2_s7i0n")
 region = Rect2(0, 8, 8, 8)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_xe5nn"]
-atlas = ExtResource("2_rn6pm")
+atlas = ExtResource("2_s7i0n")
 region = Rect2(8, 8, 8, 8)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_x3klr"]
-atlas = ExtResource("2_rn6pm")
+atlas = ExtResource("2_s7i0n")
 region = Rect2(24, 0, 8, 8)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_l4ykj"]
-atlas = ExtResource("2_rn6pm")
+atlas = ExtResource("2_s7i0n")
 region = Rect2(16, 0, 8, 8)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_6wb62"]
-atlas = ExtResource("2_rn6pm")
+atlas = ExtResource("2_s7i0n")
 region = Rect2(8, 0, 8, 8)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_5y2fe"]
-atlas = ExtResource("2_rn6pm")
+atlas = ExtResource("2_s7i0n")
 region = Rect2(24, 8, 8, 8)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_pn3li"]
-atlas = ExtResource("2_rn6pm")
+atlas = ExtResource("2_s7i0n")
 region = Rect2(16, 8, 8, 8)
 
 [sub_resource type="SpriteFrames" id="SpriteFrames_aw6vt"]
@@ -105,13 +102,8 @@ animations = [{
 "speed": 5.0
 }]
 
-[node name="Area2D" type="Area2D" unique_id=304577613]
-collision_layer = 32
-collision_mask = 24
-script = ExtResource("1_qj0ft")
-
-[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=891760459]
-shape = SubResource("CircleShape2D_3owhe")
+[node name="Area2D" type="Node2D" unique_id=1479388317]
+script = ExtResource("1_gq61f")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=151818827]
 sprite_frames = SubResource("SpriteFrames_aw6vt")

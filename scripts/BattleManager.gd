@@ -2,10 +2,30 @@ extends Node
 
 # Projektovy register jednotiek/struktur podla timu. Oddeleny od
 # enemy_spawner.enemies (ten ostava len pre separation steering).
-# Sluzi buducim systemom: win/lose podmienky, allied minion AI, minimapa...
+# Sluzi systemom: win/lose podmienky, allied minion AI, minimapa...
 
+# Emitovany ked zakladna jedneho timu je znicena — arena.gd pocuva a zmeni scenu
+signal match_ended(winner_team: String)
+
+# Jednotky podla timu (hrdinovia + sumonovane jednotky)
 var team_player: Array[Node2D] = []
 var team_enemy: Array[Node2D] = []
+
+# Zakladne
+var player_base: Node2D = null
+var enemy_base: Node2D = null
+
+# Veze podla timu a pruhu — na vyhodnotenie ked je pruh vycisteny
+# Struktura: { "player": { "top": [...], "bot": [...] }, "enemy": { ... } }
+var _turrets: Dictionary = {
+	"player": {"top": [], "bot": []},
+	"enemy":  {"top": [], "bot": []}
+}
+
+# Ulozit vysledok zapasu pre MatchEndScreen
+var last_winner: String = ""
+
+# --- Registracia jednotiek ---
 
 func register(unit: Node2D, team: String) -> void:
 	var list := team_player if team == "player" else team_enemy
@@ -20,3 +40,41 @@ func unregister(unit: Node2D, team: String) -> void:
 func is_team_alive(team: String) -> bool:
 	var list := team_player if team == "player" else team_enemy
 	return list.size() > 0
+
+# --- Registracia vez ---
+
+func register_turret(turret: Node2D, team: String, lane: String) -> void:
+	if _turrets.has(team) and _turrets[team].has(lane):
+		_turrets[team][lane].append(turret)
+
+# Volane z turret._on_destroyed()
+func on_turret_destroyed(turret_team: String, lane: String) -> void:
+	# Ak je pruh timu vycisteny, ich vlastna zakladna sa stane zranitelnou
+	if _is_lane_cleared(turret_team, lane):
+		_set_base_vulnerable(turret_team)
+
+func _is_lane_cleared(team: String, lane: String) -> bool:
+	# Pruh je vycisteny ak nemaju ziadnu zivu vezu v nom
+	var lane_turrets: Array = _turrets[team][lane]
+	for t in lane_turrets:
+		if is_instance_valid(t) and t.hp > 0:
+			return false
+	return true
+
+func _set_base_vulnerable(team: String) -> void:
+	var base := player_base if team == "player" else enemy_base
+	if base and is_instance_valid(base):
+		base.set_vulnerable()
+
+# --- Registracia zakladni ---
+
+func register_base(base: Node2D, team: String) -> void:
+	if team == "player":
+		player_base = base
+	else:
+		enemy_base = base
+
+# Volane z base._on_destroyed()
+func on_base_destroyed(destroyed_team: String) -> void:
+	last_winner = "enemy" if destroyed_team == "player" else "player"
+	match_ended.emit(last_winner)

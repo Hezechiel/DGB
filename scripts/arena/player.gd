@@ -12,6 +12,7 @@ var invuln_left: float = 0.0
 @export var bolt_scene: PackedScene
 @export var fire_cooldown: float = 0.5
 @export var attack_range: float = 50.0
+@export var projectile_damage: int = 25
 var fire_left: float = 0.0
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
@@ -41,9 +42,9 @@ func _physics_process(delta):
 	var enemy := find_nearest_enemy()
 	if enemy != null and fire_left <= 0.0:
 		var dir := (enemy.global_position - global_position).normalized()
-		fire_bolt(dir)
+		fire_bolt(enemy)          # posli referenciu, nie smer
 		fire_left = fire_cooldown
-		last_direction = dir # animacia sa otoci k cielu
+		last_direction = dir      # animacia sa stale otaca k cielu
 	
 	# Normalizacia (aby diagonalna nebola rychlejsia)
 	if move_dir != Vector2.ZERO:
@@ -104,23 +105,16 @@ func take_damage(amount: int) -> void:
 		print("PLAYER DEAD")
 		get_tree().reload_current_scene()
 
-func fire_bolt(dir: Vector2) -> void:
+func fire_bolt(target: Node2D) -> void:
 	if bolt_scene == null:
 		push_error("Player: bolt_scene nie je nastavene!")
 		return
 
-	if dir == Vector2.ZERO:
-		dir = last_direction
-	
 	var bolt := bolt_scene.instantiate()
-		# bezpecne pridaj do sceny (niekedy sa hodi deferred)
+	bolt.set("damage", projectile_damage)
 	get_parent().add_child.call_deferred(bolt)
-	
-	# po pridani nastav poziciu/direction
-	var start_pos = global_position + dir * 12.0
-	bolt.call_deferred("setup", start_pos, dir)
-	bolt.set("hit_group", "team_enemy")
-	
+	bolt.call_deferred("setup", global_position, target)
+
 
 # Tato funkcia sa zavola ked nieco vstupi do Hurtboxu
 # V nasom modeli ale damage bide "tahat" enemy cez cooldown,

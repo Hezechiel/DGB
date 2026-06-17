@@ -7,6 +7,7 @@ const MAIN_MENU_SCENE := "res://scenes/menu/MainMenu.tscn"
 
 func _ready() -> void:
 	hud.exit_requested.connect(_on_hud_exit_requested)
+	BattleManager.match_ended.connect(_on_match_ended)
 
 func _unhandled_input(event: InputEvent) -> void:
 	# Tap-to-move: tap mimo UI (UI eventy sem nedojdu, su handled v _gui_input)
@@ -18,7 +19,12 @@ func _unhandled_input(event: InputEvent) -> void:
 func _on_hud_exit_requested() -> void:
 	get_tree().change_scene_to_file(MAIN_MENU_SCENE)
 
+func _on_match_ended(_winner: String) -> void:
+	get_tree().change_scene_to_file("res://scenes/menu/MatchEndScreen.tscn")
+
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
 		if event.keycode == KEY_T:
 			$Turret.take_damage(80)
+		if event.keycode == KEY_Y:
+			$PlayerBase.take_damage(500)
