@@ -2,6 +2,7 @@ extends CanvasLayer
 class_name HUD
 
 signal exit_requested
+signal recenter_camera_requested
 
 ## Node wired in arena.tscn inspector — hidden when settings are open.
 @export var mobile_controls: CanvasLayer
@@ -9,6 +10,7 @@ signal exit_requested
 #@onready var pause_button: TextureButton = $Root/PauseButton
 @onready var pause_button: TouchScreenButton = $Root/PauseButton
 @onready var setting_overlay: SettingsOverlay = $SettingOverlay
+@onready var player_character_button: TouchScreenButton = $Root/PlayerCharacter
 
 const BUTTON_SIZE := 80.0
 const MARGIN := 8.0
@@ -16,6 +18,7 @@ const MARGIN := 8.0
 func _ready() -> void:
 	#_apply_safe_area()
 	pause_button.pressed.connect(_on_pause_pressed)
+	player_character_button.pressed.connect(_on_player_character_pressed)
 	setting_overlay.closed_requested.connect(_on_close_requested)
 	setting_overlay.exit_requested.connect(_on_exit_requested)
 
@@ -51,6 +54,12 @@ func _on_exit_requested() -> void:
 	setting_overlay.close()
 	get_tree().paused = false
 	exit_requested.emit()
+
+func _on_player_character_pressed() -> void:
+	# TouchScreenButton nespotrebuje event — potlac nasledujuci release aby
+	# arena.gd nespustil tap-to-move na pozicii buttonu
+	InputR.suppress_next_release()
+	recenter_camera_requested.emit()
 
 # ---------------------------------------------------------------------------
 # PLACEHOLDER: func show_currency(amount: int) -> void — wire CurrencyCounter

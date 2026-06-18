@@ -7,6 +7,8 @@ var _is_dragging: bool = false
 
 func _ready() -> void:
 	audio_bus_id = AudioServer.get_bus_index(audio_bus_name)
+	# obnov slider z ulozeneho nastavenia
+	value = Settings.music_volume
 
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventScreenTouch:
@@ -36,6 +38,9 @@ func _on_value_changed(val: float) -> void:
 		AudioServer.set_bus_mute(audio_bus_id, false)
 		#print(linear_to_db(val))
 		AudioServer.set_bus_volume_db(audio_bus_id, linear_to_db(val))
+
+	# uloz do globalnych nastaveni
+	Settings.set_music_volume(val)
 
 
 #@export var audio_bus_name : String

@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://dxe0ew54ttwbr" path="res://assets/sprites/turrets/turret1.png" id="2_tex"]
 [ext_resource type="PackedScene" uid="uid://dyxn10n333b4k" path="res://scenes/arena/projectiles/projectile.tscn" id="3_bolt"]
 [ext_resource type="PackedScene" uid="uid://dvwpf0hx27680" path="res://scenes/ui/HealthBar.tscn" id="4_hbar"]
+[ext_resource type="Texture2D" uid="uid://dvlckfsllk4o3" path="res://assets/sprites/movemarker/target.png" id="5_8vwnr"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_myp8c"]
 atlas = ExtResource("2_tex")
@@ -78,7 +79,7 @@ animations = [{
 size = Vector2(32, 32)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_range"]
-radius = 128.0
+radius = 120.0
 
 [node name="EnemyTurret" type="StaticBody2D" unique_id=244805422]
 collision_layer = 4
@@ -89,6 +90,7 @@ target_group = "team_player"
 owner_team = "enemy"
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=424360374]
+z_index = 2
 modulate = Color(1, 0.45, 0.45, 1)
 position = Vector2(0, -30)
 sprite_frames = SubResource("SpriteFrames_turret")
@@ -99,17 +101,17 @@ autoplay = "idle"
 position = Vector2(0, -16)
 shape = SubResource("RectangleShape2D_body")
 
-[node name="DetectionRange" type="Area2D" parent="." unique_id=1935494191]
+[node name="AttackRange" type="Area2D" parent="." unique_id=1935494191]
 collision_layer = 0
 
-[node name="DetectionRange" type="CollisionShape2D" parent="DetectionRange" unique_id=449898405]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackRange" unique_id=449898405]
 shape = SubResource("CircleShape2D_range")
 
 [node name="Hurtbox" type="Area2D" parent="." unique_id=1191480236]
 collision_layer = 16
 collision_mask = 0
 
-[node name="CollisionShape2" type="CollisionShape2D" parent="Hurtbox" unique_id=2099410841]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=2099410841]
 position = Vector2(0, -16)
 shape = SubResource("RectangleShape2D_body")
 
@@ -118,3 +120,9 @@ offset_left = -16.0
 offset_top = -65.0
 offset_right = -16.0
 offset_bottom = -65.0
+
+[node name="TargetMarker" type="Sprite2D" parent="." unique_id=459132998]
+visible = false
+z_index = 1
+position = Vector2(0, -18)
+texture = ExtResource("5_8vwnr")

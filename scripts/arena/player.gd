@@ -1,7 +1,7 @@
 extends CharacterBody2D
 
 # bojove vlastnosti hraca
-@export var speed: float = 100.0
+@export var speed: float = 70.0
 @export var max_hp: int = 500
 var health_points: int
 
@@ -11,7 +11,9 @@ var invuln_left: float = 0.0
 # vlastnosti Lightning projektilu
 @export var bolt_scene: PackedScene
 @export var fire_cooldown: float = 0.5
-@export var attack_range: float = 50.0
+@export var attack_range: float = 80.0
+# leash: ak sa ciel vzdiali nad tento nasobok attack_range, lock sa zrusi
+@export var leash_multiplier: float = 4.0
 @export var projectile_damage: int = 25
 var fire_left: float = 0.0
 
@@ -21,6 +23,8 @@ var fire_left: float = 0.0
 
 
 var last_direction := Vector2.DOWN #default pozera dole
+
+var primary_target: Node2D = null
 
 func _ready() -> void:
 	health_points = max_hp
@@ -34,18 +38,31 @@ func _ready() -> void:
 func _physics_process(delta):
 	invuln_left = max(invuln_left - delta, 0.0)
 	fire_left = max(fire_left - delta, 0.0)
-	
-	# 1) MOVE INPUT (tap-to-move)
-	var move_dir : Vector2 = get_move_input()
 
-	# 2) AUTO-ATTACK na najblizsieho enemy v dosahu
-	var enemy := find_nearest_enemy()
-	if enemy != null and fire_left <= 0.0:
-		var dir := (enemy.global_position - global_position).normalized()
-		fire_bolt(enemy)          # posli referenciu, nie smer
-		fire_left = fire_cooldown
-		last_direction = dir      # animacia sa stale otaca k cielu
-	
+	# 1) pohyb — vzdy z tap-to-move, chase len ak hrac nema vlastny prikaz
+	var move_dir := get_move_input()
+
+	# 2) bojova logika — primary_target ma prednost, fallback na najblizsiho
+	if primary_target != null and is_instance_valid(primary_target):
+		var to_target := primary_target.global_position - global_position
+		var dist_sq := to_target.length_squared()
+		var leash_sq := (attack_range * leash_multiplier) * (attack_range * leash_multiplier)
+		if dist_sq > leash_sq:
+			# prilis daleko — zrus lock
+			_clear_primary_target()
+		else:
+			if dist_sq <= attack_range * attack_range:
+				# v dosahu — strielaj
+				_try_fire(primary_target)
+			elif move_dir == Vector2.ZERO:
+				# mimo dosahu a hrac nekaze ist inam — chase
+				move_dir = to_target.normalized()
+	else:
+		primary_target = null
+		var nearest := find_nearest_enemy()
+		if nearest != null:
+			_try_fire(nearest)
+
 	# Normalizacia (aby diagonalna nebola rychlejsia)
 	if move_dir != Vector2.ZERO:
 		move_dir = move_dir.normalized()
@@ -71,6 +88,38 @@ func get_move_input() -> Vector2:
 # =========================
 # FIGHTING LOGIC
 # =========================
+
+func set_primary_target(node: Node2D) -> void:
+	# skry marker na stary ciel
+	if primary_target != null and is_instance_valid(primary_target):
+		if primary_target.has_method("set_targeted"):
+			primary_target.set_targeted(false)
+	primary_target = node
+	# novy lock zrusi tap-to-move ciel — hrac zacne pristupovat k cielu
+	InputR.clear_move_target()
+	# ukaz marker na novy ciel
+	if node.has_method("set_targeted"):
+		node.set_targeted(true)
+	# ked ciel zomrie / zmizne zo stromu, automaticky vymaz referenciu
+	if not node.tree_exited.is_connected(_on_primary_target_removed):
+		node.tree_exited.connect(_on_primary_target_removed)
+
+func _on_primary_target_removed() -> void:
+	# node uz neexistuje — marker zanikol spolu s nim, len vymaz referenciu
+	primary_target = null
+
+func _clear_primary_target() -> void:
+	# skry marker a zrus lock (napr. ked hrac tapne na zem)
+	if primary_target != null and is_instance_valid(primary_target):
+		if primary_target.has_method("set_targeted"):
+			primary_target.set_targeted(false)
+	primary_target = null
+
+func _try_fire(target: Node2D) -> void:
+	if fire_left <= 0.0:
+		last_direction = (target.global_position - global_position).normalized()
+		fire_bolt(target)
+		fire_left = fire_cooldown
 
 func find_nearest_enemy() -> Node2D:
 	var nearest: Node2D = null
@@ -130,23 +179,23 @@ func update_animation(direction: Vector2) -> void:
 	# Porovname absolutne hodnoty osi
 	if abs(direction.x) > abs(direction.y):
 		if direction.x > 0:
-			sprite.play("right")
+			sprite.play("new_back_right") #RIGHT
 		else:
-			sprite.play("left")
+			sprite.play("new_front_left") #LEFT
 	else:
 		if direction.y > 0:
-			sprite.play("down")
+			sprite.play("new_front_left") #DOWN
 		else:
-			sprite.play("up")
+			sprite.play("new_back_right") #UP
 
 func update_idle_animation() -> void:
 	if abs(last_direction.x) > abs(last_direction.y):
 		if last_direction.x > 0:
-			sprite.play("right")
+			sprite.play("new_back_right") #RIGHT
 		else:
-			sprite.play("left")
+			sprite.play("new_front_left") #LEFT
 	else:
 		if last_direction.y > 0:
-			sprite.play("down")
+			sprite.play("new_front_left") #DOWN
 		else:
-			sprite.play("up")
+			sprite.play("new_back_right") #UP

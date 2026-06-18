@@ -39,10 +39,10 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-theme_override_constants/margin_left = 60
-theme_override_constants/margin_top = 30
-theme_override_constants/margin_right = 80
-theme_override_constants/margin_bottom = 30
+theme_override_constants/margin_left = 100
+theme_override_constants/margin_top = 50
+theme_override_constants/margin_right = 130
+theme_override_constants/margin_bottom = 50
 
 [node name="ScrollContainer" type="ScrollContainer" parent="SettingsPanel/MarginContainer" unique_id=1012523393]
 layout_mode = 2
@@ -86,15 +86,35 @@ value = 1.0
 script = ExtResource("4_04rkv")
 audio_bus_name = "Music"
 
+[node name="LockCameraRow" type="HBoxContainer" parent="SettingsPanel/MarginContainer/ScrollContainer/SettingsContent" unique_id=1948037809]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="LockCameraLabel" type="Label" parent="SettingsPanel/MarginContainer/ScrollContainer/SettingsContent/LockCameraRow" unique_id=1069704568]
+layout_mode = 2
+tooltip_text = "Camera follows hero and cannot be dragged freely"
+mouse_filter = 0
+mouse_default_cursor_shape = 2
+theme_override_colors/font_color = Color(0, 0, 0.87058824, 1)
+theme_override_constants/shadow_offset_x = -5
+theme_override_constants/shadow_offset_y = 8
+theme_override_fonts/font = ExtResource("4_8twik")
+theme_override_font_sizes/font_size = 20
+text = "Lock Camera"
+
+[node name="LockCameraToggle" type="CheckButton" parent="SettingsPanel/MarginContainer/ScrollContainer/SettingsContent/LockCameraRow" unique_id=937926906]
+layout_mode = 2
+size_flags_horizontal = 0
+
 [node name="CloseSettings" type="TouchScreenButton" parent="SettingsPanel" unique_id=159458134]
 process_mode = 3
-position = Vector2(730, 180)
+position = Vector2(1090, 268)
 scale = Vector2(4, 4)
 shape = SubResource("CircleShape2D_3g7hk")
 
 [node name="ExitButton" type="TouchScreenButton" parent="." unique_id=1265412763]
 process_mode = 3
-position = Vector2(0, 300)
+position = Vector2(0, 480)
 texture_normal = ExtResource("6_aby01")
 
 [node name="Label" type="Label" parent="ExitButton" unique_id=426003475]

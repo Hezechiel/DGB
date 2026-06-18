@@ -22,6 +22,7 @@ const FRAME_DESTROYED  := 3  # znicena zakladna
 @onready var health_bar: Control = $HealthBar
 @onready var collision_shape: CollisionShape2D = $CollisionShape2D
 @onready var hurtbox_shape: CollisionShape2D = $Hurtbox/CollisionShape2D
+@onready var target_marker: Sprite2D = $TargetMarker
 
 
 func _ready() -> void:
@@ -31,6 +32,14 @@ func _ready() -> void:
 	health_bar.always_visible = true
 	BattleManager.register_base(self, owner_team)
 	add_to_group(owner_team + "_base")   # "player_base" alebo "enemy_base"
+	# tap-to-target: len enemy zakladna je tapable
+	if owner_team == "enemy":
+		$Hurtbox.input_pickable = true
+		$Hurtbox.input_event.connect(_on_hurtbox_input_event)
+
+	# priradenie hurtbox groupy pre dynamicky targeting filter v unit.gd
+	$Hurtbox.add_to_group(owner_team + "_base_hurtbox")
+
 	sprite.play(&"idle")
 
 
@@ -47,6 +56,22 @@ func take_damage(amount: int) -> void:
 func set_vulnerable() -> void:
 	is_vulnerable = true
 	# TODO: pridat vizualny signal ze zakladna je teraz zranitelna (bliknutie, efekt)
+
+
+func set_targeted(state: bool) -> void:
+	target_marker.visible = state
+
+func _on_hurtbox_input_event(_viewport, event, _shape_idx) -> void:
+	if event is InputEventScreenTouch:
+		if event.pressed:
+			var players := get_tree().get_nodes_in_group("team_player")
+			for p in players:
+				if p.has_method("set_primary_target"):
+					p.set_primary_target(self)
+			# nasledujuci release toho isteho tapnutia nesmie spustit tap-to-move v arena.gd
+			InputR.suppress_release_of_touch(event.index)
+		# spotrebuj press AJ release — inak release nad bazou spusti tap-to-move v arena.gd
+		get_viewport().set_input_as_handled()
 
 
 func _update_damage_visual() -> void:
@@ -66,6 +91,7 @@ func _update_damage_visual() -> void:
 func _on_destroyed() -> void:
 	hp = 0
 	health_bar.visible = false
+	target_marker.visible = false
 	sprite.stop()
 	sprite.animation = &"damaged"
 	sprite.frame = FRAME_DESTROYED

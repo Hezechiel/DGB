@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://bw3ya5eoqnsuy" path="res://scripts/arena/base.gd" id="1_base"]
 [ext_resource type="Texture2D" uid="uid://bqepsap2ujkcd" path="res://assets/sprites/turrets/base.png" id="2_tex"]
 [ext_resource type="PackedScene" uid="uid://dvwpf0hx27680" path="res://scenes/ui/HealthBar.tscn" id="3_hbar"]
+[ext_resource type="Texture2D" uid="uid://dvlckfsllk4o3" path="res://assets/sprites/movemarker/target.png" id="4_jha58"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_dmg0"]
 atlas = ExtResource("2_tex")
@@ -83,7 +84,7 @@ script = ExtResource("1_base")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1339458437]
 sprite_frames = SubResource("SpriteFrames_base")
-animation = &"damaged"
+animation = &"idle"
 autoplay = "idle"
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=451103111]
@@ -97,8 +98,15 @@ collision_mask = 0
 shape = SubResource("RectangleShape2D_base")
 
 [node name="HealthBar" parent="." unique_id=174678652 instance=ExtResource("3_hbar")]
-offset_left = -40.0
+offset_left = -16.0
 offset_top = -50.0
-offset_right = -40.0
+offset_right = -16.0
 offset_bottom = -50.0
 always_visible = true
+
+[node name="TargetMarker" type="Sprite2D" parent="." unique_id=446050058]
+visible = false
+z_index = -1
+position = Vector2(0, 3)
+scale = Vector2(1.2, 1.2)
+texture = ExtResource("4_jha58")

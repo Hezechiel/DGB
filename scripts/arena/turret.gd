@@ -9,7 +9,7 @@ extends StaticBody2D
 const FRAME_DESTROYED := 3 # row 1 col 3 — znicena vezicka (0% hp wreck)
 
 @export var max_hp: int = 300
-@export var max_range: float = 120.0        # detection radius in pixels
+@export var aggro_range: float = 120.0        # detection radius in pixels
 @export var fire_cooldown: float = 1.5      # seconds between shots
 @export var projectile_damage: int = 20
 @export var armor: float = 0.0              # flat damage reduction (0 = no armor)
@@ -28,9 +28,11 @@ var restore_hp_per_sec: float = 0.0         # set by repair abilities; 0 = no re
 var regen_buffer: float = 0.0               # zbiera zlomky HP (int heal by ich kazdy frame zahodil)
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
-@onready var detection_range: Area2D = $DetectionRange
-@onready var detection_shape: CollisionShape2D = $DetectionRange/DetectionRange
+@onready var attack_range: Area2D = $AttackRange
+@onready var attack_range_shape: CollisionShape2D = $AttackRange/CollisionShape2D
+
 @onready var health_bar: Control = $HealthBar
+@onready var target_marker: Sprite2D = $TargetMarker
 
 
 
@@ -49,12 +51,20 @@ func _ready() -> void:
 
 	# polomer detekcie podla exportu — duplicate, aby viac veziciek
 	# nezdielalo jeden CircleShape2D resource
-	var circle := detection_shape.shape.duplicate() as CircleShape2D
-	circle.radius = max_range
-	detection_shape.shape = circle
+	var circle := attack_range_shape.shape.duplicate() as CircleShape2D
+	circle.radius = aggro_range
+	attack_range_shape.shape = circle
 
-	detection_range.body_entered.connect(_on_body_entered)
+	attack_range.body_entered.connect(_on_body_entered)
 	#detection_range.body_exited.connect(_on_body_exited)
+
+	# tap-to-target: len enemy struktury su tapable
+	if owner_team == "enemy":
+		$Hurtbox.input_pickable = true
+		$Hurtbox.input_event.connect(_on_hurtbox_input_event)
+
+	# priradenie hurtbox groupy pre dynamicky targeting filter v unit.gd
+	$Hurtbox.add_to_group(owner_team + "_turret_hurtbox")
 
 	sprite.play("idle")
 
@@ -143,6 +153,26 @@ func _fire_at(target: Node2D) -> void:
 
 
 # =========================
+# TARGETING (tap-to-target)
+# =========================
+
+func set_targeted(state: bool) -> void:
+	target_marker.visible = state
+
+func _on_hurtbox_input_event(_viewport, event, _shape_idx) -> void:
+	if event is InputEventScreenTouch:
+		if event.pressed:
+			var players := get_tree().get_nodes_in_group("team_player")
+			for p in players:
+				if p.has_method("set_primary_target"):
+					p.set_primary_target(self)
+			# nasledujuci release toho isteho tapnutia nesmie spustit tap-to-move v arena.gd
+			InputR.suppress_release_of_touch(event.index)
+		# spotrebuj press AJ release — inak release nad turretom spusti tap-to-move v arena.gd
+		get_viewport().set_input_as_handled()
+
+
+# =========================
 # VISUALS
 # =========================
 
@@ -169,6 +199,8 @@ func _update_damage_visual() -> void:
 func _on_destroyed() -> void:
 	hp = 0
 	health_bar.visible = false
+	target_marker.visible = false
+	# destroyed turret cannot remain targeted
 	current_target = null
 
 	sprite.stop()
@@ -177,7 +209,7 @@ func _on_destroyed() -> void:
 
 	# vrak ostava na mape len ako vizual — bez kolizie a detekcie
 	$CollisionBody.set_deferred("disabled", true)
-	detection_shape.set_deferred("disabled", true)
+	attack_range_shape.set_deferred("disabled", true)
 	remove_from_group("turrets")
 	BattleManager.on_turret_destroyed(owner_team, lane)
 	set_physics_process(false)

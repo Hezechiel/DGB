@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://dyxn10n333b4k" path="res://scenes/arena/projectiles/projectile.tscn" id="2_dqkch"]
 [ext_resource type="Texture2D" uid="uid://orifl2llgneu" path="res://assets/sprites/gods/zeus.png" id="2_qhqgy"]
 [ext_resource type="PackedScene" uid="uid://dvwpf0hx27680" path="res://scenes/ui/HealthBar.tscn" id="4_hbar"]
+[ext_resource type="Texture2D" uid="uid://dddjhxy2fs831" path="res://assets/sprites/gods/zeus_walk2.png" id="4_luim2"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_tuyoq"]
 atlas = ExtResource("2_qhqgy")
@@ -36,6 +37,38 @@ region = Rect2(64, 32, 32, 32)
 [sub_resource type="AtlasTexture" id="AtlasTexture_qlg0r"]
 atlas = ExtResource("2_qhqgy")
 region = Rect2(96, 32, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_luim2"]
+atlas = ExtResource("4_luim2")
+region = Rect2(250, 350, 250, 350)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ivb3q"]
+atlas = ExtResource("4_luim2")
+region = Rect2(500, 350, 250, 350)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_b8xfq"]
+atlas = ExtResource("4_luim2")
+region = Rect2(750, 350, 250, 350)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fnykr"]
+atlas = ExtResource("4_luim2")
+region = Rect2(1000, 350, 250, 350)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_eohwr"]
+atlas = ExtResource("4_luim2")
+region = Rect2(250, 0, 250, 350)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rkwxw"]
+atlas = ExtResource("4_luim2")
+region = Rect2(500, 0, 250, 350)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ovhqv"]
+atlas = ExtResource("4_luim2")
+region = Rect2(750, 0, 250, 350)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bcmyj"]
+atlas = ExtResource("4_luim2")
+region = Rect2(1000, 0, 250, 350)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_y4r1p"]
 atlas = ExtResource("2_qhqgy")
@@ -107,6 +140,40 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
+"texture": SubResource("AtlasTexture_luim2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ivb3q")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_b8xfq")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fnykr")
+}],
+"loop": true,
+"name": &"new_back_right",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_eohwr")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rkwxw")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ovhqv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bcmyj")
+}],
+"loop": true,
+"name": &"new_front_left",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
 "texture": SubResource("AtlasTexture_y4r1p")
 }, {
 "duration": 1.0,
@@ -152,12 +219,12 @@ script = ExtResource("1_g2els")
 bolt_scene = ExtResource("2_dqkch")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1617835785]
-position = Vector2(0, -16)
+position = Vector2(0, -15)
+scale = Vector2(0.09, 0.09)
 sprite_frames = SubResource("SpriteFrames_tuyoq")
-animation = &"up"
+animation = &"new_front_left"
 autoplay = "down"
-frame = 2
-frame_progress = 0.15374784
+frame_progress = 0.1417543
 
 [node name="CollisionBody" type="CollisionShape2D" parent="." unique_id=1518345647]
 position = Vector2(0, -8)

@@ -4,6 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://dxe0ew54ttwbr" path="res://assets/sprites/turrets/turret1.png" id="2_tex"]
 [ext_resource type="PackedScene" uid="uid://dyxn10n333b4k" path="res://scenes/arena/projectiles/projectile.tscn" id="3_bolt"]
 [ext_resource type="PackedScene" uid="uid://dvwpf0hx27680" path="res://scenes/ui/HealthBar.tscn" id="4_hbar"]
+[ext_resource type="Texture2D" uid="uid://dvlckfsllk4o3" path="res://assets/sprites/movemarker/target.png" id="5_c8my7"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_rp4y7"]
 atlas = ExtResource("2_tex")
@@ -84,7 +85,6 @@ radius = 120.0
 collision_layer = 4
 collision_mask = 0
 script = ExtResource("1_turret")
-max_range = 150.0
 aggro_drop_range = 180.0
 bolt_scene = ExtResource("3_bolt")
 
@@ -98,11 +98,11 @@ autoplay = "idle"
 position = Vector2(0, -16)
 shape = SubResource("RectangleShape2D_body")
 
-[node name="DetectionRange" type="Area2D" parent="." unique_id=1225977766]
+[node name="AttackRange" type="Area2D" parent="." unique_id=1225977766]
 collision_layer = 0
 collision_mask = 2
 
-[node name="DetectionRange" type="CollisionShape2D" parent="DetectionRange" unique_id=2033128387]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackRange" unique_id=2033128387]
 shape = SubResource("CircleShape2D_range")
 
 [node name="Hurtbox" type="Area2D" parent="." unique_id=1102908719]
@@ -118,3 +118,9 @@ offset_left = -16.0
 offset_top = -65.0
 offset_right = -16.0
 offset_bottom = -65.0
+
+[node name="TargetMarker" type="Sprite2D" parent="." unique_id=1503688539]
+visible = false
+z_index = -1
+position = Vector2(0, -18)
+texture = ExtResource("5_c8my7")
