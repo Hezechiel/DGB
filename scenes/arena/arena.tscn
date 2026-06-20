@@ -183,7 +183,7 @@ position = Vector2(170, 130)
 lane = "bot"
 
 [node name="ArenaCamera" type="Camera2D" parent="." unique_id=555000123]
-zoom = Vector2(4, 4)
+zoom = Vector2(3, 3)
 limit_left = -450
 limit_top = -350
 limit_right = 450

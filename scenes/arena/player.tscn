@@ -224,7 +224,7 @@ scale = Vector2(0.09, 0.09)
 sprite_frames = SubResource("SpriteFrames_tuyoq")
 animation = &"new_front_left"
 autoplay = "down"
-frame_progress = 0.1417543
+frame_progress = 0.21053809
 
 [node name="CollisionBody" type="CollisionShape2D" parent="." unique_id=1518345647]
 position = Vector2(0, -8)

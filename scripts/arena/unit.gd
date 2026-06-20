@@ -66,11 +66,13 @@ func _ready() -> void:
 
 # funkcie enemy
 func _physics_process(delta: float) -> void:
-	if target == null:
+	if target == null or not is_instance_valid(target):
 		return
 	
 	attack_left = max(attack_left - delta , 0.0)
 
+	if hurtbox_in_range != null and not is_instance_valid(hurtbox_in_range):
+		hurtbox_in_range = null  # ciel bol freed bez area_exited — vycisti referenciu
 	if hurtbox_in_range != null:
 		# In melee range: stop moving. Attack tick still runs below.
 		velocity = Vector2.ZERO
@@ -103,7 +105,7 @@ func _physics_process(delta: float) -> void:
 		move_and_slide()
 
 	if hurtbox_in_range != null and attack_left <= 0.0:
-		if target != null and target.has_method("take_damage"):
+		if target != null and is_instance_valid(target) and target.has_method("take_damage"):
 			target.take_damage(damage)
 		attack_left = attack_cooldown
 
@@ -182,7 +184,7 @@ func _on_attack_range_area_entered(area: Area2D) -> void:
 		hurtbox_in_range = area
 
 func _on_attack_range_area_exited(area: Area2D) -> void:
-	if area == hurtbox_in_range:
+	if area == hurtbox_in_range or not is_instance_valid(hurtbox_in_range):
 		hurtbox_in_range = null
 
 # TODO: rovnaky pattern doplnit do turret.gd a base.gd ked dostanu svoje
