@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cev7ws5ggswl"
-path="res://.godot/imported/ring.png-ecf121ca05637d7d469c5ec369e27663.ctex"
+uid="uid://dv8mpu640lf7v"
+path="res://.godot/imported/UI_pause_btn.png-a9f593770bd4d57dc16bd6b62ccbf054.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/movemarker/ring.png"
-dest_files=["res://.godot/imported/ring.png-ecf121ca05637d7d469c5ec369e27663.ctex"]
+source_file="res://assets/menu/UI_pause_btn.png"
+dest_files=["res://.godot/imported/UI_pause_btn.png-a9f593770bd4d57dc16bd6b62ccbf054.ctex"]
 
 [params]
 

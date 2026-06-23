@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://orifl2llgneu"
-path="res://.godot/imported/zeus.png-327aca9f15539daa4aa3e97119f7d07c.ctex"
+uid="uid://c865n2j5w8div"
+path="res://.godot/imported/UI_pause_btn_pressed.png-58ee607d0aa483bdca708d461238291a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/gods/zeus.png"
-dest_files=["res://.godot/imported/zeus.png-327aca9f15539daa4aa3e97119f7d07c.ctex"]
+source_file="res://assets/menu/UI_pause_btn_pressed.png"
+dest_files=["res://.godot/imported/UI_pause_btn_pressed.png-58ee607d0aa483bdca708d461238291a.ctex"]
 
 [params]
 
