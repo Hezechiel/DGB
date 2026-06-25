@@ -68,12 +68,9 @@ func spawn_one_enemy() -> void:
 	if pos.distance_to(player.global_position) < 5:
 		return
 	
-	# nastav target (tvoj enemy.gd musi mat: var target: Node2D)
 	var enemy := enemy_scene.instantiate()
 	enemy.global_position = pos
-	enemy.target = player
 	enemy.tree_exited.connect(func(): enemies.erase(enemy))
-	enemy.enemy_manager = self
 	
 	# aby sme vedely rychlo hladat existujucich enemy
 	enemies.append(enemy)
