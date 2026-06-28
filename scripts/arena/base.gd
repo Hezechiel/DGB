@@ -13,10 +13,11 @@ var hp: int
 
 # Snimky z riadku 1 spritesheet-u (animacia "damaged")
 # riadok 0 = idle (4 snimky), riadok 1 = poskodenie (4 snimky)
-const FRAME_DAMAGED_75 := 0  # pod 75% HP
-const FRAME_DAMAGED_50 := 1  # pod 50% HP
-const FRAME_DAMAGED_25 := 2  # pod 25% HP
-const FRAME_DESTROYED  := 3  # znicena zakladna
+const FRAME_DAMAGED_90 := 0  # pod 90% HP
+const FRAME_DAMAGED_75 := 1  # pod 75% HP
+const FRAME_DAMAGED_50 := 2  # pod 50% HP
+const FRAME_DAMAGED_25 := 3  # pod 25% HP
+const FRAME_DESTROYED  := 4  # znicena zakladna
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var health_bar: Control = $HealthBar
@@ -76,11 +77,13 @@ func _on_hurtbox_input_event(_viewport, event, _shape_idx) -> void:
 
 func _update_damage_visual() -> void:
 	var ratio := float(hp) / float(max_hp)
-	if ratio > 0.75:
+	if ratio > 0.90:
 		return   # idle animacia pokracuje normalne
 	sprite.stop()
 	sprite.animation = &"damaged"
-	if ratio > 0.50:
+	if ratio > 0.75:
+		sprite.frame = FRAME_DAMAGED_90
+	elif ratio > 0.50:
 		sprite.frame = FRAME_DAMAGED_75
 	elif ratio > 0.25:
 		sprite.frame = FRAME_DAMAGED_50
