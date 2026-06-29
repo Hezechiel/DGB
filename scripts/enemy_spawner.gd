@@ -1,126 +1,63 @@
 extends Node2D
 
-@export var enemy_scene: PackedScene
-@export var player: Node2D
+# EnemySpawner — spawnuje enemy unity do lan pri enemy baze
+# 5 unity na top lanu + 5 unity na bot lanu = 10 unity na vlnu
+# Vlna kazde wave_interval sekund
 
-# Arena bounds (svetové súradnice)
-@export var arena_min: Vector2 = Vector2(-150, -140)
-@export var arena_max: Vector2 = Vector2(150, 150)
+@export var unit_scene: PackedScene
 
-# Spawn pravidla
-@export var min_distance_from_player: float = 160.0
-@export var min_distance_between_enemies: float = 10.0
-@export var max_spawn_attempts: int = 40
-@export var edge_padding: float = 8.0
+# Cas medzi vlnami v sekundach
+@export var wave_interval: float = 10.0
 
-# Vlny
-@export var max_enemies_alive: int = 10
-@export var enemies_per_wave: int = 3
-@export var time_between_waves: float = 2.0
-@export var spawn_interval_inside_wave: float = 0.12
+# Pocet unity na lanu na vlnu
+@export var units_per_lane: int = 5
+
+# Maly rozptyl pozicie aby sa unity nespawnovali presne na seba (world units)
+@export var spawn_scatter: float = 8.0
+
+# Spawn pozicie pri enemy baze — blizko prveho waypointu enemy_top / enemy_bot
+# Zodpoveda LaneManager enemy_top[0] = Vector2(280, -100)
+#                         enemy_bot[0] = Vector2(280,  100)
+@export var spawn_pos_top: Vector2 = Vector2(300, -100)
+@export var spawn_pos_bot: Vector2 = Vector2(300,  100)
 
 @onready var wave_timer: Timer = $WaveTimer
 
-var _spawning := false
-var enemies: Array[Node2D] = []
-
 func _ready() -> void:
-	randomize()
-	if enemy_scene == null:
-		push_error("EnemySpawner: enemy_scene nie je nastavene!")
+	if unit_scene == null:
+		push_error("EnemySpawner: unit_scene nie je nastavene!")
 		return
-		
-	wave_timer.wait_time = time_between_waves
+	wave_timer.wait_time = wave_interval
 	wave_timer.one_shot = false
 	wave_timer.timeout.connect(_on_wave_timer_timeout)
 	wave_timer.start()
-	
-	# pockat frame aby sa nespawnoval prvy nepriatel skor ako je setup ready
-	await get_tree().process_frame
-	
-	# volitelne prva vlna hned
-	_on_wave_timer_timeout()
+	# prvá vlna okamzite pri starte pre rychle testovanie
+	_spawn_wave()
 
 func _on_wave_timer_timeout() -> void:
-	if _spawning:
-		return
-	_spawning = true
-	await spawn_wave(enemies_per_wave)
-	_spawning = false
+	_spawn_wave()
 
-func spawn_wave(count: int) -> void:
-	var alive := enemies.size()
-	if alive >= max_enemies_alive:
-		return
-	
-	var can_spawn: int = min(count, max_enemies_alive - alive)
-	for i in range(can_spawn):
-		spawn_one_enemy()
-		await get_tree().create_timer(spawn_interval_inside_wave).timeout
-	
-	#print("Enemies on field: ", enemies.size())
+func _spawn_wave() -> void:
+	# 5 unity na top lanu
+	for i in range(units_per_lane):
+		_spawn_unit("top", spawn_pos_top, i)
+	# 5 unity na bot lanu
+	for i in range(units_per_lane):
+		_spawn_unit("bot", spawn_pos_bot, i)
 
-func spawn_one_enemy() -> void:
-	var pos: Vector2 = find_valid_spawn_position()
-	if pos == Vector2.INF:
-		# nenaslo sa miesto - radsej spawnuj
-		return
-	if pos.distance_to(player.global_position) < 5:
-		return
-	
-	var enemy := enemy_scene.instantiate()
-	enemy.global_position = pos
-	enemy.tree_exited.connect(func(): enemies.erase(enemy))
-	
-	# aby sme vedely rychlo hladat existujucich enemy
-	enemies.append(enemy)
-	
-	# predpoklad: spawner je pod rootom Game
-	get_parent().add_child.call_deferred(enemy)
+func _spawn_unit(lane: String, base_pos: Vector2, index: int) -> void:
+	var unit := unit_scene.instantiate()
 
-func find_valid_spawn_position() -> Vector2:
-	for attempt in range(max_spawn_attempts):
-		var p: Vector2 = random_point_on_edge()
-		
-		# 1) min vzdialenost od hraca
-		if p.distance_to(player.global_position) < min_distance_from_player:
-			continue
-		
-		# 2) anti-stack: min vzdialenost od existujúcich enemy
-		if is_too_close_to_other_enemies(p, min_distance_between_enemies):
-			continue
-			
-		return p
-		
-	return random_point_on_edge()
+	# nastav team a lanu pred pridanim do stromu
+	unit.team = "enemy"
+	unit.lane = lane
 
-func is_too_close_to_other_enemies(p: Vector2, min_dist: float) -> bool:
-	for e in enemies:
-		if e is Node2D:
-			if p.distance_to(e.global_position) < min_dist:
-				return true
-	return false
+	# rozptyl aby sa unity nespawnovali presne na seba
+	var scatter := Vector2(
+		randf_range(-spawn_scatter, spawn_scatter),
+		randf_range(-spawn_scatter, spawn_scatter)
+	)
+	unit.global_position = base_pos + scatter
 
-func random_point_on_edge() -> Vector2:
-	var x_min := arena_min.x
-	var y_min := arena_min.y
-	var x_max := arena_max.x
-	var y_max := arena_max.y
-	
-	var pad := edge_padding
-	
-	# veberieme nahodnu stranu: 0=top,1=right,2=bottom,3=left
-	var side := randi() % 4
-	
-	match side:
-		0: # top
-			return Vector2(randf_range(x_min, x_max), y_min + pad)
-		1: # right
-			return Vector2(x_max - pad, randf_range(y_min, y_max))
-		2: # bottom
-			return Vector2(randf_range(x_min, x_max), y_max - pad)
-		3: # left
-			return Vector2(x_min + pad, randf_range(y_min, y_max))
-	
-	# fallback
-	return Vector2(x_min, y_min)
+	# pridaj ako subrat areny (spawner je child areny)
+	get_parent().add_child.call_deferred(unit)

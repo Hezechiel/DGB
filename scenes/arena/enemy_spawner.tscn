@@ -5,6 +5,6 @@
 
 [node name="EnemySpawner" type="Node2D" unique_id=1872486208]
 script = ExtResource("1_ks1gq")
-enemy_scene = ExtResource("2_devoi")
+unit_scene = ExtResource("2_devoi")
 
 [node name="WaveTimer" type="Timer" parent="." unique_id=1021771525]
