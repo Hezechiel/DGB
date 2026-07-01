@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://bmlvgts214cto"]
+[gd_scene format=3 uid="uid://apy892acpom14"]
 
 [ext_resource type="Script" uid="uid://cbs5rnldelj2u" path="res://scripts/arena/unit.gd" id="1_hrefa"]
 [ext_resource type="Texture2D" uid="uid://vts2074k2nnt" path="res://assets/sprites/enemies/enemy_walk1.png" id="2_14qrv"]
@@ -97,13 +97,13 @@ radius = 11.0
 [sub_resource type="CircleShape2D" id="CircleShape2D_hurtbox"]
 radius = 11.0
 
-[node name="Enemy" type="CharacterBody2D" unique_id=231895734]
+[node name="Ally" type="CharacterBody2D" unique_id=231895735]
 collision_layer = 2
 collision_mask = 4
 script = ExtResource("1_hrefa")
 max_hp = 150
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=939097824]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=939097825]
 z_index = 2
 position = Vector2(0, -14)
 scale = Vector2(0.08, 0.08)
@@ -111,33 +111,33 @@ sprite_frames = SubResource("SpriteFrames_wvat0")
 animation = &"new_front_left"
 frame_progress = 0.87960094
 
-[node name="CollisionBody" type="CollisionShape2D" parent="." unique_id=253596810]
+[node name="CollisionBody" type="CollisionShape2D" parent="." unique_id=253596811]
 position = Vector2(0, -12)
 shape = SubResource("RectangleShape2D_47qqk")
 
-[node name="AttackRange" type="Area2D" parent="." unique_id=934233619]
+[node name="AttackRange" type="Area2D" parent="." unique_id=934233620]
 collision_layer = 64
 collision_mask = 8
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackRange" unique_id=959826573]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackRange" unique_id=959826574]
 position = Vector2(0, -11)
 shape = SubResource("CircleShape2D_neqx1")
 
-[node name="Hurtbox" type="Area2D" parent="." unique_id=388394023]
+[node name="Hurtbox" type="Area2D" parent="." unique_id=388394024]
 collision_layer = 16
 collision_mask = 0
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=1769984495]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=1769984496]
 position = Vector2(0, -11)
 shape = SubResource("CircleShape2D_hurtbox")
 
-[node name="HealthBar" parent="." unique_id=1295574187 instance=ExtResource("3_l0sew")]
+[node name="HealthBar" parent="." unique_id=1295574188 instance=ExtResource("3_l0sew")]
 offset_left = -16.0
 offset_top = -30.0
 offset_right = -16.0
 offset_bottom = -30.0
 
-[node name="TargetMarker" type="Sprite2D" parent="." unique_id=1366566655]
+[node name="TargetMarker" type="Sprite2D" parent="." unique_id=1366566656]
 visible = false
 z_index = 1
 position = Vector2(0, -5)

@@ -3,6 +3,7 @@ extends Node2D
 @onready var hud: HUD = $HUD
 @onready var move_marker: Node2D = $MoveMarker
 @onready var arena_camera: Camera2D = $ArenaCamera
+@onready var player: CharacterBody2D = $Player
 
 const MAIN_MENU_SCENE := "res://scenes/menu/MainMenu.tscn"
 
@@ -23,6 +24,7 @@ func _unhandled_input(event: InputEvent) -> void:
 			return
 		var world_pos: Vector2 = get_canvas_transform().affine_inverse() * event.position
 		InputR.set_move_target(world_pos)
+		player.on_new_move_command() # novy tap-to-move zrusi manualny lock na cieli
 		move_marker.show_at(world_pos)
 
 func _on_hud_exit_requested() -> void:

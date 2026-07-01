@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://cprjw58lfuvba" path="res://scripts/arena/arena.gd" id="1_u52cf"]
 [ext_resource type="Texture2D" uid="uid://di5q1wn6p6wmm" path="res://assets/world/world_map.png" id="2_ii07k"]
 [ext_resource type="Texture2D" uid="uid://b81r7so454vot" path="res://assets/sprites/world_tileset.png" id="3_6w4xk"]
-[ext_resource type="PackedScene" uid="uid://b3ygtyp1ktxnt" path="res://scenes/arena/enemy_spawner.tscn" id="4_2ml6w"]
+[ext_resource type="PackedScene" uid="uid://b3ygtyp1ktxnt" path="res://scenes/arena/spawner.tscn" id="4_2ml6w"]
 [ext_resource type="PackedScene" uid="uid://bjivk7ksw0cr7" path="res://scenes/arena/player.tscn" id="5_xgbxb"]
 [ext_resource type="PackedScene" uid="uid://8nnp84nrmapf" path="res://scenes/arena/turrets/PlayerTurret.tscn" id="6_ii07k"]
 [ext_resource type="PackedScene" uid="uid://b7xkqe2n8wt4r" path="res://scenes/arena/turrets/EnemyTurret.tscn" id="7_6w4xk"]
@@ -157,7 +157,7 @@ tile_set = SubResource("TileSet_lbhrr")
 
 [node name="MoveMarker" parent="." unique_id=1387004111 instance=ExtResource("8_mvmrk")]
 
-[node name="EnemySpawner" parent="." unique_id=1872486208 node_paths=PackedStringArray("player") instance=ExtResource("4_2ml6w")]
+[node name="Spawner" parent="." unique_id=1872486208 node_paths=PackedStringArray("player") instance=ExtResource("4_2ml6w")]
 position = Vector2(-172, -101)
 player = NodePath("../Player")
 

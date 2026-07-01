@@ -12,8 +12,6 @@ var invuln_left: float = 0.0
 @export var bolt_scene: PackedScene
 @export var fire_cooldown: float = 0.5
 @export var attack_range: float = 80.0
-# leash: ak sa ciel vzdiali nad tento nasobok attack_range, lock sa zrusi
-@export var leash_multiplier: float = 4.0
 @export var projectile_damage: int = 25
 var fire_left: float = 0.0
 
@@ -24,7 +22,8 @@ var fire_left: float = 0.0
 
 var last_direction := Vector2.DOWN #default pozera dole
 
-var primary_target: Node2D = null
+var primary_target: Node2D = null # manualny ciel (tap na enemy/turret/base)
+var auto_target: Node2D = null # fallback ciel (najblizsi nepriatel v dosahu) — len na strielanie, bez chase
 
 func _ready() -> void:
 	health_points = max_hp
@@ -39,27 +38,23 @@ func _physics_process(delta):
 	invuln_left = max(invuln_left - delta, 0.0)
 	fire_left = max(fire_left - delta, 0.0)
 
-	# 1) pohyb — vzdy z tap-to-move, chase len ak hrac nema vlastny prikaz
+	# 1) pohyb — vzdy z tap-to-move; manualny ciel mimo dosahu prepise chase smerom k nemu
 	var move_dir := get_move_input()
 
-	# 2) bojova logika — primary_target ma prednost, fallback na najblizsiho
+	# 2) bojova logika — manualny ciel ma prednost, fallback na auto-target (bez chase)
 	if primary_target != null and is_instance_valid(primary_target):
 		var to_target := primary_target.global_position - global_position
 		var dist_sq := to_target.length_squared()
-		var leash_sq := (attack_range * leash_multiplier) * (attack_range * leash_multiplier)
-		if dist_sq > leash_sq:
-			# prilis daleko — zrus lock
-			_clear_primary_target()
+		if dist_sq <= attack_range * attack_range:
+			# v dosahu — strielaj
+			_try_fire(primary_target)
 		else:
-			if dist_sq <= attack_range * attack_range:
-				# v dosahu — strielaj
-				_try_fire(primary_target)
-			elif move_dir == Vector2.ZERO:
-				# mimo dosahu a hrac nekaze ist inam — chase
-				move_dir = to_target.normalized()
+			# mimo dosahu — chase (manualny ciel ma prioritu pred tap-to-move)
+			move_dir = to_target.normalized()
 	else:
-		primary_target = null
+		# ziadny manualny ciel — auto-target: strielaj na najblizsieho v dosahu, ale bez chase
 		var nearest := find_nearest_enemy()
+		_update_auto_target(nearest)
 		if nearest != null:
 			_try_fire(nearest)
 
@@ -90,7 +85,11 @@ func get_move_input() -> Vector2:
 # =========================
 
 func set_primary_target(node: Node2D) -> void:
-	# skry marker na stary ciel
+	# manualny a auto-target sa nesmu prekryvat — skry marker na auto-target, ak bezi
+	if auto_target != null and is_instance_valid(auto_target) and auto_target.has_method("set_targeted"):
+		auto_target.set_targeted(false)
+	auto_target = null
+	# skry marker na stary manualny ciel
 	if primary_target != null and is_instance_valid(primary_target):
 		if primary_target.has_method("set_targeted"):
 			primary_target.set_targeted(false)
@@ -114,6 +113,20 @@ func _clear_primary_target() -> void:
 		if primary_target.has_method("set_targeted"):
 			primary_target.set_targeted(false)
 	primary_target = null
+
+func on_new_move_command() -> void:
+	# hrac zadal novy tap-to-move — explicitny disengage od manualneho ciela
+	_clear_primary_target()
+
+func _update_auto_target(nearest: Node2D) -> void:
+	# bez flickeru — marker sa prepne len ked sa auto-target skutocne zmeni
+	if nearest == auto_target:
+		return
+	if auto_target != null and is_instance_valid(auto_target) and auto_target.has_method("set_targeted"):
+		auto_target.set_targeted(false)
+	auto_target = nearest
+	if auto_target != null and auto_target.has_method("set_targeted"):
+		auto_target.set_targeted(true)
 
 func _try_fire(target: Node2D) -> void:
 	if fire_left <= 0.0:

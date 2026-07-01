@@ -1,0 +1,12 @@
+[gd_scene format=3 uid="uid://b3ygtyp1ktxnt"]
+
+[ext_resource type="Script" uid="uid://cnaw2ckllqudf" path="res://scripts/spawner.gd" id="1_ks1gq"]
+[ext_resource type="PackedScene" uid="uid://bmlvgts214cto" path="res://scenes/arena/enemies/enemy.tscn" id="2_devoi"]
+[ext_resource type="PackedScene" uid="uid://apy892acpom14" path="res://scenes/arena/allies/ally.tscn" id="3_ally"]
+
+[node name="Spawner" type="Node2D" unique_id=1872486208]
+script = ExtResource("1_ks1gq")
+enemy_unit_scene = ExtResource("2_devoi")
+ally_unit_scene = ExtResource("3_ally")
+
+[node name="WaveTimer" type="Timer" parent="." unique_id=1021771525]
