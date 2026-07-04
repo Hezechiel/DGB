@@ -37,7 +37,7 @@ func _ready() -> void:
 	wave_timer.timeout.connect(_on_wave_timer_timeout)
 	wave_timer.start()
 	# prvá vlna okamzite pri starte pre rychle testovanie
-	#_spawn_wave()
+	_spawn_wave()
 
 func _on_wave_timer_timeout() -> void:
 	_spawn_wave()

@@ -8,6 +8,7 @@ extends Node2D
 const MAIN_MENU_SCENE := "res://scenes/menu/MainMenu.tscn"
 
 func _ready() -> void:
+	_register_lane_paths()
 	hud.exit_requested.connect(_on_hud_exit_requested)
 	hud.recenter_camera_requested.connect(_on_recenter_camera_requested)
 	BattleManager.match_ended.connect(_on_match_ended)
@@ -35,6 +36,19 @@ func _on_recenter_camera_requested() -> void:
 
 func _on_match_ended(_winner: String) -> void:
 	get_tree().change_scene_to_file("res://scenes/menu/MatchEndScreen.tscn")
+
+func _register_lane_paths() -> void:
+	var lane_map := {"TopLane": "top", "BotLane": "bot"}
+	for node_name in lane_map:
+		var lane_key: String = lane_map[node_name]
+		var container: Node = $Waypoints.get_node(node_name)
+		var forward: Array = []
+		for marker in container.get_children():
+			forward.append(marker.global_position)
+		LaneManager.register_lane_path("player", lane_key, forward)
+		var reverse := forward.duplicate()
+		reverse.reverse()
+		LaneManager.register_lane_path("enemy", lane_key, reverse)
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
