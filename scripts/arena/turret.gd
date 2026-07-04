@@ -13,7 +13,6 @@ const FRAME_DESTROYED := 3 # row 1 col 3 — znicena vezicka (0% hp wreck)
 @export var fire_cooldown: float = 1.5      # seconds between shots
 @export var projectile_damage: int = 20
 @export var armor: float = 0.0              # flat damage reduction (0 = no armor)
-@export var aggro_drop_range: float = 150.0 # target released beyond this distance
 @export var bolt_scene: PackedScene         # assign LightningBolt.tscn in Inspector
 @export var target_group: String = "team_enemy" # which group this turret shoots at
 @export var owner_team: String = "player"        # "player" or "enemy" — for BattleManager registration
@@ -56,7 +55,7 @@ func _ready() -> void:
 	attack_range_shape.shape = circle
 
 	attack_range.body_entered.connect(_on_body_entered)
-	#detection_range.body_exited.connect(_on_body_exited)
+	attack_range.body_exited.connect(_on_body_exited)
 
 	# tap-to-target: len enemy struktury su tapable
 	if owner_team == "enemy":
@@ -89,10 +88,6 @@ func _physics_process(delta: float) -> void:
 	# ciel mohol medzitym umriet / zmiznut zo stromu
 	if current_target != null and not is_instance_valid(current_target):
 		current_target = null
-
-	if current_target != null:
-		if current_target.global_position.distance_to(global_position) > aggro_drop_range:
-			_drop_target()
 
 	if current_target != null and fire_left <= 0.0:
 		_fire_at(current_target)
@@ -132,8 +127,12 @@ func apply_stun(duration: float) -> void:
 	stun_timer = max(stun_timer, duration) # dlhsi stun vyhrava
 
 
+# Vstupny bod pre nasilne prepisanie aggra (napr. buduci enemy hero pulluje
+# aggro z vezicky): ked hero poskodi unit zatial co stoji v AttackRange danej
+# vezicky, jeho attack-resolution kod zavola turret.taunt(self). Ziadny enemy
+# hero zatial neexistuje — hook je len pripraveny.
 func taunt(new_target: Node2D) -> void:
-	# nasilu prepise aktualny aggro (pre buduce ability)
+	# nasilu prepise aktualny aggro, aj ked uz mal vezicka zamknuty iny ciel
 	current_target = new_target
 
 
@@ -223,11 +222,8 @@ func _on_body_entered(body: Node2D) -> void:
 	if current_target == null and body.is_in_group(target_group):
 		current_target = body
 
-
-#func _on_body_exited(body: Node2D) -> void:
-	#if body == current_target:
-		#_drop_target()
-
-
-func _drop_target() -> void:
-	current_target = null
+func _on_body_exited(body: Node2D) -> void:
+	# ciel skutocne opustil AttackRange (podla fyziky, nie priblizneho vypoctu
+	# vzdialenosti) — pusti ho, aby vezicka mohla zamknut dalsie telo v dosahu
+	if body == current_target:
+		current_target = null

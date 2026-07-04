@@ -1,5 +1,11 @@
 extends CharacterBody2D
 
+# Fyzicke vrstvy hurtboxov (project.godot [layer_names]) — ally.tscn a
+# enemy.tscn su takmer identicke sablony zdielajuce tento skript, takze
+# spravnu vrstvu podla teamu treba dopocitat v runtime, nie ju bakovat v scene
+const PLAYER_HURTBOX_LAYER := 8   # zodpoveda layer_4 "player_hurtbox"
+const ENEMY_HURTBOX_LAYER := 16   # zodpoveda layer_5 "enemy_hurtbox"
+
 # === TIM A CIELENIE ===
 # team: "player" alebo "enemy" — riadi groupy, BattleManager registraciu a farbu health baru
 @export var team: String = "enemy"
@@ -61,6 +67,12 @@ var last_direction := Vector2.DOWN
 func _ready() -> void:
 	hp = max_hp
 	health_bar.init(max_hp, team)
+
+	# ally.tscn a enemy.tscn su rovnaka sablona — spravne fyzicke vrstvy podla
+	# teamu treba dopocitat tu, nie spoliehat sa na staticke hodnoty zo sceny
+	$Hurtbox.collision_layer = PLAYER_HURTBOX_LAYER if team == "player" else ENEMY_HURTBOX_LAYER
+	attack_range.collision_mask = ENEMY_HURTBOX_LAYER if team == "player" else PLAYER_HURTBOX_LAYER
+
 	add_to_group("team_" + team)   # "team_player" alebo "team_enemy"
 	BattleManager.register(self, team)
 	attack_range.area_entered.connect(_on_attack_range_area_entered)

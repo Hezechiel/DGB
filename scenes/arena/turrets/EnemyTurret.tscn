@@ -53,7 +53,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_vff26")
 }],
-"loop": false,
+"loop": 0,
 "name": &"damaged",
 "speed": 5.0
 }, {
@@ -70,7 +70,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_63apu")
 }],
-"loop": true,
+"loop": 1,
 "name": &"idle",
 "speed": 3.0
 }]
@@ -90,8 +90,8 @@ target_group = "team_player"
 owner_team = "enemy"
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=424360374]
-z_index = 2
 modulate = Color(1, 0.45, 0.45, 1)
+z_index = 2
 position = Vector2(0, -30)
 sprite_frames = SubResource("SpriteFrames_turret")
 animation = &"idle"
@@ -103,6 +103,7 @@ shape = SubResource("RectangleShape2D_body")
 
 [node name="AttackRange" type="Area2D" parent="." unique_id=1935494191]
 collision_layer = 0
+collision_mask = 3
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AttackRange" unique_id=449898405]
 shape = SubResource("CircleShape2D_range")

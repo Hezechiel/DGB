@@ -157,9 +157,8 @@ tile_set = SubResource("TileSet_lbhrr")
 
 [node name="MoveMarker" parent="." unique_id=1387004111 instance=ExtResource("8_mvmrk")]
 
-[node name="Spawner" parent="." unique_id=1872486208 node_paths=PackedStringArray("player") instance=ExtResource("4_2ml6w")]
+[node name="Spawner" parent="." unique_id=1872486208 instance=ExtResource("4_2ml6w")]
 position = Vector2(-172, -101)
-player = NodePath("../Player")
 
 [node name="PlayerBase" parent="." unique_id=1910442995 instance=ExtResource("10_xgbxb")]
 position = Vector2(-360, 0)

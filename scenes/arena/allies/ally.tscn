@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://apy892acpom14"]
+[gd_scene format=3 uid="uid://p0aa2acpom14"]
 
 [ext_resource type="Script" uid="uid://cbs5rnldelj2u" path="res://scripts/arena/unit.gd" id="1_hrefa"]
 [ext_resource type="Texture2D" uid="uid://vts2074k2nnt" path="res://assets/sprites/enemies/enemy_walk1.png" id="2_14qrv"]
@@ -117,14 +117,14 @@ shape = SubResource("RectangleShape2D_47qqk")
 
 [node name="AttackRange" type="Area2D" parent="." unique_id=934233620]
 collision_layer = 64
-collision_mask = 8
+collision_mask = 16
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AttackRange" unique_id=959826574]
 position = Vector2(0, -11)
 shape = SubResource("CircleShape2D_neqx1")
 
 [node name="Hurtbox" type="Area2D" parent="." unique_id=388394024]
-collision_layer = 16
+collision_layer = 8
 collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=1769984496]

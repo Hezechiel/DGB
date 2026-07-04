@@ -53,7 +53,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_3oe1p")
 }],
-"loop": false,
+"loop": 0,
 "name": &"damaged",
 "speed": 5.0
 }, {
@@ -70,7 +70,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_ubgqe")
 }],
-"loop": true,
+"loop": 1,
 "name": &"idle",
 "speed": 3.0
 }]
@@ -85,7 +85,6 @@ radius = 120.0
 collision_layer = 4
 collision_mask = 0
 script = ExtResource("1_turret")
-aggro_drop_range = 180.0
 bolt_scene = ExtResource("3_bolt")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1709766615]
@@ -100,7 +99,7 @@ shape = SubResource("RectangleShape2D_body")
 
 [node name="AttackRange" type="Area2D" parent="." unique_id=1225977766]
 collision_layer = 0
-collision_mask = 2
+collision_mask = 3
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AttackRange" unique_id=2033128387]
 shape = SubResource("CircleShape2D_range")

@@ -62,7 +62,7 @@ Current turret sprites are 150×150 at scale (0.4, 0.4) — legacy. Redraw at 64
 | Bit | Layer name | Who uses it |
 |---|---|---|
 | 1 | `player_body` | Player CharacterBody2D |
-| 2 | `enemy_body` | Human enemy CharacterBody2D |
+| 2 | `unit_body` | Ally/enemy unit CharacterBody2D (both teams, shared) |
 | 3 | `structures` | Turrets, Command Post (StaticBody2D) |
 | 4 | `player_hurtbox` | Player's Hurtbox Area2D |
 | 5 | `enemy_hurtbox` | Enemy units' Hurtbox Area2D; enemy turret hurtboxes |
@@ -94,7 +94,7 @@ Turret hurtboxes: PlayerTurret layer=8 (player_hurtbox), EnemyTurret layer=16 (e
 
 **Turrets** — `scenes/arena/PlayerTurret.tscn`, `scenes/arena/EnemyTurret.tscn` / `scripts/arena/turret.gd`
 - `StaticBody2D`, shared script, `owner_team` and `target_group` exports
-- Full MOBA variables: `armor`, `aggro_drop_range`, `stun_timer`, `restore_hp_per_sec`, `regen_buffer`
+- Full MOBA variables: `armor`, `stun_timer`, `restore_hp_per_sec`, `regen_buffer`
 - 4-stage damage visuals via `AnimatedSprite2D` frame control (no `queue_free()` — turrets become wrecks)
 - `_on_destroyed()` disables CollisionShape2D and DetectionRange deferred
 - **Planned addition:** each turret owns a `SpawnProtectionZone` (Area2D) that blocks enemy unit deployment; disabled on destruction
