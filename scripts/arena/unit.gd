@@ -25,8 +25,9 @@ enum MarchState { MARCHING, ENGAGING }
 var march_state: MarchState = MarchState.MARCHING
 
 # Waypointy pre tuto lanu/tim — nacitane z LaneManager v _ready()
+# Pole LaneWaypoint nodov (nie Vector2) — pozri lane_waypoint.gd
 var _waypoints: Array = []
-var _wp_index: int = 0
+var _wp_index: int = -1   # -1 = este nevyriesene, pozri _resolve_initial_waypoint()
 
 # vzdialenost od waypoint bodu pred posunom na dalsi (world units)
 const WP_REACH_DISTANCE: float = 6.0
@@ -115,18 +116,29 @@ func _physics_process(delta: float) -> void:
 			_process_engaging()
 
 func _process_marching(delta: float) -> void:
+	# ziadne waypointy vobec (napr. spawn mimo lane) — march priamo na bazu
 	if _waypoints.is_empty():
-		velocity = Vector2.ZERO
-		update_idle_animation()
+		_march_towards_final_target(delta)
 		return
 
-	# ak sme za koncom pola, stoj na mieste (dorazili sme k baze)
+	# prvy frame po spawne — najdi najblizsi AKTIVNY waypoint namiesto
+	# vzdy zacinat od indexu 0 (robustne voci spawnu kdekolvek na mape)
+	if _wp_index == -1:
+		_wp_index = _resolve_initial_waypoint()
+		if _wp_index == -1:
+			_march_towards_final_target(delta)   # ziadny aktivny waypoint neexistuje
+			return
+
+	# preskoc waypointy strazene medzicasom znicenou vezickou (alebo inak invalid)
+	while _wp_index < _waypoints.size() and not _is_waypoint_usable(_waypoints[_wp_index]):
+		_wp_index += 1
+
+	# presli sme za koniec pola (posledne waypointy boli neaktivne) — march na bazu
 	if _wp_index >= _waypoints.size():
-		velocity = Vector2.ZERO
-		update_idle_animation()
+		_march_towards_final_target(delta)
 		return
 
-	var wp: Vector2 = _waypoints[_wp_index]
+	var wp: Vector2 = _waypoints[_wp_index].global_position
 	var to_wp: Vector2 = wp - global_position
 
 	# dosiahli sme aktualny waypoint — posun na dalsi
@@ -134,13 +146,56 @@ func _process_marching(delta: float) -> void:
 		_wp_index += 1
 		return
 
+	_steer_towards(wp, delta)
+
+
+# Ked dojdu/nezostanu ziadne aktivne waypointy, jednotka march-uje priamo
+# na nepriatelsku bazu (fallback ciel registrovany v LaneManager arena.gd-ckom)
+func _march_towards_final_target(delta: float) -> void:
+	var target: Vector2 = LaneManager.get_final_target(team)
+	var to_target: Vector2 = target - global_position
+
+	if to_target.length_squared() <= WP_REACH_DISTANCE * WP_REACH_DISTANCE:
+		velocity = Vector2.ZERO
+		update_idle_animation()
+		return
+
+	_steer_towards(target, delta)
+
+
+func _is_waypoint_usable(node: Node) -> bool:
+	return is_instance_valid(node) and node.is_active()
+
+
+# Najde najblizsi platny+aktivny waypoint v _waypoints — pouzite len raz,
+# pri prvom vstupe do MARCHING stavu, aby jednotka spawnnuta kdekolvek na
+# mape nezacinala vzdy od WP1 (a teda nikdy nesla spatne k vlastnej baze)
+func _resolve_initial_waypoint() -> int:
+	var best_index := -1
+	var best_dist := INF
+	for i in range(_waypoints.size()):
+		var node: Node = _waypoints[i]
+		if not _is_waypoint_usable(node):
+			continue
+		var d: float = (node.global_position - global_position).length_squared()
+		if d < best_dist:
+			best_dist = d
+			best_index = i
+	return best_index
+
+
+# Spolocny seek+separation steering krok — pouzity pre march k waypointu
+# aj pre march priamo k final targetu (fallback ked nezostanu waypointy)
+func _steer_towards(target_pos: Vector2, delta: float) -> void:
+	var to_target: Vector2 = target_pos - global_position
+
 	# separation od rovnakych unity (zachovana z povodneho kodu)
 	sep_timer -= delta
 	if sep_timer <= 0.0:
 		sep_timer = separation_update_interval
 		cached_sep = compute_separation()
 
-	var seek_dir: Vector2 = to_wp.normalized()
+	var seek_dir: Vector2 = to_target.normalized()
 	var steer: Vector2 = (seek_dir * seek_strength) + (cached_sep * separation_strength)
 	if steer.length() < 0.001:
 		steer = seek_dir

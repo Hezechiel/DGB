@@ -8,6 +8,10 @@ extends StaticBody2D
 # v animacii "damaged" a vyberaju sa cez .frame (0..3).
 const FRAME_DESTROYED := 3 # row 1 col 3 — znicena vezicka (0% hp wreck)
 
+# Emitovany raz z _on_destroyed() — LaneWaypoint strazeny touto vezickou si
+# na tento signal navesi listener a stane sa neaktivnym (jednotky ho preskocia)
+signal destroyed
+
 @export var max_hp: int = 300
 @export var aggro_range: float = 120.0        # detection radius in pixels
 @export var fire_cooldown: float = 1.5      # seconds between shots
@@ -212,6 +216,7 @@ func _on_destroyed() -> void:
 	remove_from_group("turrets")
 	BattleManager.on_turret_destroyed(owner_team, lane)
 	set_physics_process(false)
+	destroyed.emit()
 
 
 # =========================

@@ -44,11 +44,16 @@ func _register_lane_paths() -> void:
 		var container: Node = $Waypoints.get_node(node_name)
 		var forward: Array = []
 		for marker in container.get_children():
-			forward.append(marker.global_position)
+			forward.append(marker) # LaneWaypoint node, nie pozicia — pozri lane_waypoint.gd
 		LaneManager.register_lane_path("player", lane_key, forward)
 		var reverse := forward.duplicate()
 		reverse.reverse()
 		LaneManager.register_lane_path("enemy", lane_key, reverse)
+
+	# fallback ciel ked jednotke dojdu aktivne waypointy (znicene vezicky) —
+	# march priamo na nepriatelsku bazu
+	LaneManager.register_final_target("player", $EnemyBase.global_position)
+	LaneManager.register_final_target("enemy", $PlayerBase.global_position)
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
