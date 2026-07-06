@@ -81,20 +81,18 @@ size = Vector2(32, 32)
 [sub_resource type="CircleShape2D" id="CircleShape2D_range"]
 radius = 120.0
 
-[node name="Turret" type="StaticBody2D" unique_id=163942178]
+[node name="PlayerTurret" type="StaticBody2D" unique_id=163942178]
 collision_layer = 4
 collision_mask = 0
 script = ExtResource("1_turret")
 bolt_scene = ExtResource("3_bolt")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1709766615]
-position = Vector2(0, -30)
 sprite_frames = SubResource("SpriteFrames_turret")
 animation = &"idle"
 autoplay = "idle"
 
 [node name="CollisionBody" type="CollisionShape2D" parent="." unique_id=675142562]
-position = Vector2(0, -16)
 shape = SubResource("RectangleShape2D_body")
 
 [node name="AttackRange" type="Area2D" parent="." unique_id=1225977766]
@@ -109,17 +107,16 @@ collision_layer = 8
 collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=152489228]
-position = Vector2(0, -16)
 shape = SubResource("RectangleShape2D_body")
 
 [node name="HealthBar" parent="." unique_id=1242868380 instance=ExtResource("4_hbar")]
 offset_left = -16.0
-offset_top = -65.0
+offset_top = -35.0
 offset_right = -16.0
-offset_bottom = -65.0
+offset_bottom = -35.0
 
 [node name="TargetMarker" type="Sprite2D" parent="." unique_id=1503688539]
 visible = false
 z_index = -1
-position = Vector2(0, -18)
+position = Vector2(0, 10)
 texture = ExtResource("5_c8my7")

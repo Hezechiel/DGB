@@ -92,13 +92,11 @@ owner_team = "enemy"
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=424360374]
 modulate = Color(1, 0.45, 0.45, 1)
 z_index = 2
-position = Vector2(0, -30)
 sprite_frames = SubResource("SpriteFrames_turret")
 animation = &"idle"
 autoplay = "idle"
 
 [node name="CollisionBody" type="CollisionShape2D" parent="." unique_id=451827874]
-position = Vector2(0, -16)
 shape = SubResource("RectangleShape2D_body")
 
 [node name="AttackRange" type="Area2D" parent="." unique_id=1935494191]
@@ -113,17 +111,16 @@ collision_layer = 16
 collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=2099410841]
-position = Vector2(0, -16)
 shape = SubResource("RectangleShape2D_body")
 
 [node name="HealthBar" parent="." unique_id=232319195 instance=ExtResource("4_hbar")]
 offset_left = -16.0
-offset_top = -65.0
+offset_top = -35.0
 offset_right = -16.0
-offset_bottom = -65.0
+offset_bottom = -35.0
 
 [node name="TargetMarker" type="Sprite2D" parent="." unique_id=459132998]
 visible = false
 z_index = 1
-position = Vector2(0, -18)
+position = Vector2(0, 11)
 texture = ExtResource("5_8vwnr")

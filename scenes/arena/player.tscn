@@ -86,7 +86,6 @@ script = ExtResource("1_g2els")
 bolt_scene = ExtResource("2_dqkch")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1617835785]
-position = Vector2(0, -15)
 scale = Vector2(0.09, 0.09)
 sprite_frames = SubResource("SpriteFrames_tuyoq")
 animation = &"new_front_left"
@@ -94,7 +93,6 @@ autoplay = "new_front_left"
 frame_progress = 0.15824565
 
 [node name="CollisionBody" type="CollisionShape2D" parent="." unique_id=1518345647]
-position = Vector2(0, -8)
 shape = SubResource("CircleShape2D_g2els")
 
 [node name="Hurtbox" type="Area2D" parent="." unique_id=1521158122]
@@ -102,12 +100,11 @@ collision_layer = 8
 collision_mask = 0
 
 [node name="CollisionShape2" type="CollisionShape2D" parent="Hurtbox" unique_id=802050379]
-position = Vector2(0, -8)
 shape = SubResource("CircleShape2D_hurtbox")
 
 [node name="HealthBar" parent="." unique_id=1966774128 instance=ExtResource("4_hbar")]
 offset_left = -16.0
-offset_top = -32.0
+offset_top = -18.0
 offset_right = -16.0
-offset_bottom = -32.0
+offset_bottom = -18.0
 always_visible = true

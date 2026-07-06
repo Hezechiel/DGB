@@ -105,14 +105,12 @@ max_hp = 150
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=939097825]
 z_index = 2
-position = Vector2(0, -14)
 scale = Vector2(0.08, 0.08)
 sprite_frames = SubResource("SpriteFrames_wvat0")
 animation = &"new_front_left"
 frame_progress = 0.87960094
 
 [node name="CollisionBody" type="CollisionShape2D" parent="." unique_id=253596811]
-position = Vector2(0, -12)
 shape = SubResource("RectangleShape2D_47qqk")
 
 [node name="AttackRange" type="Area2D" parent="." unique_id=934233620]
@@ -120,7 +118,6 @@ collision_layer = 64
 collision_mask = 16
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AttackRange" unique_id=959826574]
-position = Vector2(0, -11)
 shape = SubResource("CircleShape2D_neqx1")
 
 [node name="Hurtbox" type="Area2D" parent="." unique_id=388394024]
@@ -128,18 +125,18 @@ collision_layer = 8
 collision_mask = 0
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=1769984496]
-position = Vector2(0, -11)
 shape = SubResource("CircleShape2D_hurtbox")
 
 [node name="HealthBar" parent="." unique_id=1295574188 instance=ExtResource("3_l0sew")]
-offset_left = -16.0
-offset_top = -30.0
-offset_right = -16.0
-offset_bottom = -30.0
+offset_left = -8.0
+offset_top = -15.0
+offset_right = -8.0
+offset_bottom = -15.0
+scale = Vector2(0.5, 0.5)
 
 [node name="TargetMarker" type="Sprite2D" parent="." unique_id=1366566656]
 visible = false
 z_index = 1
-position = Vector2(0, -5)
+position = Vector2(0, 10)
 scale = Vector2(0.3, 0.3)
 texture = ExtResource("4_14qrv")

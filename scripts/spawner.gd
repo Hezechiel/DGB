@@ -19,12 +19,12 @@ extends Node2D
 # Spawn pozicie pri enemy baze — blizko prveho waypointu enemy_top / enemy_bot
 # Zodpoveda LaneManager enemy_top[0] = Vector2(280, -100)
 #                         enemy_bot[0] = Vector2(280,  100)
-@export var spawn_pos_enemy_top: Vector2 = Vector2(300, -100)
-@export var spawn_pos_enemy_bot: Vector2 = Vector2(300,  100)
+@export var spawn_pos_enemy_top: Vector2 = Vector2(275, -50)
+@export var spawn_pos_enemy_bot: Vector2 = Vector2(275,  50)
 
 # Spawn pozicie pri player baze — zodpoveda LaneManager player_top[0] / player_bot[0]
-@export var spawn_pos_player_top: Vector2 = Vector2(-300, -100)
-@export var spawn_pos_player_bot: Vector2 = Vector2(-300,  100)
+@export var spawn_pos_player_top: Vector2 = Vector2(-275, -50)
+@export var spawn_pos_player_bot: Vector2 = Vector2(-275,  50)
 
 @onready var wave_timer: Timer = $WaveTimer
 

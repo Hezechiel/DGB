@@ -2,7 +2,7 @@ extends Node
 
 # LaneManager — centralne ulozisko waypointov pre obe lany
 # Klucom je retazec "team_lane" napr. "player_top", "enemy_bot"
-# Ulozene su LaneWaypoint node referencie (nie Vector2) v poradí od spawnu
+# Ulozene su LaneWaypoint node referencie v poradí od spawnu
 # k nepriatelskej baze — kazdy node vie povedat is_active() (pozri
 # lane_waypoint.gd), takze marchujuca jednotka moze preskocit body strazene
 # uz znicenou vezickou. Paths are registered at runtime by arena.gd reading

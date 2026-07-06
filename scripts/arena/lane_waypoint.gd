@@ -19,13 +19,20 @@ func _ready() -> void:
 		push_error("LaneWaypoint: guard_structure_path neplatny na " + str(get_path()))
 		return
 
-	# edge case: vezicka uz bola znicena pred nacitanim tejto sceny
-	if "hp" in guard and guard.hp <= 0:
-		_active = false
-		return
-
 	if guard.has_signal("destroyed"):
 		guard.destroyed.connect(_on_guard_destroyed)
+
+	# Waypoints a strazene struktury su sourozenci v strome (napr. Waypoints
+	# vs PlayerStructures) — Godot vola _ready() na sourozencoch v poradi
+	# podla scene tree, nie podla zavislosti, takze guard.hp nemusi byt este
+	# nastavene na max_hp v tomto bode (default int = 0 by sa vyhodnotil ako
+	# "uz mrtva"). call_deferred pocka, kym vsetky _ready() v scene dobehnu.
+	call_deferred("_check_initial_guard_state", guard)
+
+func _check_initial_guard_state(guard: Node) -> void:
+	# edge case: vezicka uz bola znicena pred nacitanim tejto sceny
+	if is_instance_valid(guard) and "hp" in guard and guard.hp <= 0:
+		_active = false
 
 func is_active() -> bool:
 	return _active

@@ -52,8 +52,8 @@ func _register_lane_paths() -> void:
 
 	# fallback ciel ked jednotke dojdu aktivne waypointy (znicene vezicky) —
 	# march priamo na nepriatelsku bazu
-	LaneManager.register_final_target("player", $EnemyBase.global_position)
-	LaneManager.register_final_target("enemy", $PlayerBase.global_position)
+	LaneManager.register_final_target("player", $EnemyStructures/EnemyBase.global_position)
+	LaneManager.register_final_target("enemy", $PlayerStructures/PlayerBase.global_position)
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
