@@ -253,4 +253,3 @@ script = ExtResource("12_cam")
 position = Vector2(-250, 0)
 
 [node name="HUD" parent="." unique_id=661909964 instance=ExtResource("7_hud")]
-visible = false
