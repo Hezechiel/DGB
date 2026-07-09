@@ -17,20 +17,20 @@ const ENEMY_HURTBOX_LAYER := 16   # zodpoveda layer_5 "enemy_hurtbox"
 enum TargetFilter { ALL, UNITS_ONLY, STRUCTURES_ONLY }
 @export var target_filter: TargetFilter = TargetFilter.ALL
 
-# lana ku ktorej unit patri — "top" alebo "bot"
-@export var lane: String = "top"
-
 # Stavovy automat pohybu
 enum MarchState { MARCHING, ENGAGING }
 var march_state: MarchState = MarchState.MARCHING
 
-# Waypointy pre tuto lanu/tim — nacitane z LaneManager v _ready()
-# Pole LaneWaypoint nodov (nie Vector2) — pozri lane_waypoint.gd
-var _waypoints: Array = []
-var _wp_index: int = -1   # -1 = este nevyriesene, pozri _resolve_initial_waypoint()
+# March ciel — najblizsia ziva struktura nepriatelskeho timu (veza alebo
+# baza), refreshovana periodicky cez BattleManager.get_nearest_structure()
+# namiesto pevneho pola waypointov (jednotky teraz mozu byt nasadene
+# kdekolvek na mape cez drag-to-deploy)
+var structure_target: Node2D = null
 
-# vzdialenost od waypoint bodu pred posunom na dalsi (world units)
-const WP_REACH_DISTANCE: float = 6.0
+# ako casto sa march ciel prekontroluje/refreshne — nie kazdy physics frame
+# (rovnaky pattern ako separation_update_interval/sep_timer nizsie)
+const TARGET_CHECK_INTERVAL: float = 0.4
+var target_check_timer: float = 0.0
 
 # Pohyb enemy po mape
 @export var speed: float = 35.0
@@ -83,11 +83,6 @@ func _ready() -> void:
 	circle.radius = aggro_range
 	attack_range_shape.shape = circle
 
-	# nacitaj waypointy z LaneManager
-	_waypoints = LaneManager.get_lane_path(team, lane)
-	if _waypoints.is_empty():
-		push_error("Unit: ziadne waypointy pre team=%s lane=%s" % [team, lane])
-
 	# tap-to-target len pre enemy unity — hrac nesmie targetovat svojho ally
 	if team == "enemy":
 		$Hurtbox.input_pickable = true
@@ -116,72 +111,31 @@ func _physics_process(delta: float) -> void:
 			_process_engaging()
 
 func _process_marching(delta: float) -> void:
-	# ziadne waypointy vobec (napr. spawn mimo lane) — march priamo na bazu
-	if _waypoints.is_empty():
-		_march_towards_final_target(delta)
-		return
+	_update_structure_target(delta)
 
-	# prvy frame po spawne — najdi najblizsi AKTIVNY waypoint namiesto
-	# vzdy zacinat od indexu 0 (robustne voci spawnu kdekolvek na mape)
-	if _wp_index == -1:
-		_wp_index = _resolve_initial_waypoint()
-		if _wp_index == -1:
-			_march_towards_final_target(delta)   # ziadny aktivny waypoint neexistuje
-			return
-
-	# preskoc waypointy strazene medzicasom znicenou vezickou (alebo inak invalid)
-	while _wp_index < _waypoints.size() and not _is_waypoint_usable(_waypoints[_wp_index]):
-		_wp_index += 1
-
-	# presli sme za koniec pola (posledne waypointy boli neaktivne) — march na bazu
-	if _wp_index >= _waypoints.size():
-		_march_towards_final_target(delta)
-		return
-
-	var wp: Vector2 = _waypoints[_wp_index].global_position
-	var to_wp: Vector2 = wp - global_position
-
-	# dosiahli sme aktualny waypoint — posun na dalsi
-	if to_wp.length_squared() <= WP_REACH_DISTANCE * WP_REACH_DISTANCE:
-		_wp_index += 1
-		return
-
-	_steer_towards(wp, delta)
-
-
-# Ked dojdu/nezostanu ziadne aktivne waypointy, jednotka march-uje priamo
-# na nepriatelsku bazu (fallback ciel registrovany v LaneManager arena.gd-ckom)
-func _march_towards_final_target(delta: float) -> void:
-	var target: Vector2 = LaneManager.get_final_target(team)
-	var to_target: Vector2 = target - global_position
-
-	if to_target.length_squared() <= WP_REACH_DISTANCE * WP_REACH_DISTANCE:
+	if structure_target == null:
 		velocity = Vector2.ZERO
 		update_idle_animation()
 		return
 
-	_steer_towards(target, delta)
+	_steer_towards(structure_target.global_position, delta)
 
 
-func _is_waypoint_usable(node: Node) -> bool:
-	return is_instance_valid(node) and node.is_active()
+# Prekontroluje/refreshne march ciel v pravidelnom intervale namiesto kazdy
+# frame (rovnaky pattern ako sep_timer/cached_sep v _steer_towards nizsie).
+# Ak je aktualny ciel stale ziva platna struktura, ponecha ho — inak sa
+# spyta BattleManager na najblizsiu zivu strukturu nepriatelskeho timu.
+func _update_structure_target(delta: float) -> void:
+	target_check_timer -= delta
+	if target_check_timer > 0.0:
+		return
+	target_check_timer = TARGET_CHECK_INTERVAL
 
+	if structure_target != null and is_instance_valid(structure_target) and structure_target.hp > 0:
+		return
 
-# Najde najblizsi platny+aktivny waypoint v _waypoints — pouzite len raz,
-# pri prvom vstupe do MARCHING stavu, aby jednotka spawnnuta kdekolvek na
-# mape nezacinala vzdy od WP1 (a teda nikdy nesla spatne k vlastnej baze)
-func _resolve_initial_waypoint() -> int:
-	var best_index := -1
-	var best_dist := INF
-	for i in range(_waypoints.size()):
-		var node: Node = _waypoints[i]
-		if not _is_waypoint_usable(node):
-			continue
-		var d: float = (node.global_position - global_position).length_squared()
-		if d < best_dist:
-			best_dist = d
-			best_index = i
-	return best_index
+	var enemy_team := "player" if team == "enemy" else "enemy"
+	structure_target = BattleManager.get_nearest_structure(enemy_team, global_position)
 
 
 # Spolocny seek+separation steering krok — pouzity pre march k waypointu

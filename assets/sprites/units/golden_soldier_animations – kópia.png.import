@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://q1av55fc7018"
-path="res://.godot/imported/golden_soldier_animations – kópia.png-8e82ab257f2e3369575738353426ea28.ctex"
+path="res://.godot/imported/golden_soldier_animations – kópia.png-eeaef9f0a3e62df22c94698a1df906c8.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/enemies/golden_soldier_animations – kópia.png"
-dest_files=["res://.godot/imported/golden_soldier_animations – kópia.png-8e82ab257f2e3369575738353426ea28.ctex"]
+source_file="res://assets/sprites/units/golden_soldier_animations – kópia.png"
+dest_files=["res://.godot/imported/golden_soldier_animations – kópia.png-eeaef9f0a3e62df22c94698a1df906c8.ctex"]
 
 [params]
 

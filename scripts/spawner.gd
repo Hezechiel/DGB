@@ -16,13 +16,11 @@ extends Node2D
 # Maly rozptyl pozicie aby sa unity nespawnovali presne na seba (world units)
 @export var spawn_scatter: float = 8.0
 
-# Spawn pozicie pri enemy baze — blizko prveho waypointu enemy_top / enemy_bot
-# Zodpoveda LaneManager enemy_top[0] = Vector2(280, -100)
-#                         enemy_bot[0] = Vector2(280,  100)
+# Spawn pozicie pri enemy baze (top/bot lana)
 @export var spawn_pos_enemy_top: Vector2 = Vector2(275, -50)
 @export var spawn_pos_enemy_bot: Vector2 = Vector2(275,  50)
 
-# Spawn pozicie pri player baze — zodpoveda LaneManager player_top[0] / player_bot[0]
+# Spawn pozicie pri player baze (top/bot lana)
 @export var spawn_pos_player_top: Vector2 = Vector2(-275, -50)
 @export var spawn_pos_player_bot: Vector2 = Vector2(-275,  50)
 
@@ -45,17 +43,17 @@ func _on_wave_timer_timeout() -> void:
 func _spawn_wave() -> void:
 	# enemy: 5 top + 5 bot, marsiruju od enemy bazy k player baze
 	for i in range(units_per_lane):
-		_spawn_unit("enemy", "top", spawn_pos_enemy_top, i)
+		_spawn_unit("enemy", spawn_pos_enemy_top, i)
 	for i in range(units_per_lane):
-		_spawn_unit("enemy", "bot", spawn_pos_enemy_bot, i)
+		_spawn_unit("enemy", spawn_pos_enemy_bot, i)
 
 	# ally: 5 top + 5 bot, marsiruju od player bazy k enemy baze
 	for i in range(units_per_lane):
-		_spawn_unit("player", "top", spawn_pos_player_top, i)
+		_spawn_unit("player", spawn_pos_player_top, i)
 	for i in range(units_per_lane):
-		_spawn_unit("player", "bot", spawn_pos_player_bot, i)
+		_spawn_unit("player", spawn_pos_player_bot, i)
 
-func _spawn_unit(team: String, lane: String, base_pos: Vector2, index: int) -> void:
+func _spawn_unit(team: String, base_pos: Vector2, index: int) -> void:
 	var scene := enemy_unit_scene if team == "enemy" else ally_unit_scene
 	if scene == null:
 		push_error("EnemySpawner: chybajuca scena pre team=" + team)
@@ -63,7 +61,6 @@ func _spawn_unit(team: String, lane: String, base_pos: Vector2, index: int) -> v
 
 	var unit := scene.instantiate()
 	unit.team = team
-	unit.lane = lane
 
 	# rozptyl aby sa unity nespawnovali presne na seba
 	var scatter := Vector2(

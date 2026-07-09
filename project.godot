@@ -25,7 +25,6 @@ Music="*uid://cj52s8x0yvd85"
 InputR="*uid://bs41hu3fxcynb"
 BattleManager="*res://scripts/BattleManager.gd"
 Settings="*res://scripts/settings.gd"
-LaneManager="*res://scripts/arena/lane_manager.gd"
 
 [display]
 

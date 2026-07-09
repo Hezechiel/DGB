@@ -2,7 +2,8 @@
   "permissions": {
     "allow": [
       "Bash(git mv *)",
-      "Bash(rm -f scripts/arena/enemies/enemy.gd.uid)"
+      "Bash(rm -f scripts/arena/enemies/enemy.gd.uid)",
+      "Bash(git rm *)"
     ]
   }
 }

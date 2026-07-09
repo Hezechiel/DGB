@@ -78,3 +78,29 @@ func register_base(base: Node2D, team: String) -> void:
 func on_base_destroyed(destroyed_team: String) -> void:
 	last_winner = "enemy" if destroyed_team == "player" else "player"
 	match_ended.emit(last_winner)
+
+# --- March ciel pre jednotky ---
+
+# Vrati najblizsiu zivu strukturu (veza z ktorejkolvek lany alebo baza)
+# patriacu defending_team, meranu od from_pos. Ziadna lane logika ani
+# priorita — cisto najblizsia ziva struktura. Null ak nic nezije
+# (nemalo by nastat, znicenie bazy konci zapas, ale osetrene pre istotu).
+func get_nearest_structure(defending_team: String, from_pos: Vector2) -> Node2D:
+	var candidates: Array = []
+	if _turrets.has(defending_team):
+		candidates.append_array(_turrets[defending_team]["top"])
+		candidates.append_array(_turrets[defending_team]["bot"])
+	var base := player_base if defending_team == "player" else enemy_base
+	if base != null:
+		candidates.append(base)
+
+	var nearest: Node2D = null
+	var nearest_dist := INF
+	for structure in candidates:
+		if not is_instance_valid(structure) or structure.hp <= 0:
+			continue
+		var d: float = from_pos.distance_squared_to(structure.global_position)
+		if d < nearest_dist:
+			nearest_dist = d
+			nearest = structure
+	return nearest

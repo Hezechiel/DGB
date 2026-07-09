@@ -12,7 +12,6 @@
 [ext_resource type="PackedScene" uid="uid://c0pbasepl4yr1" path="res://scenes/arena/bases/PlayerBase.tscn" id="10_xgbxb"]
 [ext_resource type="PackedScene" uid="uid://c0pbasenmy4r2" path="res://scenes/arena/bases/EnemyBase.tscn" id="11_vmsrg"]
 [ext_resource type="Script" uid="uid://dpoqc2pl2x3x4" path="res://scripts/arena/arena_camera.gd" id="12_cam"]
-[ext_resource type="Script" uid="uid://cylia3528yaik" path="res://scripts/arena/lane_waypoint.gd" id="13_wpnt"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lnu2h"]
 texture = ExtResource("3_6w4xk")
@@ -160,52 +159,6 @@ tile_set = SubResource("TileSet_lbhrr")
 
 [node name="Spawner" parent="." unique_id=1872486208 instance=ExtResource("4_2ml6w")]
 position = Vector2(-3, -314)
-
-[node name="Waypoints" type="Node2D" parent="." unique_id=1255307540]
-
-[node name="TopLane" type="Node2D" parent="Waypoints" unique_id=138244851]
-
-[node name="WP1" type="Node2D" parent="Waypoints/TopLane" unique_id=1629593511]
-position = Vector2(-275, 0)
-script = ExtResource("13_wpnt")
-guard_structure_path = NodePath("../../../PlayerStructures/PlayerTurretBase")
-
-[node name="WP2" type="Node2D" parent="Waypoints/TopLane" unique_id=684939743]
-position = Vector2(-170, -140)
-script = ExtResource("13_wpnt")
-guard_structure_path = NodePath("../../../PlayerStructures/PlayerTurretTop")
-
-[node name="WP3" type="Node2D" parent="Waypoints/TopLane" unique_id=1366602019]
-position = Vector2(170, -140)
-script = ExtResource("13_wpnt")
-guard_structure_path = NodePath("../../../EnemyStructures/EnemyTurretTop")
-
-[node name="WP4" type="Node2D" parent="Waypoints/TopLane" unique_id=866243110]
-position = Vector2(275, 0)
-script = ExtResource("13_wpnt")
-guard_structure_path = NodePath("../../../EnemyStructures/EnemyTurretBase")
-
-[node name="BotLane" type="Node2D" parent="Waypoints" unique_id=455692040]
-
-[node name="WP1" type="Node2D" parent="Waypoints/BotLane" unique_id=1533576846]
-position = Vector2(-275, 0)
-script = ExtResource("13_wpnt")
-guard_structure_path = NodePath("../../../PlayerStructures/PlayerTurretBase")
-
-[node name="WP2" type="Node2D" parent="Waypoints/BotLane" unique_id=1173322701]
-position = Vector2(-170, 140)
-script = ExtResource("13_wpnt")
-guard_structure_path = NodePath("../../../PlayerStructures/PlayerTurretBot")
-
-[node name="WP3" type="Node2D" parent="Waypoints/BotLane" unique_id=115070328]
-position = Vector2(170, 140)
-script = ExtResource("13_wpnt")
-guard_structure_path = NodePath("../../../EnemyStructures/EnemyTurretBot")
-
-[node name="WP4" type="Node2D" parent="Waypoints/BotLane" unique_id=510725097]
-position = Vector2(275, 0)
-script = ExtResource("13_wpnt")
-guard_structure_path = NodePath("../../../EnemyStructures/EnemyTurretBase")
 
 [node name="PlayerStructures" type="Node2D" parent="." unique_id=375041128]
 

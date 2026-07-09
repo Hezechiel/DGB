@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://p0aa2acpom14"]
 
 [ext_resource type="Script" uid="uid://cbs5rnldelj2u" path="res://scripts/arena/unit.gd" id="1_hrefa"]
-[ext_resource type="Texture2D" uid="uid://q1av55fc7018" path="res://assets/sprites/enemies/golden_soldier_animations – kópia.png" id="2_8bvje"]
-[ext_resource type="Texture2D" uid="uid://vts2074k2nnt" path="res://assets/sprites/enemies/enemy_walk1.png" id="2_14qrv"]
+[ext_resource type="Texture2D" uid="uid://q1av55fc7018" path="res://assets/sprites/units/golden_soldier_animations – kópia.png" id="2_8bvje"]
+[ext_resource type="Texture2D" uid="uid://vts2074k2nnt" path="res://assets/sprites/units/enemy_walk1.png" id="2_14qrv"]
 [ext_resource type="PackedScene" uid="uid://dvwpf0hx27680" path="res://scenes/ui/HealthBar.tscn" id="3_l0sew"]
 [ext_resource type="Texture2D" uid="uid://dvlckfsllk4o3" path="res://assets/sprites/movemarker/target.png" id="4_14qrv"]
 
@@ -207,8 +207,7 @@ max_hp = 150
 z_index = 2
 scale = Vector2(0.08, 0.08)
 sprite_frames = SubResource("SpriteFrames_wvat0")
-animation = &"idle"
-frame_progress = 0.1715355
+animation = &"attack"
 
 [node name="CollisionBody" type="CollisionShape2D" parent="." unique_id=253596811]
 shape = SubResource("RectangleShape2D_47qqk")

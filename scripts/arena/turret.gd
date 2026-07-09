@@ -33,6 +33,7 @@ var regen_buffer: float = 0.0               # zbiera zlomky HP (int heal by ich 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var attack_range: Area2D = $AttackRange
 @onready var attack_range_shape: CollisionShape2D = $AttackRange/CollisionShape2D
+@onready var hurtbox_shape: CollisionShape2D = $Hurtbox/CollisionShape2D
 
 @onready var health_bar: Control = $HealthBar
 @onready var target_marker: Sprite2D = $TargetMarker
@@ -213,6 +214,9 @@ func _on_destroyed() -> void:
 	# vrak ostava na mape len ako vizual — bez kolizie a detekcie
 	$CollisionBody.set_deferred("disabled", true)
 	attack_range_shape.set_deferred("disabled", true)
+	# hurtbox tiez vypnut — inak unit v ENGAGING nikdy nedostane area_exited
+	# a zostane navzdy zamknuty na vraku (ktory beztak neprijima damage)
+	hurtbox_shape.set_deferred("disabled", true)
 	remove_from_group("turrets")
 	BattleManager.on_turret_destroyed(owner_team, lane)
 	set_physics_process(false)
