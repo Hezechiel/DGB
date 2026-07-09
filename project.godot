@@ -46,6 +46,7 @@ pointing/emulate_touch_from_mouse=true
 2d_physics/layer_5="enemy_hurtbox"
 2d_physics/layer_6="projectiles"
 2d_physics/layer_7="melee_range"
+2d_physics/layer_8="aggro_range"
 
 [physics]
 

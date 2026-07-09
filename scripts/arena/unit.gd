@@ -18,7 +18,7 @@ enum TargetFilter { ALL, UNITS_ONLY, STRUCTURES_ONLY }
 @export var target_filter: TargetFilter = TargetFilter.ALL
 
 # Stavovy automat pohybu
-enum MarchState { MARCHING, ENGAGING }
+enum MarchState { MARCHING, CHASING, ENGAGING }
 var march_state: MarchState = MarchState.MARCHING
 
 # March ciel — najblizsia ziva struktura nepriatelskeho timu (veza alebo
@@ -47,11 +47,14 @@ var cached_sep: Vector2 = Vector2.ZERO
 # bojove vlastnosti nepriatela
 @export var damage: int = 10
 @export var attack_cooldown: float = 1.2
-@export var aggro_range: float = 11.0
 var attack_left: float = 0.0
 var hurtbox_in_range: Area2D = null
 @onready var attack_range: Area2D = $AttackRange
-@onready var attack_range_shape: CollisionShape2D = $AttackRange/CollisionShape2D
+
+# AggroRange — sirsia detekcia nez melee AttackRange; vsimne si nepriatelsku
+# unit a zacne ju prenasledovat este pred fyzickym kontaktom (CHASING stav)
+var combat_target: Node2D = null
+@onready var aggro_range: Area2D = $AggroRange
 # TODO: separation pouziva vsetky unity rovnakeho timu — compute_separation()
 #       bude treba prepnut na get_tree().get_nodes_in_group("team_" + team)
 #       namiesto enemy_manager.enemies ked su oba timy aktivne
@@ -79,9 +82,10 @@ func _ready() -> void:
 	attack_range.area_entered.connect(_on_attack_range_area_entered)
 	attack_range.area_exited.connect(_on_attack_range_area_exited)
 
-	var circle := attack_range_shape.shape.duplicate() as CircleShape2D
-	circle.radius = aggro_range
-	attack_range_shape.shape = circle
+	# rovnaky team-podla-masky vypocet ako attack_range vyssie; ziadny
+	# area_exited pripojeny — chase je zatial indefinitny (leash pride neskor)
+	aggro_range.collision_mask = ENEMY_HURTBOX_LAYER if team == "player" else PLAYER_HURTBOX_LAYER
+	aggro_range.area_entered.connect(_on_aggro_range_area_entered)
 
 	# tap-to-target len pre enemy unity — hrac nesmie targetovat svojho ally
 	if team == "enemy":
@@ -97,16 +101,34 @@ func _physics_process(delta: float) -> void:
 	# validacia hurtbox_in_range — area mohla byt freed bez area_exited
 	if hurtbox_in_range != null and not is_instance_valid(hurtbox_in_range):
 		hurtbox_in_range = null
+	# ak ciel prave zomrel/zmizol, preskenuj co uz prekryva AttackRange —
+	# first-contact-wins v _on_attack_range_area_entered znamena, ze druha
+	# (uz prekryvajuca sa) area nikdy nedostane vlastny signal
+	if hurtbox_in_range == null:
+		_reacquire_attack_target()
 
-	# prepni stav podla toho ci je nieco v dosahu
+	# validacia combat_target — area_exited nie je pripojeny (indefinitny chase),
+	# takze mrtvy/freed ciel treba odchytit rucne
+	if combat_target != null and not is_instance_valid(combat_target):
+		combat_target = null
+	# rovnaky dovod ako vyssie — dalsia unit uz stojaca v AggroRange sa inak
+	# nikdy nezachyti a jednotka by sa vratila rovno do MARCHING
+	if combat_target == null:
+		_reacquire_combat_target()
+
+	# priorita stavu: melee kontakt > chase na dialku > march k strukture
 	if hurtbox_in_range != null:
 		march_state = MarchState.ENGAGING
+	elif combat_target != null:
+		march_state = MarchState.CHASING
 	else:
 		march_state = MarchState.MARCHING
 
 	match march_state:
 		MarchState.MARCHING:
 			_process_marching(delta)
+		MarchState.CHASING:
+			_process_chasing(delta)
 		MarchState.ENGAGING:
 			_process_engaging()
 
@@ -136,6 +158,12 @@ func _update_structure_target(delta: float) -> void:
 
 	var enemy_team := "player" if team == "enemy" else "enemy"
 	structure_target = BattleManager.get_nearest_structure(enemy_team, global_position)
+
+
+# CHASING — unit si vsimla nepriatelsku unit v AggroRange, prenasleduje ju
+# rovnakym steeringom ako march (bez samostatnej logiky navyse)
+func _process_chasing(delta: float) -> void:
+	_steer_towards(combat_target.global_position, delta)
 
 
 # Spolocny seek+separation steering krok — pouzity pre march k waypointu
@@ -199,53 +227,95 @@ func update_animation(direction: Vector2) -> void:
 	# Rovnaka logika ako player.gd — 2 animacie podla dominantnej osi
 	if abs(direction.x) > abs(direction.y):
 		if direction.x > 0:
-			sprite.play("new_back_right")  # pohyb vpravo
+			sprite.play("idle")  # pohyb vpravo
+			sprite.flip_h = true
 		else:
-			sprite.play("new_front_left")  # pohyb vlavo
+			sprite.play("idle")  # pohyb vlavo
+			sprite.flip_h = false
 	else:
 		if direction.y > 0:
-			sprite.play("new_front_left")  # pohyb dole
+			sprite.play("idle")  # pohyb dole
+			sprite.flip_h = false
 		else:
-			sprite.play("new_back_right")  # pohyb hore
+			sprite.play("idle")  # pohyb hore
+			sprite.flip_h = true
 
 func update_idle_animation() -> void:
 	# Drz poslednu smer animaciu — rovnaka logika ako player.gd
 	if abs(last_direction.x) > abs(last_direction.y):
 		if last_direction.x > 0:
-			sprite.play("new_back_right")
+			sprite.play("idle")  # pohyb vpravo
+			sprite.flip_h = true
 		else:
-			sprite.play("new_front_left")
+			sprite.play("idle")  # pohyb vlavo
+			sprite.flip_h = false
 	else:
 		if last_direction.y > 0:
-			sprite.play("new_front_left")
+			sprite.play("idle")  # pohyb dole
+			sprite.flip_h = false
 		else:
-			sprite.play("new_back_right")
+			sprite.play("idle")  # pohyb hore
+			sprite.flip_h = true
 
-func _on_attack_range_area_entered(area: Area2D) -> void:
-	if hurtbox_in_range != null:
-		return  # first contact wins — uz mam ciel
-
+# Zdielana predikat-logika pre AttackRange — pouzita v _on_attack_range_area_entered
+# aj v _reacquire_attack_target(), aby obe cesty zhodnotili area rovnako
+func _is_valid_attack_target(area: Area2D) -> bool:
 	# Postav nazvy nepriatelskych groupov dynamicky podla teamu
 	var enemy_team := "player" if team == "enemy" else "enemy"
 	var unit_group := enemy_team + "_hurtbox"
 	var turret_group := enemy_team + "_turret_hurtbox"
 	var base_group := enemy_team + "_base_hurtbox"
 
-	var is_valid := false
 	match target_filter:
 		TargetFilter.ALL:
-			is_valid = area.is_in_group(unit_group) or area.is_in_group(turret_group) or area.is_in_group(base_group)
+			return area.is_in_group(unit_group) or area.is_in_group(turret_group) or area.is_in_group(base_group)
 		TargetFilter.UNITS_ONLY:
-			is_valid = area.is_in_group(unit_group)
+			return area.is_in_group(unit_group)
 		TargetFilter.STRUCTURES_ONLY:
-			is_valid = area.is_in_group(turret_group) or area.is_in_group(base_group)
+			return area.is_in_group(turret_group) or area.is_in_group(base_group)
+	return false
 
-	if is_valid:
+func _on_attack_range_area_entered(area: Area2D) -> void:
+	if hurtbox_in_range != null:
+		return  # first contact wins — uz mam ciel
+	if _is_valid_attack_target(area):
 		hurtbox_in_range = area
 
 func _on_attack_range_area_exited(area: Area2D) -> void:
 	if area == hurtbox_in_range or not is_instance_valid(hurtbox_in_range):
 		hurtbox_in_range = null
+
+# Preskenuje aktualne prekryvy AttackRange ked hurtbox_in_range zostane null
+# (napr. predchadzajuci ciel prave zomrel) — first-contact-wins v entered
+# handleri inak necha uz prekryvajuce sa arey navzdy nepovsimnute
+func _reacquire_attack_target() -> void:
+	for area in attack_range.get_overlapping_areas():
+		if _is_valid_attack_target(area):
+			hurtbox_in_range = area
+			return
+
+# AggroRange ignoruje struktury uplne (bez ohladu na target_filter) — len
+# nepriatelske unit hurtboxy spustaju chase.
+func _is_valid_aggro_target(area: Area2D) -> bool:
+	var enemy_team := "player" if team == "enemy" else "enemy"
+	return area.is_in_group(enemy_team + "_hurtbox")
+
+# Ziadny area_exited handler: raz zamknuty ciel sa neopusti (leash pride
+# az so summon-from-hand poolom)
+func _on_aggro_range_area_entered(area: Area2D) -> void:
+	if combat_target != null:
+		return  # first contact wins — uz mam ciel
+	if _is_valid_aggro_target(area):
+		combat_target = area.get_parent() as Node2D
+
+# Rovnaky dovod ako _reacquire_attack_target() — ked predchadzajuci
+# combat_target zomrie, dalsia unit uz stojaca v AggroRange sa inak nikdy
+# nezachyti (nedostane vlastny area_entered) a jednotka by spadla do MARCHING
+func _reacquire_combat_target() -> void:
+	for area in aggro_range.get_overlapping_areas():
+		if _is_valid_aggro_target(area):
+			combat_target = area.get_parent() as Node2D
+			return
 
 # TODO: rovnaky pattern doplnit do turret.gd a base.gd ked dostanu svoje
 #       hurtbox group assignments — tap na turret/base = set_primary_target
