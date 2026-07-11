@@ -1,0 +1,69 @@
+[gd_scene format=3 uid="uid://bakpvvohsixrh"]
+
+[ext_resource type="Script" uid="uid://cbs5rnldelj2u" path="res://scripts/arena/unit.gd" id="1_unit"]
+[ext_resource type="SpriteFrames" uid="uid://bjbp66qu0yma6" path="res://data/units/frames/frames_enemy_placeholder.tres" id="2_frames"]
+[ext_resource type="PackedScene" uid="uid://dvwpf0hx27680" path="res://scenes/ui/HealthBar.tscn" id="3_hbar"]
+[ext_resource type="Texture2D" uid="uid://dvlckfsllk4o3" path="res://assets/sprites/movemarker/target.png" id="4_marker"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
+size = Vector2(16, 16)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_attack"]
+resource_local_to_scene = true
+radius = 16.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hurtbox"]
+radius = 11.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_aggro"]
+resource_local_to_scene = true
+radius = 40.0
+
+[node name="MeleeUnit" type="CharacterBody2D" unique_id=1300361392]
+collision_layer = 2
+collision_mask = 4
+script = ExtResource("1_unit")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1757698176]
+z_index = 2
+scale = Vector2(0.15, 0.15)
+sprite_frames = ExtResource("2_frames")
+animation = &"idle"
+
+[node name="CollisionBody" type="CollisionShape2D" parent="." unique_id=1126771666]
+shape = SubResource("RectangleShape2D_body")
+
+[node name="AttackRange" type="Area2D" parent="." unique_id=591149409]
+collision_layer = 64
+collision_mask = 8
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackRange" unique_id=676643881]
+shape = SubResource("CircleShape2D_attack")
+
+[node name="Hurtbox" type="Area2D" parent="." unique_id=1333746934]
+collision_layer = 16
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Hurtbox" unique_id=1366003565]
+shape = SubResource("CircleShape2D_hurtbox")
+
+[node name="AggroRange" type="Area2D" parent="." unique_id=1944486650]
+collision_layer = 128
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AggroRange" unique_id=1431858333]
+shape = SubResource("CircleShape2D_aggro")
+
+[node name="HealthBar" parent="." unique_id=1153813090 instance=ExtResource("3_hbar")]
+offset_left = -8.0
+offset_top = -15.0
+offset_right = -8.0
+offset_bottom = -15.0
+scale = Vector2(0.5, 0.5)
+
+[node name="TargetMarker" type="Sprite2D" parent="." unique_id=1882562527]
+visible = false
+z_index = 1
+position = Vector2(0, 4)
+scale = Vector2(0.3, 0.3)
+texture = ExtResource("4_marker")

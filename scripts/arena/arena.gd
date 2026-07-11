@@ -8,6 +8,7 @@ extends Node2D
 const MAIN_MENU_SCENE := "res://scenes/menu/MainMenu.tscn"
 
 func _ready() -> void:
+	BattleManager.arena_root = self
 	hud.exit_requested.connect(_on_hud_exit_requested)
 	hud.recenter_camera_requested.connect(_on_recenter_camera_requested)
 	BattleManager.match_ended.connect(_on_match_ended)

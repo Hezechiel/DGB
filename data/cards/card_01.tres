@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cdscsax3k7m1p" path="res://scripts/arena/ui/card_data.gd" id="1_carddata"]
 [ext_resource type="Texture2D" uid="uid://defvsdlmk4vqh" path="res://assets/sprites/scrolls/scrolls_gods_box.png" id="2_sheet"]
+[ext_resource type="Resource" uid="uid://8171oetd4mas" path="res://data/units/melee_ally_test.tres" id="3_unitdata"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_card01"]
 atlas = ExtResource("2_sheet")
@@ -12,3 +13,4 @@ script = ExtResource("1_carddata")
 id = &"card_01"
 display_name = "Card 1"
 scroll_texture = SubResource("AtlasTexture_card01")
+unit_data = ExtResource("3_unitdata")

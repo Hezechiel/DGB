@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="UnitData" load_steps=4 format=3 uid="uid://muetst7h3n9k4"]
+
+[ext_resource type="Script" uid="uid://udscr5h2n8k3q" path="res://scripts/arena/unit_data.gd" id="1_unitdata"]
+[ext_resource type="PackedScene" uid="uid://muscn2f8h4k1r" path="res://scenes/arena/units/melee_unit.tscn" id="2_archetype"]
+[ext_resource type="SpriteFrames" uid="uid://feplr8n4k6h1x" path="res://data/units/frames/frames_enemy_placeholder.tres" id="3_frames"]
+
+[resource]
+script = ExtResource("1_unitdata")
+id = &"melee_test_b"
+display_name = "Melee Test B"
+archetype_scene = ExtResource("2_archetype")
+max_hp = 150
+damage = 10
+attack_cooldown = 1.2
+speed = 35.0
+target_filter = 0
+sprite_frames = ExtResource("3_frames")

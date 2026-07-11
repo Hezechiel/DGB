@@ -3,12 +3,12 @@
 [ext_resource type="Script" uid="uid://chscr3n7k5m2x" path="res://scripts/arena/ui/card_hand.gd" id="1_hand"]
 [ext_resource type="PackedScene" uid="uid://cscn4h8j2p9wt" path="res://scenes/arena/ui/Card.tscn" id="2_card"]
 [ext_resource type="Script" uid="uid://cdscr9x3k7m1p" path="res://scripts/arena/ui/card_data.gd" id="3_carddata"]
-[ext_resource type="Resource" uid="uid://c1rsq7f2k9m1z" path="res://data/cards/card_01.tres" id="4_card01"]
-[ext_resource type="Resource" uid="uid://c2rsq7f2k9m2z" path="res://data/cards/card_02.tres" id="5_card02"]
-[ext_resource type="Resource" uid="uid://c3rsq7f2k9m3z" path="res://data/cards/card_03.tres" id="6_card03"]
-[ext_resource type="Resource" uid="uid://c4rsq7f2k9m4z" path="res://data/cards/card_04.tres" id="7_card04"]
-[ext_resource type="Resource" uid="uid://c5rsq7f2k9m5z" path="res://data/cards/card_05.tres" id="8_card05"]
-[ext_resource type="Resource" uid="uid://c6rsq7f2k9m6z" path="res://data/cards/card_06.tres" id="9_card06"]
+[ext_resource type="Resource" uid="uid://c1rsq7f2lam10" path="res://data/cards/card_01.tres" id="4_card01"]
+[ext_resource type="Resource" uid="uid://c2rsq7f2lam20" path="res://data/cards/card_02.tres" id="5_card02"]
+[ext_resource type="Resource" uid="uid://c3rsq7f2lam30" path="res://data/cards/card_03.tres" id="6_card03"]
+[ext_resource type="Resource" uid="uid://c4rsq7f2lam40" path="res://data/cards/card_04.tres" id="7_card04"]
+[ext_resource type="Resource" uid="uid://c5rsq7f2lam50" path="res://data/cards/card_05.tres" id="8_card05"]
+[ext_resource type="Resource" uid="uid://c6rsq7f2lam60" path="res://data/cards/card_06.tres" id="9_card06"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hand"]
 bg_color = Color(0.25, 0.45, 0.85, 0.35)

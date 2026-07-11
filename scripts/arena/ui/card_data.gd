@@ -5,8 +5,7 @@ class_name CardData
 @export var display_name: String
 @export var cost: int = 1
 @export var scroll_texture: Texture2D
+@export var unit_data: UnitData
 
-# PLACEHOLDER: gameplay wiring (unit spawning, faction filtering) comes in
-# a later step — these fields are declared but unused for now.
-@export var unit_scene: PackedScene
+# PLACEHOLDER: faction filtering comes in a later step.
 @export var faction: StringName

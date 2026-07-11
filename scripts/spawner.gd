@@ -3,9 +3,14 @@ extends Node2D
 # EnemySpawner — spawnuje enemy aj ally unity do lan, kazdy tim z vlastnej bazy
 # 5 unity na top lanu + 5 unity na bot lanu = 10 unity na vlnu, pre kazdy tim
 # Vlna kazde wave_interval sekund
+#
+# Instanciacia jednotiek ide vzdy cez BattleManager.spawn_unit() — spawner
+# uz priamo neinstancuje ziadnu scenu, len vybera kartu a poziciu.
 
-@export var enemy_unit_scene: PackedScene
-@export var ally_unit_scene: PackedScene
+# TEMP: docasne pevne priradenie karty per team, kym nepride realny
+# mana/hand draw flow — spawner zatial simuluje "vzdy zahraj tuto kartu"
+const PLAYER_TEST_CARD := &"card_01"
+const ENEMY_TEST_CARD := &"card_04"
 
 # Cas medzi vlnami v sekundach
 @export var wave_interval: float = 10.0
@@ -27,9 +32,6 @@ extends Node2D
 @onready var wave_timer: Timer = $WaveTimer
 
 func _ready() -> void:
-	if enemy_unit_scene == null or ally_unit_scene == null:
-		push_error("EnemySpawner: enemy_unit_scene alebo ally_unit_scene nie je nastavene!")
-		return
 	wave_timer.wait_time = wave_interval
 	wave_timer.one_shot = false
 	wave_timer.timeout.connect(_on_wave_timer_timeout)
@@ -54,20 +56,11 @@ func _spawn_wave() -> void:
 		_spawn_unit("player", spawn_pos_player_bot, i)
 
 func _spawn_unit(team: String, base_pos: Vector2, index: int) -> void:
-	var scene := enemy_unit_scene if team == "enemy" else ally_unit_scene
-	if scene == null:
-		push_error("EnemySpawner: chybajuca scena pre team=" + team)
-		return
-
-	var unit := scene.instantiate()
-	unit.team = team
+	var card_id := PLAYER_TEST_CARD if team == "player" else ENEMY_TEST_CARD
 
 	# rozptyl aby sa unity nespawnovali presne na seba
 	var scatter := Vector2(
 		randf_range(-spawn_scatter, spawn_scatter),
 		randf_range(-spawn_scatter, spawn_scatter)
 	)
-	unit.global_position = base_pos + scatter
-
-	# pridaj ako subrat areny (spawner je child areny)
-	get_parent().add_child.call_deferred(unit)
+	BattleManager.spawn_unit(card_id, base_pos + scatter, team)
