@@ -1,0 +1,45 @@
+[gd_scene format=3 uid="uid://cscn4h8j2qawt"]
+
+[ext_resource type="Script" uid="uid://cscr7f2lam1q0" path="res://scripts/arena/ui/card.gd" id="1_card"]
+[ext_resource type="FontFile" uid="uid://u0f3airwj8v2" path="res://assets/fonts/Forum-Regular.ttf" id="2_lldwh"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_card"]
+bg_color = Color(0.9, 0.85, 0.7, 0.9)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.5, 0.4, 0.25, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="Card" type="PanelContainer" unique_id=130290537]
+custom_minimum_size = Vector2(64, 88)
+theme_override_styles/panel = SubResource("StyleBoxFlat_card")
+script = ExtResource("1_card")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=654054394]
+layout_mode = 2
+
+[node name="MarginContainer" type="MarginContainer" parent="VBoxContainer" unique_id=771989115]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/margin_left = 6
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 6
+theme_override_constants/margin_bottom = 6
+
+[node name="ScrollIcon" type="TextureRect" parent="VBoxContainer/MarginContainer" unique_id=229471956]
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="NameLabel" type="Label" parent="VBoxContainer" unique_id=468938481]
+layout_mode = 2
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_fonts/font = ExtResource("2_lldwh")
+theme_override_font_sizes/font_size = 10
+horizontal_alignment = 1

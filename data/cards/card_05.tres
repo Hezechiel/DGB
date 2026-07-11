@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CardData" format=3 uid="uid://c5rsq7f2lam50"]
+
+[ext_resource type="Script" uid="uid://cdscsax3k7m1p" path="res://scripts/arena/ui/card_data.gd" id="1_carddata"]
+[ext_resource type="Texture2D" uid="uid://defvsdlmk4vqh" path="res://assets/sprites/scrolls/scrolls_gods_box.png" id="2_sheet"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_card05"]
+atlas = ExtResource("2_sheet")
+region = Rect2(400, 400, 400, 400)
+
+[resource]
+script = ExtResource("1_carddata")
+id = &"card_05"
+display_name = "Card 5"
+scroll_texture = SubResource("AtlasTexture_card05")

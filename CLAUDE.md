@@ -12,7 +12,7 @@ A landscape mobile MOBA built in Godot 4.6 (GDScript) for Android. Inspired by S
 
 **Active development:** MOBA arena (`scenes/arena/`).
 
-**Postponed (do not modify):** The idle god-game World Map phase. Scenes and scripts exist under `scenes/world/` and `scripts/world/` and must be preserved but not touched unless explicitly requested. Design notes live in `docs/world_map_dev.md`.
+The idle god-game World Map phase that was previously postponed has been removed from the project.
 
 ---
 

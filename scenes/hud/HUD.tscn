@@ -6,6 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://c865n2j5w8div" path="res://assets/menu/UI_pause_btn_pressed.png" id="3_dui1j"]
 [ext_resource type="Texture2D" uid="uid://bvkxls316jr1s" path="res://assets/menu/UI_user.png" id="4_6lywo"]
 [ext_resource type="Texture2D" uid="uid://dt8wflegv1a1t" path="res://assets/menu/UI_user_pressed.png" id="5_dui1j"]
+[ext_resource type="PackedScene" uid="uid://chscn8q4j1p6y" path="res://scenes/arena/ui/CardHand.tscn" id="6_cardhand"]
 
 [node name="HUD" type="CanvasLayer" unique_id=200000001]
 process_mode = 2
@@ -33,4 +34,8 @@ scale = Vector2(0.5, 0.5)
 texture_normal = ExtResource("4_6lywo")
 texture_pressed = ExtResource("5_dui1j")
 
+[node name="CardHand" parent="." unique_id=2099774979 instance=ExtResource("6_cardhand")]
+mouse_filter = 0
+
 [node name="SettingOverlay" parent="." unique_id=200000011 instance=ExtResource("2_setov")]
+visible = false

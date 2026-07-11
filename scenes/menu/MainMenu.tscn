@@ -32,9 +32,11 @@ mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_mgsx5")
 
 [node name="HBoxContainer" type="VBoxContainer" parent="Background" unique_id=1309924478]
-layout_mode = 0
-offset_right = 816.0
-offset_bottom = 124.0
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 252.0
+grow_horizontal = 2
 
 [node name="Title" type="Label" parent="Background/HBoxContainer" unique_id=965943811]
 layout_mode = 2
@@ -79,28 +81,6 @@ theme_override_colors/font_color = Color(0, 0.25882354, 0.42745098, 1)
 theme_override_fonts/font = ExtResource("5_y6vun")
 theme_override_font_sizes/font_size = 24
 text = "Arena"
-
-[node name="StartGameButon" type="TextureButton" parent="Background/HBoxContainer/MarginContainer/MainButtons/VBoxContainer" unique_id=1423620565]
-layout_mode = 2
-texture_normal = ExtResource("4_84lro")
-
-[node name="Label" type="Label" parent="Background/HBoxContainer/MarginContainer/MainButtons/VBoxContainer/StartGameButon" unique_id=939427083]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -31.0
-offset_top = -16.5
-offset_right = 31.0
-offset_bottom = 16.5
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0, 0.25882354, 0.42745098, 1)
-theme_override_fonts/font = ExtResource("5_y6vun")
-theme_override_font_sizes/font_size = 24
-text = "World"
 
 [node name="VBoxContainer2" type="VBoxContainer" parent="Background/HBoxContainer/MarginContainer/MainButtons" unique_id=1358639640]
 layout_mode = 2

@@ -137,10 +137,13 @@ func _try_fire(target: Node2D) -> void:
 func find_nearest_enemy() -> Node2D:
 	var nearest: Node2D = null
 	var nearest_d2 := attack_range * attack_range
-	for child in get_parent().get_children():
+	for child in get_tree().get_nodes_in_group("team_enemy"):
 		if child == self:
 			continue
-		if child is Node2D and child.is_in_group("team_enemy"):
+		# vraky (znicene veze/zakladne) zostavaju v groupe, ale uz nie su ciel
+		if "hp" in child and child.hp <= 0:
+			continue
+		if child is Node2D:
 			var d2: float = child.global_position.distance_squared_to(global_position)
 			if d2 <= nearest_d2:
 				nearest_d2 = d2

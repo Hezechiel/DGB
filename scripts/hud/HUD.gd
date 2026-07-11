@@ -11,6 +11,7 @@ signal recenter_camera_requested
 @onready var pause_button: TouchScreenButton = $Root/PauseButton
 @onready var setting_overlay: SettingsOverlay = $SettingOverlay
 @onready var player_character_button: TouchScreenButton = $Root/PlayerCharacter
+@onready var card_hand: CardHand = $CardHand
 
 const BUTTON_SIZE := 80.0
 const MARGIN := 8.0

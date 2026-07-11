@@ -213,7 +213,6 @@ z_index = 2
 scale = Vector2(0.15, 0.15)
 sprite_frames = SubResource("SpriteFrames_wvat0")
 animation = &"attack"
-frame_progress = 0.253371
 
 [node name="CollisionBody" type="CollisionShape2D" parent="." unique_id=253596811]
 shape = SubResource("RectangleShape2D_47qqk")
@@ -249,6 +248,6 @@ scale = Vector2(0.5, 0.5)
 [node name="TargetMarker" type="Sprite2D" parent="." unique_id=1366566656]
 visible = false
 z_index = 1
-position = Vector2(0, 2)
+position = Vector2(0, 4)
 scale = Vector2(0.3, 0.3)
 texture = ExtResource("4_14qrv")
