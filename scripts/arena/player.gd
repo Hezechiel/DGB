@@ -8,6 +8,9 @@ var health_points: int
 @export var invuln_time: float = 0.25 # (invulnerability window)
 var invuln_left: float = 0.0
 
+const PLAYER_HURTBOX_LAYER := 8   # zodpoveda layer_4 "player_hurtbox"
+var is_dead := false
+
 # vlastnosti Lightning projektilu
 @export var bolt_scene: PackedScene
 @export var fire_cooldown: float = 0.5
@@ -25,10 +28,32 @@ var last_direction := Vector2.DOWN #default pozera dole
 var primary_target: Node2D = null # manualny ciel (tap na enemy/turret/base)
 var auto_target: Node2D = null # fallback ciel (najblizsi nepriatel v dosahu) — len na strielanie, bez chase
 
+# HeroData pouzita pri configure() — zdielany resource, nikdy sa doň
+# nezapisuje runtime stav (health_points a pod.)
+var hero_data: HeroData = null
+
+# Nastavi hrdinu podla HeroData PRED vstupom do stromu (spawn flow:
+# instantiate → configure → add_child). Pouziva $AnimatedSprite2D priamo
+# (nie @onready var sprite) — onready vary sa priradia az pri _ready().
+func configure(data: HeroData, _new_team: String) -> void:
+	hero_data = data
+	# team ostava efektivne "player" pre lokalneho hrdinu — hardcoded team
+	# stringy v _ready() (BattleManager.register(self, "player") atd.)
+	# TODO: nahradit premennou team, ked pride multiplayer/sidekick
+	max_hp = data.max_hp
+	speed = data.speed
+	attack_range = data.attack_range
+	fire_cooldown = data.fire_cooldown
+	projectile_damage = data.projectile_damage
+	bolt_scene = data.projectile_scene
+	if data.sprite_frames != null:
+		$AnimatedSprite2D.sprite_frames = data.sprite_frames
+
 func _ready() -> void:
 	health_points = max_hp
 	health_bar.init(max_hp, "player")
 	add_to_group("team_player")
+	add_to_group("heroes")
 	BattleManager.register(self, "player")
 	hurtbox.add_to_group("player_hurtbox")
 	hurtbox.area_entered.connect(_on_hurtbox_area_entered)
@@ -151,24 +176,65 @@ func find_nearest_enemy() -> Node2D:
 	return nearest
 
 func take_damage(amount: int) -> void:
+	if is_dead:
+		return
 	if invuln_left > 0.0:
 		return
-	
+
 	health_points -= amount
 	invuln_left = invuln_time
-	
+
 	# vizualny feedback (zatial jednoduchy)
 	sprite.modulate.a = 0.4
 	await get_tree().create_timer(0.08).timeout
 	sprite.modulate.a = 1.0
-	
+
 	#print(health_points)
 
 	health_bar.set_health(health_points)
 
 	if health_points <= 0:
-		print("PLAYER DEAD")
-		get_tree().reload_current_scene()
+		die()
+
+func die() -> void:
+	if is_dead:
+		return
+	is_dead = true
+
+	InputR.clear_move_target()
+	_clear_primary_target()
+	if auto_target != null and is_instance_valid(auto_target) and auto_target.has_method("set_targeted"):
+		auto_target.set_targeted(false)
+	auto_target = null
+
+	set_physics_process(false)
+	$CollisionBody.set_deferred("disabled", true)
+	hurtbox.set_deferred("monitorable", false)
+	hurtbox.set_deferred("collision_layer", 0)
+	remove_from_group("team_player")
+
+	BattleManager.unregister(self, "player")
+	BattleManager.on_hero_died(self, "player")
+
+	if sprite.sprite_frames != null and sprite.sprite_frames.has_animation("death"):
+		sprite.play("death")
+		await sprite.animation_finished
+		if not is_dead:
+			return  # revive() medzitym uz prebehlo
+	visible = false
+
+func revive() -> void:
+	is_dead = false
+	health_points = max_hp
+	health_bar.set_health(health_points)
+	visible = true
+	$CollisionBody.set_deferred("disabled", false)
+	hurtbox.set_deferred("monitorable", true)
+	hurtbox.set_deferred("collision_layer", PLAYER_HURTBOX_LAYER)
+	add_to_group("team_player")
+	BattleManager.register(self, "player")
+	set_physics_process(true)
+	invuln_left = 1.0
 
 func fire_bolt(target: Node2D) -> void:
 	if bolt_scene == null:

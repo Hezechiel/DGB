@@ -1,0 +1,190 @@
+[gd_scene format=3 uid="uid://bnw6qs6mb6krj"]
+
+[ext_resource type="Script" uid="uid://6xmfjg56qdoi" path="res://scripts/ui/prematch_flow.gd" id="1_flow"]
+
+[node name="PreMatchFlow" type="Control" unique_id=1478994886]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_flow")
+
+[node name="FindingPanel" type="Control" parent="." unique_id=1541394504]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="ColorRect" parent="FindingPanel" unique_id=1829450962]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.05, 0.05, 0.08, 1)
+
+[node name="InfoBox" type="VBoxContainer" parent="FindingPanel" unique_id=1247146225]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 12
+
+[node name="TitleLabel" type="Label" parent="FindingPanel/InfoBox" unique_id=1147482781]
+layout_mode = 2
+theme_override_font_sizes/font_size = 22
+text = "Searching for a battle..."
+horizontal_alignment = 1
+
+[node name="RankLabel" type="Label" parent="FindingPanel/InfoBox" unique_id=349964292]
+layout_mode = 2
+text = "Pantheon Tier"
+horizontal_alignment = 1
+
+[node name="ModeLabel" type="Label" parent="FindingPanel/InfoBox" unique_id=1273372921]
+layout_mode = 2
+text = "Ranked Match 1 vs 1"
+horizontal_alignment = 1
+
+[node name="MapLabel" type="Label" parent="FindingPanel/InfoBox" unique_id=1538656461]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Greek Plateau"
+horizontal_alignment = 1
+
+[node name="SearchTimeLabel" type="Label" parent="FindingPanel" unique_id=2048269996]
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 24.0
+offset_top = -48.0
+offset_right = 140.0
+offset_bottom = -16.0
+grow_vertical = 0
+text = "00:00"
+
+[node name="CancelButton" type="Button" parent="FindingPanel" unique_id=3941491]
+layout_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -140.0
+offset_top = -48.0
+offset_right = -24.0
+offset_bottom = -16.0
+grow_horizontal = 0
+grow_vertical = 0
+text = "CANCEL"
+
+[node name="PreMatchPanel" type="Control" parent="." unique_id=694579876]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Background" type="ColorRect" parent="PreMatchPanel" unique_id=758696023]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.05, 0.05, 0.08, 1)
+
+[node name="ModeLabel" type="Label" parent="PreMatchPanel" unique_id=1270165245]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 24.0
+offset_bottom = 56.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 22
+text = "Ranked Match"
+horizontal_alignment = 1
+
+[node name="VersusRow" type="HBoxContainer" parent="PreMatchPanel" unique_id=754859026]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 40
+alignment = 1
+
+[node name="LocalBlock" type="VBoxContainer" parent="PreMatchPanel/VersusRow" unique_id=607766212]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="LocalAvatar" type="ColorRect" parent="PreMatchPanel/VersusRow/LocalBlock" unique_id=122441702]
+custom_minimum_size = Vector2(120, 120)
+layout_mode = 2
+size_flags_horizontal = 4
+color = Color(0.3, 0.55, 1, 1)
+
+[node name="LocalFactionRect" type="ColorRect" parent="PreMatchPanel/VersusRow/LocalBlock" unique_id=1337699485]
+custom_minimum_size = Vector2(120, 24)
+layout_mode = 2
+size_flags_horizontal = 4
+color = Color(0.2, 0.4, 0.8, 1)
+
+[node name="LocalFactionLabel" type="Label" parent="PreMatchPanel/VersusRow/LocalBlock" unique_id=2021672501]
+layout_mode = 2
+text = "Olympus"
+horizontal_alignment = 1
+
+[node name="LocalNameLabel" type="Label" parent="PreMatchPanel/VersusRow/LocalBlock" unique_id=1952162870]
+layout_mode = 2
+text = "Player"
+horizontal_alignment = 1
+
+[node name="VersusLabel" type="Label" parent="PreMatchPanel/VersusRow" unique_id=1952588902]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "VS"
+vertical_alignment = 1
+
+[node name="OpponentBlock" type="VBoxContainer" parent="PreMatchPanel/VersusRow" unique_id=2147083413]
+layout_mode = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="OpponentAvatar" type="ColorRect" parent="PreMatchPanel/VersusRow/OpponentBlock" unique_id=307493984]
+custom_minimum_size = Vector2(120, 120)
+layout_mode = 2
+size_flags_horizontal = 4
+color = Color(1, 0.35, 0.3, 1)
+
+[node name="OpponentFactionRect" type="ColorRect" parent="PreMatchPanel/VersusRow/OpponentBlock" unique_id=8973146]
+custom_minimum_size = Vector2(120, 24)
+layout_mode = 2
+size_flags_horizontal = 4
+color = Color(0.8, 0.25, 0.2, 1)
+
+[node name="OpponentFactionLabel" type="Label" parent="PreMatchPanel/VersusRow/OpponentBlock" unique_id=1552752887]
+layout_mode = 2
+text = "Underworld"
+horizontal_alignment = 1
+
+[node name="OpponentNameLabel" type="Label" parent="PreMatchPanel/VersusRow/OpponentBlock" unique_id=92648911]
+layout_mode = 2
+text = "Opponent"
+horizontal_alignment = 1

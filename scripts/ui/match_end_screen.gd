@@ -8,7 +8,10 @@ const MAIN_MENU := "res://scenes/menu/MainMenu.tscn"
 
 func _ready() -> void:
 	var winner := BattleManager.last_winner
-	winner_label.text = winner.to_upper() + " TEAM WINS!"
+	if winner == "draw":
+		winner_label.text = "DRAW MATCH"
+	else:
+		winner_label.text = winner.to_upper() + " TEAM WINS!"
 	menu_button.pressed.connect(_on_menu_button_pressed)
 
 

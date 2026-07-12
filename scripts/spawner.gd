@@ -55,7 +55,7 @@ func _spawn_wave() -> void:
 	for i in range(units_per_lane):
 		_spawn_unit("player", spawn_pos_player_bot, i)
 
-func _spawn_unit(team: String, base_pos: Vector2, index: int) -> void:
+func _spawn_unit(team: String, base_pos: Vector2, _index: int) -> void:
 	var card_id := PLAYER_TEST_CARD if team == "player" else ENEMY_TEST_CARD
 
 	# rozptyl aby sa unity nespawnovali presne na seba

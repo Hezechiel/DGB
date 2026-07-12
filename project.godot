@@ -26,6 +26,7 @@ InputR="*uid://bs41hu3fxcynb"
 BattleManager="*res://scripts/BattleManager.gd"
 Settings="*res://scripts/settings.gd"
 CardDB="*res://scripts/CardDB.gd"
+MatchConfig="*res://scripts/MatchConfig.gd"
 
 [display]
 

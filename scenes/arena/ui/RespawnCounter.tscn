@@ -1,0 +1,40 @@
+[gd_scene format=3 uid="uid://wm8t7cxd8y2w"]
+
+[ext_resource type="Script" uid="uid://rcntscr5j8k2mw" path="res://scripts/arena/ui/respawn_counter.gd" id="1_rcnt"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rcnt"]
+bg_color = Color(0, 0, 0, 0.5)
+corner_radius_top_left = 14
+corner_radius_top_right = 14
+corner_radius_bottom_right = 14
+corner_radius_bottom_left = 14
+
+[node name="RespawnCounter" type="Panel"]
+custom_minimum_size = Vector2(28, 28)
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_rcnt")
+script = ExtResource("1_rcnt")
+
+[node name="HeroThumbnail" type="TextureRect" parent="."]
+modulate = Color(1, 1, 1, 0.5)
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="CountdownLabel" type="Label" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "10"
+horizontal_alignment = 1
+vertical_alignment = 1

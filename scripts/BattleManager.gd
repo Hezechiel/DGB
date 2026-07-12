@@ -7,9 +7,27 @@ extends Node
 # Emitovany ked zakladna jedneho timu je znicena — arena.gd pocuva a zmeni scenu
 signal match_ended(winner_team: String)
 
+# Respawn — MatchInfoBar pocuva tieto signaly a zobrazuje countdown
+signal hero_died(team: String, respawn_seconds: int)
+signal hero_respawn_tick(team: String, seconds_left: int)
+signal hero_respawned(team: String)
+
+# Match timer — MatchInfoBar pocuva a zobrazuje odpocet
+signal match_time_tick(seconds_left: int)
+
+const MATCH_DURATION := 180.0
+var _match_time_left: float = 0.0
+var _match_running: bool = false
+var _match_ended: bool = false   # zdielany guard pre match_ended (timer aj base destroy)
+
 # Jednotky podla timu (hrdinovia + sumonovane jednotky)
 var team_player: Array[Node2D] = []
 var team_enemy: Array[Node2D] = []
+
+var heroes: Dictionary = {}                # team -> hero Node, nastavuje sa v spawn_hero
+var hero_spawn_positions: Dictionary = {}  # team -> Vector2, nastavuje arena.gd
+var _hero_deaths: Dictionary = {}          # team -> int, pretrvava cely zapas
+var _respawn_left: Dictionary = {}         # team -> float, len pocas respawnu
 
 # Zakladne
 var player_base: Node2D = null
@@ -38,6 +56,9 @@ func register(unit: Node2D, team: String) -> void:
 		unit.tree_exited.connect(func(): unregister(unit, team), CONNECT_ONE_SHOT)
 
 func unregister(unit: Node2D, team: String) -> void:
+	# Array.erase() na hodnotu ktora uz v poli nie je (napr. neskoro-vystrelena
+	# tree_exited lambda z predchadzajucej, uz resetnutej areny) je bezpecny
+	# no-op — nikdy nesposobi chybu.
 	var list := team_player if team == "player" else team_enemy
 	list.erase(unit)
 
@@ -80,8 +101,55 @@ func register_base(base: Node2D, team: String) -> void:
 
 # Volane z base._on_destroyed()
 func on_base_destroyed(destroyed_team: String) -> void:
+	if _match_ended:
+		return
+	_match_ended = true
+	_match_running = false
 	last_winner = "enemy" if destroyed_team == "player" else "player"
 	match_ended.emit(last_winner)
+
+# --- Match timer ---
+
+# Volane z arena.gd _ready() — NIE z BattleManager _ready(), autoload prezije
+# medzi zapasmi, takze timer sa musi resetovat pri kazdom novom zapase.
+func start_match_timer() -> void:
+	_match_time_left = MATCH_DURATION
+	_match_running = true
+	_match_ended = false
+	match_time_tick.emit(ceili(_match_time_left))
+
+# --- Reset stavu zapasu ---
+
+# Volane z arena._enter_tree() PRED _ready() detí (turrety/zakladne sa
+# registruju vo svojom _ready(), ktore bezi PRED _ready() rodica) —
+# zarucuje ze nova arena nezdedi ziadny stav (vratane FREED referencii)
+# z predchadzajuceho zapasu.
+func reset_match_state() -> void:
+	team_player.clear()
+	team_enemy.clear()
+
+	heroes.clear()
+	_hero_deaths.clear()
+	_respawn_left.clear()
+	hero_spawn_positions.clear()  # arena.gd ich znovu nastavi
+
+	player_base = null
+	enemy_base = null
+
+	# Turrety nemaju ziadny tree_exited/unregister mechanizmus (nikdy sa
+	# nequeue_free-uju, len sa stavaju vrakmi) — cisty literal je jednoduchsi
+	# a bezpecnejsi nez rucne clear() na 4 vnorenych poliach.
+	_turrets = {
+		"player": {"top": [], "bot": []},
+		"enemy":  {"top": [], "bot": []}
+	}
+
+	last_winner = ""
+	arena_root = null  # arena._enter_tree() ho hned nato nastavi znova
+
+	_match_time_left = 0.0
+	_match_running = false
+	_match_ended = false
 
 # --- March ciel pre jednotky ---
 
@@ -136,3 +204,69 @@ func spawn_unit(card_id: StringName, pos: Vector2, team: String) -> Node:
 	unit.global_position = pos
 	arena_root.add_child.call_deferred(unit)
 	return unit
+
+# --- Spawn (hrdinovia) ---
+
+const PLAYER_SCENE: PackedScene = preload("res://scenes/arena/player.tscn")
+const HERO_DUMMY_SCENE: PackedScene = preload("res://scenes/arena/hero_dummy.tscn")
+
+# hero_id pride od (buduceho) remote hraca cez network; "controlled" sa
+# rozhoduje vzdy lokalne (je toto moj hrdina, alebo cudzi/AI?)
+func spawn_hero(hero_id: StringName, team: String, controlled: bool) -> Node:
+	if arena_root == null:
+		push_error("BattleManager.spawn_hero: arena_root nie je nastaveny")
+		return null
+
+	var data := CardDB.get_hero(hero_id)
+	if data == null:
+		push_error("BattleManager.spawn_hero: neznamy hero_id '%s'" % hero_id)
+		return null
+
+	var scene: PackedScene = PLAYER_SCENE if controlled else HERO_DUMMY_SCENE
+	var hero := scene.instantiate()
+	hero.configure(data, team)
+	heroes[team] = hero
+	arena_root.add_child.call_deferred(hero)
+	return hero
+
+# --- Respawn ---
+
+func on_hero_died(_hero: Node2D, team: String) -> void:
+	if _respawn_left.has(team):
+		return  # uz respawnuje — guard proti dvojitemu volaniu
+	_hero_deaths[team] = _hero_deaths.get(team, 0) + 1
+	var respawn_seconds: int = clampi(3 + _hero_deaths[team] - 1, 3, 10)
+	_respawn_left[team] = float(respawn_seconds)
+	hero_died.emit(team, respawn_seconds)
+
+func _process(delta: float) -> void:
+	for team in _respawn_left.keys():
+		var before := ceili(_respawn_left[team])
+		_respawn_left[team] -= delta
+		var after := ceili(_respawn_left[team])
+		if after != before and after > 0:
+			hero_respawn_tick.emit(team, after)
+		if _respawn_left[team] <= 0.0:
+			_respawn_hero(team)
+
+	if _match_running:
+		var before_t := ceili(_match_time_left)
+		_match_time_left -= delta
+		var after_t := ceili(_match_time_left)
+		if after_t != before_t and after_t > 0:
+			match_time_tick.emit(after_t)
+		if _match_time_left <= 0.0:
+			_match_running = false
+			if not _match_ended:
+				_match_ended = true
+				last_winner = "draw"
+				# TODO: az pride progress-based rozhodovanie (znicene veze/kille), nahradit "draw"
+				match_ended.emit("draw")
+
+func _respawn_hero(team: String) -> void:
+	var hero: Node2D = heroes.get(team)
+	if hero != null and is_instance_valid(hero):
+		hero.global_position = hero_spawn_positions.get(team, hero.global_position)
+		hero.revive()
+	_respawn_left.erase(team)
+	hero_respawned.emit(team)

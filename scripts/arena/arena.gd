@@ -3,12 +3,27 @@ extends Node2D
 @onready var hud: HUD = $HUD
 @onready var move_marker: Node2D = $MoveMarker
 @onready var arena_camera: Camera2D = $ArenaCamera
-@onready var player: CharacterBody2D = $Player
+var player: CharacterBody2D = null
 
 const MAIN_MENU_SCENE := "res://scenes/menu/MainMenu.tscn"
 
-func _ready() -> void:
+# TEMP: kym nepride realny hero-select/network flow, oba hrdinovia pouzivaju
+# rovnaky test HeroData
+const PLAYER_HERO_ID := &"hero_test"
+const ENEMY_HERO_ID := &"hero_test"
+
+@export var hero_spawn_player: Vector2 = Vector2(-250, 0)  # == povodna bakovana pozicia Playera
+@export var hero_spawn_enemy: Vector2 = Vector2(250, 0)    # zrkadlovy offset od EnemyBase
+
+func _enter_tree() -> void:
+	# _enter_tree beží zhora nadol (parent pred childmi) — turrety/zakladne sa
+	# registruju vo svojom _ready() (dieta), ktore bezi PRED _ready() rodica.
+	# Reset preto MUSI prebehnut tu, nie v _ready(), inak by zmazal
+	# registracie ktore uz medzitym stihli prebehnut z novej sceny.
+	BattleManager.reset_match_state()
 	BattleManager.arena_root = self
+
+func _ready() -> void:
 	hud.exit_requested.connect(_on_hud_exit_requested)
 	hud.recenter_camera_requested.connect(_on_recenter_camera_requested)
 	BattleManager.match_ended.connect(_on_match_ended)
@@ -16,6 +31,17 @@ func _ready() -> void:
 	# (tap na enemy/turret/base hurtbox) nikdy nevystreli
 	get_viewport().physics_object_picking = true
 	get_viewport().physics_object_picking_sort = true
+
+	var player_hero := BattleManager.spawn_hero(PLAYER_HERO_ID, "player", true)
+	player_hero.global_position = hero_spawn_player
+	player = player_hero as CharacterBody2D
+	BattleManager.hero_spawn_positions["player"] = hero_spawn_player
+
+	var enemy_hero := BattleManager.spawn_hero(ENEMY_HERO_ID, "enemy", false)
+	enemy_hero.global_position = hero_spawn_enemy
+	BattleManager.hero_spawn_positions["enemy"] = hero_spawn_enemy
+
+	BattleManager.start_match_timer()
 
 func _unhandled_input(event: InputEvent) -> void:
 	# Tap-to-move: tap mimo UI (UI eventy sem nedojdu, su handled v _gui_input)

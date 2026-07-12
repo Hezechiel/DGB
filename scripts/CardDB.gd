@@ -7,13 +7,16 @@ extends Node
 
 const CARDS_PATH := "res://data/cards/"
 const UNITS_PATH := "res://data/units/"
+const HEROES_PATH := "res://data/heroes/"
 
 var _cards: Dictionary = {} # StringName -> CardData
 var _units: Dictionary = {} # StringName -> UnitData
+var _heroes: Dictionary = {} # StringName -> HeroData
 
 func _ready() -> void:
 	_scan_into(CARDS_PATH, _cards)
 	_scan_into(UNITS_PATH, _units)
+	_scan_into(HEROES_PATH, _heroes)
 
 func get_card(id: StringName) -> CardData:
 	if not _cards.has(id):
@@ -26,6 +29,12 @@ func get_unit(id: StringName) -> UnitData:
 		push_error("CardDB: unknown unit id '%s'" % id)
 		return null
 	return _units[id]
+
+func get_hero(id: StringName) -> HeroData:
+	if not _heroes.has(id):
+		push_error("CardDB: unknown hero id '%s'" % id)
+		return null
+	return _heroes[id]
 
 func _scan_into(dir_path: String, target: Dictionary) -> void:
 	var dir := DirAccess.open(dir_path)

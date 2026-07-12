@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="HeroData" load_steps=4 format=3 uid="uid://herotestdata01"]
+
+[ext_resource type="Script" uid="uid://hdscr4k9p2m7q" path="res://scripts/arena/hero_data.gd" id="1_herodata"]
+[ext_resource type="PackedScene" uid="uid://dyxn10n333b4k" path="res://scenes/arena/projectiles/projectile.tscn" id="2_bolt"]
+[ext_resource type="SpriteFrames" uid="uid://hfrm7p3k9q2wt" path="res://data/heroes/frames/frames_hero_placeholder.tres" id="3_frames"]
+
+[resource]
+script = ExtResource("1_herodata")
+id = &"hero_test"
+display_name = "Test Hero"
+max_hp = 500
+speed = 70.0
+attack_range = 80.0
+fire_cooldown = 0.5
+projectile_damage = 25
+projectile_scene = ExtResource("2_bolt")
+sprite_frames = ExtResource("3_frames")

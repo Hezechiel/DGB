@@ -55,10 +55,6 @@ var hurtbox_in_range: Area2D = null
 # unit a zacne ju prenasledovat este pred fyzickym kontaktom (CHASING stav)
 var combat_target: Node2D = null
 @onready var aggro_range: Area2D = $AggroRange
-# TODO: separation pouziva vsetky unity rovnakeho timu — compute_separation()
-#       bude treba prepnut na get_tree().get_nodes_in_group("team_" + team)
-#       namiesto enemy_manager.enemies ked su oba timy aktivne
-var _separation_group: String = ""
 @export var max_hp: int = 50
 var hp: int
 
@@ -83,7 +79,7 @@ func configure(data: UnitData, new_team: String) -> void:
 	damage = data.damage
 	attack_cooldown = data.attack_cooldown
 	speed = data.speed
-	target_filter = data.target_filter # int -> enum, hodnoty su zdielane 1:1
+	target_filter = data.target_filter as TargetFilter
 	if data.sprite_frames != null:
 		$AnimatedSprite2D.sprite_frames = data.sprite_frames
 

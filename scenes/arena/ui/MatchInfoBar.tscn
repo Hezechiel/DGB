@@ -1,0 +1,124 @@
+[gd_scene format=3 uid="uid://cq6n7mpjrxhmw"]
+
+[ext_resource type="Script" uid="uid://mibscr9k4p2wtx" path="res://scripts/arena/ui/match_info_bar.gd" id="1_mib"]
+[ext_resource type="PackedScene" uid="uid://rcntscn7p3k9qm" path="res://scenes/arena/ui/RespawnCounter.tscn" id="2_rcnt"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_bar"]
+bg_color = Color(0.25, 0.45, 0.85, 0.35)
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_towerBlue"]
+bg_color = Color(0.3, 0.55, 1.0, 1.0)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_towerRed"]
+bg_color = Color(1.0, 0.35, 0.3, 1.0)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[node name="MatchInfoBar" type="Panel"]
+anchors_preset = -1
+anchor_left = 0.25
+anchor_right = 0.75
+offset_bottom = 36.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_bar")
+script = ExtResource("1_mib")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 4
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="PlayerRespawnCounter" parent="MarginContainer/HBoxContainer" instance=ExtResource("2_rcnt")]
+visible = false
+layout_mode = 2
+mouse_filter = 2
+
+[node name="PlayerTowers" type="HBoxContainer" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="Tower1" type="Panel" parent="MarginContainer/HBoxContainer/PlayerTowers"]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_towerBlue")
+
+[node name="Tower2" type="Panel" parent="MarginContainer/HBoxContainer/PlayerTowers"]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_towerBlue")
+
+[node name="Tower3" type="Panel" parent="MarginContainer/HBoxContainer/PlayerTowers"]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_towerBlue")
+
+[node name="Spacer1" type="Control" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="TimerLabel" type="Label" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_font_sizes/font_size = 18
+text = "3:00"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Spacer2" type="Control" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="EnemyTowers" type="HBoxContainer" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="Tower1" type="Panel" parent="MarginContainer/HBoxContainer/EnemyTowers"]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_towerRed")
+
+[node name="Tower2" type="Panel" parent="MarginContainer/HBoxContainer/EnemyTowers"]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_towerRed")
+
+[node name="Tower3" type="Panel" parent="MarginContainer/HBoxContainer/EnemyTowers"]
+custom_minimum_size = Vector2(18, 18)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_towerRed")
+
+[node name="EnemyRespawnCounter" parent="MarginContainer/HBoxContainer" instance=ExtResource("2_rcnt")]
+visible = false
+layout_mode = 2
+mouse_filter = 2

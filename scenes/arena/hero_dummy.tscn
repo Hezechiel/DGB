@@ -1,0 +1,38 @@
+[gd_scene format=3 uid="uid://b8ctq53x76rri"]
+
+[ext_resource type="Script" uid="uid://hdumscr8k3q1pv" path="res://scripts/arena/hero_dummy.gd" id="1_dummy"]
+[ext_resource type="SpriteFrames" uid="uid://hfrm7p3k9q2wt" path="res://data/heroes/frames/frames_hero_placeholder.tres" id="2_frames"]
+[ext_resource type="PackedScene" uid="uid://dvwpf0hx27680" path="res://scenes/ui/HealthBar.tscn" id="3_hbar"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_body"]
+radius = 7.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_hurtbox"]
+radius = 8.0
+
+[node name="HeroDummy" type="CharacterBody2D"]
+collision_mask = 4
+script = ExtResource("1_dummy")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+scale = Vector2(0.09, 0.09)
+sprite_frames = ExtResource("2_frames")
+animation = &"new_front_left"
+autoplay = "new_front_left"
+
+[node name="CollisionBody" type="CollisionShape2D" parent="."]
+shape = SubResource("CircleShape2D_body")
+
+[node name="Hurtbox" type="Area2D" parent="."]
+collision_layer = 16
+collision_mask = 0
+
+[node name="CollisionShape2" type="CollisionShape2D" parent="Hurtbox"]
+shape = SubResource("CircleShape2D_hurtbox")
+
+[node name="HealthBar" parent="." instance=ExtResource("3_hbar")]
+offset_left = -16.0
+offset_top = -18.0
+offset_right = -16.0
+offset_bottom = -18.0
+always_visible = true

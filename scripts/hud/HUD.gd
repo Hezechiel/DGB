@@ -12,6 +12,7 @@ signal recenter_camera_requested
 @onready var setting_overlay: SettingsOverlay = $SettingOverlay
 @onready var player_character_button: TouchScreenButton = $Root/PlayerCharacter
 @onready var card_hand: CardHand = $CardHand
+@onready var match_info_bar: MatchInfoBar = $MatchInfoBar
 
 const BUTTON_SIZE := 80.0
 const MARGIN := 8.0

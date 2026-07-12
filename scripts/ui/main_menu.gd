@@ -9,7 +9,7 @@ extends Control
 @onready var setting_overlay: SettingsOverlay = $SettingOverlay
 @onready var credits_overlay: CreditsOverlay = $CreditsOverlay
 
-const ARENA_SCENE := "res://scenes/arena/arena.tscn"
+const PREMATCH_FLOW_SCENE := "res://scenes/ui/PreMatchFlow.tscn"
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -25,7 +25,7 @@ func _ready() -> void:
 	#setting_overlay.visible = false
 
 func _on_start_arena_buton_pressed() -> void:
-	get_tree().change_scene_to_file(ARENA_SCENE)
+	get_tree().change_scene_to_file(PREMATCH_FLOW_SCENE)
 
 func _on_settings_button_pressed() -> void:
 	# overlay version
