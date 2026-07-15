@@ -177,33 +177,65 @@ func get_nearest_structure(defending_team: String, from_pos: Vector2) -> Node2D:
 			nearest = structure
 	return nearest
 
+# --- Deploy zone ---
+# Hranice mapy kde sa da deployovat. TODO: neskor by mali prist z areny/mapy,
+# nie z konstanty v autoloade.
+const DEPLOY_BOUNDS := Rect2(-450.0, -350.0, 900.0, 700.0)
+
+# Jediny zdroj pravdy pre "da sa sem deployovat?". Vola ho aj live preview
+# (farba kruhu) aj spawn na release — nikdy nesmu rozhodnut rozdielne.
+# Buduce dalsie pravidla sa pridavaju SEM, nie na volajucich:
+#   - rozsirenie zony po zniceni enemy veze (lane-based)
+#   - energy/mana cost check
+#   - prekazky a struktury na mape
+func is_deploy_position_valid(pos: Vector2, team: String) -> bool:
+	if not DEPLOY_BOUNDS.has_point(pos):
+		return false
+	# vlastna polovica mapy — stredova ciara je x = 0
+	if team == "player":
+		return pos.x < 0.0
+	return pos.x > 0.0
+
 # --- Spawn (jediny vstupny bod pre vytvaranie jednotiek) ---
 
 # Jediny spawn entry point pre jednotky. Resolvne CardData → UnitData cez
 # CardDB, instancuje archetype scenu, nakonfiguruje ju PRED vstupom do stromu
 # (instantiate → configure → add_child). Buduci network handler a
 # drag-to-deploy volaju tuto funkciu — ziadne ine miesto uz jednotky
-# neinstancuje priamo.
-func spawn_unit(card_id: StringName, pos: Vector2, team: String) -> Node:
+# neinstancuje priamo. Karta moze sumonovat squad (unit_count > 1) —
+# vrati vsetky spawnute jednotky.
+func spawn_unit(card_id: StringName, pos: Vector2, team: String) -> Array[Node]:
 	if arena_root == null:
 		push_error("BattleManager.spawn_unit: arena_root nie je nastaveny")
-		return null
+		return []
 
 	var card := CardDB.get_card(card_id)
 	if card == null or card.unit_data == null:
 		push_error("BattleManager.spawn_unit: card '%s' nema priradene unit_data" % card_id)
-		return null
+		return []
 
 	var unit_data := card.unit_data
 	if unit_data.archetype_scene == null:
 		push_error("BattleManager.spawn_unit: unit_data '%s' nema archetype_scene" % unit_data.id)
-		return null
+		return []
 
-	var unit := unit_data.archetype_scene.instantiate()
-	unit.configure(unit_data, team)
-	unit.global_position = pos
-	arena_root.add_child.call_deferred(unit)
-	return unit
+	var spawned: Array[Node] = []
+	var count: int = maxi(1, card.unit_count)
+	for i in range(count):
+		var unit := unit_data.archetype_scene.instantiate()
+		unit.configure(unit_data, team)
+		unit.global_position = pos + _formation_offset(i, count, card.formation_radius)
+		arena_root.add_child.call_deferred(unit)
+		spawned.append(unit)
+	return spawned
+
+# Deterministicke rozmiestnenie squadu do kruhu — ZIADNY random, oba klienti
+# musia z rovnakej {card_id, pos, team} spravy dostat rovnaku formaciu.
+func _formation_offset(index: int, count: int, radius: float) -> Vector2:
+	if count <= 1:
+		return Vector2.ZERO
+	var angle := TAU * float(index) / float(count)
+	return Vector2(cos(angle), sin(angle)) * radius
 
 # --- Spawn (hrdinovia) ---
 

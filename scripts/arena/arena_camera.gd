@@ -32,11 +32,12 @@ func _deferred_init() -> void:
 	_apply_mode()
 
 func _find_player() -> void:
-	# pozor: v team_player su aj veze (PlayerTurret) — hrdina je jediny CharacterBody2D
-	for n in get_tree().get_nodes_in_group("team_player"):
-		if n is CharacterBody2D:
-			_player = n
-			return
+	# nepouzivaj team_player skupinu — obsahuje aj sumonovane jednotky (tiez
+	# CharacterBody2D), takze prvy najdeny nemusi byt hrdina. BattleManager.heroes
+	# je autoritativny zdroj, nastavuje sa v spawn_hero().
+	var hero: Node2D = BattleManager.heroes.get("player")
+	if hero != null and is_instance_valid(hero):
+		_player = hero
 
 func _physics_process(_delta: float) -> void:
 	if not Settings.lock_camera:

@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://b7xkqe2n8wt4r" path="res://scenes/arena/turrets/EnemyTurret.tscn" id="7_6w4xk"]
 [ext_resource type="PackedScene" uid="uid://bhudscenemain" path="res://scenes/hud/HUD.tscn" id="7_hud"]
 [ext_resource type="PackedScene" uid="uid://bx5ubwkcebqbx" path="res://scenes/arena/MoveMarker.tscn" id="8_mvmrk"]
+[ext_resource type="PackedScene" uid="uid://dghostscn0001" path="res://scenes/arena/DeployGhost.tscn" id="9_ghost"]
 [ext_resource type="PackedScene" uid="uid://c0pbasepl4yr1" path="res://scenes/arena/bases/PlayerBase.tscn" id="10_xgbxb"]
 [ext_resource type="PackedScene" uid="uid://c0pbasenmy4r2" path="res://scenes/arena/bases/EnemyBase.tscn" id="11_vmsrg"]
 [ext_resource type="Script" uid="uid://dpoqc2pl2x3x4" path="res://scripts/arena/arena_camera.gd" id="12_cam"]
@@ -155,6 +156,8 @@ tile_map_data = PackedByteArray("AADs/+7/AAABAAEAAADt/+7/AAABAAEAAADu/+7/AAABAAE
 tile_set = SubResource("TileSet_lbhrr")
 
 [node name="MoveMarker" parent="." unique_id=1387004111 instance=ExtResource("8_mvmrk")]
+
+[node name="DeployGhost" parent="." instance=ExtResource("9_ghost")]
 
 [node name="Spawner" parent="." unique_id=1872486208 instance=ExtResource("4_2ml6w")]
 position = Vector2(-3, -314)

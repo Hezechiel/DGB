@@ -2,6 +2,7 @@ extends Node2D
 
 @onready var hud: HUD = $HUD
 @onready var move_marker: Node2D = $MoveMarker
+@onready var deploy_ghost: Node2D = $DeployGhost
 @onready var arena_camera: Camera2D = $ArenaCamera
 var player: CharacterBody2D = null
 
@@ -26,6 +27,8 @@ func _enter_tree() -> void:
 func _ready() -> void:
 	hud.exit_requested.connect(_on_hud_exit_requested)
 	hud.recenter_camera_requested.connect(_on_recenter_camera_requested)
+	hud.card_hand.deploy_preview_updated.connect(_on_deploy_preview_updated)
+	hud.card_hand.deploy_preview_ended.connect(_on_deploy_preview_ended)
 	BattleManager.match_ended.connect(_on_match_ended)
 	# 2D object picking je defaultne vypnute — bez neho Area2D.input_event
 	# (tap na enemy/turret/base hurtbox) nikdy nevystreli
@@ -59,6 +62,12 @@ func _on_hud_exit_requested() -> void:
 
 func _on_recenter_camera_requested() -> void:
 	arena_camera.recenter_on_player()
+
+func _on_deploy_preview_updated(world_pos: Vector2, is_valid: bool) -> void:
+	deploy_ghost.show_at(world_pos, is_valid)
+
+func _on_deploy_preview_ended() -> void:
+	deploy_ghost.hide_ghost()
 
 func _on_match_ended(_winner: String) -> void:
 	get_tree().change_scene_to_file("res://scenes/menu/MatchEndScreen.tscn")

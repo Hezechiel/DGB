@@ -45,17 +45,17 @@ theme_override_constants/separation = 8
 
 [node name="Card1" parent="MarginContainer/HBoxContainer" unique_id=963964173 instance=ExtResource("2_card")]
 layout_mode = 2
-mouse_filter = 2
+mouse_filter = 0
 size_flags_horizontal = 3
 
 [node name="Card2" parent="MarginContainer/HBoxContainer" unique_id=1330950419 instance=ExtResource("2_card")]
 layout_mode = 2
-mouse_filter = 2
+mouse_filter = 0
 size_flags_horizontal = 3
 
 [node name="Card3" parent="MarginContainer/HBoxContainer" unique_id=1252304756 instance=ExtResource("2_card")]
 layout_mode = 2
-mouse_filter = 2
+mouse_filter = 0
 size_flags_horizontal = 3
 
 [node name="NextCardPreview" parent="MarginContainer/HBoxContainer" unique_id=1317245045 instance=ExtResource("2_card")]
