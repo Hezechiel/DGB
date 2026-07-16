@@ -20,6 +20,7 @@ var _cycle: Array[CardData] = [] # fronta kariet — zahrana karta ide na koniec
 
 var _drag_slot: int = -1
 var _drag_touch_index: int = -1
+var _drag_showing_back: bool = false
 
 func _ready() -> void:
 	_slots = [card_1, card_2, card_3]
@@ -48,6 +49,7 @@ func begin_drag(slot_index: int, touch_index: int) -> void:
 		return
 	_drag_slot = slot_index
 	_drag_touch_index = touch_index
+	_drag_showing_back = false
 
 # Drag a release sledujeme v _input() (bezi PRED GUI aj pred _unhandled_input),
 # takze eventy nikdy nedojdu do arena_camera.gd (pan) ani arena.gd (tap-to-move).
@@ -58,6 +60,14 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventScreenDrag and event.index == _drag_touch_index:
 		var world_pos := _screen_to_world(event.position)
 		deploy_preview_updated.emit(world_pos, BattleManager.is_deploy_position_valid(world_pos, "player"))
+		# Nad rukou = chysta sa zrusenie, ukaz lic. Mimo ruky (nad mapou) = rub.
+		var over_hand := get_global_rect().has_point(event.position)
+		if over_hand and _drag_showing_back:
+			_slots[_drag_slot].show_face()
+			_drag_showing_back = false
+		elif not over_hand and not _drag_showing_back:
+			_slots[_drag_slot].show_back()
+			_drag_showing_back = true
 		get_viewport().set_input_as_handled()
 	elif event is InputEventScreenTouch and not event.pressed and event.index == _drag_touch_index:
 		_finish_drag(event.position)
@@ -72,6 +82,11 @@ func _finish_drag(screen_pos: Vector2) -> void:
 	var slot := _drag_slot
 	_drag_slot = -1
 	_drag_touch_index = -1
+	# Lic sa vracia vzdy a na jednom mieste — pri uspesnom zahrani ho play_card()
+	# aj tak hned prepise cez configure() novou kartou (rovnaky frame, bez bliknutia).
+	if _drag_showing_back:
+		_slots[slot].show_face()
+		_drag_showing_back = false
 	deploy_preview_ended.emit()
 	# release nad samotnou rukou = zrusenie (aj obycajny tap na kartu bez pohybu)
 	if get_global_rect().has_point(screen_pos):
