@@ -23,6 +23,9 @@ func _enter_tree() -> void:
 	# registracie ktore uz medzitym stihli prebehnut z novej sceny.
 	BattleManager.reset_match_state()
 	BattleManager.arena_root = self
+	# EnergySystem je samostatny autoload — vlastny reset, nie je v
+	# BattleManager.reset_match_state().
+	EnergySystem.reset_match_state()
 
 func _ready() -> void:
 	hud.exit_requested.connect(_on_hud_exit_requested)
@@ -45,6 +48,7 @@ func _ready() -> void:
 	BattleManager.hero_spawn_positions["enemy"] = hero_spawn_enemy
 
 	BattleManager.start_match_timer()
+	EnergySystem.start()
 
 func _unhandled_input(event: InputEvent) -> void:
 	# Tap-to-move: tap mimo UI (UI eventy sem nedojdu, su handled v _gui_input)
@@ -70,6 +74,7 @@ func _on_deploy_preview_ended() -> void:
 	deploy_ghost.hide_ghost()
 
 func _on_match_ended(_winner: String) -> void:
+	EnergySystem.stop()
 	get_tree().change_scene_to_file("res://scenes/menu/MatchEndScreen.tscn")
 
 func _input(event: InputEvent) -> void:
@@ -78,3 +83,17 @@ func _input(event: InputEvent) -> void:
 			$Turret.take_damage(80)
 		if event.keycode == KEY_Y:
 			$PlayerBase.take_damage(500)
+		# --- DEBUG energia (docasne, kym nie je energy bar — krok 2) ---
+		if event.keycode == KEY_U:
+			EnergySystem.add_modifier("player", EnergySystem.ModType.REGEN_MULT, 2.0, 5.0, &"debug_boost")
+			print("[energy] boost 2x na 5s")
+		if event.keycode == KEY_I:
+			EnergySystem.add_modifier("player", EnergySystem.ModType.COST_REDUCE, 1.0, 5.0, &"debug_bloodlust")
+			print("[energy] bloodlust -1 cena na 5s")
+		if event.keycode == KEY_O:
+			print("[energy] player=%.2f enemy=%.2f | regen=%.2f/s | card_05 cost=%d" % [
+				EnergySystem.get_energy("player"), EnergySystem.get_energy("enemy"),
+				EnergySystem.get_regen_rate("player"),
+				EnergySystem.resolve_cost("player", &"card_05")])
+		if event.keycode == KEY_P:
+			print("[energy] try_spend card_05 -> ", EnergySystem.try_spend("player", &"card_05"))

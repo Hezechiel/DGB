@@ -1,7 +1,7 @@
 [gd_scene format=4 uid="uid://cel13t20juq3n"]
 
 [ext_resource type="Script" uid="uid://cprjw58lfuvba" path="res://scripts/arena/arena.gd" id="1_u52cf"]
-[ext_resource type="Texture2D" uid="uid://di5q1wn6p6wmm" path="res://assets/world/world_map.png" id="2_ii07k"]
+[ext_resource type="Texture2D" uid="uid://dgplrqnndqbvg" path="res://assets/world/world_map.webp" id="2_vmsrg"]
 [ext_resource type="Texture2D" uid="uid://b81r7so454vot" path="res://assets/sprites/world_tileset.png" id="3_6w4xk"]
 [ext_resource type="PackedScene" uid="uid://b3ygtyp1ktxnt" path="res://scenes/arena/spawner.tscn" id="4_2ml6w"]
 [ext_resource type="PackedScene" uid="uid://8nnp84nrmapf" path="res://scenes/arena/turrets/PlayerTurret.tscn" id="6_ii07k"]
@@ -147,7 +147,7 @@ sources/0 = SubResource("TileSetAtlasSource_lnu2h")
 script = ExtResource("1_u52cf")
 
 [node name="Map" type="Sprite2D" parent="." unique_id=1145271735]
-texture = ExtResource("2_ii07k")
+texture = ExtResource("2_vmsrg")
 
 [node name="TileMapLayer" type="TileMapLayer" parent="." unique_id=1072615601]
 use_parent_material = true
@@ -157,7 +157,7 @@ tile_set = SubResource("TileSet_lbhrr")
 
 [node name="MoveMarker" parent="." unique_id=1387004111 instance=ExtResource("8_mvmrk")]
 
-[node name="DeployGhost" parent="." instance=ExtResource("9_ghost")]
+[node name="DeployGhost" parent="." unique_id=1979497658 instance=ExtResource("9_ghost")]
 
 [node name="Spawner" parent="." unique_id=1872486208 instance=ExtResource("4_2ml6w")]
 position = Vector2(-3, -314)

@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://26kaj1qw10dd"]
 
 [ext_resource type="Script" uid="uid://cxqr40v74ph0n" path="res://scripts/ui/main_menu.gd" id="1_2nud1"]
-[ext_resource type="Texture2D" uid="uid://dpwysouaqe413" path="res://assets/menu/olymp_progress_4.png" id="1_uwj7d"]
+[ext_resource type="Texture2D" uid="uid://bfsg3fb2osnra" path="res://assets/menu/main_menu.webp" id="2_y6vun"]
 [ext_resource type="FontFile" uid="uid://dkw824f3uvxf6" path="res://assets/fonts/CinzelDecorative-Bold.ttf" id="3_ekkse"]
 [ext_resource type="Texture2D" uid="uid://bsquqbowm0moo" path="res://assets/menu/UI_note.png" id="4_84lro"]
 [ext_resource type="FontFile" uid="uid://bweqmg7kjyyai" path="res://assets/fonts/CinzelDecorative-Black.ttf" id="5_y6vun"]
@@ -9,8 +9,8 @@
 [ext_resource type="PackedScene" uid="uid://pfm88dv1cava" path="res://scenes/menu/credits_overlay.tscn" id="9_bvc5d"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_mgsx5"]
-texture = ExtResource("1_uwj7d")
-modulate_color = Color(0.37716255, 0.37716258, 0.37716255, 1)
+texture = ExtResource("2_y6vun")
+modulate_color = Color(0.7380309, 0.73803085, 0.7380308, 1)
 
 [node name="MainMenu" type="Control" unique_id=1972656411]
 layout_mode = 3

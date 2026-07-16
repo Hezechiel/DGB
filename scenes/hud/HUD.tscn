@@ -8,6 +8,7 @@
 [ext_resource type="Texture2D" uid="uid://dt8wflegv1a1t" path="res://assets/menu/UI_user_pressed.png" id="5_dui1j"]
 [ext_resource type="PackedScene" uid="uid://chscn8q4j1p6y" path="res://scenes/arena/ui/CardHand.tscn" id="6_cardhand"]
 [ext_resource type="PackedScene" uid="uid://cq6n7mpjrxhmw" path="res://scenes/arena/ui/MatchInfoBar.tscn" id="7_matchinfo"]
+[ext_resource type="PackedScene" path="res://scenes/arena/ui/EnergyBar.tscn" id="8_energybar"]
 
 [node name="HUD" type="CanvasLayer" unique_id=200000001]
 process_mode = 2
@@ -38,7 +39,16 @@ texture_pressed = ExtResource("5_dui1j")
 [node name="CardHand" parent="." unique_id=2099774979 instance=ExtResource("6_cardhand")]
 process_mode = 3
 
+[node name="EnergyBar" parent="." instance=ExtResource("8_energybar")]
+anchor_left = 0.6667
+anchor_top = 0.75
+anchor_right = 1.0
+anchor_bottom = 0.75
+offset_top = -72.0
+offset_bottom = -8.0
+
 [node name="MatchInfoBar" parent="." unique_id=1546498085 instance=ExtResource("7_matchinfo")]
 
 [node name="SettingOverlay" parent="." unique_id=200000011 instance=ExtResource("2_setov")]
-visible = false
+offset_right = -357.0
+offset_bottom = -121.0

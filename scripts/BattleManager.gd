@@ -186,7 +186,6 @@ const DEPLOY_BOUNDS := Rect2(-450.0, -350.0, 900.0, 700.0)
 # (farba kruhu) aj spawn na release — nikdy nesmu rozhodnut rozdielne.
 # Buduce dalsie pravidla sa pridavaju SEM, nie na volajucich:
 #   - rozsirenie zony po zniceni enemy veze (lane-based)
-#   - energy/mana cost check
 #   - prekazky a struktury na mape
 func is_deploy_position_valid(pos: Vector2, team: String) -> bool:
 	if not DEPLOY_BOUNDS.has_point(pos):

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dpwysouaqe413"
-path="res://.godot/imported/olymp_progress_4.png-71d06ef15f31fc3ef45598bec62d29d7.ctex"
+uid="uid://2u0qd74hoek6"
+path="res://.godot/imported/icon.webp-9657be0e3944d8ff5fd9f7af1c1e0536.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/menu/olymp_progress_4.png"
-dest_files=["res://.godot/imported/olymp_progress_4.png-71d06ef15f31fc3ef45598bec62d29d7.ctex"]
+source_file="res://assets/sprites/icon.webp"
+dest_files=["res://.godot/imported/icon.webp-9657be0e3944d8ff5fd9f7af1c1e0536.ctex"]
 
 [params]
 

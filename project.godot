@@ -13,7 +13,6 @@ config_version=5
 config/name="arena"
 run/main_scene="uid://26kaj1qw10dd"
 config/features=PackedStringArray("4.7", "Mobile")
-config/icon="res://icon.svg"
 
 [audio]
 
@@ -27,6 +26,7 @@ BattleManager="*res://scripts/BattleManager.gd"
 Settings="*res://scripts/settings.gd"
 CardDB="*res://scripts/CardDB.gd"
 MatchConfig="*res://scripts/MatchConfig.gd"
+EnergySystem="*res://scripts/EnergySystem.gd"
 
 [display]
 
