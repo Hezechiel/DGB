@@ -1,8 +1,6 @@
 extends Panel
 class_name CardHand
 
-# PLACEHOLDER: mana cost checks are added in a later step.
-
 # arena.gd pocuva a riadi DeployGhost (CardHand je v CanvasLayer, ghost je
 # world-space Node2D — rovnaky pattern ako HUD signaly)
 signal deploy_preview_updated(world_pos: Vector2, is_valid: bool)
@@ -35,11 +33,29 @@ func _ready() -> void:
 		_slots[i].configure(_cycle.pop_front())
 	_update_preview()
 
+	# Zosivenie kariet podla energie — refresh pri kazdej zmene celeho cisla.
+	EnergySystem.energy_int_changed.connect(_on_energy_int_changed)
+	_refresh_affordability()
+
 func _update_preview() -> void:
 	if _cycle.is_empty():
 		next_card_preview.clear()
 	else:
 		next_card_preview.configure(_cycle[0])
+
+func _on_energy_int_changed(team: String, _value: int) -> void:
+	if team != "player":
+		return
+	_refresh_affordability()
+
+# Prejde aktivne sloty a zosivie tie ktore sa hrac nemoze dovolit. Volane pri
+# zmene energie aj po kazdom play_card() (nova karta v slote ma inu cenu).
+func _refresh_affordability() -> void:
+	for slot in _slots:
+		if slot.card_data == null:
+			slot.set_affordable(false)
+		else:
+			slot.set_affordable(EnergySystem.can_afford("player", slot.card_data.id))
 
 # Volane z Card._gui_input pri presse.
 func begin_drag(slot_index: int, touch_index: int) -> void:
@@ -105,9 +121,15 @@ func play_card(slot_index: int, world_pos: Vector2) -> bool:
 	var played_data := slot.card_data
 	if played_data == null:
 		return false
+	# Atomicky check+spend. Ak si to hrac nemoze dovolit, nic sa nespawnuje,
+	# front sa nehybe. _gui_input uz zosivene karty blokuje, ale double-tap a
+	# network handler pojdu SEM bez tej ochrany — preto je gate tu.
+	if not EnergySystem.try_spend("player", played_data.id):
+		return false
 	BattleManager.spawn_unit(played_data.id, world_pos, "player")
-	_cycle.push_back(played_data) # zahrana karta ide na koniec fronty
-	slot.configure(_cycle.pop_front()) # slot sa doplni z frontu
+	_cycle.push_back(played_data)         # zahrana karta ide na koniec fronty
+	slot.configure(_cycle.pop_front())    # slot sa doplni z frontu
+	_refresh_affordability()              # nova karta + minuta energia → prepocitaj
 	_update_preview()
 	return true
 

@@ -3,15 +3,16 @@ class_name EnergyBar
 
 # Energy bar hraca. Cita z EnergySystem, sam NEDRZI ziadny stav.
 #
-# ZAMERNE dva rozne mechanizmy:
-#  - VYPLN (bar.value) sa POLLUJE v _process(), lebo energia sa meni kazdy
-#    frame (plynula regeneracia). Signal by znamenal ~60 emitov/s a
-#    HealthBar-ovsky tween by nemal co dobiehat — hodnota sa medzitym uz posunula.
-#  - CISLO (CountLabel) ide cez signal energy_int_changed, lebo sa meni len pri
-#    prechode celeho cisla. Rovnaky pattern ako match_time_tick.
+# DVE vrstvy vyplne, ZAMERNE dva rozne mechanizmy:
+#  - regen_bar (tlmena zlta, POD texturou) sa POLLUJE v _process() — ukazuje
+#    suru energiu vratane desatin, takze hrac vidi regeneraciu bezat a vie si
+#    naplanovat drahsi scroll. Signal by znamenal ~60 emitov/s.
+#  - bar (zlata textura) + CountLabel idu cez signal energy_int_changed, lebo
+#    sa menia len pri prechode celeho cisla — zlata ukazuje kolko energie je
+#    REALNE k dispozicii (floor). Jeden zdroj pravdy, jeden handler.
 #
-# bar je typovany ako Range (spolocny predok ProgressBar aj TextureProgressBar),
-# takze vymena za texturovy bar v kroku 4 NEVYZADUJE zmenu tohto skriptu.
+# bar aj regen_bar su typovane ako Range (spolocny predok ProgressBar aj
+# TextureProgressBar), takze zmena vzhladu NEVYZADUJE zmenu tohto skriptu.
 #
 # process_mode na ROOTe scény je explicitne PAUSABLE (1), nie zdedene z HUD
 # (CanvasLayer je WHEN_PAUSED=2 kvoli SettingOverlay). Zdedenie by _process()
@@ -21,6 +22,7 @@ class_name EnergyBar
 const TEAM := "player"
 
 @onready var bar: Range = $Bar
+@onready var regen_bar: Range = $RegenBar
 @onready var count_label: Label = $CountLabel
 
 # Pociatocnu hodnotu citame priamo, NIE zo signalu: EnergySystem.reset_match_state()
@@ -29,14 +31,18 @@ const TEAM := "player"
 func _ready() -> void:
 	bar.min_value = 0.0
 	bar.max_value = float(EnergySystem.get_max_energy())
-	bar.value = EnergySystem.get_energy(TEAM)
+	bar.value = float(EnergySystem.get_energy_int(TEAM))
+	regen_bar.min_value = 0.0
+	regen_bar.max_value = float(EnergySystem.get_max_energy())
+	regen_bar.value = EnergySystem.get_energy(TEAM)
 	count_label.text = str(EnergySystem.get_energy_int(TEAM))
 	EnergySystem.energy_int_changed.connect(_on_energy_int_changed)
 
 func _process(_delta: float) -> void:
-	bar.value = EnergySystem.get_energy(TEAM)
+	regen_bar.value = EnergySystem.get_energy(TEAM)
 
 func _on_energy_int_changed(team: String, value: int) -> void:
 	if team != TEAM:
 		return
+	bar.value = float(value)
 	count_label.text = str(value)

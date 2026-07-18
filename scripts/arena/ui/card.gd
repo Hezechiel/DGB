@@ -10,6 +10,7 @@ const SCROLL_BACK: Texture2D = preload("res://assets/sprites/scrolls/scrolls_bac
 
 var card_data: CardData = null
 var slot_index: int = -1   # nastavuje CardHand pri _ready()
+var affordable: bool = true
 
 func configure(data: CardData) -> void:
 	card_data = data
@@ -20,6 +21,13 @@ func clear() -> void:
 	card_data = null
 	scroll_icon.texture = null
 	name_label.text = ""
+
+# Zosivenie karty ktoru si hrac nemoze dovolit. Cely Card je PanelContainer,
+# takze modulate stmavi aj scroll aj label naraz. Placeholder farby — realny
+# "disabled" vzhlad pride s artom (krok 4).
+func set_affordable(value: bool) -> void:
+	affordable = value
+	modulate = Color.WHITE if value else Color(0.45, 0.45, 0.45)
 
 # Otoc kartu na rub — volane pocas dragu ked je scroll nad mapou.
 func show_back() -> void:
@@ -38,6 +46,14 @@ func show_face() -> void:
 # posle ScreenDrag mimo rectu tejto karty do _gui_input.
 func _gui_input(event: InputEvent) -> void:
 	if card_data == null:
+		return
+	# Nedostatok energie — drag sa vobec nezacne. Event aj tak skonzumuj, inak
+	# by press na zosivenej karte prepadol do arena.gd tap-to-move. Release moze
+	# dopadnut mimo ruky (slide off), preto aj suppress_next_release().
+	if not affordable:
+		if event is InputEventScreenTouch and event.pressed:
+			InputR.suppress_next_release()
+			get_viewport().set_input_as_handled()
 		return
 	if event is InputEventScreenTouch and event.pressed:
 		var hand := get_parent().get_parent().get_parent() as CardHand

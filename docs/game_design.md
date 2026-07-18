@@ -53,10 +53,18 @@ are mock data (`MatchConfig`).
 - **Draw cycle:** deck is shuffled once at match start; a played card goes to the
   back of the queue; the queue front refills the freed slot. No randomness after
   the shuffle — players can learn and play around the cycle.
+- **Playing a card:** drag it out of the hand onto the arena. A translucent circle
+  marks the drop point — green where deploying is allowed, red where not; while a
+  card is dragged over the map its hand slot shows the scroll's **back**, returning
+  to its face if the drag is cancelled (over the hand, a red spot, or off-map). A
+  cancelled play does not advance the draw cycle.
+- **Squad cards:** a card may summon several units (`unit_count`), placed in a ring
+  around the drop point. Squad size belongs to the *card*, not the unit.
 - Every card is data (`CardData` resource): id, name, cost, scroll art, linked unit.
   Cards with no unit will become **spells** (later phase).
-- Six placeholder scroll arts exist on one spritesheet; meanings/assignments are
-  intentionally temporary.
+- Nine placeholder cards exist (costs 2–6, varying squad sizes); scroll arts and
+  assignments are intentionally temporary. A shared scroll-back art shows while a
+  card is being dragged.
 
 ### 3.2 Units
 - Behavior archetypes are scenes (**melee** exists; ranged, siege, special planned);
@@ -65,7 +73,9 @@ are mock data (`MatchConfig`).
   `STRUCTURES_ONLY` (siege/battering-ram style).
 - Marching: units head for the **nearest living enemy structure** (no fixed
   waypoints), so they can be deployed anywhere; a wider **AggroRange** makes them
-  chase enemies before melee contact.
+  chase enemies before melee contact. This is a marching-system property, not a
+  placement rule — the deploy zone (§3.7) restricts *where* a card can be played;
+  once placed, a unit marches the same regardless of where on the map it started.
 
 ### 3.3 Heroes
 - Hero **identity is data** (`HeroData`: stats, projectile, animations);
@@ -94,18 +104,40 @@ are mock data (`MatchConfig`).
 - Planned: timeout winner decided by progress (towers destroyed, kills, …) —
   explicitly not implemented yet.
 
+### 3.7 Deploy zone
+- Cards deploy only on **your own half** (midline `x = 0`) and within the map
+  bounds. Anything else is refused; the red circle is the only feedback.
+- Planned: the zone **expands into the enemy half once their lane turret falls**
+  (Clash Royale model). Not implemented.
+- Considered and not chosen: deploy bubbles around your own structures/hero (SWFA
+  model), making the hero a mobile deploy anchor. Revisit if the static rule feels flat.
+- Invalid/off-map drops currently just cancel; smart clamping to the nearest legal
+  spot (around turrets/obstructions) is planned.
+
+### 3.8 Energy
+- Both heroes regenerate energy from a shared per-team pool: start **7**, cap
+  **10**, **+1 every 4 s** (SWFA-style; slow continuous fill, not discrete pips).
+  A modifier layer supports temporary regen boosts and temporary cost reductions
+  (e.g. a "bloodlust"-style discount), triggerable by signal/method call for future
+  hero abilities.
+- **Status:** energy regenerates and is shown on the player's bar, but does **not
+  yet gate card plays** — cards are still free to summon. Spending (cost check +
+  deduct on play) and the real bar art are the next steps.
+- Enemy energy regenerates too, but the placeholder wave spawner does not spend it
+  and the opponent's bar is hidden (SWFA/Clash Royale both hide opponent resource).
+
 ---
 
 ## 4. Roadmap (agreed order)
 
-1. **Drag-to-deploy** — drag a card from the hand onto the arena to call
-   `play_card()` + `BattleManager.spawn_unit()` at the drop position; deploy-zone
-   rules TBD (own half? behind front line?).
-2. **Energy/mana cost system** — resource bar gating card plays; `CardData.cost`
-   already exists and is unused by design.
-3. **Enemy avatar AI** — replace the standing dummy with a controller (movement,
+1. **Energy gating** — make `play_card()` spend via `EnergySystem.try_spend()`,
+   refuse unaffordable plays, grey unaffordable cards in the hand. (Model + bar
+   already landed; §3.8.)
+2. **Enemy avatar AI** — replace the standing dummy with a controller (movement,
    targeting, card plays via the same public entry points a remote player will use).
-4. **Timeout winner scoring** — replace the Draw with progress comparison.
+3. **Timeout winner scoring** — replace the Draw with progress comparison.
+4. **Deploy-zone expansion** — unlock the enemy half per lane when that lane's
+   turret falls (§3.7).
 5. Then: spell cards, ranged/siege archetypes, and the items below.
 
 ---
@@ -129,8 +161,12 @@ are mock data (`MatchConfig`).
 
 ## 6. Open questions
 
-- Deploy-zone rules for drag-to-deploy (whole map vs. own territory).
-- Energy system shape: regen rate, max pool, card costs, elixir-style vs. SWFA-style.
+- Deploy-zone expansion on turret kill: whole enemy half, or only that lane's band?
+- Invalid/off-map drops: keep the plain cancel, or clamp to the nearest legal spot?
+- Energy: is opponent energy ever shown, and does late-match regen accelerate
+  (Clash-Royale-style double time)?
+- Bloodlust-style refund ability (pay base cost, RNG-proc partial refund): trigger
+  chance and amount undecided.
 - Does hero death feed the timeout scoring (kill counting)?
 - Faction synergy mechanism (see above).
 - Hero abilities beyond the basic projectile (cooldown skills? per-god kits?).
