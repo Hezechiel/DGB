@@ -1,7 +1,7 @@
 extends Node
 
-# Projektovy register jednotiek/struktur podla timu. Oddeleny od
-# enemy_spawner.enemies (ten ostava len pre separation steering).
+# Projektovy register jednotiek/struktur podla timu — jediny zdroj pravdy
+# o tom, kto patri ktoremu timu (single source of team membership).
 # Sluzi systemom: win/lose podmienky, allied minion AI, minimapa...
 
 # Emitovany ked zakladna jedneho timu je znicena — arena.gd pocuva a zmeni scenu
@@ -295,7 +295,9 @@ func _process(delta: float) -> void:
 				match_ended.emit("draw")
 
 func _respawn_hero(team: String) -> void:
-	var hero: Node2D = heroes.get(team)
+	# Bez typu — hero mohol byt freed pri zmene sceny (autoload prezije arenu)
+	# a typed assign freed instance je error este PRED is_instance_valid checkom.
+	var hero = heroes.get(team)
 	if hero != null and is_instance_valid(hero):
 		hero.global_position = hero_spawn_positions.get(team, hero.global_position)
 		hero.revive()

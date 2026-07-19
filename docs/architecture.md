@@ -88,14 +88,16 @@ the same `{card_id, position, team}` message. Squad size lives on `CardData`, no
   Drawn in `_draw()` (no assets). Sibling of `MoveMarker`, driven by `arena.gd`
   from `CardHand` signals (CardHand is in a CanvasLayer; the ghost is world-space).
 - `scenes/arena/ui/EnergyBar.tscn` (`energy_bar.gd`) — player energy bar in the
-  HUD. Polls `EnergySystem.get_energy("player")` each frame for the fill; updates
-  the count label from `energy_int_changed`. Placeholder geometry (ProgressBar +
-  ColorRect) pending art; `bar` is typed `Range` so a `TextureProgressBar` swap
-  needs no script change.
+  HUD. Polls `EnergySystem.get_energy("player")` each frame for the fill. `Bar`
+  is a `TextureProgressBar` (gold fill texture, left-to-right) behind a
+  `FrameOverlay` stone frame, with an `EmptyBg` ColorRect showing through empty
+  cells; the count label updates from `energy_int_changed`. `bar` stays typed
+  `Range`, so the swap from the placeholder `ProgressBar` needed no script change.
 - `scenes/hud/HUD.tscn` (CanvasLayer) — TouchScreenButtons (pause, recenter),
   `CardHand` (hand + draw cycle in `card_hand.gd`; `play_card(slot_index, world_pos)`
   is the single card-play entry point — drag-to-deploy calls it today, future
-  double-tap and the network handler call the same function; emits
+  double-tap and the network handler call the same function — which now also
+  spends energy via `EnergySystem.try_spend()` and refuses unaffordable plays; emits
   `deploy_preview_updated` / `deploy_preview_ended` for `arena.gd` to drive the
   DeployGhost), `EnergyBar`, `MatchInfoBar` (timer label, tower icons, two
   `RespawnCounter`s driven by BattleManager signals).
@@ -177,6 +179,11 @@ the same `{card_id, position, team}` message. Squad size lives on `CardData`, no
   overlay runs while paused); children that must run DURING play set their own
   `process_mode`. `EnergyBar` is `PAUSABLE` — it polls in `_process()`, so inheriting
   `WHEN_PAUSED` would freeze the bar during play and only move it while paused.
+- Typing a bar reference as `Range` (the shared base of `ProgressBar` and
+  `TextureProgressBar`) let the energy bar's placeholder→textured swap happen
+  with zero script change — `energy_bar.gd` still only touches
+  `min_value`/`max_value`/`value`. Reach for the base class when a UI node is a
+  known future art-swap target.
 
 ---
 

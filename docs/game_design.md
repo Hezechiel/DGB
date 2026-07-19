@@ -120,9 +120,13 @@ are mock data (`MatchConfig`).
   A modifier layer supports temporary regen boosts and temporary cost reductions
   (e.g. a "bloodlust"-style discount), triggerable by signal/method call for future
   hero abilities.
-- **Status:** energy regenerates and is shown on the player's bar, but does **not
-  yet gate card plays** — cards are still free to summon. Spending (cost check +
-  deduct on play) and the real bar art are the next steps.
+- Energy gates card plays: a play costs the card's energy, refused if
+  unaffordable. Costs resolve through the modifier layer (a bloodlust discount
+  lowers them), and the bar shows the real gold-fill art behind the stone frame.
+- Unaffordable cards can't be dragged from the hand and are greyed out; they
+  un-grey the instant regen makes them affordable. The spend is atomic in
+  `play_card()` (`EnergySystem.try_spend()`), so the future double-tap and the
+  network handler inherit the same gate without going through the drag UI.
 - Enemy energy regenerates too, but the placeholder wave spawner does not spend it
   and the opponent's bar is hidden (SWFA/Clash Royale both hide opponent resource).
 
@@ -130,15 +134,12 @@ are mock data (`MatchConfig`).
 
 ## 4. Roadmap (agreed order)
 
-1. **Energy gating** — make `play_card()` spend via `EnergySystem.try_spend()`,
-   refuse unaffordable plays, grey unaffordable cards in the hand. (Model + bar
-   already landed; §3.8.)
-2. **Enemy avatar AI** — replace the standing dummy with a controller (movement,
+1. **Enemy avatar AI** — replace the standing dummy with a controller (movement,
    targeting, card plays via the same public entry points a remote player will use).
-3. **Timeout winner scoring** — replace the Draw with progress comparison.
-4. **Deploy-zone expansion** — unlock the enemy half per lane when that lane's
+2. **Timeout winner scoring** — replace the Draw with progress comparison.
+3. **Deploy-zone expansion** — unlock the enemy half per lane when that lane's
    turret falls (§3.7).
-5. Then: spell cards, ranged/siege archetypes, and the items below.
+4. Then: spell cards, ranged/siege archetypes, and the items below.
 
 ---
 
