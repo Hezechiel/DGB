@@ -15,8 +15,8 @@ the map. Victory: destroy the enemy base (Command Post) before it destroys yours
 or hold the better position when the match clock runs out.
 
 Designed as **PvP between remote players** from the ground up; current builds run
-against a placeholder opponent (dummy avatar + timed wave spawner) until networking
-and AI phases begin.
+against a placeholder opponent (a standing dummy avatar, with no unit spawning)
+until the AI and networking phases begin.
 
 ---
 
@@ -127,8 +127,9 @@ are mock data (`MatchConfig`).
   un-grey the instant regen makes them affordable. The spend is atomic in
   `play_card()` (`EnergySystem.try_spend()`), so the future double-tap and the
   network handler inherit the same gate without going through the drag UI.
-- Enemy energy regenerates too, but the placeholder wave spawner does not spend it
-  and the opponent's bar is hidden (SWFA/Clash Royale both hide opponent resource).
+- Enemy energy regenerates too, but nothing spends it yet (the enemy side is idle
+  until the AI lands) and the opponent's bar is hidden (SWFA/Clash Royale both hide
+  opponent resource).
 
 ---
 

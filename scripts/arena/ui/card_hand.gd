@@ -37,6 +37,15 @@ func _ready() -> void:
 	EnergySystem.energy_int_changed.connect(_on_energy_int_changed)
 	_refresh_affordability()
 
+# Poistka proti zaseknutemu _drag_touch_index: ak okno strati fokus uprostred
+# dragu (bezne pri testovani mysou v editore cez emulate_touch_from_mouse),
+# release event nikdy nepride. Bez tohto resetu by zostal drag "aktivny"
+# navzdy.
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_WINDOW_FOCUS_OUT or what == NOTIFICATION_APPLICATION_FOCUS_OUT:
+		_drag_touch_index = -1
+		_drag_slot = -1
+
 func _update_preview() -> void:
 	if _cycle.is_empty():
 		next_card_preview.clear()
@@ -67,11 +76,29 @@ func begin_drag(slot_index: int, touch_index: int) -> void:
 	_drag_touch_index = touch_index
 	_drag_showing_back = false
 
-# Drag a release sledujeme v _input() (bezi PRED GUI aj pred _unhandled_input),
-# takze eventy nikdy nedojdu do arena_camera.gd (pan) ani arena.gd (tap-to-move).
-# Preto tu NEPOUZIVAME InputR.suppress_next_release() — release si konzumujeme sami.
+# Drag sledujeme v _input() (bezi PRED GUI aj pred _unhandled_input), takze
+# eventy nikdy nedojdu do arena_camera.gd (pan) ani arena.gd (tap-to-move).
+#
+# DOLEZITE pre release: Godot si na kazdy press v Control-e drzi vlastnu
+# internu "capture" toho touch/mouse pointera — po presse na karte jej
+# dorucuje VSETKY dalsie eventy toho pointera (aj drag mimo jej rectu),
+# kym nedostane matchujuci release. set_input_as_handled() tu na release
+# NEPOUZIVAME — kedysi sme ho volali a Godot sa tak nikdy nedozvedel ze
+# pointer bol pusteny (release nikdy nedosiel do Card._gui_input), takze si
+# capture drzal navzdy na tejto karte. Vysledok: uplne nasledujuce gesto
+# kdekolvek na obrazovke (pan aj tap-to-move) sa presmerovalo do tejto karty
+# a nič sa nestalo. Preto tu urobime len hernu logiku (_finish_drag) a event
+# NECHAME dojst do Card._gui_input — tá ho sama oznaci cez accept_event(),
+# co zaroven spravne zmaze Godotovu internu capture AJ zabrani propagacii do
+# _unhandled_input.
 func _input(event: InputEvent) -> void:
 	if _drag_touch_index == -1:
+		return
+	# Self-heal: novy press s tym istym touch indexom znamena ze release
+	# predchadzajuceho dragu nikdy nedosiel (napr. mys opustila okno editora).
+	if event is InputEventScreenTouch and event.pressed and event.index == _drag_touch_index:
+		_drag_touch_index = -1
+		_drag_slot = -1
 		return
 	if event is InputEventScreenDrag and event.index == _drag_touch_index:
 		var world_pos := _screen_to_world(event.position)
@@ -87,7 +114,6 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 	elif event is InputEventScreenTouch and not event.pressed and event.index == _drag_touch_index:
 		_finish_drag(event.position)
-		get_viewport().set_input_as_handled()
 
 # CardHand je v CanvasLayer (HUD) — get_canvas_transform() by tu vratilo
 # transform vrstvy, nie kamery. Preto ide cez viewport.

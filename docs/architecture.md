@@ -20,7 +20,7 @@
   spawn-time decision, not data.
 - **Single entry points.** Units and heroes are instantiated in exactly one place
   each (`BattleManager.spawn_unit`, `BattleManager.spawn_hero`). Local input, the
-  wave spawner, future AI, and future network handlers are all just callers.
+  future AI controller, and future network handlers are all just callers.
 - **Per-match state is explicitly reset.** `BattleManager.reset_match_state()` is
   called from `arena._enter_tree()` — before children `_ready()` runs, because
   turrets/bases self-register in their own `_ready()`.
@@ -81,8 +81,6 @@ the same `{card_id, position, team}` message. Squad size lives on `CardData`, no
 - `scenes/arena/player.tscn` — locally-controlled hero.
   `scenes/arena/hero_dummy.tscn` — uncontrolled avatar placeholder (future AI).
   Both expose `configure(data, team)`, `die()`, `revive()`.
-- `scenes/arena/spawner.tscn` — temporary wave "bot": plays test cards on a timer
-  through `BattleManager.spawn_unit()`. Will become/get replaced by the AI opponent.
 - `scenes/arena/DeployGhost.tscn` (`deploy_ghost.gd`) — world-space drag-to-deploy
   preview: a translucent circle at the drop position, green = legal, red = not.
   Drawn in `_draw()` (no assets). Sibling of `MoveMarker`, driven by `arena.gd`

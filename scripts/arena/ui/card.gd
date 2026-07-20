@@ -41,22 +41,32 @@ func show_face() -> void:
 	if card_data != null:
 		scroll_icon.texture = card_data.scroll_texture
 
-# Press na karte zacina drag. Dalsie eventy (drag/release) uz sleduje
-# CardHand._input() podla touch indexu — nespoliehame sa na to, ci Godot
-# posle ScreenDrag mimo rectu tejto karty do _gui_input.
+# Press na karte zacina drag; CardHand._input() sleduje dalsie drag eventy
+# podla touch indexu (bezi PRED GUI, takze ich zachyti aj mimo rectu tejto
+# karty). Release ale NECHAME dojst az sem: Godot dorucuje release toho
+# istého pointera vzdy tej istej karte ktora dostala jeho press (interna
+# "capture"), bez ohladu na aktualnu pozicu. Ak by sme ho ukradli skor
+# (napr. cez set_input_as_handled() v _input()), Godot by sa nikdy nedozvedel
+# ze pointer bol pusteny a capture by zostala navzdy zaseknuta na tejto
+# karte — dalsi tap/drag kdekolvek inak na obrazovke by sa presmeroval sem
+# namiesto do arena_camera.gd/arena.gd. accept_event() tu preto volame aj
+# na release, nielen na press — spravne zmaze capture AJ zabrani propagacii
+# do _unhandled_input.
 func _gui_input(event: InputEvent) -> void:
 	if card_data == null:
 		return
-	# Nedostatok energie — drag sa vobec nezacne. Event aj tak skonzumuj, inak
-	# by press na zosivenej karte prepadol do arena.gd tap-to-move. Release moze
-	# dopadnut mimo ruky (slide off), preto aj suppress_next_release().
 	if not affordable:
+		# Nedostatok energie — drag sa vobec nezacne. Press aj tak skonzumuj,
+		# inak by prepadol do arena.gd tap-to-move; release NEKONZUMUJEME
+		# (CardHand nikdy nezacala drag, takze nema co "capture" — release
+		# ide prirodzene do arena.gd, kde ho zozerie is_release_suppressed()).
 		if event is InputEventScreenTouch and event.pressed:
 			InputR.suppress_next_release()
-			get_viewport().set_input_as_handled()
+			accept_event()
 		return
-	if event is InputEventScreenTouch and event.pressed:
-		var hand := get_parent().get_parent().get_parent() as CardHand
-		if hand != null:
-			hand.begin_drag(slot_index, event.index)
-		get_viewport().set_input_as_handled()
+	if event is InputEventScreenTouch:
+		if event.pressed:
+			var hand := get_parent().get_parent().get_parent() as CardHand
+			if hand != null:
+				hand.begin_drag(slot_index, event.index)
+		accept_event()
