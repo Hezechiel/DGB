@@ -1,33 +1,33 @@
 # Divine Gestures: Babylon — Game Design
-
+ 
 > Living design document. Architecture and technical conventions live in `docs/architecture.md`;
 > Claude Code session rules live in `CLAUDE.md`. Update this file when a design decision is made,
 > not when code changes.
-
+ 
 ---
-
+ 
 ## 1. Concept
-
+ 
 A landscape mobile MOBA for Android, built in Godot 4 / GDScript, inspired by
 **Star Wars: Force Arena**. The player directly controls a **god avatar (hero)** on a
 two-lane battlefield and summons units by **dragging scroll cards** from a hand onto
 the map. Victory: destroy the enemy base (Command Post) before it destroys yours,
 or hold the better position when the match clock runs out.
-
+ 
 Designed as **PvP between remote players** from the ground up; current builds run
 against a placeholder opponent (a standing dummy avatar, with no unit spawning)
 until the AI and networking phases begin.
-
+ 
 ---
-
+ 
 ## 2. Core Loop (one match)
-
+ 
 Pressing **Arena** from the main menu opens a placeholder matchmaking sequence —
 a "searching for battle" screen, then a versus screen showing both players'
 name/faction — before the match loads. Both screens are cosmetic ~1s
 placeholders until real networking exists; rank, map, and opponent identity
 are mock data (`MatchConfig`).
-
+ 
 1. Both heroes spawn at their bases. Match timer starts at **3:00**.
 2. Player moves the hero via tap-to-move, targets enemies by tapping them,
    auto-fires at the nearest target in range.
@@ -42,11 +42,10 @@ are mock data (`MatchConfig`).
    match info bar, and the hero returns at his base.
 7. Match ends on base destruction (winner) or timer expiry (currently a Draw;
    progress-based scoring planned).
-
 ---
-
+ 
 ## 3. Systems — decided design
-
+ 
 ### 3.1 Cards & hand
 - Hand of **3 active slots + 1 dimmed preview** of the next card, in a translucent
   panel at bottom-right (⅓ screen wide, ¼ tall).
@@ -65,7 +64,6 @@ are mock data (`MatchConfig`).
 - Nine placeholder cards exist (costs 2–6, varying squad sizes); scroll arts and
   assignments are intentionally temporary. A shared scroll-back art shows while a
   card is being dragged.
-
 ### 3.2 Units
 - Behavior archetypes are scenes (**melee** exists; ranged, siege, special planned);
   individual units are `UnitData` resources feeding an archetype: stats + animations.
@@ -76,7 +74,6 @@ are mock data (`MatchConfig`).
   chase enemies before melee contact. This is a marching-system property, not a
   placement rule — the deploy zone (§3.7) restricts *where* a card can be played;
   once placed, a unit marches the same regardless of where on the map it started.
-
 ### 3.3 Heroes
 - Hero **identity is data** (`HeroData`: stats, projectile, animations);
   **who controls it** (local input / AI / remote player) is decided at spawn time,
@@ -84,7 +81,6 @@ are mock data (`MatchConfig`).
 - Local hero: tap-to-move, manual target priority, auto-fire fallback without chase.
 - Enemy avatar: currently a standing dummy near its base; AI controller is a
   planned milestone.
-
 ### 3.4 Death & respawn
 - Per-team respawn penalty: first death **3 s**, +1 s per subsequent death,
   capped at **10 s**. Counters are fully independent per team and persist for the
@@ -92,18 +88,15 @@ are mock data (`MatchConfig`).
 - Dead hero: hidden and disabled (units disengage), countdown shown in the match
   info bar (player = left/blue side, enemy = right/red side), respawn at own base
   with full HP and a brief invulnerability window.
-
 ### 3.5 Match info bar
 - Slim top-center bar: match timer in the middle, 3 tower icons per side
   (blue left / red right), circular hero-respawn counters at the outer edges
   (hidden while the hero lives). Tower-destroyed icon states are wired-up visuals
   pending mechanics.
-
 ### 3.6 Match end
 - Base destruction → winner screen. Timer expiry → **Draw** screen (placeholder).
 - Planned: timeout winner decided by progress (towers destroyed, kills, …) —
   explicitly not implemented yet.
-
 ### 3.7 Deploy zone
 - Cards deploy only on **your own half** (midline `x = 0`) and within the map
   bounds. Anything else is refused; the red circle is the only feedback.
@@ -113,7 +106,6 @@ are mock data (`MatchConfig`).
   model), making the hero a mobile deploy anchor. Revisit if the static rule feels flat.
 - Invalid/off-map drops currently just cancel; smart clamping to the nearest legal
   spot (around turrets/obstructions) is planned.
-
 ### 3.8 Energy
 - Both heroes regenerate energy from a shared per-team pool: start **7**, cap
   **10**, **+1 every 4 s** (SWFA-style; slow continuous fill, not discrete pips).
@@ -130,22 +122,33 @@ are mock data (`MatchConfig`).
 - Enemy energy regenerates too, but nothing spends it yet (the enemy side is idle
   until the AI lands) and the opponent's bar is hidden (SWFA/Clash Royale both hide
   opponent resource).
-
+### 3.9 Healing pods
+- Static pods positioned near each base, one per lane per side (4 total on the
+  map). Either hero can use either pod — cross-team usable, not locked to the
+  pod's own side (SWFA-style neutral pickup).
+- Walking onto a ready pod grants an instant heal plus a heal-over-time (HoT).
+  The HoT keeps ticking to completion even while the hero is taking damage —
+  it only stops if the hero dies.
+- The health bar shows a dark green "pending heal" band ahead of the current
+  HP fill, so the player can see how much more healing is still incoming.
+- After use, a pod goes inactive and becomes available again after a cooldown;
+  the map also has an initial delay before pods are first usable.
+- Numeric defaults (heal amounts, HoT duration, cooldown, initial delay) are
+  placeholders pending a balance pass, same as the card costs in §3.1.
 ---
-
+ 
 ## 4. Roadmap (agreed order)
-
+ 
 1. **Enemy avatar AI** — replace the standing dummy with a controller (movement,
    targeting, card plays via the same public entry points a remote player will use).
 2. **Timeout winner scoring** — replace the Draw with progress comparison.
 3. **Deploy-zone expansion** — unlock the enemy half per lane when that lane's
    turret falls (§3.7).
 4. Then: spell cards, ranged/siege archetypes, and the items below.
-
 ---
-
+ 
 ## 5. Future vision (brief, not yet designed)
-
+ 
 - **Era structure:** world mythologies as content eras — Greek first, then Norse,
   Chinese, … Each era brings a god roster and themed unit pools.
 - **Factions (Greek era):** Olympus/Sky, Sea, Underworld — faction-unique units
@@ -158,11 +161,10 @@ are mock data (`MatchConfig`).
   future server-owned state.
 - **Meta:** deck building, collection, per-match deck selection — enabled by the
   card database design, no UI yet.
-
 ---
-
+ 
 ## 6. Open questions
-
+ 
 - Deploy-zone expansion on turret kill: whole enemy half, or only that lane's band?
 - Invalid/off-map drops: keep the plain cancel, or clamp to the nearest legal spot?
 - Energy: is opponent energy ever shown, and does late-match regen accelerate
@@ -175,3 +177,18 @@ are mock data (`MatchConfig`).
 - Sidekick lifecycle: permanent companion vs. summonable card.
 - Real matchmaking flow, search-cancel behaviour, and the source of opponent
   name/faction (see pre-match placeholder in §2) are all undecided.
+- Monetization model: which combination of paid distribution, IAP, subscription
+  (battle pass), and ads — decided in principle as IAP/battle-pass-first,
+  no forced/interstitial ads (see `cards_greek.md` §9 for detail). Exact mix
+  and pricing tiers undecided.
+- Ad-based catch-up mechanic: should non-paying players have an ad-gated path
+  to card packs / battle pass progress so they aren't locked out of keeping up
+  with subscribers? If yes, which shape (see `cards_greek.md` §9) — undecided.
+- Google Play service fee tier and billing route (Play Billing vs. alternative
+  billing) — deferred until revenue model is closer to shipping; noted here
+  so it isn't forgotten.
+- Portable/summonable single-use healing pods (Hephaestus's Forge Turret kit
+  in `heroes_greek.md` — "drops a stationary mini-turret" — is the precedent
+  for this kind of single-use mechanic) have a stub spawn entry point
+  (`BattleManager.spawn_healing_pod`) but no hero ability wired to it yet —
+  which hero(s) get this, and when, is undecided.
