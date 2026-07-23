@@ -39,6 +39,10 @@ func _ready() -> void:
 	else:
 		$Hurtbox.add_to_group("player_hurtbox")
 
+	HealingSystem.heal_instant.connect(_on_heal_instant)
+	HealingSystem.heal_tick.connect(_on_heal_tick)
+	HealingSystem.heal_ended.connect(_on_heal_ended)
+
 	$AnimatedSprite2D.play("new_front_left")
 
 func _apply_hurtbox_layer() -> void:
@@ -52,6 +56,34 @@ func take_damage(amount: int) -> void:
 	if hp <= 0:
 		die()
 
+# HoT ticky su float zlomky (~0.33 HP/frame) a HP je int — bez akumulacie
+# by sa kazdy tick zaokruhlil na nulu a HoT by nevyliecil NIC. Preto zvysok.
+# (heal_team, nie team — parameter by tienil clenskú premennu team)
+var _heal_accum: float = 0.0
+
+func _on_heal_instant(heal_team: String, amount: float) -> void:
+	if heal_team != team or is_dead:
+		return
+	hp = clampi(hp + int(round(amount)), 0, max_hp)
+	health_bar.set_health(hp)
+
+func _on_heal_tick(heal_team: String, amount: float, remaining: float) -> void:
+	if heal_team != team or is_dead:
+		return
+	_heal_accum += amount
+	var whole := floori(_heal_accum)
+	if whole > 0:
+		_heal_accum -= float(whole)
+		hp = clampi(hp + whole, 0, max_hp)
+		health_bar.set_health(hp)
+	health_bar.set_pending_heal(remaining)
+
+func _on_heal_ended(heal_team: String) -> void:
+	if heal_team != team:
+		return
+	_heal_accum = 0.0
+	health_bar.set_pending_heal(0.0)
+
 func die() -> void:
 	if is_dead:
 		return
@@ -64,6 +96,8 @@ func die() -> void:
 
 	BattleManager.unregister(self, team)
 	BattleManager.on_hero_died(self, team)
+	# smrt rusi aktivny HoT — heal_ended zhasne pending pas cez _on_heal_ended
+	HealingSystem.cancel_heal(team)
 
 	if $AnimatedSprite2D.sprite_frames != null and $AnimatedSprite2D.sprite_frames.has_animation("death"):
 		$AnimatedSprite2D.play("death")

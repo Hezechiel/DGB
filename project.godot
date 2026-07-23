@@ -27,6 +27,7 @@ Settings="*res://scripts/settings.gd"
 CardDB="*res://scripts/CardDB.gd"
 MatchConfig="*res://scripts/MatchConfig.gd"
 EnergySystem="*res://scripts/EnergySystem.gd"
+HealingSystem="*res://scripts/HealingSystem.gd"
 
 [display]
 

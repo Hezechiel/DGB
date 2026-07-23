@@ -13,9 +13,11 @@ const TEAM_COLORS: Dictionary = {
 
 var _max_hp: int = 1
 var _current_hp: int = 1
+var _pending_remaining: float = 0.0   # zostavajuci HoT — kresli tmavozeleny pas pred HP
 var _tween: Tween = null
 
 @onready var bar: ProgressBar = $Bar
+@onready var pending_bar: ProgressBar = $PendingBar
 
 
 func _ready() -> void:
@@ -29,6 +31,9 @@ func init(max_value: int, team_name: String) -> void:
 	_current_hp = max_value
 	bar.max_value = float(max_value)
 	bar.value    = float(max_value)
+	pending_bar.max_value = float(max_value)
+	pending_bar.value = float(max_value)
+	_pending_remaining = 0.0
 	_apply_team_color(team_name)
 	if not always_visible:
 		visible = false
@@ -49,6 +54,21 @@ func set_health(new_hp: int) -> void:
 		_tween.kill()
 	_tween = create_tween()
 	_tween.tween_property(bar, "value", float(_current_hp), 0.12)
+
+	_update_pending_bar()
+
+
+# Call from hero heal handlers — remaining is the HoT amount still to come.
+func set_pending_heal(remaining: float) -> void:
+	_pending_remaining = maxf(remaining, 0.0)
+	_update_pending_bar()
+
+
+# Tmavozeleny "pending heal" pas pred aktualnym HP — kotvi sa na _current_hp,
+# takze ho treba prepocitat aj pri kazdom set_health(), nie len pri HoT ticku
+# (inak by po obycajnom damage ostal visiet stary pas).
+func _update_pending_bar() -> void:
+	pending_bar.value = clampf(float(_current_hp) + _pending_remaining, 0.0, float(_max_hp))
 
 
 func _apply_team_color(team_name: String) -> void:

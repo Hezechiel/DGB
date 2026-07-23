@@ -294,6 +294,13 @@ func _process(delta: float) -> void:
 				# TODO: az pride progress-based rozhodovanie (znicene veze/kille), nahradit "draw"
 				match_ended.emit("draw")
 
+# TODO: future hero ability entry point. Spawns a single-use HealingPod at
+# pos for owner_team's heroes. Not wired to any hero kit yet — no ability
+# calls this today. When implemented, mirror spawn_unit()'s
+# instantiate → configure → add_child ordering.
+func spawn_healing_pod(_pos: Vector2, _owner_team: String) -> void:
+	pass
+
 func _respawn_hero(team: String) -> void:
 	# Bez typu — hero mohol byt freed pri zmene sceny (autoload prezije arenu)
 	# a typed assign freed instance je error este PRED is_instance_valid checkom.

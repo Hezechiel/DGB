@@ -11,6 +11,7 @@
 [ext_resource type="PackedScene" uid="uid://c0pbasepl4yr1" path="res://scenes/arena/bases/PlayerBase.tscn" id="10_xgbxb"]
 [ext_resource type="PackedScene" uid="uid://c0pbasenmy4r2" path="res://scenes/arena/bases/EnemyBase.tscn" id="11_vmsrg"]
 [ext_resource type="Script" uid="uid://dpoqc2pl2x3x4" path="res://scripts/arena/arena_camera.gd" id="12_cam"]
+[ext_resource type="PackedScene" uid="uid://chealpodscn01" path="res://scenes/arena/HealingPod.tscn" id="13_pod"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_lnu2h"]
 texture = ExtResource("3_6w4xk")
@@ -175,6 +176,12 @@ position = Vector2(-170, -170)
 position = Vector2(-170, 170)
 lane = "bot"
 
+[node name="HealingPodPlayerTop" parent="PlayerStructures" instance=ExtResource("13_pod")]
+position = Vector2(-300, -150)
+
+[node name="HealingPodPlayerBot" parent="PlayerStructures" instance=ExtResource("13_pod")]
+position = Vector2(-300, 150)
+
 [node name="EnemyStructures" type="Node2D" parent="." unique_id=1146918744]
 
 [node name="EnemyTurretTop" parent="EnemyStructures" unique_id=96380130 instance=ExtResource("7_6w4xk")]
@@ -191,6 +198,12 @@ lane = "bot"
 [node name="EnemyBase" parent="EnemyStructures" unique_id=65874180 instance=ExtResource("11_vmsrg")]
 position = Vector2(360, 0)
 max_hp = 200
+
+[node name="HealingPodEnemyTop" parent="EnemyStructures" instance=ExtResource("13_pod")]
+position = Vector2(300, -150)
+
+[node name="HealingPodEnemyBot" parent="EnemyStructures" instance=ExtResource("13_pod")]
+position = Vector2(300, 150)
 
 [node name="ArenaCamera" type="Camera2D" parent="." unique_id=555000123]
 position = Vector2(-250, 0)

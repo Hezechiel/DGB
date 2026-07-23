@@ -26,6 +26,8 @@ func _enter_tree() -> void:
 	# EnergySystem je samostatny autoload — vlastny reset, nie je v
 	# BattleManager.reset_match_state().
 	EnergySystem.reset_match_state()
+	# HealingSystem tiez — treti autoload, rovnaka pastca (architecture.md §6).
+	HealingSystem.reset_match_state()
 
 func _ready() -> void:
 	hud.exit_requested.connect(_on_hud_exit_requested)

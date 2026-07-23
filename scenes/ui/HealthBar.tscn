@@ -16,17 +16,35 @@ corner_radius_top_right = 1
 corner_radius_bottom_right = 1
 corner_radius_bottom_left = 1
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_pending"]
+bg_color = Color(0.08, 0.4, 0.1, 1)
+corner_radius_top_left = 1
+corner_radius_top_right = 1
+corner_radius_bottom_right = 1
+corner_radius_bottom_left = 1
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_bar_bg"]
+
 [node name="HealthBar" type="Control" unique_id=938328133]
 layout_mode = 3
 anchors_preset = 0
 mouse_filter = 2
 script = ExtResource("1_hbar")
 
-[node name="Bar" type="ProgressBar" parent="." unique_id=1972461593]
+[node name="PendingBar" type="ProgressBar" parent="."]
 layout_mode = 0
 offset_right = 32.0
 offset_bottom = 4.0
 theme_override_styles/background = SubResource("StyleBoxFlat_bg")
+theme_override_styles/fill = SubResource("StyleBoxFlat_pending")
+value = 100.0
+show_percentage = false
+
+[node name="Bar" type="ProgressBar" parent="." unique_id=1972461593]
+layout_mode = 0
+offset_right = 32.0
+offset_bottom = 4.0
+theme_override_styles/background = SubResource("StyleBoxEmpty_bar_bg")
 theme_override_styles/fill = SubResource("StyleBoxFlat_fill")
 value = 100.0
 show_percentage = false
