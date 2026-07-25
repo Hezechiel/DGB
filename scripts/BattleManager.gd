@@ -33,6 +33,11 @@ var _respawn_left: Dictionary = {}         # team -> float, len pocas respawnu
 var player_base: Node2D = null
 var enemy_base: Node2D = null
 
+# Healing pody — registrovane z healing_pod._ready() (rovnaky self-register
+# pattern ako turrety/zakladne). Untyped Array ako candidates v
+# get_nearest_structure() — pristup k pod.owning_side je dynamicky.
+var _healing_pods: Array = []
+
 # Veze podla timu a pruhu — na vyhodnotenie ked je pruh vycisteny
 # Struktura: { "player": { "top": [...], "bot": [...] }, "enemy": { ... } }
 var _turrets: Dictionary = {
@@ -108,6 +113,40 @@ func on_base_destroyed(destroyed_team: String) -> void:
 	last_winner = "enemy" if destroyed_team == "player" else "player"
 	match_ended.emit(last_winner)
 
+# --- Registracia healing podov ---
+
+func register_healing_pod(pod: Node2D) -> void:
+	if not _healing_pods.has(pod):
+		_healing_pods.append(pod)
+		# single_use pody sa queue_free-uju (na rozdiel od vezi ktore ostavaju
+		# vrakmi) — bez cleanup by pole akumulovalo freed referencie
+		pod.tree_exited.connect(func(): _healing_pods.erase(pod), CONNECT_ONE_SHOT)
+
+# Najblizsi READY pod pre AI heal-seek. Strict own-side-first: cudzia strana
+# sa zvazuje len ak vlastna strana nema ziadny ready pod.
+func get_nearest_ready_healing_pod(team: String, from_pos: Vector2) -> Node2D:
+	var own := _nearest_ready_pod_for_side(team, from_pos)
+	if own != null:
+		return own
+	var enemy_team := "player" if team == "enemy" else "enemy"
+	return _nearest_ready_pod_for_side(enemy_team, from_pos)
+
+func _nearest_ready_pod_for_side(side: String, from_pos: Vector2) -> Node2D:
+	var nearest: Node2D = null
+	var nearest_d2 := INF
+	for pod in _healing_pods:
+		if not is_instance_valid(pod):
+			continue
+		if pod.owning_side != side:
+			continue
+		if not HealingSystem.is_pod_ready(StringName(pod.name)):
+			continue
+		var d2: float = from_pos.distance_squared_to(pod.global_position)
+		if d2 < nearest_d2:
+			nearest_d2 = d2
+			nearest = pod
+	return nearest
+
 # --- Match timer ---
 
 # Volane z arena.gd _ready() — NIE z BattleManager _ready(), autoload prezije
@@ -135,6 +174,7 @@ func reset_match_state() -> void:
 
 	player_base = null
 	enemy_base = null
+	_healing_pods.clear()  # pody sa znovu registruju vo svojom _ready()
 
 	# Turrety nemaju ziadny tree_exited/unregister mechanizmus (nikdy sa
 	# nequeue_free-uju, len sa stavaju vrakmi) — cisty literal je jednoduchsi

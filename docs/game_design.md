@@ -135,12 +135,34 @@ are mock data (`MatchConfig`).
   the map also has an initial delay before pods are first usable.
 - Numeric defaults (heal amounts, HoT duration, cooldown, initial delay) are
   placeholders pending a balance pass, same as the card costs in §3.1.
+- The AI-controlled enemy hero seeks a ready pod once HP drops below
+  **20%**, preferring its own side's pod strictly (only considers the
+  opposite side if none of its own are ready), and resumes normal
+  behavior once HP climbs back above **50%** (hysteresis band, prevents
+  flicker at the threshold). If no pod anywhere is ready, it falls back
+  to retreating toward its own spawn point instead.
+### 3.10 Enemy hero AI (movement/targeting, Wave 1)
+- Two-state hysteresis (`NORMAL` / `LOW_HP`) at 20%→50% HP, computed by
+  the `HeroAI` autoload; the actual movement/target decision is made by
+  the hero script itself.
+- `NORMAL`: marches toward the nearest living enemy structure, same
+  "nearest structure, no fixed waypoints" rule units already follow.
+- `LOW_HP`: seeks the nearest ready healing pod, own side preferred
+  strictly; falls back to retreating toward its own spawn if none ready.
+- Combat (auto-target + fire within range) runs independently of movement
+  state — mirrors the local player hero's own auto-target-without-chase
+  fallback, so the bot's baseline aggression matches what an unfocused
+  local player already does, not a separately-tuned difficulty.
+- Explicitly deferred: difficulty tiers, reaction delay, deliberate
+  mistake injection, chasing beyond attack range, card-play decisions.
 ---
  
 ## 4. Roadmap (agreed order)
  
-1. **Enemy avatar AI** — replace the standing dummy with a controller (movement,
-   targeting, card plays via the same public entry points a remote player will use).
+1. ~~**Enemy avatar AI**~~ — movement, targeting, and low-HP healing-pod
+   seeking are implemented (`HeroAI` autoload + `hero_dummy.gd`). **Card
+   plays via the same public entry points a remote player will use are
+   still pending** — separate future step, not yet scoped.
 2. **Timeout winner scoring** — replace the Draw with progress comparison.
 3. **Deploy-zone expansion** — unlock the enemy half per lane when that lane's
    turret falls (§3.7).
@@ -192,3 +214,8 @@ are mock data (`MatchConfig`).
   for this kind of single-use mechanic) have a stub spawn entry point
   (`BattleManager.spawn_healing_pod`) but no hero ability wired to it yet —
   which hero(s) get this, and when, is undecided.
+  - Enemy AI difficulty tuning (reaction delay, mistake injection, chase
+  behavior beyond attack range) is deferred — current bot behavior is a
+  single fixed baseline, not yet a "practice mode difficulty" concept.
+- Enemy AI card-play decisions (which card, when, where) — separate future
+  design pass, not sketched yet.

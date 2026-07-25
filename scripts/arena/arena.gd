@@ -28,6 +28,8 @@ func _enter_tree() -> void:
 	EnergySystem.reset_match_state()
 	# HealingSystem tiez — treti autoload, rovnaka pastca (architecture.md §6).
 	HealingSystem.reset_match_state()
+	# HeroAI tiez — dalsi autoload, rovnaka pastca.
+	HeroAI.reset_match_state()
 
 func _ready() -> void:
 	hud.exit_requested.connect(_on_hud_exit_requested)

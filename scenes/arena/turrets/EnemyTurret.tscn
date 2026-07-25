@@ -92,6 +92,7 @@ owner_team = "enemy"
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=424360374]
 modulate = Color(1, 0.45, 0.45, 1)
 z_index = 2
+position = Vector2(0, -10)
 sprite_frames = SubResource("SpriteFrames_turret")
 animation = &"idle"
 autoplay = "idle"
@@ -122,5 +123,4 @@ offset_bottom = -35.0
 [node name="TargetMarker" type="Sprite2D" parent="." unique_id=459132998]
 visible = false
 z_index = 1
-position = Vector2(0, 11)
 texture = ExtResource("5_8vwnr")

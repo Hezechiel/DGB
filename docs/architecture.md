@@ -38,7 +38,8 @@
 | `InputR` | Input routing (tap-to-move targets, gesture state). |
 | `Settings` | Persistent user settings. |
 | `Music` | Audio. |
- 
+| `HeroAI` | Per-team HP-threshold hysteresis for the AI-controlled hero (`NORMAL` / `LOW_HP`, 20%→50% band). **Zero scene/UI dependencies by design** — pure state+math, same contract as `EnergySystem`/`HealingSystem`. Doesn't know about pods, positions, or targets — that decision-making lives in `hero_dummy.gd`. Own `reset_match_state()`. |
+
 `BattleManager.arena_root` is injected by `arena.gd` each match (autoload has no
 scene of its own to parent spawned nodes under).
  
@@ -67,6 +68,14 @@ A card with `unit_count > 1` summons a squad: `BattleManager.spawn_unit()` retur
 (`_formation_offset()`, no RNG) so both clients derive an identical formation from
 the same `{card_id, position, team}` message. Squad size lives on `CardData`, not
 `UnitData`: one unit archetype can back both a single-unit and a squad card.
+`BattleManager` also self-registers healing pods (`register_healing_pod()`,
+called from each pod's own `_ready()`, same pattern as turrets/bases) and
+exposes `get_nearest_ready_healing_pod(team, from_pos)` — strict own-side-first:
+falls through to the opposite side only if the caller's own side has no
+ready pod. `owning_side` on each pod is derived from its node name at
+runtime (`"Player"` in the name → `"player"`), not a scene field — pods
+remain fully cross-team usable for the actual heal trigger; `owning_side`
+only affects AI seek-preference.
  
 ---
  
@@ -79,7 +88,18 @@ the same `{card_id, position, team}` message. Squad size lives on `CardData`, no
   (CharacterBody2D + Hurtbox + AttackRange + AggroRange + AnimatedSprite2D +
   HealthBar + TargetMarker). Ranged/siege archetypes will be siblings.
 - `scenes/arena/player.tscn` — locally-controlled hero.
-  `scenes/arena/hero_dummy.tscn` — uncontrolled avatar placeholder (future AI).
+- `scenes/arena/hero_dummy.tscn` (`hero_dummy.gd`) — AI-controlled enemy hero
+  avatar. Movement/targeting/combat logic ported from `player.gd` (same
+  fields, `find_nearest_enemy()`/`_try_fire()`/`fire_bolt()`, same
+  animation helpers), driven instead by `HeroAI`'s hp-state output:
+  `NORMAL` → march toward nearest enemy structure (`BattleManager.
+  get_nearest_structure()`, interval-refreshed same as `unit.gd`); `LOW_HP`
+  → seek nearest ready healing pod (`BattleManager.
+  get_nearest_ready_healing_pod()`), falling back to retreat toward own
+  spawn if no pod anywhere is ready. Walking onto a pod triggers the heal
+  automatically via the pod's existing `area_entered` handler — no
+  explicit "use pod" call from the AI. Card-play AI is not yet implemented
+  (separate future step). Now also wires `target_marker` (see §6).
   Both expose `configure(data, team)`, `die()`, `revive()`.
 - `scenes/arena/DeployGhost.tscn` (`deploy_ghost.gd`) — world-space drag-to-deploy
   preview: a translucent circle at the drop position, green = legal, red = not.
@@ -199,6 +219,27 @@ the same `{card_id, position, team}` message. Squad size lives on `CardData`, no
   `HealingPod._on_area_entered()` reads the group off the entering Area2D to
   resolve team, no layer-bit math needed. Worth reaching for before inventing
   a parallel team-tag mechanism.
+- **Autoload enums can't be used as type annotations or `match` patterns.**
+  `HeroAI.State` can't do `var s: HeroAI.State` or `match s: HeroAI.State.X:`
+  — an autoload is a singleton *instance*, not a `class_name`, so its enum
+  isn't a real type in that sense. Runtime access like
+  `HeroAI.State.LOW_HP` in expressions/comparisons is fine; cache the
+  value as untyped/`int` and branch with `if`/`elif` instead of `match`.
+- **A fourth autoload (`HeroAI`) holds per-match state outside
+  `BattleManager.reset_match_state()`.** Same pitfall as `EnergySystem`/
+  `HealingSystem`: its own `reset_match_state()` must be called from
+  `arena._enter_tree()` alongside the other three, or the low-HP hysteresis
+  flag leaks across matches.
+- `hero_dummy.tscn`'s `TargetMarker` node existed unused in the scene since
+  its creation — `melee_unit.tscn` hides its own copy in the scene file,
+  but the hero scene didn't, so it was invisibly always-on until wired up
+  in `hero_dummy.gd` (`set_targeted()` + hidden in `_ready()`/`die()`).
+  Worth double-checking for other copy-pasted scene subtrees with the same
+  silently-active-node issue.
+- `BattleManager`'s healing-pod registry needs the same `tree_exited`
+  cleanup as the unit registries (`register()`), not the "permanent wreck,
+  never freed" pattern turrets/bases use — `single_use` pods (future
+  portable pods) actually `queue_free()` themselves, unlike turrets/bases.
 ---
  
 ## 7. Networking posture (design-time only)
@@ -220,3 +261,9 @@ No transport exists. The prepared seams:
   EnergySystem's spend path.
 - Authority model (dedicated server vs. relay/P2P) is an open decision with real
   cost implications — treat as its own project phase.
+- `HeroAI` is the fourth such module: per-team hp-threshold hysteresis is
+  pure data (a bool + two constants), so a server would run
+  `get_hp_state()` verbatim. The *decision* of what to do about a LOW_HP
+  state (which structure, which pod, which spawn point) stays in the hero
+  script/controller layer, not in `HeroAI` — keeping the autoload itself
+  trivially portable regardless of how targeting logic evolves.

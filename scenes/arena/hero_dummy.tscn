@@ -1,8 +1,9 @@
 [gd_scene format=3 uid="uid://b8ctq53x76rri"]
 
-[ext_resource type="Script" uid="uid://hdumscr8k3q1pv" path="res://scripts/arena/hero_dummy.gd" id="1_dummy"]
-[ext_resource type="SpriteFrames" uid="uid://hfrm7p3k9q2wt" path="res://data/heroes/frames/frames_hero_placeholder.tres" id="2_frames"]
+[ext_resource type="Script" uid="uid://b8ctra8x27rqh" path="res://scripts/arena/hero_dummy.gd" id="1_dummy"]
+[ext_resource type="SpriteFrames" uid="uid://dkdrmn6cpj652" path="res://data/heroes/frames/frames_hero_placeholder.tres" id="2_frames"]
 [ext_resource type="PackedScene" uid="uid://dvwpf0hx27680" path="res://scenes/ui/HealthBar.tscn" id="3_hbar"]
+[ext_resource type="Texture2D" uid="uid://dvlckfsllk4o3" path="res://assets/sprites/movemarker/target.png" id="4_ngm5m"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_body"]
 radius = 7.0
@@ -10,29 +11,35 @@ radius = 7.0
 [sub_resource type="CircleShape2D" id="CircleShape2D_hurtbox"]
 radius = 8.0
 
-[node name="HeroDummy" type="CharacterBody2D"]
+[node name="HeroDummy" type="CharacterBody2D" unique_id=100022112]
 collision_mask = 4
 script = ExtResource("1_dummy")
 
-[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1823778783]
+z_index = 1
 scale = Vector2(0.09, 0.09)
 sprite_frames = ExtResource("2_frames")
 animation = &"new_front_left"
 autoplay = "new_front_left"
 
-[node name="CollisionBody" type="CollisionShape2D" parent="."]
+[node name="CollisionBody" type="CollisionShape2D" parent="." unique_id=1614928354]
 shape = SubResource("CircleShape2D_body")
 
-[node name="Hurtbox" type="Area2D" parent="."]
+[node name="Hurtbox" type="Area2D" parent="." unique_id=844898105]
 collision_layer = 16
 collision_mask = 0
 
-[node name="CollisionShape2" type="CollisionShape2D" parent="Hurtbox"]
+[node name="CollisionShape2" type="CollisionShape2D" parent="Hurtbox" unique_id=495614022]
 shape = SubResource("CircleShape2D_hurtbox")
 
-[node name="HealthBar" parent="." instance=ExtResource("3_hbar")]
+[node name="HealthBar" parent="." unique_id=1822647494 instance=ExtResource("3_hbar")]
 offset_left = -16.0
 offset_top = -18.0
 offset_right = -16.0
 offset_bottom = -18.0
 always_visible = true
+
+[node name="TargetMarker" type="Sprite2D" parent="." unique_id=1476954274]
+position = Vector2(0, 11)
+scale = Vector2(0.3, 0.3)
+texture = ExtResource("4_ngm5m")

@@ -18,9 +18,16 @@ const TEX_INACTIVE := preload("res://assets/world/pod_inactive.png")
 
 var _pod_id: StringName
 
+# Strana podu podla mena nodu (name-as-identity konvencia, ziadne .tscn pole).
+# LEN pre AI seek-preferenciu — pody ostavaju plne cross-team pouzitelne,
+# toto nijako negatuje kto moze heal spustit.
+var owning_side: String = ""
+
 func _ready() -> void:
+	owning_side = "player" if "Player" in String(name) else "enemy"
 	_pod_id = StringName(name)  # meno nodu v scene = unikatne id podu
 	HealingSystem.register_pod(_pod_id, initial_delay, respawn_cooldown)
+	BattleManager.register_healing_pod(self)
 	HealingSystem.pod_ready.connect(_on_pod_ready)
 	_set_active(false)
 	monitoring = false

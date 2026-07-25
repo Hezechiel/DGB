@@ -88,6 +88,7 @@ script = ExtResource("1_turret")
 bolt_scene = ExtResource("3_bolt")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1709766615]
+position = Vector2(0, -10)
 sprite_frames = SubResource("SpriteFrames_turret")
 animation = &"idle"
 autoplay = "idle"
@@ -118,5 +119,4 @@ offset_bottom = -35.0
 [node name="TargetMarker" type="Sprite2D" parent="." unique_id=1503688539]
 visible = false
 z_index = -1
-position = Vector2(0, 10)
 texture = ExtResource("5_c8my7")

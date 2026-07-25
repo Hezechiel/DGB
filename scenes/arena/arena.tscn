@@ -1,7 +1,7 @@
 [gd_scene format=4 uid="uid://cel13t20juq3n"]
 
 [ext_resource type="Script" uid="uid://cprjw58lfuvba" path="res://scripts/arena/arena.gd" id="1_u52cf"]
-[ext_resource type="Texture2D" uid="uid://debevvwgviwmk" path="res://assets/world/mapp_orig.png" id="2_xgbxb"]
+[ext_resource type="Texture2D" uid="uid://dalnjmr3hwneb" path="res://assets/world/map.png" id="2_vmsrg"]
 [ext_resource type="Texture2D" uid="uid://b81r7so454vot" path="res://assets/sprites/world_tileset.png" id="3_6w4xk"]
 [ext_resource type="PackedScene" uid="uid://8nnp84nrmapf" path="res://scenes/arena/turrets/PlayerTurret.tscn" id="6_ii07k"]
 [ext_resource type="PackedScene" uid="uid://b7xkqe2n8wt4r" path="res://scenes/arena/turrets/EnemyTurret.tscn" id="7_6w4xk"]
@@ -147,8 +147,8 @@ sources/0 = SubResource("TileSetAtlasSource_lnu2h")
 script = ExtResource("1_u52cf")
 
 [node name="Map" type="Sprite2D" parent="." unique_id=1145271735]
-scale = Vector2(0.6, 0.6)
-texture = ExtResource("2_xgbxb")
+scale = Vector2(0.7, 0.7)
+texture = ExtResource("2_vmsrg")
 
 [node name="TileMapLayer" type="TileMapLayer" parent="." unique_id=1072615601]
 use_parent_material = true
@@ -176,10 +176,10 @@ position = Vector2(-170, -170)
 position = Vector2(-170, 170)
 lane = "bot"
 
-[node name="HealingPodPlayerTop" parent="PlayerStructures" instance=ExtResource("13_pod")]
+[node name="HealingPodPlayerTop" parent="PlayerStructures" unique_id=1587564181 instance=ExtResource("13_pod")]
 position = Vector2(-300, -150)
 
-[node name="HealingPodPlayerBot" parent="PlayerStructures" instance=ExtResource("13_pod")]
+[node name="HealingPodPlayerBot" parent="PlayerStructures" unique_id=306232374 instance=ExtResource("13_pod")]
 position = Vector2(-300, 150)
 
 [node name="EnemyStructures" type="Node2D" parent="." unique_id=1146918744]
@@ -199,10 +199,10 @@ lane = "bot"
 position = Vector2(360, 0)
 max_hp = 200
 
-[node name="HealingPodEnemyTop" parent="EnemyStructures" instance=ExtResource("13_pod")]
+[node name="HealingPodEnemyTop" parent="EnemyStructures" unique_id=968144249 instance=ExtResource("13_pod")]
 position = Vector2(300, -150)
 
-[node name="HealingPodEnemyBot" parent="EnemyStructures" instance=ExtResource("13_pod")]
+[node name="HealingPodEnemyBot" parent="EnemyStructures" unique_id=311123535 instance=ExtResource("13_pod")]
 position = Vector2(300, 150)
 
 [node name="ArenaCamera" type="Camera2D" parent="." unique_id=555000123]

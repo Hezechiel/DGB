@@ -69,6 +69,12 @@ func _physics_process(delta):
 	# 1) pohyb — vzdy z tap-to-move; manualny ciel mimo dosahu prepise chase smerom k nemu
 	var move_dir := get_move_input()
 
+	# ciel ktory zomrel ale ostal v strome (hrdina caka na respawn, veza/baza
+	# je vrak) nikdy nevystreli tree_exited — disengage treba rucne
+	if primary_target != null and is_instance_valid(primary_target) \
+			and "hp" in primary_target and primary_target.hp <= 0:
+		_clear_primary_target()
+
 	# 2) bojova logika — manualny ciel ma prednost, fallback na auto-target (bez chase)
 	if primary_target != null and is_instance_valid(primary_target):
 		var to_target := primary_target.global_position - global_position
