@@ -8,6 +8,24 @@ var health_points: int
 @export var invuln_time: float = 0.25 # (invulnerability window)
 var invuln_left: float = 0.0
 
+# === STATUS EFEKTY (spells) === identicke s unit.gd/hero_dummy.gd — ZAMERNA
+# duplikacia, ziadna zdielana base class (architecture.md princip). Dlhsie
+# trvanie vzdy vyhrava (maxf), nikdy sa nestackuje ani neskracuje.
+var stun_left: float = 0.0
+var root_left: float = 0.0
+var slow_left: float = 0.0
+var slow_multiplier: float = 1.0
+
+func apply_stun(duration: float) -> void:
+	stun_left = maxf(stun_left, duration)
+
+func apply_root(duration: float) -> void:
+	root_left = maxf(root_left, duration)
+
+func apply_slow(multiplier: float, duration: float) -> void:
+	slow_multiplier = multiplier
+	slow_left = maxf(slow_left, duration)
+
 const PLAYER_HURTBOX_LAYER := 8   # zodpoveda layer_4 "player_hurtbox"
 var is_dead := false
 
@@ -63,6 +81,20 @@ func _ready() -> void:
 	InputR.clear_move_target() # zmaz stary ciel po reloade sceny
 
 func _physics_process(delta):
+	stun_left = maxf(stun_left - delta, 0.0)
+	root_left = maxf(root_left - delta, 0.0)
+	slow_left = maxf(slow_left - delta, 0.0)
+	if slow_left <= 0.0:
+		slow_multiplier = 1.0
+
+	# stun = tvrde CC — ziadny pohyb ani strelba; cooldowny (invuln/fire)
+	# pocas stunu netikaju (zamerne, rovnako ako unit.gd attack_left)
+	if stun_left > 0.0:
+		velocity = velocity.move_toward(Vector2.ZERO, 500 * delta)
+		move_and_slide()
+		update_idle_animation()
+		return
+
 	invuln_left = max(invuln_left - delta, 0.0)
 	fire_left = max(fire_left - delta, 0.0)
 
@@ -92,6 +124,10 @@ func _physics_process(delta):
 		if nearest != null:
 			_try_fire(nearest)
 
+	# root: hrdina moze stale utocit (uz prebehlo vyssie), ale sa nesmie hybat
+	if root_left > 0.0:
+		move_dir = Vector2.ZERO
+
 	# Normalizacia (aby diagonalna nebola rychlejsia)
 	if move_dir != Vector2.ZERO:
 		move_dir = move_dir.normalized()
@@ -99,8 +135,9 @@ func _physics_process(delta):
 		update_animation(move_dir)
 	else:
 		update_idle_animation()
-	
-	velocity = velocity.move_toward(move_dir * speed, 500 * delta)
+
+	var eff_speed := speed * slow_multiplier
+	velocity = velocity.move_toward(move_dir * eff_speed, 500 * delta)
 	move_and_slide()
 
 func get_move_input() -> Vector2:

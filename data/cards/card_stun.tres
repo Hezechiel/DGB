@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="CardData" format=3 uid="uid://c11rsq7f2lam2"]
+
+[ext_resource type="Script" uid="uid://cdscsax3k7m1p" path="res://scripts/arena/ui/card_data.gd" id="1_carddata"]
+[ext_resource type="Texture2D" uid="uid://bmm6mgx1sm12v" path="res://assets/sprites/scrolls/substitute.png" id="2_sheet"]
+[ext_resource type="Resource" uid="uid://sp2stun2lam200" path="res://data/spells/stun.tres" id="3_spelldata"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cardstun"]
+atlas = ExtResource("2_sheet")
+region = Rect2(109, 0, 109, 109)
+
+[resource]
+script = ExtResource("1_carddata")
+id = &"card_stun"
+display_name = "Stun"
+cost = 3
+scroll_texture = SubResource("AtlasTexture_cardstun")
+spell_data = ExtResource("3_spelldata")

@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="SpellData" format=3 uid="uid://bwpt4mp83iua4"]
+
+[ext_resource type="Script" uid="uid://spdata8h2n4kq" path="res://scripts/arena/spell_data.gd" id="1_spelldata"]
+
+[resource]
+script = ExtResource("1_spelldata")
+id = &"spell_storm"
+display_name = "Storm"
+spell_type = 0
+radius = 50.0
+duration = 3.0
+damage = 15
+tick_interval = 0.5

@@ -58,6 +58,25 @@ var combat_target: Node2D = null
 @export var max_hp: int = 50
 var hp: int
 
+# === STATUS EFEKTY (spells) === Kazdy timer nezavisly, samostatne tikaju
+# v _physics_process. Re-aplikovanie rovnakeho efektu NEPREPISUJE kratsim
+# trvanim — vzdy sa berie dlhsie z oboch (maxf), rovnaky princip ako
+# "HoT sa neprepisuje kratsim" rozhodnutie pri HealingSystem.
+var stun_left: float = 0.0
+var root_left: float = 0.0
+var slow_left: float = 0.0
+var slow_multiplier: float = 1.0
+
+func apply_stun(duration: float) -> void:
+	stun_left = maxf(stun_left, duration)
+
+func apply_root(duration: float) -> void:
+	root_left = maxf(root_left, duration)
+
+func apply_slow(multiplier: float, duration: float) -> void:
+	slow_multiplier = multiplier
+	slow_left = maxf(slow_left, duration)
+
 # UnitData pouzita pri configure() — zdielany resource, nikdy sa doň
 # nezapisuje runtime stav (hp a pod.)
 var unit_data: UnitData = null
@@ -112,6 +131,20 @@ func _ready() -> void:
 		$Hurtbox.add_to_group("player_hurtbox")
 
 func _physics_process(delta: float) -> void:
+	stun_left = maxf(stun_left - delta, 0.0)
+	root_left = maxf(root_left - delta, 0.0)
+	slow_left = maxf(slow_left - delta, 0.0)
+	if slow_left <= 0.0:
+		slow_multiplier = 1.0
+
+	# stun = tvrde CC — ziadny pohyb, ziadne utoky; zvysok funkcie nebezi,
+	# takze pocas stunu netikaju ani attack cooldowny (zamerne)
+	if stun_left > 0.0:
+		velocity = Vector2.ZERO
+		move_and_slide()
+		update_idle_animation()
+		return
+
 	attack_left = max(attack_left - delta, 0.0)
 
 	# validacia hurtbox_in_range — area mohla byt freed bez area_exited
@@ -185,6 +218,13 @@ func _process_chasing(delta: float) -> void:
 # Spolocny seek+separation steering krok — pouzity pre march k waypointu
 # aj pre march priamo k final targetu (fallback ked nezostanu waypointy)
 func _steer_towards(target_pos: Vector2, delta: float) -> void:
+	# root (Trapping Net) — pohyb stoji, utoky bezia (ENGAGING sem nechodi)
+	if root_left > 0.0:
+		velocity = Vector2.ZERO
+		update_idle_animation()
+		move_and_slide()
+		return
+
 	var to_target: Vector2 = target_pos - global_position
 
 	# separation od rovnakych unity (zachovana z povodneho kodu)
@@ -201,7 +241,8 @@ func _steer_towards(target_pos: Vector2, delta: float) -> void:
 	var direction: Vector2 = steer.normalized()
 	last_direction = direction
 	update_animation(direction)
-	velocity = direction * speed
+	var eff_speed := speed * slow_multiplier
+	velocity = eff_speed * direction
 	move_and_slide()
 
 func _process_engaging() -> void:

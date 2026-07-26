@@ -23,6 +23,24 @@ var is_dead := false
 var fire_left: float = 0.0
 var last_direction := Vector2.DOWN
 
+# === STATUS EFEKTY (spells) === identicke s unit.gd/player.gd — ZAMERNA
+# duplikacia, ziadna zdielana base class (architecture.md princip). Dlhsie
+# trvanie vzdy vyhrava (maxf), nikdy sa nestackuje ani neskracuje.
+var stun_left: float = 0.0
+var root_left: float = 0.0
+var slow_left: float = 0.0
+var slow_multiplier: float = 1.0
+
+func apply_stun(duration: float) -> void:
+	stun_left = maxf(stun_left, duration)
+
+func apply_root(duration: float) -> void:
+	root_left = maxf(root_left, duration)
+
+func apply_slow(multiplier: float, duration: float) -> void:
+	slow_multiplier = multiplier
+	slow_left = maxf(slow_left, duration)
+
 # Pohybove ciele — refresh v intervale (unit.gd pattern), nie kazdy frame
 var structure_target: Node2D = null  # NORMAL stav
 var heal_target: Node2D = null       # LOW_HP stav
@@ -83,6 +101,19 @@ func _apply_hurtbox_layer() -> void:
 # =========================
 
 func _physics_process(delta: float) -> void:
+	stun_left = maxf(stun_left - delta, 0.0)
+	root_left = maxf(root_left - delta, 0.0)
+	slow_left = maxf(slow_left - delta, 0.0)
+	if slow_left <= 0.0:
+		slow_multiplier = 1.0
+
+	# stun = tvrde CC — ziadny pohyb ani strelba; fire_left pocas stunu
+	# netika (zamerne, rovnako ako unit.gd attack_left)
+	if stun_left > 0.0:
+		_stand_idle()
+		move_and_slide()
+		return
+
 	fire_left = maxf(fire_left - delta, 0.0)
 
 	var hp_pct := float(hp) / float(max_hp)
@@ -157,10 +188,17 @@ func _update_heal_target(delta: float) -> void:
 # Single-hero steering — ZIADNA separation/neighbor logika (to je unit.gd
 # vec pre squady, nie pre osamoteneho hrdinu)
 func _steer_towards(target_pos: Vector2) -> void:
+	# root (Trapping Net) — pohyb stoji, strelba dole vo _physics_process bezi
+	if root_left > 0.0:
+		_stand_idle()
+		move_and_slide()
+		return
+
 	var dir := (target_pos - global_position).normalized()
 	last_direction = dir
 	update_animation(dir)
-	velocity = dir * speed
+	var eff_speed := speed * slow_multiplier
+	velocity = dir * eff_speed
 	move_and_slide()
 
 func _stand_idle() -> void:

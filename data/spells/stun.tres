@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="SpellData" format=3 uid="uid://bxpubi5rrva84"]
+
+[ext_resource type="Script" uid="uid://spdata8h2n4kq" path="res://scripts/arena/spell_data.gd" id="1_spelldata"]
+
+[resource]
+script = ExtResource("1_spelldata")
+id = &"spell_stun"
+display_name = "Stun"
+spell_type = 1
+radius = 24.0
+duration = 1.2
+damage = 0

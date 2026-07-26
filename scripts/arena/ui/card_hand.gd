@@ -102,7 +102,8 @@ func _input(event: InputEvent) -> void:
 		return
 	if event is InputEventScreenDrag and event.index == _drag_touch_index:
 		var world_pos := _screen_to_world(event.position)
-		deploy_preview_updated.emit(world_pos, BattleManager.is_deploy_position_valid(world_pos, "player"))
+		var dragged_card := _slots[_drag_slot].card_data
+		deploy_preview_updated.emit(world_pos, BattleManager.is_card_target_valid(dragged_card, world_pos, "player"))
 		# Nad rukou = chysta sa zrusenie, ukaz lic. Mimo ruky (nad mapou) = rub.
 		var over_hand := get_global_rect().has_point(event.position)
 		if over_hand and _drag_showing_back:
@@ -134,7 +135,7 @@ func _finish_drag(screen_pos: Vector2) -> void:
 	if get_global_rect().has_point(screen_pos):
 		return
 	var world_pos := _screen_to_world(screen_pos)
-	if not BattleManager.is_deploy_position_valid(world_pos, "player"):
+	if not BattleManager.is_card_target_valid(_slots[slot].card_data, world_pos, "player"):
 		return   # neplatne miesto — karta zostava v ruke, nic sa nespawnuje
 	play_card(slot, world_pos)
 
@@ -152,7 +153,11 @@ func play_card(slot_index: int, world_pos: Vector2) -> bool:
 	# network handler pojdu SEM bez tej ochrany — preto je gate tu.
 	if not EnergySystem.try_spend("player", played_data.id):
 		return false
-	BattleManager.spawn_unit(played_data.id, world_pos, "player")
+	# vetvenie podla typu karty — payload polia su navzajom vylucne (CardDB guard)
+	if played_data.unit_data != null:
+		BattleManager.spawn_unit(played_data.id, world_pos, "player")
+	elif played_data.spell_data != null:
+		BattleManager.cast_spell(played_data.id, world_pos, "player")
 	_cycle.push_back(played_data)         # zahrana karta ide na koniec fronty
 	slot.configure(_cycle.pop_front())    # slot sa doplni z frontu
 	_refresh_affordability()              # nova karta + minuta energia → prepocitaj

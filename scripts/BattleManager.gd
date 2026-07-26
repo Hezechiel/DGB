@@ -235,6 +235,15 @@ func is_deploy_position_valid(pos: Vector2, team: String) -> bool:
 		return pos.x < 0.0
 	return pos.x > 0.0
 
+# Jediny zdroj pravdy pre "da sa sem zahrat TUTO kartu" — vetvi podla typu
+# karty. Unit karty: existujuce pravidlo (vlastna polovica + bounds).
+# Spell karty: kdekolvek na mape (bez ohladu na stred) — rozsirenie zony
+# per lane sa ich netyka.
+func is_card_target_valid(card: CardData, pos: Vector2, team: String) -> bool:
+	if card.spell_data != null:
+		return DEPLOY_BOUNDS.has_point(pos)
+	return is_deploy_position_valid(pos, team)
+
 # --- Spawn (jediny vstupny bod pre vytvaranie jednotiek) ---
 
 # Jediny spawn entry point pre jednotky. Resolvne CardData → UnitData cez
@@ -275,6 +284,77 @@ func _formation_offset(index: int, count: int, radius: float) -> Vector2:
 		return Vector2.ZERO
 	var angle := TAU * float(index) / float(count)
 	return Vector2(cos(angle), sin(angle)) * radius
+
+# Vsetky jednotky/hrdinovia PATRIACE affected_team, v danom polomere od
+# pozicie. team_player/team_enemy uz obsahuju hrdinov aj jednotky (obaja
+# sa registruju cez register()); veze su tiez v tychto poliach (register()
+# sa vola aj z turret.gd) — takze veza chytena v Storm polomere DOSTANE
+# damage (ma take_damage) a STUN na nu plati tiez (turret.gd ma vlastny
+# apply_stun z repair/stun mechaniky). apply_root/apply_slow veza nema,
+# takze tie na nu jednoducho neplatia (has_method guard nizsie). Vraky
+# vezi ostavaju v poliach s hp<=0 — ich take_damage/apply_stun su no-op,
+# ziadny filter tu netreba. Zakladne (base.gd) sa do tychto poli vobec
+# neregistruju — spelly na ne teda nikdy nedosahnu, rovnaka asymetria ako
+# uz existuje v hre, nie chyba tohto kroku.
+#
+# ZAMERNE team-scoped, NIE vsetci v okruhu — ziadny friendly fire pre
+# spelly ani buduce AoE jednotky, ktore tuto funkciu budu tiez volat.
+func _get_targets_in_radius(pos: Vector2, radius: float, affected_team: String) -> Array:
+	var result: Array = []
+	var r2 := radius * radius
+	var pool := team_player if affected_team == "player" else team_enemy
+	for n in pool:
+		if not is_instance_valid(n):
+			continue
+		if pos.distance_squared_to(n.global_position) <= r2:
+			result.append(n)
+	return result
+
+# Jediny cast entry point pre spell karty (rovnaky princip ako
+# spawn_unit/spawn_hero). spell_type konvencia (viz spell_data.gd):
+# 0 = STORM, 1 = STUN, 2 = NET. `team` je caster (kto kartu zahral) —
+# efekt vzdy zasiahne LEN opacny tim, bez ohladu na to kam presne na
+# mape bola karta zahrana.
+func cast_spell(card_id: StringName, pos: Vector2, team: String) -> void:
+	var card := CardDB.get_card(card_id)
+	if card == null or card.spell_data == null:
+		push_error("BattleManager.cast_spell: card '%s' nema priradene spell_data" % card_id)
+		return
+
+	var spell := card.spell_data
+	var enemy_team := "player" if team == "enemy" else "enemy"
+	var targets := _get_targets_in_radius(pos, spell.radius, enemy_team)
+
+	match spell.spell_type:
+		0:  # STORM — instant burst + DoT ticky + slow po cely duration
+			for n in targets:
+				if is_instance_valid(n) and n.has_method("take_damage"):
+					n.take_damage(spell.damage)
+				if is_instance_valid(n) and n.has_method("apply_slow"):
+					n.apply_slow(0.5, spell.duration)  # 50% spomalenie, placeholder
+			_run_storm_ticks(targets, spell)
+		1:  # STUN
+			for n in targets:
+				if is_instance_valid(n) and n.has_method("apply_stun"):
+					n.apply_stun(spell.duration)
+		2:  # NET (root)
+			for n in targets:
+				if is_instance_valid(n) and n.has_method("apply_root"):
+					n.apply_root(spell.duration)
+		_:
+			push_error("BattleManager.cast_spell: neznamy spell_type %d na karte '%s'" % [spell.spell_type, card_id])
+
+# Storm DoT — snapshot cielov z casu castu (NIE persistentna zona; jednotky
+# ktore vojdu do oblasti neskor sa nechytia, to je zamerne zjednodusenie
+# tohto kroku). is_instance_valid() na kazdom ticku odchytava jednotky
+# ktore medzitym zomreli/zmizli zo stromu.
+func _run_storm_ticks(targets: Array, spell: SpellData) -> void:
+	var ticks := int(spell.duration / spell.tick_interval)
+	for i in range(ticks):
+		await get_tree().create_timer(spell.tick_interval).timeout
+		for n in targets:
+			if is_instance_valid(n) and n.has_method("take_damage"):
+				n.take_damage(spell.damage)
 
 # --- Spawn (hrdinovia) ---
 
