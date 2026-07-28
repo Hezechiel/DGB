@@ -5,6 +5,10 @@ class_name CardHand
 # world-space Node2D — rovnaky pattern ako HUD signaly)
 signal deploy_preview_updated(world_pos: Vector2, is_valid: bool)
 signal deploy_preview_ended
+# Emitovany RAZ na zaciatku dragu — ghost sa podla karty nakonfiguruje
+# (polomer + animacia). Priebezna pozicia chodi dalej cez
+# deploy_preview_updated, ktory sa NEMENI.
+signal deploy_preview_started(card: CardData)
 
 @export var deck: Array[CardData] = []
 
@@ -75,6 +79,7 @@ func begin_drag(slot_index: int, touch_index: int) -> void:
 	_drag_slot = slot_index
 	_drag_touch_index = touch_index
 	_drag_showing_back = false
+	deploy_preview_started.emit(_slots[slot_index].card_data)
 
 # Drag sledujeme v _input() (bezi PRED GUI aj pred _unhandled_input), takze
 # eventy nikdy nedojdu do arena_camera.gd (pan) ani arena.gd (tap-to-move).

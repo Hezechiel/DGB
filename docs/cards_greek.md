@@ -67,14 +67,25 @@ never cross eras" rule holds — no card ID is ever reused between eras.
 
 | Card | Type | Effect | Cost tier | Notes |
 |------|------|--------|-----------|-------|
-| **Storm** | Spell | AoE burst + damage over time + slow | Medium | Only damaging spell of the three |
-| **Stun** | Spell | AoE hard CC — no move, no attack | Cheap | Shortest duration; interrupt tool |
-| **Trapping Net** | Spell | AoE root — cannot move, can still attack | Cheap | Longer than Stun; anti-chase / anti-kite |
+| **Storm** | Spell | Persistent AoE zone: damage ticks + slow while inside | Medium | Only damaging spell; area denial, not burst |
+| **Stun** | Spell | AoE hard CC — no move, no attack | Cheap | Shortest cast time; fastest reactive tool |
+| **Trapping Net** | Spell | AoE root — cannot move, can still attack | Cheap | Longer effect than Stun; anti-chase / anti-kite |
 
 - Castable **anywhere on the map**, unlike unit cards (own half only).
 - **No friendly fire** — opposing team only.
-- Placeholder scroll art comes from the shared `substitute.png` sheet
-  (16×6 grid of 109×109 cells); final per-era art pending.
+- **Every spell has a cast delay** during which the target circle is visible
+  to both players. That warning window is the counterplay: the target can
+  walk out. Stun's is the shortest, Storm's the longest.
+- **Storm alone leaves a lasting zone**; Stun and Net resolve in a single
+  tick at impact. Mechanically they're the same system with different
+  lifetimes, not three separate implementations.
+- Card face art: Storm uses `scroll_storm.png` (5×2 grid of 260×340 cells —
+  cell 0 is the card face, the rest are drag/cast animation frames). Stun and
+  Net still use the shared `substitute.png` sheet (16×6 grid of 109×109
+  cells) as placeholders.
+- In-arena visuals are still a placeholder circle (orange while casting,
+  purple while the zone is live); impact and duration animations don't exist
+  yet for any spell.
 - Numbers are placeholders pending the same stat pass as the rest of the
   common pool.
 ---

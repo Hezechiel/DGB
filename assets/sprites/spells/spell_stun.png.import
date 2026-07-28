@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://vts2074k2nnt"
-path="res://.godot/imported/enemy_walk1.png-8a0ce8fe13bc8826af0fab953576e2ab.ctex"
+uid="uid://doxyj4e00p3p3"
+path="res://.godot/imported/spell_stun.png-04223bb4ed9ce7e913c9699df556a766.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/units/enemy_walk1.png"
-dest_files=["res://.godot/imported/enemy_walk1.png-8a0ce8fe13bc8826af0fab953576e2ab.ctex"]
+source_file="res://assets/sprites/spells/spell_stun.png"
+dest_files=["res://.godot/imported/spell_stun.png-04223bb4ed9ce7e913c9699df556a766.ctex"]
 
 [params]
 

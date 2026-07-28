@@ -1,0 +1,86 @@
+[gd_resource type="SpriteFrames" format=3 uid="uid://mhkojxx4l0p7"]
+
+[ext_resource type="Texture2D" uid="uid://c1ynsdx2dm04i" path="res://assets/sprites/scrolls/scroll_ensnaring_net.png" id="1_yfqfm"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1jrq1"]
+atlas = ExtResource("1_yfqfm")
+region = Rect2(260, 0, 260, 340)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_govi0"]
+atlas = ExtResource("1_yfqfm")
+region = Rect2(520, 0, 260, 340)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4bova"]
+atlas = ExtResource("1_yfqfm")
+region = Rect2(780, 0, 260, 340)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fqk38"]
+atlas = ExtResource("1_yfqfm")
+region = Rect2(1040, 0, 260, 340)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6empv"]
+atlas = ExtResource("1_yfqfm")
+region = Rect2(0, 340, 260, 340)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_08nrx"]
+atlas = ExtResource("1_yfqfm")
+region = Rect2(260, 340, 260, 340)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_y62ea"]
+atlas = ExtResource("1_yfqfm")
+region = Rect2(520, 340, 260, 340)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t2tgv"]
+atlas = ExtResource("1_yfqfm")
+region = Rect2(780, 340, 260, 340)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ulx7x"]
+atlas = ExtResource("1_yfqfm")
+region = Rect2(260, 0, 260, 340)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ng7fm"]
+atlas = ExtResource("1_yfqfm")
+region = Rect2(520, 0, 260, 340)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1jrq1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_govi0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4bova")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fqk38")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6empv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_08nrx")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_y62ea")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_t2tgv")
+}],
+"loop": 1,
+"name": &"cast",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ulx7x")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ng7fm")
+}],
+"loop": 1,
+"name": &"drag",
+"speed": 5.0
+}]

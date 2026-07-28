@@ -58,8 +58,10 @@ data/
   heroes/   HeroData     — id, stats, projectile_scene, sprite_frames
                            (no archetype_scene: control mode picks the scene)
   spells/   SpellData    — id, display_name, spell_type (int: 0=STORM,
-                           1=STUN, 2=NET), radius, duration, damage,
-                           tick_interval, vfx_scene (unwired)
+                           1=STUN, 2=NET), radius, cast_time,
+                           zone_duration, effect_duration, damage,
+                           tick_interval, slow_multiplier, sprite_frames
+                           (animation names are a contract: "drag", "cast")
 ```
  
 Resolution chain for a played card:
@@ -85,6 +87,12 @@ with neither or both. Resolution chain for a played spell:
 `card_id → CardDB.get_card() → CardData.spell_data → BattleManager.cast_spell()`.
 `CardDB` scans `data/spells/` as a fourth resource directory, same pattern
 (and same `.tres.remap` handling) as cards/units/heroes.
+`SpellData` carries **two separate durations** — `zone_duration` (how long
+the area lives on the map) and `effect_duration` (how long stun/root/slow
+lasts on a unit that was hit). They are not interchangeable: Storm's zone
+outlives the short slow it refreshes each tick, which is what makes leaving
+the zone matter. `zone_duration = 0.0` is the "instant" configuration (one
+tick at impact, then free) used by Stun and Net.
 ---
  
 ## 4. Battle scene structure
@@ -113,6 +121,13 @@ with neither or both. Resolution chain for a played spell:
   preview: a translucent circle at the drop position, green = legal, red = not.
   Drawn in `_draw()` (no assets). Sibling of `MoveMarker`, driven by `arena.gd`
   from `CardHand` signals (CardHand is in a CanvasLayer; the ghost is world-space).
+  One child, `ScrollAnim` (`AnimatedSprite2D`, no frames assigned in the scene) —
+  plays the spell's `"drag"` animation just above the circle while dragging.
+  `configure_for_card()` runs **once per drag** (from `deploy_preview_started`)
+  and sets both the radius and the animation: spell cards get the spell's *real*
+  `radius` so the circle shows exactly what will be hit; unit cards get the flat
+  `unit_radius` and no animation. Per-frame position still comes through
+  `deploy_preview_updated`, whose signature is unchanged.
 - `scenes/arena/HealingPod.tscn` (`healing_pod.gd`) — static pickup, `Area2D`
   with `collision_layer=0`, `collision_mask=24` (bits 4+5 — same hurtbox mask
   pattern as `LightningBolt`). Team is resolved on `area_entered` from the
@@ -122,6 +137,21 @@ with neither or both. Resolution chain for a played spell:
   `AnimatedSprite2D`. Cooldown and HoT state live in `HealingSystem`; the node
   is sensor + visual only. 4 static placements in `arena.tscn`, one per lane
   per side (`HealingPodPlayerTop/Bot`, `HealingPodEnemyTop/Bot`).
+- `scenes/arena/SpellZone.tscn` (`spell_zone.gd`) — the **single** runtime
+  node behind every spell. `Node2D` with a single `CastAnim`
+  (`AnimatedSprite2D`) child, **no `Area2D` and no
+  collision shape**: targeting is a per-tick radius query, not physics
+  overlap. Two phases driven in `_process`: `PHASE_CAST` (lasts
+  `cast_time`, draws a warning circle, applies nothing) then `PHASE_ZONE`
+  (first tick fires *exactly* at impact, then every `tick_interval` for
+  `zone_duration`, re-querying targets each time). `zone_duration = 0.0`
+  → one tick, then `queue_free()`. Spawned by `BattleManager.cast_spell()`
+  with the same `instantiate() → configure() → add_child()` contract units
+  and heroes use. During `PHASE_CAST`, `CastAnim` plays the spell's `"cast"`
+  animation stretched via `speed_scale` to finish *exactly* at impact, then
+  stops and hides — the placeholder `_draw()` circle (orange = casting,
+  purple = active zone) carries the zone phase alone until impact/duration
+  art exists.
 - `scenes/arena/ui/EnergyBar.tscn` (`energy_bar.gd`) — player energy bar in the
   HUD. Polls `EnergySystem.get_energy("player")` each frame for the fill. `Bar`
   is a `TextureProgressBar` (gold fill texture, left-to-right) behind a
@@ -133,6 +163,7 @@ with neither or both. Resolution chain for a played spell:
   is the single card-play entry point — drag-to-deploy calls it today, future
   double-tap and the network handler call the same function — which now also
   spends energy via `EnergySystem.try_spend()` and refuses unaffordable plays; emits
+  `deploy_preview_started` (once, at drag start, carrying the `CardData`) /
   `deploy_preview_updated` / `deploy_preview_ended` for `arena.gd` to drive the
   DeployGhost), `EnergyBar`, `MatchInfoBar` (timer label, tower icons, two
   `RespawnCounter`s driven by BattleManager signals).
@@ -175,11 +206,22 @@ with neither or both. Resolution chain for a played spell:
   is the single source of truth for *both* card types and wraps (never
   modifies) `is_deploy_position_valid()`. Spells: inside `DEPLOY_BOUNDS`
   only, either half. Units: the existing own-half rule, untouched.
-- **AoE queries:** `BattleManager._get_targets_in_radius(pos, radius, affected_team)`
+- **AoE queries:** `BattleManager.get_targets_in_radius(pos, radius, affected_team)`
   is the shared radius query — **team-scoped by parameter, never
-  position-only**. `cast_spell()` passes the caster's *opposing* team, so
-  spells can't friendly-fire. Future AoE unit attacks should call this same
-  helper rather than rolling their own overlap scan.
+  position-only**. `SpellZone` passes the caster's *opposing* team, so
+  spells can't friendly-fire. Public (no leading underscore) because it is
+  called from outside the autoload; future AoE unit attacks should call this
+  same helper rather than rolling their own overlap scan.
+- **Spell effects are a re-query per tick, never a snapshot.** `SpellZone`
+  calls `get_targets_in_radius()` fresh on every tick, so a unit that walks
+  into an active Storm gets hit and one that walks out stops being hit.
+  Holding a target array across time was the *old* model and was deliberately
+  removed — if a future spell needs stick-to-the-target behaviour
+  (poison/bleed), that belongs as per-unit state on the victim, like the
+  status timers, not as an array held by the caster.
+- **`cast_spell()` applies nothing.** It validates the card and spawns a
+  `SpellZone`; all timing and all effect application live on that node. This
+  keeps every spell's lifetime bound to the arena scene tree.
 - **Status effects** live as plain per-instance state (`stun_left`,
   `root_left`, `slow_left`, `slow_multiplier` + `apply_stun()` /
   `apply_root()` / `apply_slow()`) duplicated **independently** in
@@ -280,12 +322,32 @@ with neither or both. Resolution chain for a played spell:
   stunned mid-cooldown resumes with the same cooldown remaining rather than
   attacking instantly on recovery. Intentional; don't "fix" it by moving the
   decrement above the stun check.
-- **Storm's DoT is an `await`-based loop in an autoload** (`_run_storm_ticks`),
-  holding a snapshot array of targets across several seconds. Every tick
-  re-checks `is_instance_valid()`. It survives units dying mid-effect, but
-  it is *not* hardened against a match ending or scene change mid-loop —
-  revisit when the spell layer meets networking or `reset_match_state()`
-  grows spell state.
+- **Timed multi-second effects belong on a scene node, not in an autoload.**
+  Storm's damage-over-time was originally an `await`-based loop inside
+  `BattleManager` holding a target snapshot across several seconds — which
+  survived units dying (`is_instance_valid()` per tick) but was *not* safe
+  against a match ending or scene change mid-loop. Moving the timing into
+  `SpellZone`'s `_process` fixed that for free: the node is a child of the
+  arena, so match end, scene change, and `reset_match_state()` all clean it
+  up with no guard code. Reach for this pattern before adding another
+  `await` chain to an autoload. Note the deliberate consequence —
+  **`SpellZone` state is intentionally absent from every
+  `reset_match_state()`**, unlike the four autoloads; scene ownership is the
+  reset mechanism.
+- **Never mutate a shared `SpriteFrames` at runtime.** Stretching a spell's
+  cast animation to fit `cast_time` is done with
+  `AnimatedSprite2D.speed_scale` on the *node*
+  (`speed_scale = frame_count / animation_speed / cast_time`), never with
+  `set_animation_speed()` / `set_animation_loop()` on the resource — those
+  would leak across every instance using that resource. Same rule as "never
+  write runtime state back into a resource" in §1, one step further: playback
+  parameters are node state too.
+- **Animation names are a contract for spells as well as units.** Spell
+  `SpriteFrames` must expose `"drag"` and `"cast"`; both playback sites guard
+  with `has_animation()`, so a spell with a missing or absent frames resource
+  degrades to the plain circle instead of erroring. `"cast"` is authored with
+  `loop = 1` and is never visibly seen looping because the node hides it at
+  the phase flip — don't "fix" the resource.
 ---
  
 ## 7. Networking posture (design-time only)
@@ -316,6 +378,10 @@ No transport exists. The prepared seams:
 - Spell casts fit the existing spawn-message shape: `{card_id, position, team}`
   → the receiving side calls the same `cast_spell()` local play uses. Unlike
   `EnergySystem`/`HealingSystem`/`HeroAI`, the spell layer is **not** a
-  scene-free pure-state module — `cast_spell()` touches live nodes directly.
-  A server-authoritative version would need effect application split from
-  target resolution (`_get_targets_in_radius()` is already the clean seam).
+  scene-free pure-state module — `SpellZone` is a scene node and applies
+  effects to live nodes directly. `get_targets_in_radius()` is the clean
+  seam: a server-authoritative version would run the zone's tick schedule
+  and that query, and send resulting damage/status to clients rather than
+  letting each client resolve its own. The cast delay is also a genuine
+  gameplay window (not just a visual), so it must be server-timed, not
+  client-timed, once authority exists.

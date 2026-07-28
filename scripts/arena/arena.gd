@@ -36,6 +36,7 @@ func _ready() -> void:
 	hud.recenter_camera_requested.connect(_on_recenter_camera_requested)
 	hud.card_hand.deploy_preview_updated.connect(_on_deploy_preview_updated)
 	hud.card_hand.deploy_preview_ended.connect(_on_deploy_preview_ended)
+	hud.card_hand.deploy_preview_started.connect(_on_deploy_preview_started)
 	BattleManager.match_ended.connect(_on_match_ended)
 	# 2D object picking je defaultne vypnute — bez neho Area2D.input_event
 	# (tap na enemy/turret/base hurtbox) nikdy nevystreli
@@ -70,6 +71,9 @@ func _on_hud_exit_requested() -> void:
 
 func _on_recenter_camera_requested() -> void:
 	arena_camera.recenter_on_player()
+
+func _on_deploy_preview_started(card: CardData) -> void:
+	deploy_ghost.configure_for_card(card)
 
 func _on_deploy_preview_updated(world_pos: Vector2, is_valid: bool) -> void:
 	deploy_ghost.show_at(world_pos, is_valid)

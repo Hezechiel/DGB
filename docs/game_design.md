@@ -171,29 +171,67 @@ are mock data (`MatchConfig`).
   the same radius-query helper will back future AoE *units*, and
   position-based (team-agnostic) AoE would make those units miserable to
   balance.
+- **One mechanic for all spells: cast delay, then a ticking area zone.**
+  Playing a spell spawns a `SpellZone` node at the drop point with two phases:
+  - **Cast phase** (`cast_time`): the circle is visible as a *warning* and
+    nothing happens. The opposing player has this window to walk out — this
+    is the counterplay, and it is why spells have a cast time at all.
+  - **Zone phase** (`zone_duration`): every `tick_interval` the zone
+    **re-queries** who is currently inside its radius and applies the effect
+    to them. Deliberately **not** a snapshot — a unit that walks in later
+    gets hit; a unit that walks out stops getting hit.
+- `zone_duration = 0.0` means the zone fires exactly **one tick at the moment
+  of impact and frees itself**. That is how Stun and Net behave "instantly"
+  without a second code path — they are the same mechanic with the shortest
+  possible lifetime, not a special case.
+- Two distinct duration concepts, deliberately separate fields:
+  - `zone_duration` — how long the area lives on the map
+  - `effect_duration` — how long stun/root/slow lasts **on a unit that was hit**
+
+  Storm refreshes a *short* slow every tick, so standing in it keeps you
+  slowed while leaving lets the slow decay ~1 s later. Collapsing these into
+  one field would make leaving the zone meaningless.
 - Three common spells, shared across all eras as one mechanic template with
   per-era art and card IDs (never a shared card ID — the era rule in
   `cards_greek.md` §1 holds):
 
-  | Spell | Effect | CC type | Notes |
-  |---|---|---|---|
-  | **Storm** | Instant burst damage + damage ticks over the duration, plus a slow | Soft CC (slow) | Targets are snapshotted at cast; not a persistent zone |
-  | **Stun** | No damage | Hard CC — no move, no attack | Shortest duration of the three |
-  | **Trapping Net** | No damage | Root — cannot move, *can* still attack | Longer than Stun, since the effect is weaker |
+  | Spell | Cast | Zone | Effect | CC type |
+  |---|---|---|---|---|
+  | **Storm** | Longest (~1.0 s) | Persistent (~3 s), damage ticks | Damage + refreshed short slow | Soft CC (slow) |
+  | **Stun** | Shortest (~0.4 s) | Single tick | No damage | Hard CC — no move, no attack |
+  | **Trapping Net** | Medium (~0.6 s) | Single tick | No damage | Root — cannot move, *can* still attack |
 
 - Three distinct CC axes by design (damage-zone / hard-lock / immobilise-but-
   fight), not three strengths of the same axis — Clash Royale's Zap ≠ Freeze
   ≠ Rage model.
+- **Storm is area-denial, not burst.** The persistent zone is what lets it
+  deter an approach on a turret or hold a lane, and what makes Stun → Storm
+  a real combo (the stun locks a target in place while the zone keeps
+  refreshing the slow, so they are still slowed when the stun breaks).
+- **Persistent-zone vs. stick-to-the-target are two different mechanics.**
+  Storm is the zone model. Future spells like poison/toxin will be the other
+  kind — applied once to whoever is hit, then ticking *on the unit* like a
+  bleed, travelling with it. Not designed yet; noted so the zone model isn't
+  mistaken for the only option.
 - Re-applying an active status takes the **longer** remaining duration; it
   never stacks and never shortens an existing effect (same principle as the
   HoT overwrite rule in §3.9).
-- Structures: turrets caught in a Storm radius **do** take damage (they're in
-  the team registry) but are immune to stun/root/slow (no such methods).
+- Structures: turrets caught in a Storm zone **do** take damage every tick
+  (they're in the team registry) and stun applies to them (turrets carry
+  their own `apply_stun`), but root and slow don't (no such methods).
   Bases are unaffected by spells entirely — they aren't in that registry.
   Pre-existing asymmetry, noted so it isn't mistaken for a bug.
-- Numeric values (damage, radius, durations, tick interval, slow multiplier,
-  costs) are placeholders pending a balance pass, same status as card costs
-  in §3.1.
+- **Drag and cast visuals are real art**; impact and duration are not.
+  Each spell carries a `SpriteFrames` with a `"drag"` animation (follows the
+  deploy ghost above the circle while dragging) and a `"cast"` animation
+  (plays at the drop point, stretched to finish exactly at impact — so a
+  0.4 s Stun visibly plays faster than a 1.0 s Storm from the same 8 frames).
+  The drag circle also now shows the spell's **real** AoE radius, so what the
+  player sees is what gets hit. The zone phase is still the placeholder purple
+  circle; impact and duration animations don't exist yet.
+- Numeric values (damage, radius, cast time, zone duration, effect duration,
+  tick interval, slow multiplier, costs) are placeholders pending a balance
+  pass, same status as card costs in §3.1.
 ---
  
 ## 4. Roadmap (agreed order)
@@ -202,10 +240,19 @@ are mock data (`MatchConfig`).
    seeking are implemented (`HeroAI` autoload + `hero_dummy.gd`). **Card
    plays via the same public entry points a remote player will use are
    still pending** — separate future step, not yet scoped.
-2. **Timeout winner scoring** — replace the Draw with progress comparison.
-3. **Deploy-zone expansion** — unlock the enemy half per lane when that lane's
+2. ~~**Spell cards**~~ — data layer, hand integration, status-effect layer,
+   and the cast-delay/area-zone mechanic are implemented (`SpellData` +
+   `SpellZone` + `cast_spell()`). **Art is still placeholder circles** and
+   AI spell plays are not scoped.
+3. ~~**Spell art pass**~~ — drag/cast animations and per-spell ghost radius
+   are wired for all three spells. **Impact and duration animations are still
+   missing** (assets don't exist); the zone phase remains a placeholder circle.
+4. **Per-unit deploy delay** — `UnitData.spawn_time`, deploy indicator at the
+   drop point, unit untargetable until it lands.
+5. **Timeout winner scoring** — replace the Draw with progress comparison.
+6. **Deploy-zone expansion** — unlock the enemy half per lane when that lane's
    turret falls (§3.7).
-4. Then: spell cards, ranged/siege archetypes, and the items below.
+7. Then: ranged/siege archetypes, and the items below.
 ---
  
 ## 5. Future vision (brief, not yet designed)
@@ -262,12 +309,19 @@ are mock data (`MatchConfig`).
   within a short window get progressively shorter (tenacity), or is a short
   fixed stun enough? Deliberately not built yet — revisit once chain-CC is
   actually observable in playtesting.
-- Spell VFX: `SpellData.vfx_scene` exists but is unwired — no particle or
-  animation plays on cast yet.
-- Spell zones are cast-time snapshots, not persistent areas. Should Storm
-  become a real lingering zone (units entering later get hit), matching the
-  §3.9 healing-pod-style area model?
+- Spell art: impact and duration animations don't exist yet, so the zone
+  phase is still a placeholder circle. Each spell currently has its own
+  full sheet (`scroll_storm` / `scroll_stun` / `scroll_ensnaring_net`);
+  undecided whether later spells keep that or share a generic set.
+- Naming drift on the net spell: `display_name = "Trapping Net"`, asset
+  `scroll_ensnaring_net`, id `spell_net`. Pick one before more references
+  accumulate.
 - Should any spell be castable by the AI hero? Spell plays are part of the
   deferred card-play AI, not scoped.
-- Do spells need their own deploy-ghost visual (radius preview rather than
-  the unit-sized circle)? Currently they reuse the unit ghost.
+- Stick-to-the-target damage-over-time (poison / toxin / bleed) as a second
+  spell mechanic alongside the zone model — shape undecided, not designed.
+- Should Storm's zone block or discourage *deployment* inside it, or only
+  damage what's already there? Currently purely damage/slow.
+- Per-unit deploy delay (`spawn_time`: siege giant slow, slinger squad fast)
+  is agreed in principle but not implemented — the unit does not exist and
+  cannot be targeted until the delay elapses.

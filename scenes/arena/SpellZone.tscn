@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://baimgjqlbku85"]
+
+[ext_resource type="Script" uid="uid://spellzonescr01" path="res://scripts/arena/spell_zone.gd" id="1_zone"]
+
+[node name="SpellZone" type="Node2D"]
+script = ExtResource("1_zone")
+
+[node name="CastAnim" type="AnimatedSprite2D" parent="."]

@@ -1,0 +1,123 @@
+[gd_resource type="SpriteFrames" format=3 uid="uid://cq2ablq2uaanb"]
+
+[ext_resource type="Texture2D" uid="uid://dr6enknmc0fbi" path="res://assets/sprites/spells/spell_ensnaring_net.png" id="1_373lt"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qj4at"]
+atlas = ExtResource("1_373lt")
+region = Rect2(0, 0, 160, 160)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6i5rm"]
+atlas = ExtResource("1_373lt")
+region = Rect2(160, 0, 160, 160)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_a2yb3"]
+atlas = ExtResource("1_373lt")
+region = Rect2(320, 0, 160, 160)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_3jf7f"]
+atlas = ExtResource("1_373lt")
+region = Rect2(480, 0, 160, 160)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ivvhf"]
+atlas = ExtResource("1_373lt")
+region = Rect2(640, 0, 160, 160)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_djf5x"]
+atlas = ExtResource("1_373lt")
+region = Rect2(800, 0, 160, 160)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_gjivt"]
+atlas = ExtResource("1_373lt")
+region = Rect2(960, 0, 160, 160)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_5eu56"]
+atlas = ExtResource("1_373lt")
+region = Rect2(1120, 0, 160, 160)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i3h4a"]
+atlas = ExtResource("1_373lt")
+region = Rect2(0, 160, 160, 160)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_6w2eg"]
+atlas = ExtResource("1_373lt")
+region = Rect2(160, 160, 160, 160)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_sc5tf"]
+atlas = ExtResource("1_373lt")
+region = Rect2(320, 160, 160, 160)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_f0cbf"]
+atlas = ExtResource("1_373lt")
+region = Rect2(480, 160, 160, 160)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cdbrv"]
+atlas = ExtResource("1_373lt")
+region = Rect2(640, 160, 160, 160)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_d0dpl"]
+atlas = ExtResource("1_373lt")
+region = Rect2(800, 160, 160, 160)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_x8r16"]
+atlas = ExtResource("1_373lt")
+region = Rect2(960, 160, 160, 160)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_ofc7y"]
+atlas = ExtResource("1_373lt")
+region = Rect2(1120, 160, 160, 160)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qj4at")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6i5rm")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_a2yb3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_3jf7f")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ivvhf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_djf5x")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_gjivt")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_5eu56")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_i3h4a")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_6w2eg")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_sc5tf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_f0cbf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cdbrv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_d0dpl")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_x8r16")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_ofc7y")
+}],
+"loop": 1,
+"name": &"spell",
+"speed": 5.0
+}]

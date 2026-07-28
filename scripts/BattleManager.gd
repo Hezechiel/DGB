@@ -299,7 +299,7 @@ func _formation_offset(index: int, count: int, radius: float) -> Vector2:
 #
 # ZAMERNE team-scoped, NIE vsetci v okruhu — ziadny friendly fire pre
 # spelly ani buduce AoE jednotky, ktore tuto funkciu budu tiez volat.
-func _get_targets_in_radius(pos: Vector2, radius: float, affected_team: String) -> Array:
+func get_targets_in_radius(pos: Vector2, radius: float, affected_team: String) -> Array:
 	var result: Array = []
 	var r2 := radius * radius
 	var pool := team_player if affected_team == "player" else team_enemy
@@ -310,51 +310,24 @@ func _get_targets_in_radius(pos: Vector2, radius: float, affected_team: String) 
 			result.append(n)
 	return result
 
+const SPELL_ZONE_SCENE: PackedScene = preload("res://scenes/arena/SpellZone.tscn")
+
 # Jediny cast entry point pre spell karty (rovnaky princip ako
-# spawn_unit/spawn_hero). spell_type konvencia (viz spell_data.gd):
-# 0 = STORM, 1 = STUN, 2 = NET. `team` je caster (kto kartu zahral) —
-# efekt vzdy zasiahne LEN opacny tim, bez ohladu na to kam presne na
-# mape bola karta zahrana.
+# spawn_unit/spawn_hero). Efekt sa TU neaplikuje — vytvori sa SpellZone
+# uzol, ktory si sam odriadi cast delay aj tickovanie zony.
 func cast_spell(card_id: StringName, pos: Vector2, team: String) -> void:
+	if arena_root == null:
+		push_error("BattleManager.cast_spell: arena_root nie je nastaveny")
+		return
+
 	var card := CardDB.get_card(card_id)
 	if card == null or card.spell_data == null:
 		push_error("BattleManager.cast_spell: card '%s' nema priradene spell_data" % card_id)
 		return
 
-	var spell := card.spell_data
-	var enemy_team := "player" if team == "enemy" else "enemy"
-	var targets := _get_targets_in_radius(pos, spell.radius, enemy_team)
-
-	match spell.spell_type:
-		0:  # STORM — instant burst + DoT ticky + slow po cely duration
-			for n in targets:
-				if is_instance_valid(n) and n.has_method("take_damage"):
-					n.take_damage(spell.damage)
-				if is_instance_valid(n) and n.has_method("apply_slow"):
-					n.apply_slow(0.5, spell.duration)  # 50% spomalenie, placeholder
-			_run_storm_ticks(targets, spell)
-		1:  # STUN
-			for n in targets:
-				if is_instance_valid(n) and n.has_method("apply_stun"):
-					n.apply_stun(spell.duration)
-		2:  # NET (root)
-			for n in targets:
-				if is_instance_valid(n) and n.has_method("apply_root"):
-					n.apply_root(spell.duration)
-		_:
-			push_error("BattleManager.cast_spell: neznamy spell_type %d na karte '%s'" % [spell.spell_type, card_id])
-
-# Storm DoT — snapshot cielov z casu castu (NIE persistentna zona; jednotky
-# ktore vojdu do oblasti neskor sa nechytia, to je zamerne zjednodusenie
-# tohto kroku). is_instance_valid() na kazdom ticku odchytava jednotky
-# ktore medzitym zomreli/zmizli zo stromu.
-func _run_storm_ticks(targets: Array, spell: SpellData) -> void:
-	var ticks := int(spell.duration / spell.tick_interval)
-	for i in range(ticks):
-		await get_tree().create_timer(spell.tick_interval).timeout
-		for n in targets:
-			if is_instance_valid(n) and n.has_method("take_damage"):
-				n.take_damage(spell.damage)
+	var zone := SPELL_ZONE_SCENE.instantiate()
+	zone.configure(card.spell_data, team, pos)
+	arena_root.add_child.call_deferred(zone)
 
 # --- Spawn (hrdinovia) ---
 
