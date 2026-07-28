@@ -57,6 +57,9 @@ data/
     frames/ SpriteFrames — extracted animation sets, swappable per unit
   heroes/   HeroData     — id, stats, projectile_scene, sprite_frames
                            (no archetype_scene: control mode picks the scene)
+  spells/   SpellData    — id, display_name, spell_type (int: 0=STORM,
+                           1=STUN, 2=NET), radius, duration, damage,
+                           tick_interval, vfx_scene (unwired)
 ```
  
 Resolution chain for a played card:
@@ -76,7 +79,12 @@ ready pod. `owning_side` on each pod is derived from its node name at
 runtime (`"Player"` in the name → `"player"`), not a scene field — pods
 remain fully cross-team usable for the actual heal trigger; `owning_side`
 only affects AI seek-preference.
- 
+`CardData` carries **either** `unit_data` **or** `spell_data`, never both —
+`CardDB._load_into()` guards this at load time and `push_error`s on a card
+with neither or both. Resolution chain for a played spell:
+`card_id → CardDB.get_card() → CardData.spell_data → BattleManager.cast_spell()`.
+`CardDB` scans `data/spells/` as a fourth resource directory, same pattern
+(and same `.tres.remap` handling) as cards/units/heroes.
 ---
  
 ## 4. Battle scene structure
@@ -128,6 +136,9 @@ only affects AI seek-preference.
   `deploy_preview_updated` / `deploy_preview_ended` for `arena.gd` to drive the
   DeployGhost), `EnergyBar`, `MatchInfoBar` (timer label, tower icons, two
   `RespawnCounter`s driven by BattleManager signals).
+  `play_card()` branches on payload type: `unit_data` → `BattleManager.spawn_unit()`,
+  `spell_data` → `BattleManager.cast_spell()`. Both the live drag preview and
+  the release check call `BattleManager.is_card_target_valid(card, pos, team)`.
 - `scenes/ui/PreMatchFlow.tscn` (`prematch_flow.gd`) — placeholder pre-match
   flow: a "searching for battle" panel then a versus panel, each ~1s, then
   `change_scene_to_file(arena.tscn)`. Reached from the main-menu Arena button.
@@ -160,6 +171,23 @@ only affects AI seek-preference.
   energy affordability is a *separate* check and is deliberately NOT folded in here,
   so the red circle never conflates "bad spot" with "can't afford". Future zone
   rules (expansion on turret kill, obstacles) go inside this function.
+  - **Spell targeting:** `BattleManager.is_card_target_valid(card, pos, team)`
+  is the single source of truth for *both* card types and wraps (never
+  modifies) `is_deploy_position_valid()`. Spells: inside `DEPLOY_BOUNDS`
+  only, either half. Units: the existing own-half rule, untouched.
+- **AoE queries:** `BattleManager._get_targets_in_radius(pos, radius, affected_team)`
+  is the shared radius query — **team-scoped by parameter, never
+  position-only**. `cast_spell()` passes the caster's *opposing* team, so
+  spells can't friendly-fire. Future AoE unit attacks should call this same
+  helper rather than rolling their own overlap scan.
+- **Status effects** live as plain per-instance state (`stun_left`,
+  `root_left`, `slow_left`, `slow_multiplier` + `apply_stun()` /
+  `apply_root()` / `apply_slow()`) duplicated **independently** in
+  `unit.gd`, `player.gd`, and `hero_dummy.gd` — no shared base class, same
+  principle as the HealingSystem signal hooks. Stun short-circuits at the
+  top of `_physics_process` (movement *and* attack cooldown both freeze);
+  root zeroes movement only, inside the steering function; slow multiplies
+  the velocity magnitude.
 ---
  
 ## 6. Conventions & known pitfalls (hard-won)
@@ -240,6 +268,24 @@ only affects AI seek-preference.
   cleanup as the unit registries (`register()`), not the "permanent wreck,
   never freed" pattern turrets/bases use — `single_use` pods (future
   portable pods) actually `queue_free()` themselves, unlike turrets/bases.
+- **Status effects are duplicated by design, not by omission.** `apply_stun`/
+  `apply_root`/`apply_slow` are byte-identical in three files. Resist the
+  refactor into a shared parent or component: the three scripts have
+  genuinely different movement pipelines (`unit.gd` steers with separation,
+  `player.gd` blends tap-to-move with chase, `hero_dummy.gd` is
+  single-target steering) and the *insertion points* differ even though the
+  timers don't. A shared class would force those pipelines to converge.
+- **A stunned unit's `attack_left` also stops ticking.** The stun early-return
+  sits *above* the cooldown decrement in `_physics_process`, so a unit
+  stunned mid-cooldown resumes with the same cooldown remaining rather than
+  attacking instantly on recovery. Intentional; don't "fix" it by moving the
+  decrement above the stun check.
+- **Storm's DoT is an `await`-based loop in an autoload** (`_run_storm_ticks`),
+  holding a snapshot array of targets across several seconds. Every tick
+  re-checks `is_instance_valid()`. It survives units dying mid-effect, but
+  it is *not* hardened against a match ending or scene change mid-loop —
+  revisit when the spell layer meets networking or `reset_match_state()`
+  grows spell state.
 ---
  
 ## 7. Networking posture (design-time only)
@@ -267,3 +313,9 @@ No transport exists. The prepared seams:
   state (which structure, which pod, which spawn point) stays in the hero
   script/controller layer, not in `HeroAI` — keeping the autoload itself
   trivially portable regardless of how targeting logic evolves.
+- Spell casts fit the existing spawn-message shape: `{card_id, position, team}`
+  → the receiving side calls the same `cast_spell()` local play uses. Unlike
+  `EnergySystem`/`HealingSystem`/`HeroAI`, the spell layer is **not** a
+  scene-free pure-state module — `cast_spell()` touches live nodes directly.
+  A server-authoritative version would need effect application split from
+  target resolution (`_get_targets_in_radius()` is already the clean seam).

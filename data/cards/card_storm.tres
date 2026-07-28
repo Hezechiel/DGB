@@ -1,12 +1,12 @@
 [gd_resource type="Resource" script_class="CardData" format=3 uid="uid://c10rsq7f2lam1"]
 
 [ext_resource type="Script" uid="uid://cdscsax3k7m1p" path="res://scripts/arena/ui/card_data.gd" id="1_carddata"]
-[ext_resource type="Texture2D" uid="uid://bmm6mgx1sm12v" path="res://assets/sprites/scrolls/substitute.png" id="2_sheet"]
-[ext_resource type="Resource" uid="uid://sp1storm2lam10" path="res://data/spells/storm.tres" id="3_spelldata"]
+[ext_resource type="Texture2D" uid="uid://c6ytuusmc0diw" path="res://assets/sprites/scrolls/scroll_storm.png" id="2_u4p2c"]
+[ext_resource type="Resource" uid="uid://bwpt4mp83iua4" path="res://data/spells/storm.tres" id="3_spelldata"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_cardstorm"]
-atlas = ExtResource("2_sheet")
-region = Rect2(0, 0, 109, 109)
+atlas = ExtResource("2_u4p2c")
+region = Rect2(0, 0, 260, 340)
 
 [resource]
 script = ExtResource("1_carddata")

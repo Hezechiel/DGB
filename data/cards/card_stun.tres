@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cdscsax3k7m1p" path="res://scripts/arena/ui/card_data.gd" id="1_carddata"]
 [ext_resource type="Texture2D" uid="uid://bmm6mgx1sm12v" path="res://assets/sprites/scrolls/substitute.png" id="2_sheet"]
-[ext_resource type="Resource" uid="uid://sp2stun2lam200" path="res://data/spells/stun.tres" id="3_spelldata"]
+[ext_resource type="Resource" uid="uid://bxpubi5rrva84" path="res://data/spells/stun.tres" id="3_spelldata"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_cardstun"]
 atlas = ExtResource("2_sheet")

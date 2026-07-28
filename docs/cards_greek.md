@@ -57,7 +57,26 @@ Creatures belonging to no single god's domain → common by design.
 | **Centaur** | Melee | Bruiser | Medium | Fast, sturdy midline threat |
 | **Harpy** | Melee | Harasser | Medium | Flying visual; crosses impassable terrain (Nike rule) |
 | **Cyclops** | Melee | Heavy tank | High | Slow; boulder throw special vs structures |
- 
+
+## 4.1 Common pool — spells (cross-era template)
+
+Spells are the one common-pool category that repeats across every era. The
+**mechanic** is shared; the **card IDs and art are per-era** (Greek storm =
+lightning, Norse = blizzard, Egyptian = sandstorm...), so §1's "common cards
+never cross eras" rule holds — no card ID is ever reused between eras.
+
+| Card | Type | Effect | Cost tier | Notes |
+|------|------|--------|-----------|-------|
+| **Storm** | Spell | AoE burst + damage over time + slow | Medium | Only damaging spell of the three |
+| **Stun** | Spell | AoE hard CC — no move, no attack | Cheap | Shortest duration; interrupt tool |
+| **Trapping Net** | Spell | AoE root — cannot move, can still attack | Cheap | Longer than Stun; anti-chase / anti-kite |
+
+- Castable **anywhere on the map**, unlike unit cards (own half only).
+- **No friendly fire** — opposing team only.
+- Placeholder scroll art comes from the shared `substitute.png` sheet
+  (16×6 grid of 109×109 cells); final per-era art pending.
+- Numbers are placeholders pending the same stat pass as the rest of the
+  common pool.
 ---
  
 ## 5. Faction-unique units (sketch — separate spec later)
@@ -102,6 +121,10 @@ Design work per era = 1 common pool + 2–3 factions + hero/sidekick pairs. No c
 - [ ] Stat pass on common pool (HP / DPS / speed / cost numbers)
 - [ ] Faction-unique unit spec (`cards_greek_factions.md`)
 - [ ] Card rarity & upgrade/collection progression (separate economy spec)
+- [ ] Per-era spell art (Norse/Egyptian/Chinese reskins of Storm/Stun/Net)
+- [ ] Decide whether spells count against the deck's card slots or occupy a
+      separate spell slot (SWFA treated support cards as normal deck slots)
+- [ ] Are there faction-unique spells, or do spells stay strictly common?
  
  ### 9.1 Kozmetické odmeny — vhodné plochy (64×64 chibi sprite obmedzenie)
 

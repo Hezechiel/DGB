@@ -60,7 +60,8 @@ are mock data (`MatchConfig`).
 - **Squad cards:** a card may summon several units (`unit_count`), placed in a ring
   around the drop point. Squad size belongs to the *card*, not the unit.
 - Every card is data (`CardData` resource): id, name, cost, scroll art, linked unit.
-  Cards with no unit will become **spells** (later phase).
+  Cards with no unit are **spells** (§3.11) — `CardData` carries either
+  `unit_data` or `spell_data`, never both.
 - Nine placeholder cards exist (costs 2–6, varying squad sizes); scroll arts and
   assignments are intentionally temporary. A shared scroll-back art shows while a
   card is being dragged.
@@ -155,6 +156,44 @@ are mock data (`MatchConfig`).
   local player already does, not a separately-tuned difficulty.
 - Explicitly deferred: difficulty tiers, reaction delay, deliberate
   mistake injection, chasing beyond attack range, card-play decisions.
+### 3.11 Spells
+- Spell cards are `CardData` with `spell_data` instead of `unit_data` — same
+  hand, same draw cycle, same energy gate, same drag-to-play flow as unit
+  cards. The single branch is in `card_hand.play_card()`:
+  `spawn_unit()` vs. `BattleManager.cast_spell()`.
+- **Targeting: anywhere on the map**, both halves, regardless of deploy-zone
+  state. The own-half restriction (§3.7) is a *unit* rule; lane-based zone
+  expansion never applies to spells. `is_card_target_valid()` branches on
+  card type and is the single source of truth for both the drag preview
+  colour and the play-on-release check.
+- **No friendly fire.** A spell only ever affects the opposing team, never
+  the caster's own units or hero, regardless of where it lands. Deliberate:
+  the same radius-query helper will back future AoE *units*, and
+  position-based (team-agnostic) AoE would make those units miserable to
+  balance.
+- Three common spells, shared across all eras as one mechanic template with
+  per-era art and card IDs (never a shared card ID — the era rule in
+  `cards_greek.md` §1 holds):
+
+  | Spell | Effect | CC type | Notes |
+  |---|---|---|---|
+  | **Storm** | Instant burst damage + damage ticks over the duration, plus a slow | Soft CC (slow) | Targets are snapshotted at cast; not a persistent zone |
+  | **Stun** | No damage | Hard CC — no move, no attack | Shortest duration of the three |
+  | **Trapping Net** | No damage | Root — cannot move, *can* still attack | Longer than Stun, since the effect is weaker |
+
+- Three distinct CC axes by design (damage-zone / hard-lock / immobilise-but-
+  fight), not three strengths of the same axis — Clash Royale's Zap ≠ Freeze
+  ≠ Rage model.
+- Re-applying an active status takes the **longer** remaining duration; it
+  never stacks and never shortens an existing effect (same principle as the
+  HoT overwrite rule in §3.9).
+- Structures: turrets caught in a Storm radius **do** take damage (they're in
+  the team registry) but are immune to stun/root/slow (no such methods).
+  Bases are unaffected by spells entirely — they aren't in that registry.
+  Pre-existing asymmetry, noted so it isn't mistaken for a bug.
+- Numeric values (damage, radius, durations, tick interval, slow multiplier,
+  costs) are placeholders pending a balance pass, same status as card costs
+  in §3.1.
 ---
  
 ## 4. Roadmap (agreed order)
@@ -219,3 +258,16 @@ are mock data (`MatchConfig`).
   single fixed baseline, not yet a "practice mode difficulty" concept.
 - Enemy AI card-play decisions (which card, when, where) — separate future
   design pass, not sketched yet.
+- CC resistance / diminishing returns: should repeated stuns on the same hero
+  within a short window get progressively shorter (tenacity), or is a short
+  fixed stun enough? Deliberately not built yet — revisit once chain-CC is
+  actually observable in playtesting.
+- Spell VFX: `SpellData.vfx_scene` exists but is unwired — no particle or
+  animation plays on cast yet.
+- Spell zones are cast-time snapshots, not persistent areas. Should Storm
+  become a real lingering zone (units entering later get hit), matching the
+  §3.9 healing-pod-style area model?
+- Should any spell be castable by the AI hero? Spell plays are part of the
+  deferred card-play AI, not scoped.
+- Do spells need their own deploy-ghost visual (radius preview rather than
+  the unit-sized circle)? Currently they reuse the unit ghost.
