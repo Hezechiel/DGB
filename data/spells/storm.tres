@@ -1,7 +1,7 @@
 [gd_resource type="Resource" script_class="SpellData" format=3 uid="uid://bwpt4mp83iua4"]
 
 [ext_resource type="Script" uid="uid://c8psg2khsumjo" path="res://scripts/arena/spell_data.gd" id="1_spelldata"]
-[ext_resource type="SpriteFrames" uid="uid://vx00wkyjohac" path="res://data/cards/frames/frames_scroll_storm.tres" id="2_frames"]
+[ext_resource type="SpriteFrames" uid="uid://vx00wkyjohac" path="res://data/cards/frames/frames_storm.tres" id="2_frames"]
 
 [resource]
 script = ExtResource("1_spelldata")

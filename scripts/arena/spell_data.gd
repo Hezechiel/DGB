@@ -11,7 +11,7 @@ class_name SpellData
 
 @export var id: StringName
 @export var display_name: String
-@export var spell_type: int = 0   # mapuje sa na SpellType konvenciu vyssie, efekt pride v Prompt 2
+@export var spell_type: int = 0   # mapuje sa na SpellType konvenciu vyssie
 @export var radius: float = 40.0
 # Predtym nez efekt dopadne — kruh je vidno ako varovanie, superov hrac
 # ma sancu z oblasti odist. Stun ma najkratsi cas (ostava najrychlejsim
@@ -30,7 +30,17 @@ class_name SpellData
 # ciselne hodnoty su exportovane, ziadne hardcoded konstanty v kode.
 @export var slow_multiplier: float = 0.5
 # Animacie zvitku pre tento spell. Nazvy animacii su KONTRAKT (rovnako
-# ako pri jednotkach/hrdinoch): "drag" = pocas tahania karty nad mapou,
-# "cast" = pocas cast fazy na mieste dopadu. Chybajuca animacia sa ticho
-# preskoci (has_animation guard) — spell bez frames stale funguje.
+# ako pri jednotkach/hrdinoch):
+#   "drag"  = pocas tahania karty nad mapou (deploy ghost)
+#   "cast"  = pocas cast fazy na mieste dopadu
+#   "spell" = samotny efekt na zemi pocas zone fazy
+# Chybajuca animacia sa ticho preskoci (has_animation guard) — spell bez
+# frames stale plne funguje, len sa vykresli placeholder kruh.
 @export var sprite_frames: SpriteFrames
+# Ako dlho ma bezat animacia efektu pri INSTANTNOM spelle
+# (zone_duration = 0.0 — granaty, stun, siet: efekt sa aplikuje raz v
+# momente dopadu, zona nezije). Zona sama tikne jedinykrat, ale animacia
+# musi byt vidiet. Pri zonovych spelloch (Storm) sa tato hodnota
+# IGNORUJE — animacia tam trva presne zone_duration.
+# Exportovane zamerne: cas sa ladi podla pocitu z animacie, nie kodom.
+@export var impact_anim_duration: float = 0.5

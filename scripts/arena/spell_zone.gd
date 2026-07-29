@@ -6,8 +6,11 @@ extends Node2D
 # zone_duration = 0.0 → jediny tick v momente dopadu (Stun/Net).
 # Casovanie zije v tomto uzle, nie v autoloade — uzol je dieta areny,
 # takze koniec zapasu / zmena sceny ho upratu automaticky.
-# TODO: placeholder kruh nahradit realnymi animaciami (drag/cast/impact)
-# az budu assety — samostatny krok.
+# Vizual: cast faza ma stale len placeholder kruh — je to TELEGRAF, vlastny
+# art nema a mat nema. Zone faza uz ma realnu animaciu ("spell"); kruh tam
+# ostava len ako fallback, ked spell nema frames.
+# Dlzka animacii sa VZDY dopocitava z resource (frames / speed vs. cielovy
+# cas) — ziadny pocet framov, fps ani dlzka nie su v kode.
 
 const PHASE_CAST := 0
 const PHASE_ZONE := 1
@@ -15,6 +18,10 @@ const PHASE_ZONE := 1
 @export var color_cast := Color(0.9, 0.5, 0.1, 0.30)   # varovanie pocas castu
 @export var color_zone := Color(0.6, 0.2, 0.9, 0.30)   # aktivna zona
 @export var anim_scale: float = 0.25
+# Animacia efektu sa skaluje podla REALNEHO polomeru spellu, nie fixnou
+# konstantou — ked sa zmeni radius v .tres, art sa prisposobi sam.
+# Tento nasobic je len na doladenie okom (1.0 = presne priemer zony).
+@export var zone_anim_fill: float = 1.0
 
 var spell: SpellData = null
 var caster_team: String = "player"
@@ -22,6 +29,10 @@ var _affected_team: String = "enemy"
 var _phase: int = PHASE_CAST
 var _cast_left: float = 0.0
 var _zone_left: float = 0.0
+# Zivotnost UZLA je oddelena od zivotnosti ZONY: instantny spell
+# (zone_duration = 0.0) tikne raz, ale uzol musi prezit kym dobehne
+# animacia dopadu. Uzol sa uvolni az ked su hotove OBE.
+var _anim_left: float = 0.0
 var _tick_left: float = 0.0
 
 # Volane PRED add_child() (spawn flow: instantiate → configure →
@@ -49,6 +60,27 @@ func configure(data: SpellData, team: String, pos: Vector2) -> void:
 			anim.visible = true
 			anim.play(&"cast")
 
+# Dlzka animacie sa DOPOCITAVA z resource za behu — pocet framov ani
+# authored speed nie su nikde v kode. Prida/uberie sa par framov v
+# editore a efekt aj tak trva presne tolko, kolko ma.
+func _start_zone_anim() -> void:
+	var anim: AnimatedSprite2D = $ZoneAnim
+	anim.visible = false
+	if spell.sprite_frames == null or not spell.sprite_frames.has_animation(&"spell"):
+		return
+	var fc := spell.sprite_frames.get_frame_count(&"spell")
+	var spd := spell.sprite_frames.get_animation_speed(&"spell")
+	if fc <= 0 or spd <= 0.0 or _anim_left <= 0.0:
+		return
+	anim.sprite_frames = spell.sprite_frames
+	# Skalovanie z velkosti prveho framu na priemer zony (radius * 2).
+	var tex := spell.sprite_frames.get_frame_texture(&"spell", 0)
+	if tex != null and tex.get_size().x > 0.0:
+		anim.scale = Vector2.ONE * (spell.radius * 2.0 * zone_anim_fill / tex.get_size().x)
+	anim.speed_scale = (float(fc) / spd) / _anim_left
+	anim.visible = true
+	anim.play(&"spell")
+
 func _process(delta: float) -> void:
 	if spell == null:
 		return
@@ -60,19 +92,25 @@ func _process(delta: float) -> void:
 			$CastAnim.stop()
 			$CastAnim.visible = false
 			_zone_left = spell.zone_duration
+			# Zonovy spell: animacia trva presne tak dlho ako zona.
+			# Instantny spell: explicitne nastavitelny cas z .tres.
+			_anim_left = spell.zone_duration if spell.zone_duration > 0.0 else spell.impact_anim_duration
+			_start_zone_anim()
 			queue_redraw()
 			_apply_tick()                 # prvy tick PRESNE v momente dopadu
 			_tick_left = spell.tick_interval
-			if _zone_left <= 0.0:
-				queue_free()              # instantny spell (Stun/Net)
+			if _zone_left <= 0.0 and _anim_left <= 0.0:
+				queue_free()
 		return
 
 	_zone_left -= delta
+	_anim_left -= delta
 	_tick_left -= delta
+	# Efekt tika LEN pocas zone_duration; animacia moze uzol prezit.
 	if _zone_left > 0.0 and _tick_left <= 0.0:
 		_apply_tick()
 		_tick_left = spell.tick_interval
-	if _zone_left <= 0.0:
+	if _zone_left <= 0.0 and _anim_left <= 0.0:
 		queue_free()
 
 # Znovu-dotaz na ciele KAZDY tick — jednotka ktora vojde neskor efekt
@@ -100,4 +138,7 @@ func _apply_tick() -> void:
 func _draw() -> void:
 	if spell == null:
 		return
-	draw_circle(Vector2.ZERO, spell.radius, color_cast if _phase == PHASE_CAST else color_zone)
+	if _phase == PHASE_CAST:
+		draw_circle(Vector2.ZERO, spell.radius, color_cast)
+	elif not $ZoneAnim.visible:
+		draw_circle(Vector2.ZERO, spell.radius, color_zone)
