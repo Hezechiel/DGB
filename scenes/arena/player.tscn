@@ -86,6 +86,7 @@ script = ExtResource("1_g2els")
 bolt_scene = ExtResource("2_dqkch")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1617835785]
+position = Vector2(0, -10)
 scale = Vector2(0.09, 0.09)
 sprite_frames = SubResource("SpriteFrames_tuyoq")
 animation = &"new_front_left"
@@ -104,7 +105,7 @@ shape = SubResource("CircleShape2D_hurtbox")
 
 [node name="HealthBar" parent="." unique_id=1966774128 instance=ExtResource("4_hbar")]
 offset_left = -16.0
-offset_top = -18.0
+offset_top = -30.0
 offset_right = -16.0
-offset_bottom = -18.0
+offset_bottom = -30.0
 always_visible = true
