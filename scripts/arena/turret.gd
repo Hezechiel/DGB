@@ -90,8 +90,10 @@ func _physics_process(delta: float) -> void:
 
 	fire_left = max(fire_left - delta, 0.0)
 
-	# ciel mohol medzitym umriet / zmiznut zo stromu
-	if current_target != null and not is_instance_valid(current_target):
+	# ciel mohol medzitym umriet / zmiznut zo stromu. Hrdina po smrti zo stromu
+	# NEZANIKNE (caka na respawn), takze is_instance_valid sam nestaci —
+	# rovnaky dovod ako _is_target_alive() v unit.gd
+	if current_target != null and not _is_target_alive(current_target):
 		current_target = null
 
 	if current_target != null and fire_left <= 0.0:
@@ -227,8 +229,20 @@ func _on_destroyed() -> void:
 # TARGETING
 # =========================
 
+# "Zije este tento ciel?" — zamerna duplikacia rovnakeho helperu z unit.gd
+# (ziadna zdielana base class, architecture.md princip). Mrtvy hrdina ostava
+# v strome kym nerespawnuje, vraky vezi/zakladni ostavaju s hp <= 0.
+func _is_target_alive(node: Node) -> bool:
+	if node == null or not is_instance_valid(node):
+		return false
+	if "is_dead" in node and node.is_dead:
+		return false
+	if "hp" in node and node.hp <= 0:
+		return false
+	return true
+
 func _on_body_entered(body: Node2D) -> void:
-	if current_target == null and body.is_in_group(target_group):
+	if current_target == null and body.is_in_group(target_group) and _is_target_alive(body):
 		current_target = body
 
 func _on_body_exited(body: Node2D) -> void:

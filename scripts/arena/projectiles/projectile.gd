@@ -42,6 +42,15 @@ func _physics_process(delta: float) -> void:
 		queue_free()
 		return
 
+	# ciel medzitym zomrel ale ostal v strome (hrdina caka na respawn, veza je
+	# vrak) — bez tejto poistky by strela letela za mrtvolou az na spawn point
+	if "is_dead" in _target and _target.is_dead:
+		queue_free()
+		return
+	if "hp" in _target and _target.hp <= 0:
+		queue_free()
+		return
+
 	# smer prerataj len kazdy 3. frame — plynulejsi pohyb, menej vypoctov
 	_aim_tick += 1
 	if _aim_tick >= 3:

@@ -147,8 +147,9 @@ func _physics_process(delta: float) -> void:
 
 	attack_left = max(attack_left - delta, 0.0)
 
-	# validacia hurtbox_in_range — area mohla byt freed bez area_exited
-	if hurtbox_in_range != null and not is_instance_valid(hurtbox_in_range):
+	# validacia hurtbox_in_range — area mohla byt freed bez area_exited, alebo
+	# jej vlastnik zomrel bez toho aby zanikol (hrdina caka na respawn)
+	if hurtbox_in_range != null and not _is_hurtbox_owner_alive(hurtbox_in_range):
 		hurtbox_in_range = null
 	# ak ciel prave zomrel/zmizol, preskenuj co uz prekryva AttackRange —
 	# first-contact-wins v _on_attack_range_area_entered znamena, ze druha
@@ -157,8 +158,11 @@ func _physics_process(delta: float) -> void:
 		_reacquire_attack_target()
 
 	# validacia combat_target — area_exited nie je pripojeny (indefinitny chase),
-	# takze mrtvy/freed ciel treba odchytit rucne
-	if combat_target != null and not is_instance_valid(combat_target):
+	# takze mrtvy/freed ciel treba odchytit rucne. Hrdina po smrti NEZANIKNE
+	# (caka na respawn a potom sa teleportuje na spawn), takze samotny
+	# is_instance_valid nestaci — bez _is_target_alive by unity krúžili nad
+	# mrtvolou a po respawne ho nahanali cez pol mapy.
+	if combat_target != null and not _is_target_alive(combat_target):
 		combat_target = null
 	# rovnaky dovod ako vyssie — dalsia unit uz stojaca v AggroRange sa inak
 	# nikdy nezachyti a jednotka by sa vratila rovno do MARCHING
@@ -314,9 +318,35 @@ func update_idle_animation() -> void:
 			sprite.play("idle")  # pohyb hore
 			sprite.flip_h = true
 
+# "Zije este tento ciel?" — jediny zdroj pravdy pre vsetky drzane referencie.
+# Hrdinovia (player.gd / hero_dummy.gd) po smrti NEZANIKAJU zo stromu: len sa
+# skryju, vypnu si hurtbox a cakaju na respawn. Preto is_instance_valid() sam
+# o sebe nestaci — treba pozriet aj na is_dead / hp (vraky vezi a zakladni
+# ostavaju v strome s hp <= 0 z rovnakeho dovodu).
+func _is_target_alive(node: Node) -> bool:
+	if node == null or not is_instance_valid(node):
+		return false
+	if "is_dead" in node and node.is_dead:
+		return false
+	if "hp" in node and node.hp <= 0:
+		return false
+	return true
+
+# Hurtbox je child bojujuceho nodu — platnost sa hodnoti podla jeho vlastnika
+func _is_hurtbox_owner_alive(area: Area2D) -> bool:
+	if area == null or not is_instance_valid(area):
+		return false
+	return _is_target_alive(area.get_parent())
+
 # Zdielana predikat-logika pre AttackRange — pouzita v _on_attack_range_area_entered
 # aj v _reacquire_attack_target(), aby obe cesty zhodnotili area rovnako
 func _is_valid_attack_target(area: Area2D) -> bool:
+	# mrtvy ciel sa nezamyka nikdy — get_overlapping_areas() moze v ramci
+	# toho isteho framu este vratit hurtbox prave zomretého hrdinu (jeho
+	# monitorable sa vypina cez set_deferred)
+	if not _is_hurtbox_owner_alive(area):
+		return false
+
 	# Postav nazvy nepriatelskych groupov dynamicky podla teamu
 	var enemy_team := "player" if team == "enemy" else "enemy"
 	var unit_group := enemy_team + "_hurtbox"
@@ -354,6 +384,8 @@ func _reacquire_attack_target() -> void:
 # AggroRange ignoruje struktury uplne (bez ohladu na target_filter) — len
 # nepriatelske unit hurtboxy spustaju chase.
 func _is_valid_aggro_target(area: Area2D) -> bool:
+	if not _is_hurtbox_owner_alive(area):
+		return false
 	var enemy_team := "player" if team == "enemy" else "enemy"
 	return area.is_in_group(enemy_team + "_hurtbox")
 

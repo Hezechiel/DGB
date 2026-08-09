@@ -1,17 +1,11 @@
 [gd_scene format=3 uid="uid://bs05s4hldfkjn"]
 
-[ext_resource type="PackedScene" path="res://scenes/arena/obstacles/Obstacle.tscn" id="1_base"]
-[ext_resource type="Texture2D" uid="uid://bihelfgww1tiv" path="res://assets/world/maptiles.png" id="2_gy8wm"]
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_w4nra"]
-atlas = ExtResource("2_gy8wm")
-region = Rect2(1075.3221, 687.4201, 84.331665, 86.624756)
+[ext_resource type="PackedScene" uid="uid://c3yqfhj3ir5qj" path="res://scenes/arena/obstacles/Obstacle.tscn" id="1_base"]
 
 [node name="Tree" unique_id=665841173 instance=ExtResource("1_base")]
 sprite_offset = Vector2(0, -10)
 collision_size = Vector2(12, 12)
 
-[node name="Sprite2D" parent="." index="0"]
+[node name="Sprite2D" parent="." index="0" unique_id=1070084372]
 position = Vector2(0, -13)
 scale = Vector2(0.5178572, 0.5)
-texture = SubResource("AtlasTexture_w4nra")

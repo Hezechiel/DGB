@@ -47,9 +47,10 @@ Real ancient Greek troop types — supports the "historically accurate" pillar.
 | **Priestess** | Ranged | Healer | Medium | Single-target heal |
 | **Gastraphetes crew** | Ranged | Siege | High | Anti-structure only; the "belly-bow," earliest Greek artillery |
  
-## 4. Common pool — pan-Greek mythical creatures
+## 4. Rare pool — pan-Greek mythical creatures
  
-Creatures belonging to no single god's domain → common by design.
+Creatures whose myths belong to hero-tales rather than a single god's household
+→ available to every faction by design.
  
 | Card | Type | Role | Cost tier | Notes |
 |------|------|------|-----------|-------|
@@ -57,6 +58,44 @@ Creatures belonging to no single god's domain → common by design.
 | **Centaur** | Melee | Bruiser | Medium | Fast, sturdy midline threat |
 | **Harpy** | Melee | Harasser | Medium | Flying visual; crosses impassable terrain (Nike rule) |
 | **Cyclops** | Melee | Heavy tank | High | Slow; boulder throw special vs structures |
+| **Pegasus** | Melee | Flying raider | Medium | Fast; crosses impassable terrain (Nike rule) to reach the backline archers a ground unit would have to walk around. Fragile for the cost — melts to massed ranged, so it raids and leaves |
+| **Hippocampus rider** | Melee | Charger | Medium | Damage scales with uninterrupted charge distance — rewards a clean run-up, unlike the Hippeus's flat first-hit bonus. Ground-bound and sturdier than Pegasus |
+
+- Both mounts have divine ties (Poseidon sired both; Pegasus later carried Zeus's
+  thunderbolts), so the "no single god's domain" line above is a stretch for them.
+  They sit here anyway because their *stories* are Bellerophon's and the sea-road's,
+  and because every faction wants access to a fast flanker.
+- **Consequence:** rare-pool cards take no faction synergy bonus (§2). A mount in a
+  synergy deck will always be slightly behind an equivalent faction-unique card —
+  intended, and the reason the uniques in §4a can afford to read as stronger.
+
+## 4a. Faction-unique units
+
+Where flavor and the synergy bonus (§2) actually bite. A unique card played in its
+own leader's deck is the intended power peak of a match, so these should read as
+strong *and* answerable — never as a card the opponent simply cannot respond to.
+
+| Card | Faction | Type | Role | Cost tier | Notes |
+|------|---------|------|------|-----------|-------|
+| **Bronze Automaton** | Olympus | Melee | Armored wall | High | Talos, Hephaestus's work. High armor, modest damage — eats *many small hits* and folds to a few big ones, so it counters swarms rather than bruisers. Slow. Unmoved by slow/root (bronze, not flesh). Deliberately an **armor**-type tank against the Cyclops's **HP**-type |
+| **Nereid** | Sea | Ranged | Area healer | Medium | Sea-nymph. Heal-over-time on friendly units in a radius — the area counterpart to the Priestess's single-target heal. Follows the existing HoT rule: re-applying takes the longer remaining duration, never stacks (`game_design.md` §3.9). No offense at all |
+| **Ketos** | Sea | Melee | Heavy finisher | High | The Sea's top end. Huge HP and damage, very slow — a turret-breaker you have to escort, and a wasted card if it dies mid-map. Unlike the Gastraphetes crew it hits everything, but it has to walk into range to do it |
+| **Spartoi** | Underworld | Melee | Squad (3–4) | Medium | Sown dragon's teeth. A *disciplined* squad against the Satyr rabble, but no formation bonus — that stays the Phalanx's identity. Arrives and dies as a group, which makes it Storm's natural prey |
+| **Shades** | Underworld | Melee | Expendable chaff | Very cheap | Bodies to soak turret fire. Near-zero HP, near-zero damage, several per card. **Fades after a fixed lifetime** — the cheapest card in the era must not be able to hold a lane indefinitely |
+| **Erinyes** | Underworld | Melee | Hero hunter | High | The Furies pursue the guilty: prefers the enemy **hero** over units, ignores structures entirely. Flying (Nike rule). The answer to a hero who never retreats — and close to a dead card against one who plays safe, which is the intended trade |
+
+- **One shape per faction**, so a deck reads at a glance: Olympus = order and armor,
+  Sea = sustain and big bodies, Underworld = numbers and attrition.
+- **Olympus is currently short.** With Pegasus moved to the rare pool it has a
+  single unique unit against Sea's two and Underworld's three. That is a gap to
+  fill before the faction spec, not a deliberate asymmetry (§8).
+- **Most of these need mechanics that do not exist yet.** `UnitData` today carries
+  only `max_hp`, `damage`, `attack_cooldown`, `speed`, and `target_filter` — so unit
+  armor, damage reduction, a unit that heals, unit lifetime/despawn, hero-preference
+  targeting, flying/terrain-crossing, and charge-distance damage are each a new field
+  *plus* archetype work. None of this table is a data-entry job.
+- Rarity, per-faction card counts, and whether uniques cost more than the
+  equivalent common card are all undecided (§6, §8).
 
 ## 4.1 Common pool — spells (cross-era template)
 
@@ -90,15 +129,20 @@ never cross eras" rule holds — no card ID is ever reused between eras.
   common pool.
 ---
  
-## 5. Faction-unique units (sketch — separate spec later)
+## 5. Faction-unique units — status
  
-Where flavor and the synergy bonus live.
+The name-only sketch that used to live here is now the full table in **§4a**
+(roles, cost tiers, and the mechanics each unit would need). What is still open is
+the *spec*, not the roster:
  
-| Faction | Unique unit ideas |
-|---------|-------------------|
-| **Olympus** | Pegasus, Bronze Automaton |
-| **Sea** | Hippocampus rider, Nereid (healer variant), Ketos sea serpent |
-| **Underworld** | Spartoi (skeleton warriors), Shades (cheap expendables), Erinyes (Furies) |
+- Numbers (HP / DPS / speed / cost), pending the same stat pass as the rest of the
+  pools (§8).
+- Per-faction card counts — **Olympus currently has one unique unit** against Sea's
+  two and Underworld's three, after Pegasus moved to the rare pool.
+- **Pegasus** and **Hippocampus rider** are no longer faction-locked: they live in
+  the rare pool (§4) and therefore carry no synergy bonus.
+- Whether faction-unique cards are also a *rarity* tier, or just a deck-eligibility
+  restriction, is undecided.
  
 ---
  
@@ -129,7 +173,14 @@ Design work per era = 1 common pool + 2–3 factions + hero/sidekick pairs. No c
  
 - [ ] Resolve Open Question 1 (faction bonus type) — SWFA research
 - [ ] Resolve Open Question 2 (sidekick spawn/acquisition) — SWFA research
-- [ ] Stat pass on common pool (HP / DPS / speed / cost numbers)
+- [ ] Stat pass on the common, rare, and faction-unique pools (HP / DPS / speed /
+      cost numbers)
+- [ ] Give Olympus at least one more unique unit — one against Sea's two and
+      Underworld's three (§4a, §5)
+- [ ] Decide which §4a mechanics are worth building: unit armor / damage
+      reduction, a unit that heals, unit lifetime & despawn, hero-preference
+      targeting, flying / terrain-crossing, charge-distance damage. Each is a new
+      `UnitData` field plus archetype work — cost them before committing the cards
 - [ ] Faction-unique unit spec (`cards_greek_factions.md`)
 - [ ] Card rarity & upgrade/collection progression (separate economy spec)
 - [ ] Per-era spell art (Norse/Egyptian/Chinese reskins of Storm/Stun/Net)

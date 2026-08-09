@@ -15,8 +15,9 @@ the map. Victory: destroy the enemy base (Command Post) before it destroys yours
 or hold the better position when the match clock runs out.
  
 Designed as **PvP between remote players** from the ground up; current builds run
-against a placeholder opponent (a standing dummy avatar, with no unit spawning)
-until the AI and networking phases begin.
+against a local AI opponent that moves, fights, seeks healing, and plays cards —
+all through the same public entry points a remote player will use. It is a
+stand-in for the networking phase, not a designed difficulty.
  
 ---
  
@@ -33,7 +34,8 @@ are mock data (`MatchConfig`).
    auto-fires at the nearest target in range.
 3. Player plays scroll cards from a **3-slot hand** (+ next-card preview) to summon
    units or cast spells; the played card cycles to the back of the deck queue
-   (Clash Royale draw cycle — deterministic after the initial shuffle).
+   (Clash Royale draw cycle — deterministic after the initial shuffle). The AI
+   opponent plays from an identical but hidden hand on the same rules (§3.10).
 4. Units march toward the nearest living enemy structure, aggro onto enemy units
    they detect, and fight along two horizontal lanes guarded by turrets
    (Top, Bot, plus a Base turret per team).
@@ -80,8 +82,8 @@ are mock data (`MatchConfig`).
   **who controls it** (local input / AI / remote player) is decided at spawn time,
   never sent as data. Both players may pick the same god.
 - Local hero: tap-to-move, manual target priority, auto-fire fallback without chase.
-- Enemy avatar: currently a standing dummy near its base; AI controller is a
-  planned milestone.
+- Enemy avatar: AI-controlled (§3.10) — movement, targeting, healing-pod seeking
+  and card plays. One fixed baseline, not a tuned difficulty tier.
 ### 3.4 Death & respawn
 - Per-team respawn penalty: first death **3 s**, +1 s per subsequent death,
   capped at **10 s**. Counters are fully independent per team and persist for the
@@ -89,6 +91,11 @@ are mock data (`MatchConfig`).
 - Dead hero: hidden and disabled (units disengage), countdown shown in the match
   info bar (player = left/blue side, enemy = right/red side), respawn at own base
   with full HP and a brief invulnerability window.
+- **A dead hero is not a target.** Units drop their chase, turrets drop their lock,
+  and projectiles already in flight fizzle — nothing camps the corpse or follows
+  the hero to its respawn point. The rule matters because a dead hero *stays on the
+  map* (hidden, awaiting respawn) rather than disappearing, so "still exists" and
+  "still targetable" are two different questions everywhere targets are held.
 ### 3.5 Match info bar
 - Slim top-center bar: match timer in the middle, 3 tower icons per side
   (blue left / red right), circular hero-respawn counters at the outer edges
@@ -120,9 +127,11 @@ are mock data (`MatchConfig`).
   un-grey the instant regen makes them affordable. The spend is atomic in
   `play_card()` (`EnergySystem.try_spend()`), so the future double-tap and the
   network handler inherit the same gate without going through the drag UI.
-- Enemy energy regenerates too, but nothing spends it yet (the enemy side is idle
-  until the AI lands) and the opponent's bar is hidden (SWFA/Clash Royale both hide
-  opponent resource).
+- Enemy energy regenerates on identical rules and is now **spent by the AI**
+  (§3.10), through the same atomic `try_spend()` gate as the player — no cheat
+  energy, no discounted costs, no ignoring affordability. The opponent's bar stays
+  hidden (SWFA/Clash Royale both hide opponent resource), so its economy is read
+  off what it deploys, not off a meter.
 ### 3.9 Healing pods
 - Static pods positioned near each base, one per lane per side (4 total on the
   map). Either hero can use either pod — cross-team usable, not locked to the
@@ -142,7 +151,9 @@ are mock data (`MatchConfig`).
   behavior once HP climbs back above **50%** (hysteresis band, prevents
   flicker at the threshold). If no pod anywhere is ready, it falls back
   to retreating toward its own spawn point instead.
-### 3.10 Enemy hero AI (movement/targeting, Wave 1)
+### 3.10 Enemy hero AI
+
+**Wave 1 — movement & targeting**
 - Two-state hysteresis (`NORMAL` / `LOW_HP`) at 20%→50% HP, computed by
   the `HeroAI` autoload; the actual movement/target decision is made by
   the hero script itself.
@@ -155,12 +166,44 @@ are mock data (`MatchConfig`).
   fallback, so the bot's baseline aggression matches what an unfocused
   local player already does, not a separately-tuned difficulty.
 - Explicitly deferred: difficulty tiers, reaction delay, deliberate
-  mistake injection, chasing beyond attack range, card-play decisions.
+  mistake injection, chasing beyond attack range.
+
+**Wave 2 — card plays**
+- The AI side holds **its own hand on the player's exact rules**: same 9-card
+  deck, shuffled once at match start, same back-of-the-queue draw cycle, same
+  3 active slots, same costs, same atomic energy spend. It is the player's
+  mechanic run by a different decider — not a spawn script with its own economy.
+- **No hand UI, and none planned** — the opponent's hand is hidden for the same
+  reason its energy bar is (§3.8). It also carries no next-card preview slot:
+  that is a player-facing affordance, and it affects neither cycle fairness nor
+  energy math.
+- **Decision tick every ~1.75 s, at most one card per tick.** Policy: play the
+  first affordable card in hand that has a valid position. If nothing is
+  affordable, the tick simply passes — the AI waits on regen exactly like a
+  player would.
+- **Placement is deliberately naive.** Unit cards deploy at the AI's own spawn
+  point (always inside its legal half); spell cards are aimed at the nearest
+  *living* player structure, so the target walks back through the turret line as
+  turrets fall. This validates the pipeline; it is not tactics.
+- **The AI is blind to the player.** It never reads the player's hand, energy,
+  position, or actions, and never reacts to them. Everything it does is a
+  function of its own hand and its own energy.
+- **No privileged path.** It calls the same `try_spend()` / `spawn_unit()` /
+  `cast_spell()` entry points the drag UI uses, so replacing it with a remote
+  player swaps the input source and nothing else. This is the reason the card-play
+  AI was built before the tactics that would make it interesting.
+- Deck parity is maintained **by hand** — the AI's card list and the player's
+  deck are two separate declarations with no shared source of truth. Changing the
+  player's deck means changing both.
+- Explicitly deferred: which card answers what, where to place it, when to hold
+  energy for a bigger play, varying the tick rate, and any reaction to the player
+  (§6).
 ### 3.11 Spells
 - Spell cards are `CardData` with `spell_data` instead of `unit_data` — same
   hand, same draw cycle, same energy gate, same drag-to-play flow as unit
-  cards. The single branch is in `card_hand.play_card()`:
-  `spawn_unit()` vs. `BattleManager.cast_spell()`.
+  cards. The branch is `spawn_unit()` vs. `BattleManager.cast_spell()`, in
+  `card_hand.play_card()` for the player and mirrored in the AI's own play
+  path (§3.10) — the AI casts spells from the same hand on the same rules.
 - **Targeting: anywhere on the map**, both halves, regardless of deploy-zone
   state. The own-half restriction (§3.7) is a *unit* rule; lane-based zone
   expansion never applies to spells. `is_card_target_valid()` branches on
@@ -236,10 +279,12 @@ are mock data (`MatchConfig`).
  
 ## 4. Roadmap (agreed order)
  
-1. ~~**Enemy avatar AI**~~ — movement, targeting, and low-HP healing-pod
-   seeking are implemented (`HeroAI` autoload + `hero_dummy.gd`). **Card
-   plays via the same public entry points a remote player will use are
-   still pending** — separate future step, not yet scoped.
+1. ~~**Enemy avatar AI**~~ — movement, targeting, low-HP healing-pod seeking
+   (`HeroAI` autoload + `hero_dummy.gd`) **and card plays** (`enemy_card_ai.gd`)
+   are implemented, all through the same public entry points a remote player will
+   use. **The play policy is deliberately minimal** — first affordable card, fixed
+   safe position, one card per tick. Tactical card choice and placement
+   (Utility AI) is a separate future step.
 2. ~~**Spell cards**~~ — data layer, hand integration, status-effect layer,
    and the cast-delay/area-zone mechanic are implemented (`SpellData` +
    `SpellZone` + `cast_spell()`). **Art is still placeholder circles** and
@@ -303,8 +348,14 @@ are mock data (`MatchConfig`).
   - Enemy AI difficulty tuning (reaction delay, mistake injection, chase
   behavior beyond attack range) is deferred — current bot behavior is a
   single fixed baseline, not yet a "practice mode difficulty" concept.
-- Enemy AI card-play decisions (which card, when, where) — separate future
-  design pass, not sketched yet.
+- Enemy AI card-play **tactics** (which card answers what, where to place it,
+  whether to bank energy for a bigger play, whether the decision interval should
+  vary or react to pressure) — the plumbing now exists and plays the first
+  affordable card at a fixed safe spot (§3.10). The decision layer on top of it
+  is a separate design pass, not sketched yet.
+- Should the AI deploy units anywhere other than its own spawn point — pushing a
+  lane, defending a threatened turret, flanking? Currently one fixed spot, which
+  makes its units predictable to intercept.
 - CC resistance / diminishing returns: should repeated stuns on the same hero
   within a short window get progressively shorter (tenacity), or is a short
   fixed stun enough? Deliberately not built yet — revisit once chain-CC is
@@ -316,8 +367,10 @@ are mock data (`MatchConfig`).
 - Naming drift on the net spell: `display_name = "Trapping Net"`, asset
   `scroll_ensnaring_net`, id `spell_net`. Pick one before more references
   accumulate.
-- Should any spell be castable by the AI hero? Spell plays are part of the
-  deferred card-play AI, not scoped.
+- ~~Should any spell be castable by the AI hero?~~ Yes — the AI plays spell
+  cards from the same hand, currently aimed at the player's nearest living
+  structure. Still open: whether AI spells should ever target *units or the
+  hero* instead of structures, which is part of the deferred targeting pass.
 - Stick-to-the-target damage-over-time (poison / toxin / bleed) as a second
   spell mechanic alongside the zone model — shape undecided, not designed.
 - Should Storm's zone block or discourage *deployment* inside it, or only

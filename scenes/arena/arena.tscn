@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://bs05s4hldfkjn" path="res://scenes/arena/obstacles/Tree.tscn" id="5_t3vx8"]
 [ext_resource type="PackedScene" uid="uid://8nnp84nrmapf" path="res://scenes/arena/turrets/PlayerTurret.tscn" id="6_ii07k"]
 [ext_resource type="PackedScene" uid="uid://daq18gskmi7d0" path="res://scenes/arena/obstacles/Wall.tscn" id="6_rhjlh"]
+[ext_resource type="Texture2D" uid="uid://bihelfgww1tiv" path="res://assets/world/maptiles.png" id="6_t3vx8"]
 [ext_resource type="PackedScene" uid="uid://b7xkqe2n8wt4r" path="res://scenes/arena/turrets/EnemyTurret.tscn" id="7_6w4xk"]
 [ext_resource type="PackedScene" uid="uid://bhudscenemain" path="res://scenes/hud/HUD.tscn" id="7_hud"]
 [ext_resource type="PackedScene" uid="uid://bx5ubwkcebqbx" path="res://scenes/arena/MoveMarker.tscn" id="8_mvmrk"]
@@ -146,6 +147,26 @@ physics_layer_0/collision_layer = 4
 physics_layer_0/collision_mask = 4
 sources/0 = SubResource("TileSetAtlasSource_lnu2h")
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_wqbss"]
+atlas = ExtResource("6_t3vx8")
+region = Rect2(498, 674, 83, 73)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_wq2mk"]
+atlas = ExtResource("6_t3vx8")
+region = Rect2(1076.4669, 776.2401, 81.58057, 93.378845)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rhjlh"]
+atlas = ExtResource("6_t3vx8")
+region = Rect2(602.02747, 342.95532, 58.739136, 77.863525)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t3vx8"]
+atlas = ExtResource("6_t3vx8")
+region = Rect2(801.4655, 265.0925, 274.5345, 71.7164)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8kk48"]
+atlas = ExtResource("6_t3vx8")
+region = Rect2(916.89557, 349.78534, 61.471252, 68.984375)
+
 [node name="Arena" type="Node2D" unique_id=1679629269]
 script = ExtResource("1_u52cf")
 
@@ -163,18 +184,27 @@ tile_set = SubResource("TileSet_lbhrr")
 
 [node name="Rock" parent="Obstacles" unique_id=1691968379 instance=ExtResource("4_w4nra")]
 position = Vector2(-67, -49)
+texture = SubResource("AtlasTexture_wqbss")
 
 [node name="Tree" parent="Obstacles" unique_id=268530790 instance=ExtResource("5_t3vx8")]
 position = Vector2(4, -41)
+texture = SubResource("AtlasTexture_wq2mk")
+shape_type = 1
 
 [node name="Wall" parent="Obstacles" unique_id=1255282697 instance=ExtResource("6_rhjlh")]
 position = Vector2(-61, 3)
+texture = SubResource("AtlasTexture_rhjlh")
+collision_size = Vector2(16, 16)
 
 [node name="Wall2" parent="Obstacles" unique_id=909947073 instance=ExtResource("6_rhjlh")]
 position = Vector2(-61, 19)
+texture = SubResource("AtlasTexture_t3vx8")
+collision_size = Vector2(60, 15)
 
 [node name="Wall3" parent="Obstacles" unique_id=1701849425 instance=ExtResource("6_rhjlh")]
 position = Vector2(-61, 35)
+texture = SubResource("AtlasTexture_8kk48")
+collision_size = Vector2(16, 16)
 
 [node name="NavigationObstacle2D" type="NavigationObstacle2D" parent="." unique_id=2022088409]
 

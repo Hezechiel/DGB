@@ -52,6 +52,8 @@ func _ready() -> void:
 	enemy_hero.global_position = hero_spawn_enemy
 	BattleManager.hero_spawn_positions["enemy"] = hero_spawn_enemy
 
+	add_child(EnemyCardAI.new())
+
 	BattleManager.start_match_timer()
 	EnergySystem.start()
 
@@ -87,10 +89,6 @@ func _on_match_ended(_winner: String) -> void:
 
 func _input(event: InputEvent) -> void:
 	if event is InputEventKey and event.pressed:
-		if event.keycode == KEY_T:
-			$Turret.take_damage(80)
-		if event.keycode == KEY_Y:
-			$PlayerBase.take_damage(500)
 		# --- DEBUG energia (docasne, kym nie je energy bar — krok 2) ---
 		if event.keycode == KEY_U:
 			EnergySystem.add_modifier("player", EnergySystem.ModType.REGEN_MULT, 2.0, 5.0, &"debug_boost")
@@ -98,7 +96,7 @@ func _input(event: InputEvent) -> void:
 		if event.keycode == KEY_I:
 			EnergySystem.add_modifier("player", EnergySystem.ModType.COST_REDUCE, 1.0, 5.0, &"debug_bloodlust")
 			print("[energy] bloodlust -1 cena na 5s")
-		if event.keycode == KEY_O:
+		if event.keycode == KEY_Y:
 			print("[energy] player=%.2f enemy=%.2f | regen=%.2f/s | card_05 cost=%d" % [
 				EnergySystem.get_energy("player"), EnergySystem.get_energy("enemy"),
 				EnergySystem.get_regen_rate("player"),
