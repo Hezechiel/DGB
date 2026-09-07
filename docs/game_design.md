@@ -275,6 +275,36 @@ are mock data (`MatchConfig`).
 - Numeric values (damage, radius, cast time, zone duration, effect duration,
   tick interval, slow multiplier, costs) are placeholders pending a balance
   pass, same status as card costs in §3.1.
+### 3.12 Camera
+- Camera is a standalone `Camera2D` (not a child of the hero) with two modes,
+  toggled by `Settings.lock_camera`: **locked** (follows the hero) and
+  **unlocked** (stays wherever it was last placed).
+- **Free-look pan works in both modes.** Dragging on empty battlefield pans
+  the camera 1:1 with the finger. In locked mode this is a *soft* override —
+  drag suspends the hero-follow, then after a short grace period the camera
+  eases back to the hero with ramping speed (starts slow, not an instant
+  snap). In unlocked mode the camera simply stays where the drag left it.
+- **Drag-to-deploy gets its own camera behaviour, not the free-look one.**
+  Dragging a scroll card out of the hand to target a unit or spell is a
+  separate input path from free-look pan (see `architecture.md` §6), so it
+  needed its own camera hook: while a card is being dragged, the camera pans
+  toward whichever screen edge the finger nears — the closer to the edge,
+  the faster the pan — so a far-side deploy (e.g. summoning near your own
+  base while your view is on the enemy side) stays visible instead of
+  requiring a separate pan first. One mechanic for both unit and spell
+  cards — same hand, same drag, same camera response.
+- **On release, drag-to-deploy defers to whichever camera mode is active:**
+  locked mode eases back to the hero using the exact same grace-period/ramp
+  behaviour as free-look pan (not a separate tunable); unlocked mode leaves
+  the camera wherever the deploy-drag panned it, same as free-look.
+- The deploy target itself (the drop-point ghost, and what actually gets
+  validated/cast) is never affected by this — only the camera view is
+  elastic; targeting stays exact and unlagged.
+- Map bounds, the screen-edge margin that triggers panning, and the max pan
+  speed are all per-map Inspector values on the `ArenaCamera` node (not
+  hardcoded) — needed since future maps (§5) will vary in size. Starting
+  values are placeholders pending a feel pass, same status as the numeric
+  gameplay values elsewhere in this doc (§3.1, §3.9, §3.11).
 ---
  
 ## 4. Roadmap (agreed order)

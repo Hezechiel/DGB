@@ -3,7 +3,8 @@ extends Node2D
 @onready var hud: HUD = $HUD
 @onready var move_marker: Node2D = $MoveMarker
 @onready var deploy_ghost: Node2D = $DeployGhost
-@onready var arena_camera: Camera2D = $ArenaCamera
+@onready var denial_zone_overlay: Node2D = $DenialZoneOverlay
+@onready var arena_camera: ArenaCamera = $ArenaCamera
 var player: CharacterBody2D = null
 
 const MAIN_MENU_SCENE := "res://scenes/menu/MainMenu.tscn"
@@ -13,8 +14,7 @@ const MAIN_MENU_SCENE := "res://scenes/menu/MainMenu.tscn"
 const PLAYER_HERO_ID := &"hero_test"
 const ENEMY_HERO_ID := &"hero_test"
 
-@export var hero_spawn_player: Vector2 = Vector2(-250, 0)  # == povodna bakovana pozicia Playera
-@export var hero_spawn_enemy: Vector2 = Vector2(250, 0)    # zrkadlovy offset od EnemyBase
+@export var map_data: MapData
 
 func _enter_tree() -> void:
 	# _enter_tree beží zhora nadol (parent pred childmi) — turrety/zakladne sa
@@ -32,6 +32,12 @@ func _enter_tree() -> void:
 	HeroAI.reset_match_state()
 
 func _ready() -> void:
+	if map_data == null:
+		push_error("Arena: map_data nie je nastaveny")
+		return
+	BattleManager.configure_map(map_data)
+	arena_camera.configure_map(map_data)
+
 	hud.exit_requested.connect(_on_hud_exit_requested)
 	hud.recenter_camera_requested.connect(_on_recenter_camera_requested)
 	hud.card_hand.deploy_preview_updated.connect(_on_deploy_preview_updated)
@@ -44,13 +50,13 @@ func _ready() -> void:
 	get_viewport().physics_object_picking_sort = true
 
 	var player_hero := BattleManager.spawn_hero(PLAYER_HERO_ID, "player", true)
-	player_hero.global_position = hero_spawn_player
+	player_hero.global_position = map_data.hero_spawn_player
 	player = player_hero as CharacterBody2D
-	BattleManager.hero_spawn_positions["player"] = hero_spawn_player
+	BattleManager.hero_spawn_positions["player"] = map_data.hero_spawn_player
 
 	var enemy_hero := BattleManager.spawn_hero(ENEMY_HERO_ID, "enemy", false)
-	enemy_hero.global_position = hero_spawn_enemy
-	BattleManager.hero_spawn_positions["enemy"] = hero_spawn_enemy
+	enemy_hero.global_position = map_data.hero_spawn_enemy
+	BattleManager.hero_spawn_positions["enemy"] = map_data.hero_spawn_enemy
 
 	add_child(EnemyCardAI.new())
 
@@ -76,12 +82,17 @@ func _on_recenter_camera_requested() -> void:
 
 func _on_deploy_preview_started(card: CardData) -> void:
 	deploy_ghost.configure_for_card(card)
+	arena_camera.begin_deploy_pan()
+	denial_zone_overlay.show_for_card(card)
 
-func _on_deploy_preview_updated(world_pos: Vector2, is_valid: bool) -> void:
+func _on_deploy_preview_updated(world_pos: Vector2, is_valid: bool, screen_pos: Vector2) -> void:
 	deploy_ghost.show_at(world_pos, is_valid)
+	arena_camera.update_deploy_pan(screen_pos)
 
 func _on_deploy_preview_ended() -> void:
 	deploy_ghost.hide_ghost()
+	arena_camera.end_deploy_pan()
+	denial_zone_overlay.hide_zones()
 
 func _on_match_ended(_winner: String) -> void:
 	EnergySystem.stop()

@@ -3,7 +3,7 @@ class_name CardHand
 
 # arena.gd pocuva a riadi DeployGhost (CardHand je v CanvasLayer, ghost je
 # world-space Node2D — rovnaky pattern ako HUD signaly)
-signal deploy_preview_updated(world_pos: Vector2, is_valid: bool)
+signal deploy_preview_updated(world_pos: Vector2, is_valid: bool, screen_pos: Vector2)
 signal deploy_preview_ended
 # Emitovany RAZ na zaciatku dragu — ghost sa podla karty nakonfiguruje
 # (polomer + animacia). Priebezna pozicia chodi dalej cez
@@ -108,7 +108,7 @@ func _input(event: InputEvent) -> void:
 	if event is InputEventScreenDrag and event.index == _drag_touch_index:
 		var world_pos := _screen_to_world(event.position)
 		var dragged_card := _slots[_drag_slot].card_data
-		deploy_preview_updated.emit(world_pos, BattleManager.is_card_target_valid(dragged_card, world_pos, "player"))
+		deploy_preview_updated.emit(world_pos, BattleManager.is_card_target_valid(dragged_card, world_pos, "player"), event.position)
 		# Nad rukou = chysta sa zrusenie, ukaz lic. Mimo ruky (nad mapou) = rub.
 		var over_hand := get_global_rect().has_point(event.position)
 		if over_hand and _drag_showing_back:

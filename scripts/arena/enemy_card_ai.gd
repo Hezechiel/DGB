@@ -123,13 +123,13 @@ func _resolve_play_position(card):
 		return _jittered_deploy_pos(target.global_position, SPELL_JITTER, false)
 	return null
 
-# Nahodny offset okolo base, orezany do DEPLOY_BOUNDS (s rezervou aby
+# Nahodny offset okolo base, orezany do deploy_bounds (s rezervou aby
 # Rect2.has_point na hornej hrane nezlyhal). enemy_half_only=true drzi x > 0
 # pre unit karty; spell karty smu aj na hracovu polovicu (mieria na jej
 # struktury). is_card_target_valid je aj tak posledny gate — toto len zvysuje
 # sancu ze pozicia prejde.
 func _jittered_deploy_pos(base: Vector2, jitter: Vector2, enemy_half_only: bool) -> Vector2:
-	var b: Rect2 = BattleManager.DEPLOY_BOUNDS
+	var b: Rect2 = BattleManager.deploy_bounds
 	var p := base + Vector2(
 		randf_range(-jitter.x, jitter.x),
 		randf_range(-jitter.y, jitter.y))

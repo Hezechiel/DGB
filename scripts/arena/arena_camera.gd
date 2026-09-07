@@ -1,8 +1,14 @@
 extends Camera2D
+class_name ArenaCamera
 
 # Hranice kamery — nastav podla mapy, zmenitelne cez Inspector pre kazdu mapu
 @export var bounds_min: Vector2 = Vector2(-450, -350)
 @export var bounds_max: Vector2 = Vector2(450, 350)
+
+# Edge-pan pocas drag-to-deploy (tahanie karty z ruky). Cim blizsie prst k
+# okraju obrazovky, tym rychlejsi pan — bezi bez ohladu na Settings.lock_camera.
+@export var edge_margin: float = 100.0        # px (viewport space) — sirka pasma pri okraji obrazovky, kde zacina pan
+@export var edge_pan_speed_max: float = 650.0 # world px/s — rychlost panu ked prst je presne na okraji
 
 # Minimalna vzdialenost prstu pred zacatim dragu (ochrana proti nahodnym tapom)
 @export var drag_threshold: float = 8.0
@@ -25,6 +31,11 @@ var _drag_anchor_world: Vector2
 var _touch_start_screen: Vector2
 var _is_dragging := false
 
+# Stav drag-to-deploy edge-panu (riadene z arena.gd cez deploy_preview_* signaly)
+var _is_deploy_dragging := false
+var _deploy_drag_screen_pos: Vector2
+var _has_deploy_pos := false
+
 # Stav soft-follow navratu (len lock rezim)
 var _return_timer := 0.0  # odpocitava grace period po skonceni dragu
 var _return_ramp := 1.0   # 0..1 sila navratu; 1 = plne sledovanie, po dragu od 0
@@ -34,6 +45,14 @@ func _ready() -> void:
 	# (v scene je Camera2D presunuty pod Arena root, nie pod Player)
 	# reaguj na zmenu nastaveni live (bez reloadu sceny)
 	Settings.settings_changed.connect(_on_settings_changed)
+	# Vypni nativny Camera2D limit — pouzivame len vlastny bounds_min/bounds_max
+	# clamp (_clamp_to_bounds). Bez tohto by hocijake stare/zabudnute
+	# limit_left/right/top/bottom hodnoty ulozene v .tscn scene ticho
+	# obmedzovali kameru navyse, nezavisle od nasho skriptu.
+	limit_left = -10000000
+	limit_top = -10000000
+	limit_right = 10000000
+	limit_bottom = 10000000
 	# odloz hladanie hraca o jeden frame — player.gd _ready() este nebezal
 	call_deferred("_deferred_init")
 
@@ -50,6 +69,11 @@ func _find_player() -> void:
 		_player = hero
 
 func _physics_process(delta: float) -> void:
+	# edge-pan pocas tahania karty ma prednost a bezi v OBOCH lock rezimoch —
+	# preto pred kontrolou Settings.lock_camera
+	if _is_deploy_dragging:
+		_process_edge_pan(delta)
+		return
 	if not Settings.lock_camera:
 		return
 	if _player == null or not is_instance_valid(_player):
@@ -121,6 +145,59 @@ func _apply_mode() -> void:
 		_is_dragging = false
 		_return_timer = 0.0
 		_return_ramp = 1.0
+
+# Volane z arena.gd pri starte zapasu — nastavi mapovo-zavisle hodnoty.
+# Predtym boli bounds_min/max/edge_margin/edge_pan_speed_max len
+# per-scene Inspector hodnoty s nulovym prepojenim na
+# BattleManager.deploy_bounds (§6) — teraz oboje cita z rovnakeho MapData.
+func configure_map(map_data: MapData) -> void:
+	bounds_min = map_data.bounds.position
+	bounds_max = map_data.bounds.position + map_data.bounds.size
+	edge_margin = map_data.camera_edge_margin
+	edge_pan_speed_max = map_data.camera_edge_pan_speed_max
+
+# Volane z arena.gd pri deploy_preview_started — zaciatok drag-to-deploy gesta.
+func begin_deploy_pan() -> void:
+	_is_deploy_dragging = true
+	_has_deploy_pos = false
+
+# Volane z arena.gd pri kazdom deploy_preview_updated — nova screen pozicia prsta.
+func update_deploy_pan(screen_pos: Vector2) -> void:
+	_deploy_drag_screen_pos = screen_pos
+	_has_deploy_pos = true
+
+# Volane z arena.gd pri deploy_preview_ended — koniec drag-to-deploy gesta.
+func end_deploy_pan() -> void:
+	_is_deploy_dragging = false
+	if Settings.lock_camera:
+		_return_timer = return_delay
+		_return_ramp = 0.0
+	# ak je lock vypnuty, kamera ostava tam kde ju edge-pan nechal —
+	# rovnake spravanie ako bezny unlocked pan
+
+# Kamera sleduje prst s "rezervou" pri okraji obrazovky — cim blizsie k
+# okraju, tym rychlejsi pan. Bezi bez ohladu na Settings.lock_camera.
+func _process_edge_pan(delta: float) -> void:
+	if not _has_deploy_pos:
+		return
+	var vp_size := get_viewport_rect().size
+	var vel := Vector2.ZERO
+	if _deploy_drag_screen_pos.x < edge_margin:
+		var t := 1.0 - (_deploy_drag_screen_pos.x / edge_margin)
+		vel.x -= edge_pan_speed_max * clampf(t, 0.0, 1.0)
+	elif _deploy_drag_screen_pos.x > vp_size.x - edge_margin:
+		var t := (_deploy_drag_screen_pos.x - (vp_size.x - edge_margin)) / edge_margin
+		vel.x += edge_pan_speed_max * clampf(t, 0.0, 1.0)
+	if _deploy_drag_screen_pos.y < edge_margin:
+		var ty := 1.0 - (_deploy_drag_screen_pos.y / edge_margin)
+		vel.y -= edge_pan_speed_max * clampf(ty, 0.0, 1.0)
+	elif _deploy_drag_screen_pos.y > vp_size.y - edge_margin:
+		var ty := (_deploy_drag_screen_pos.y - (vp_size.y - edge_margin)) / edge_margin
+		vel.y += edge_pan_speed_max * clampf(ty, 0.0, 1.0)
+	if vel.length() > edge_pan_speed_max:
+		vel = vel.normalized() * edge_pan_speed_max
+	position += vel * delta
+	_clamp_to_bounds()
 
 # Smooth pan kamery na hraca — pouzite ked hrac stlaci PlayerCharacter button v HUD
 # Po stlaceni button, kamera sa plynulo vrati na hraca aj v unlocked rezime

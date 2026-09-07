@@ -21,6 +21,7 @@ signal destroyed
 @export var target_group: String = "team_enemy" # which group this turret shoots at
 @export var owner_team: String = "player"        # "player" or "enemy" — for BattleManager registration
 @export var lane: String = "top"   # "top" alebo "bot" — pre BattleManager sledovanie pruhu
+@export var protection_zone: Rect2 = Rect2()  # opacny tim sem nemoze deployovat, kym vezicka zije
 
 var hp: int
 var fire_left: float = 0.0
@@ -46,6 +47,7 @@ func _ready() -> void:
 	add_to_group("turrets")
 	BattleManager.register(self, owner_team)
 	BattleManager.register_turret(self, owner_team, lane)
+	BattleManager.register_protection_zone(protection_zone, owner_team)
 
 	# tim podla vlastnika — pre targeting (find_nearest_enemy / detection groups)
 	if owner_team == "player":
@@ -221,6 +223,7 @@ func _on_destroyed() -> void:
 	hurtbox_shape.set_deferred("disabled", true)
 	remove_from_group("turrets")
 	BattleManager.on_turret_destroyed(owner_team, lane)
+	BattleManager.unregister_protection_zone(protection_zone, owner_team)
 	set_physics_process(false)
 	destroyed.emit()
 

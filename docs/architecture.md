@@ -259,6 +259,30 @@ tick at impact, then free) used by Stun and Net.
   to `CardHand.begin_drag()`. The drag path deliberately does NOT use
   `InputR.suppress_next_release()` — it consumes its own release; that one-shot flag
   would otherwise linger and swallow the next tap-to-move.
+- **Resolved:** the above starvation is why drag-to-deploy needed its own
+  camera hook instead of reusing `arena_camera.gd`'s pan handler. `ArenaCamera`
+  now exposes `begin_deploy_pan()` / `update_deploy_pan(screen_pos)` /
+  `end_deploy_pan()`, driven from `arena.gd`'s existing
+  `deploy_preview_started` / `deploy_preview_updated` / `deploy_preview_ended`
+  handlers rather than from raw input — `deploy_preview_updated` now also
+  carries the drag's screen position (not just world position) specifically
+  so the camera can do screen-edge proximity panning without ever needing the
+  starved input events. Runs independently of `Settings.lock_camera` (checked
+  in `_physics_process` *before* the lock gate); only the post-release
+  behaviour branches on lock state, and does so by reusing the existing
+  `_return_timer`/`_return_ramp`/`return_delay`/`return_ramp_time` fields
+  rather than adding a parallel return mechanism.
+- **`Camera2D`'s native `limit_left`/`limit_right`/`limit_top`/`limit_bottom`
+  are a second, engine-level clamp — separate from `arena_camera.gd`'s own
+  `bounds_min`/`bounds_max` + `_clamp_to_bounds()`.** Both can be active at
+  once, and the engine's native limit wins if it's more restrictive, which
+  makes changing `bounds_min`/`bounds_max` in the Inspector look like it does
+  nothing. `arena_camera.gd` now forces the native limits wide open in
+  `_ready()` so `bounds_min`/`bounds_max` is unconditionally the only clamp
+  that applies, regardless of whatever `limit_*` values happen to be saved on
+  the `Camera2D` node in any given map's `.tscn` (easy to inherit by
+  duplicating a scene, since it's a separate Inspector section from the
+  script's own exported vars).
 - `CardHand` is inside a CanvasLayer → screen→world goes through
   `get_viewport().get_canvas_transform()`, not plain `get_canvas_transform()`
   (which returns the layer transform). Node2Ds like `arena.gd` use the plain form.

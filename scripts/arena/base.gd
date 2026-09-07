@@ -6,6 +6,7 @@ extends StaticBody2D
 
 @export var max_hp: int = 3000
 @export var owner_team: String = "player"
+@export var protection_zone: Rect2 = Rect2()  # opacny tim sem nemoze deployovat, kym baza zije
 
 # Zakladna je nezranitelna kym nie je aspon jeden pruh plne vycisteny
 var is_vulnerable: bool = false
@@ -32,6 +33,7 @@ func _ready() -> void:
 	# Zakladna je vzdy viditelna — hlavny ciel zapasu
 	health_bar.always_visible = true
 	BattleManager.register_base(self, owner_team)
+	BattleManager.register_protection_zone(protection_zone, owner_team)
 	add_to_group(owner_team + "_base")   # "player_base" alebo "enemy_base"
 	# tap-to-target: len enemy zakladna je tapable
 	if owner_team == "enemy":
@@ -101,3 +103,4 @@ func _on_destroyed() -> void:
 	collision_shape.set_deferred("disabled", true)
 	hurtbox_shape.set_deferred("disabled", true)
 	BattleManager.on_base_destroyed(owner_team)
+	BattleManager.unregister_protection_zone(protection_zone, owner_team)

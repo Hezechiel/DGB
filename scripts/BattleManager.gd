@@ -45,6 +45,17 @@ var _turrets: Dictionary = {
 	"enemy":  {"top": [], "bot": []}
 }
 
+# Aktivne ochranne zony podla timu — Array[Rect2]. Kazda ziva struktura
+# (baza/vezicka) registruje svoju vlastnu zonu v _ready() a odregistruje
+# ju v _on_destroyed(). Nahradza povodne "vlastna polovica" pravidlo —
+# teraz je "vlastna polovica" len emergentny vysledok toho ako sa zony
+# na danej mape poskladaju, nie hardcodovana konstanta (is_deploy_
+# position_valid nizsie).
+var _protection_zones: Dictionary = {
+	"player": [],
+	"enemy": []
+}
+
 # Ulozit vysledok zapasu pre MatchEndScreen
 var last_winner: String = ""
 
@@ -95,6 +106,28 @@ func _set_base_vulnerable(team: String) -> void:
 	var base := player_base if team == "player" else enemy_base
 	if base and is_instance_valid(base):
 		base.set_vulnerable()
+
+# --- Registracia ochrannych zon ---
+
+# Volane z turret.gd/base.gd _ready() — kym je struktura ziva, opacny
+# tim do jej zony nemoze deployovat.
+func register_protection_zone(zone: Rect2, team: String) -> void:
+	if _protection_zones.has(team) and not _protection_zones[team].has(zone):
+		_protection_zones[team].append(zone)
+
+# Volane z turret.gd/base.gd _on_destroyed() — zona zanikne so strukturou.
+func unregister_protection_zone(zone: Rect2, team: String) -> void:
+	if _protection_zones.has(team):
+		_protection_zones[team].erase(zone)
+
+# Pre UI hint (denial_zone_overlay.gd) — read-only pohlad na aktivne
+# zony. Vracia kopiu, nie priamu referenciu na _protection_zones (rovnaky
+# princip ako get_targets_in_radius nizsie — volajuci nikdy nedostane
+# mutable referenciu na interny stav).
+func get_active_protection_zones(team: String) -> Array:
+	if not _protection_zones.has(team):
+		return []
+	return _protection_zones[team].duplicate()
 
 # --- Registracia zakladni ---
 
@@ -184,6 +217,11 @@ func reset_match_state() -> void:
 		"enemy":  {"top": [], "bot": []}
 	}
 
+	_protection_zones = {
+		"player": [],
+		"enemy": []
+	}
+
 	last_winner = ""
 	arena_root = null  # arena._enter_tree() ho hned nato nastavi znova
 
@@ -218,22 +256,35 @@ func get_nearest_structure(defending_team: String, from_pos: Vector2) -> Node2D:
 	return nearest
 
 # --- Deploy zone ---
-# Hranice mapy kde sa da deployovat. TODO: neskor by mali prist z areny/mapy,
-# nie z konstanty v autoloade.
-const DEPLOY_BOUNDS := Rect2(-450.0, -350.0, 900.0, 700.0)
+# Predtym const — teraz nastavene z MapData.bounds cez configure_map(),
+# volane z arena.gd pri starte zapasu. Fallback default zodpoveda povodnej
+# hodnote, pre pripad ze configure_map() este nebolo zavolane.
+var deploy_bounds: Rect2 = Rect2(-450.0, -350.0, 900.0, 700.0)
+
+# Volane z arena.gd pri starte zapasu — nastavi mapovo-zavisle hranice.
+# ArenaCamera.configure_map() cita z toho isteho MapData, takze oba
+# systemy sa uz nemozu rozist (predtym dve nezavisle hodnoty, §6).
+func configure_map(map_data: MapData) -> void:
+	deploy_bounds = map_data.bounds
 
 # Jediny zdroj pravdy pre "da sa sem deployovat?". Vola ho aj live preview
 # (farba kruhu) aj spawn na release — nikdy nesmu rozhodnut rozdielne.
 # Buduce dalsie pravidla sa pridavaju SEM, nie na volajucich:
-#   - rozsirenie zony po zniceni enemy veze (lane-based)
 #   - prekazky a struktury na mape
 func is_deploy_position_valid(pos: Vector2, team: String) -> bool:
-	if not DEPLOY_BOUNDS.has_point(pos):
+	if not deploy_bounds.has_point(pos):
 		return false
-	# vlastna polovica mapy — stredova ciara je x = 0
-	if team == "player":
-		return pos.x < 0.0
-	return pos.x > 0.0
+	# Predtym hardcodovana stredova ciara (x = 0). Teraz: nesmie byt
+	# vnutri ZIADNEJ aktualne aktivnej ochrannej zony opacneho timu —
+	# "vlastna polovica" je uz len emergentny vysledok toho ako su zony
+	# na danej mape poskladane, nie samostatne pravidlo tu. Nova mapa
+	# (viac lany, vacsia obranna hlbka) potrebuje len ine struktury s
+	# inak nastavenym protection_zone — tato funkcia sa uz nemeni.
+	var enemy_team := "enemy" if team == "player" else "player"
+	for zone in _protection_zones[enemy_team]:
+		if zone.has_point(pos):
+			return false
+	return true
 
 # Jediny zdroj pravdy pre "da sa sem zahrat TUTO kartu" — vetvi podla typu
 # karty. Unit karty: existujuce pravidlo (vlastna polovica + bounds).
@@ -241,7 +292,7 @@ func is_deploy_position_valid(pos: Vector2, team: String) -> bool:
 # per lane sa ich netyka.
 func is_card_target_valid(card: CardData, pos: Vector2, team: String) -> bool:
 	if card.spell_data != null:
-		return DEPLOY_BOUNDS.has_point(pos)
+		return deploy_bounds.has_point(pos)
 	return is_deploy_position_valid(pos, team)
 
 # --- Spawn (jediny vstupny bod pre vytvaranie jednotiek) ---
