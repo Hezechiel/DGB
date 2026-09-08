@@ -4,7 +4,9 @@ extends Node
 # NIC z tohto sa neposiela po sieti — iba lokalny display holder.
 
 var rank_label: String = "Pantheon Tier"
-var map_name: String = "Greek Plateau"
+# map_id nastavuje PreMatchFlow cez MapDB.get_random_map_id(), NIE tu —
+# MatchConfig neberie zavislost na inom autoloade pre logiku ktoru nevlastni.
+var map_id: StringName = &""
 var local_name: String = "Player"
 var local_faction: String = "Olympus"
 var opponent_name: String = "Opponent"
@@ -13,7 +15,6 @@ var opponent_faction: String = "Underworld"
 func setup_placeholder_match() -> void:
 	# Naplni holder mock hodnotami. Neskor nahradi matchmaking.
 	rank_label = "Pantheon Tier"
-	map_name = "Greek Plateau"
 	local_name = "Player"
 	local_faction = "Olympus"
 	opponent_name = "Opponent"

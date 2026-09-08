@@ -62,6 +62,9 @@ data/
                            zone_duration, effect_duration, damage,
                            tick_interval, slow_multiplier, sprite_frames
                            (animation names are a contract: "drag", "cast")
+  maps/     MapData      — id, display_name, bounds (Rect2), camera_edge_margin,
+                           camera_edge_pan_speed_max, hero_spawn_player,
+                           hero_spawn_enemy
 ```
  
 Resolution chain for a played card:
@@ -81,6 +84,25 @@ ready pod. `owning_side` on each pod is derived from its node name at
 runtime (`"Player"` in the name → `"player"`), not a scene field — pods
 remain fully cross-team usable for the actual heal trigger; `owning_side`
 only affects AI seek-preference.
+`BattleManager` tracks **protection zones** the same self-register way as
+healing pods: `_protection_zones: Dictionary = {"player": [], "enemy": []}`,
+populated by each structure's own `_ready()` (`register_protection_zone(zone,
+owner_team)`) and cleared by its destruction handler
+(`unregister_protection_zone(zone, owner_team)`) — turret/base scripts hold
+their zone as an `@export var protection_zone: Rect2`, hand-tuned per
+structure per map (no shared formula; see `arena.tscn`'s per-node values).
+`get_active_protection_zones(team) -> Array` returns a `.duplicate()` of the
+live list (never the internal array itself) — used both by
+`is_deploy_position_valid()` and by the UI overlay in §4. `deploy_bounds`
+(the map's outer `Rect2`, set by `configure_map()`, §6) and protection zones
+are two separate checks: `is_deploy_position_valid(pos, team)` first rejects
+anything outside `deploy_bounds`, then rejects anything inside a **currently
+active** zone belonging to the opposing team — a destroyed structure's zone
+is simply absent from the list, no special-casing needed. `reset_match_state()`
+resets `_protection_zones` back to the empty dict alongside the other
+per-match registries. `is_card_target_valid()` (spell targeting) does **not**
+consult protection zones at all — only `deploy_bounds` — which is what keeps
+spells targetable anywhere on the map (`game_design.md` §3.11).
 `CardData` carries **either** `unit_data` **or** `spell_data`, never both —
 `CardDB._load_into()` guards this at load time and `push_error`s on a card
 with neither or both. Resolution chain for a played spell:
@@ -93,13 +115,31 @@ lasts on a unit that was hit). They are not interchangeable: Storm's zone
 outlives the short slow it refreshes each tick, which is what makes leaving
 the zone matter. `zone_duration = 0.0` is the "instant" configuration (one
 tick at impact, then free) used by Stun and Net.
+
+`MapData` is deliberately **excluded** from the `CardDB` scan/lookup pattern
+the other four resource types share — it isn't looked up by id at runtime the
+way a played card is. `arena.gd` holds its map's `MapData` directly as an
+`@export` on the scene root and passes it once, at `_ready()`, to whichever
+systems need per-map values: `BattleManager.configure_map(map_data)` (sets the
+mutable `deploy_bounds`) and `arena_camera.configure_map(map_data)` (sets
+`bounds_min`/`bounds_max`/`edge_margin`/`edge_pan_speed_max`). This is what
+unifies the two previously-independent hardcoded bounds systems (§6) into one
+per-map resource; adding a new map is authoring a new `.tres` and pointing a
+new arena scene's `map_data` export at it, no script changes. Structures
+(turrets/bases) are **not** part of `MapData` — their positions and
+`protection_zone` rects live on the structure nodes themselves in each map's
+`.tscn`, hand-tuned per map (see the protection-zone paragraph above and
+`game_design.md` §3.7).
 ---
  
 ## 4. Battle scene structure
  
 - `scenes/arena/arena.tscn` — battlefield root; two horizontal lanes; per team:
-  Base + 3 turrets (Top, Bot, Base). Structures self-register with BattleManager;
-  destroyed structures become wrecks (**no `queue_free()`**).
+  Base + 3 turrets (Top, Bot, Base). Structures self-register with BattleManager
+  (combat registries **and** their `protection_zone` Rect2, §3); destroyed
+  structures become wrecks (**no `queue_free()`**), which also unregisters
+  their protection zone, permanently opening that slice of the map
+  (`game_design.md` §3.7).
 - `scenes/arena/units/melee_unit.tscn` — the one melee archetype
   (CharacterBody2D + Hurtbox + AttackRange + AggroRange + AnimatedSprite2D +
   HealthBar + TargetMarker). Ranged/siege archetypes will be siblings.
@@ -128,6 +168,21 @@ tick at impact, then free) used by Stun and Net.
   `radius` so the circle shows exactly what will be hit; unit cards get the flat
   `unit_radius` and no animation. Per-frame position still comes through
   `deploy_preview_updated`, whose signature is unchanged.
+- `scenes/arena/DenialZoneOverlay.tscn` (`denial_zone_overlay.gd`) — world-space
+  UI hint, sibling of `DeployGhost`, drawn in `_draw()` at a fixed
+  `position = Vector2(0,0)` (it draws directly in the zones' own world-space
+  coordinates, unlike `DeployGhost` which recenters on the drag point). Cheap
+  per-zone approach instead of a shader: `show_for_card(card)` (called from
+  `deploy_preview_started`) iterates
+  `BattleManager.get_active_protection_zones(enemy_team)` and `draw_rect()`s
+  each one directly — no composite "hole" geometry, so overlapping zones look
+  slightly darker where they overlap (accepted cosmetic trade-off; no live
+  per-frame re-evaluation mid-drag). `show_for_card()` early-outs to
+  `visible = false` when `card.spell_data != null`, since spells aren't
+  restricted by protection zones (`game_design.md` §3.11) — only unit-card
+  drags show the overlay. `hide_zones()` (from `deploy_preview_ended`) hides
+  it again. `DRAGGING_TEAM` is currently a hardcoded `"player"` const, same
+  TEMP assumption as `card_hand.gd` (only the local player drags cards today).
 - `scenes/arena/HealingPod.tscn` (`healing_pod.gd`) — static pickup, `Area2D`
   with `collision_layer=0`, `collision_mask=24` (bits 4+5 — same hurtbox mask
   pattern as `LightningBolt`). Team is resolved on `area_entered` from the
@@ -283,6 +338,15 @@ tick at impact, then free) used by Stun and Net.
   the `Camera2D` node in any given map's `.tscn` (easy to inherit by
   duplicating a scene, since it's a separate Inspector section from the
   script's own exported vars).
+- **Resolved:** the two independently-hardcoded bounds systems referenced
+  above (native `Camera2D` limits vs. the script's own `bounds_min`/
+  `bounds_max`) are now both driven from one place — `MapData.bounds`,
+  applied via `arena_camera.configure_map(map_data)` — and
+  `BattleManager.deploy_bounds` (formerly a `const DEPLOY_BOUNDS`, now
+  mutable) is set from the same resource via
+  `BattleManager.configure_map(map_data)`, both called once from
+  `arena.gd._ready()`. One `MapData.tres` per map now fully describes bounds,
+  camera pan tuning, and hero spawn points (§3).
 - `CardHand` is inside a CanvasLayer → screen→world goes through
   `get_viewport().get_canvas_transform()`, not plain `get_canvas_transform()`
   (which returns the layer transform). Node2Ds like `arena.gd` use the plain form.

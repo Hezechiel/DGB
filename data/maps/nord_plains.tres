@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="MapData" format=3 uid="uid://cmiixs3we22pe"]
+
+[ext_resource type="Script" uid="uid://cdbk2npdvomd8" path="res://scripts/arena/map_data.gd" id="1_mapdata"]
+[ext_resource type="PackedScene" uid="uid://bnordplainsmap1" path="res://scenes/arena/maps/NordPlainsMap.tscn" id="2_mapscene"]
+
+[resource]
+script = ExtResource("1_mapdata")
+id = &"map_nord_plains"
+display_name = "Nord Plains"
+map_scene = ExtResource("2_mapscene")
+release_ready = false
+bounds = Rect2(-460, -305, 920, 610)

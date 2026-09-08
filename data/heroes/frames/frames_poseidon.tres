@@ -1,6 +1,39 @@
 [gd_resource type="SpriteFrames" format=3 uid="uid://dkdrmn6cpj652"]
 
+[ext_resource type="Texture2D" uid="uid://tq5olyxss0xa" path="res://assets/sprites/gods/zeus_iddle.png" id="1_eog3u"]
 [ext_resource type="Texture2D" uid="uid://dddjhxy2fs831" path="res://assets/sprites/gods/zeus_walk2.png" id="1_zeus"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_m7d2h"]
+atlas = ExtResource("1_eog3u")
+region = Rect2(0, 0, 325, 350)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_mlr1g"]
+atlas = ExtResource("1_eog3u")
+region = Rect2(325, 0, 325, 350)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_8ndp7"]
+atlas = ExtResource("1_eog3u")
+region = Rect2(650, 0, 325, 350)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_nj7r3"]
+atlas = ExtResource("1_eog3u")
+region = Rect2(975, 0, 325, 350)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_qehdy"]
+atlas = ExtResource("1_eog3u")
+region = Rect2(0, 350, 325, 350)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_tj4tc"]
+atlas = ExtResource("1_eog3u")
+region = Rect2(325, 350, 325, 350)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4n6ei"]
+atlas = ExtResource("1_eog3u")
+region = Rect2(650, 350, 325, 350)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_fajva"]
+atlas = ExtResource("1_eog3u")
+region = Rect2(975, 350, 325, 350)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_luim2"]
 atlas = ExtResource("1_zeus")
@@ -36,6 +69,35 @@ region = Rect2(1000, 0, 250, 350)
 
 [resource]
 animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_m7d2h")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_mlr1g")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_8ndp7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_nj7r3")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_qehdy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_tj4tc")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4n6ei")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_fajva")
+}],
+"loop": 1,
+"name": &"iddle_left",
+"speed": 5.0
+}, {
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_luim2")

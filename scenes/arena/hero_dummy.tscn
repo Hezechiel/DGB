@@ -1,7 +1,6 @@
 [gd_scene format=3 uid="uid://b8ctq53x76rri"]
 
 [ext_resource type="Script" uid="uid://b8ctra8x27rqh" path="res://scripts/arena/hero_dummy.gd" id="1_dummy"]
-[ext_resource type="SpriteFrames" uid="uid://dkdrmn6cpj652" path="res://data/heroes/frames/frames_hero_placeholder.tres" id="2_frames"]
 [ext_resource type="PackedScene" uid="uid://dvwpf0hx27680" path="res://scenes/ui/HealthBar.tscn" id="3_hbar"]
 [ext_resource type="Texture2D" uid="uid://dvlckfsllk4o3" path="res://assets/sprites/movemarker/target.png" id="4_ngm5m"]
 
@@ -19,8 +18,7 @@ script = ExtResource("1_dummy")
 z_index = 1
 position = Vector2(0, -10)
 scale = Vector2(0.09, 0.09)
-sprite_frames = ExtResource("2_frames")
-animation = &"new_front_left"
+animation = &""
 autoplay = "new_front_left"
 
 [node name="CollisionBody" type="CollisionShape2D" parent="." unique_id=1614928354]

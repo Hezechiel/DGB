@@ -1,9 +1,11 @@
-[gd_resource type="Resource" script_class="MapData" format=3 uid="uid://c1opmrpcfe0u3"]
+[gd_resource type="Resource" script_class="MapData" load_steps=3 format=3 uid="uid://c1opmrpcfe0u3"]
 
 [ext_resource type="Script" uid="uid://cdbk2npdvomd8" path="res://scripts/arena/map_data.gd" id="1_mapdata"]
+[ext_resource type="PackedScene" uid="uid://bgreekplateaumap1" path="res://scenes/arena/maps/GreekPlateauMap.tscn" id="2_mapscene"]
 
 [resource]
 script = ExtResource("1_mapdata")
 id = &"map_greek_plateau"
 display_name = "Greek Plateau"
+map_scene = ExtResource("2_mapscene")
 bounds = Rect2(-460, -305, 920, 610)

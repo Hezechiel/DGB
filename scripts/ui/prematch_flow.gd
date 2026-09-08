@@ -35,11 +35,13 @@ var _last_search_seconds: int = -1
 
 func _ready() -> void:
 	MatchConfig.setup_placeholder_match()
+	MatchConfig.map_id = MapDB.get_random_map_id()
 
 	finding_title_label.text = "Searching for a battle..."
 	finding_rank_label.text = MatchConfig.rank_label
 	finding_mode_label.text = "Ranked Match 1 vs 1"
-	finding_map_label.text = MatchConfig.map_name
+	var picked_map := MapDB.get_map(MatchConfig.map_id)
+	finding_map_label.text = picked_map.display_name if picked_map != null else "Unknown Map"
 	search_time_label.text = "00:00"
 
 	prematch_mode_label.text = "Ranked Match"

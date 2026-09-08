@@ -106,10 +106,33 @@ are mock data (`MatchConfig`).
 - Planned: timeout winner decided by progress (towers destroyed, kills, …) —
   explicitly not implemented yet.
 ### 3.7 Deploy zone
-- Cards deploy only on **your own half** (midline `x = 0`) and within the map
-  bounds. Anything else is refused; the red circle is the only feedback.
-- Planned: the zone **expands into the enemy half once their lane turret falls**
-  (Clash Royale model). Not implemented.
+- **Model: per-structure protection zones (Force Arena), not a fixed half-map
+  split.** Each structure (base + 3 turrets per side) owns a hand-tuned `Rect2`
+  "protection zone" around itself. A unit card can deploy anywhere inside the
+  map bounds that is **not** inside any of the opposing team's *currently
+  active* protection zones — "own half" is now an emergent result of the zone
+  layout, not a rule the code enforces directly.
+- **A zone exists only while its structure is alive.** Destroying a turret
+  permanently removes that zone and opens the slice of the map it covered —
+  no respawn, no timer. Unlike the earlier Clash-Royale-style plan ("expand
+  into the whole enemy half once a lane turret falls"), losing one turret only
+  opens *that turret's own* territory; the neighbouring turrets' and the
+  base's zones are untouched until they fall too. Chosen over the simpler
+  whole-half unlock because it reads better on maps with more lanes or deeper
+  defensive lines (§5) — a single lost turret shouldn't hand over the whole side.
+- **Fully data-driven / map-configurable, not hardcoded in BattleManager.** The
+  zone rectangles are authored per structure, per map scene (hand-tuned to
+  that map's layout); `BattleManager` only tracks whichever zones are
+  currently registered and checks points against them. A future map with more
+  lanes or a deeper defensive line is purely a content change (more
+  structures, more zones) — no code change.
+- **Spells are unaffected — still targetable anywhere on the map** (§3.11).
+  Protection zones are a *unit*-deploy rule only.
+- **UI hint while dragging a unit card:** a translucent red rectangle is drawn
+  directly over each currently-active *enemy* protection zone, so the player
+  sees the whole forbidden area, not just the drop-point circle going red.
+  Dragging a **spell** card never shows this overlay, since spells were never
+  restricted by the zones in the first place.
 - Considered and not chosen: deploy bubbles around your own structures/hero (SWFA
   model), making the hero a mobile deploy anchor. Revisit if the static rule feels flat.
 - Invalid/off-map drops currently just cancel; smart clamping to the nearest legal
@@ -204,11 +227,11 @@ are mock data (`MatchConfig`).
   cards. The branch is `spawn_unit()` vs. `BattleManager.cast_spell()`, in
   `card_hand.play_card()` for the player and mirrored in the AI's own play
   path (§3.10) — the AI casts spells from the same hand on the same rules.
-- **Targeting: anywhere on the map**, both halves, regardless of deploy-zone
-  state. The own-half restriction (§3.7) is a *unit* rule; lane-based zone
-  expansion never applies to spells. `is_card_target_valid()` branches on
-  card type and is the single source of truth for both the drag preview
-  colour and the play-on-release check.
+- **Targeting: anywhere on the map**, regardless of protection-zone state.
+  The protection-zone deploy restriction (§3.7) is a *unit* rule only —
+  spells ignore it entirely, including the UI hint overlay that shows it.
+  `is_card_target_valid()` branches on card type and is the single source of
+  truth for both the drag preview colour and the play-on-release check.
 - **No friendly fire.** A spell only ever affects the opposing team, never
   the caster's own units or hero, regardless of where it lands. Deliberate:
   the same radius-query helper will back future AoE *units*, and
@@ -325,8 +348,9 @@ are mock data (`MatchConfig`).
 4. **Per-unit deploy delay** — `UnitData.spawn_time`, deploy indicator at the
    drop point, unit untargetable until it lands.
 5. **Timeout winner scoring** — replace the Draw with progress comparison.
-6. **Deploy-zone expansion** — unlock the enemy half per lane when that lane's
-   turret falls (§3.7).
+6. ~~**Deploy-zone expansion**~~ — implemented as per-structure protection
+   zones that disappear when their structure dies (§3.7), not the originally
+   planned "unlock the whole enemy half" version.
 7. Then: ranged/siege archetypes, and the items below.
 ---
  
@@ -348,7 +372,9 @@ are mock data (`MatchConfig`).
  
 ## 6. Open questions
  
-- Deploy-zone expansion on turret kill: whole enemy half, or only that lane's band?
+- ~~Deploy-zone expansion on turret kill: whole enemy half, or only that lane's
+  band?~~ Resolved: per-structure protection zones (§3.7) — only that
+  structure's own zone opens when it falls, not the whole half.
 - Invalid/off-map drops: keep the plain cancel, or clamp to the nearest legal spot?
 - Energy: is opponent energy ever shown, and does late-match regen accelerate
   (Clash-Royale-style double time)?

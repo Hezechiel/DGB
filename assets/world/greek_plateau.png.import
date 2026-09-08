@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dalnjmr3hwneb"
-path="res://.godot/imported/map.png-67f6c97a2be2417c1a10f571d7dd5409.ctex"
+path="res://.godot/imported/greek_plateau.png-ee47dbc49af816d1feddf5d776c2a18a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/world/map.png"
-dest_files=["res://.godot/imported/map.png-67f6c97a2be2417c1a10f571d7dd5409.ctex"]
+source_file="res://assets/world/greek_plateau.png"
+dest_files=["res://.godot/imported/greek_plateau.png-ee47dbc49af816d1feddf5d776c2a18a.ctex"]
 
 [params]
 

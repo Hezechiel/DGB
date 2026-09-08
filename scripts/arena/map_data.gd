@@ -10,6 +10,18 @@ class_name MapData
 @export var id: StringName
 @export var display_name: String
 
+# Ci mapa patri do realneho hraciho poolu. Default true — existujuce/normalne
+# mapy sa nemusia prihlasovat. false = WIP/test mapa (napr. nedokoncena era mapa).
+# MapDB.get_random_map_id() je TEMP testovaci picker a NEfiltruje podla tohto pola
+# zamerne — nech WIP mapy vidno pocas testovania. Realny mode/rotation/vote picker
+# (az vznikne) je to co bude filtrovat podla release_ready — nie je to teraz scoped.
+@export var release_ready: bool = true
+
+# PackedScene s obsahom tejto mapy — pozadie/tilemap/prekazky/struktury.
+# Zrkadli princip UnitData.archetype_scene: data ukazuju na scenu, nie naopak.
+# arena.tscn ju bude vediet nacitat za behu (buduci krok migracie).
+@export var map_scene: PackedScene
+
 # Hranice mapy — jediny zdroj pravdy pre BattleManager.deploy_bounds AJ
 # ArenaCamera.bounds_min/bounds_max.
 @export var bounds: Rect2 = Rect2(-450.0, -350.0, 900.0, 700.0)

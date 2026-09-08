@@ -1,6 +1,7 @@
 extends Node2D
 
 @onready var hud: HUD = $HUD
+@onready var map_root: Node2D = $MapRoot
 @onready var move_marker: Node2D = $MoveMarker
 @onready var deploy_ghost: Node2D = $DeployGhost
 @onready var denial_zone_overlay: Node2D = $DenialZoneOverlay
@@ -9,12 +10,15 @@ var player: CharacterBody2D = null
 
 const MAIN_MENU_SCENE := "res://scenes/menu/MainMenu.tscn"
 
-# TEMP: kym nepride realny hero-select/network flow, oba hrdinovia pouzivaju
-# rovnaky test HeroData
-const PLAYER_HERO_ID := &"hero_test"
-const ENEMY_HERO_ID := &"hero_test"
+# TEMP: kym nepride realny hero-select/network flow, hrdinovia su nastaveni
+# napevno — player Zeus, enemy Poseidon. Rovnaka kategoria TEMP ako predtym.
+const PLAYER_HERO_ID := &"hero_zeus"
+const ENEMY_HERO_ID := &"hero_poseidon"
 
-@export var map_data: MapData
+# Resolvuje sa za behu z MapDB.get_map(MatchConfig.map_id) na zaciatku _ready().
+# Ak sa arena.tscn otvori priamo (F6) bez PreMatchFlow, map_id je &"" a nizsie
+# null-guardy to zachytia — znama limitacia, rovnaka kategoria ako TEMP hero ids.
+var map_data: MapData
 
 func _enter_tree() -> void:
 	# _enter_tree beží zhora nadol (parent pred childmi) — turrety/zakladne sa
@@ -32,9 +36,19 @@ func _enter_tree() -> void:
 	HeroAI.reset_match_state()
 
 func _ready() -> void:
+	map_data = MapDB.get_map(MatchConfig.map_id)
 	if map_data == null:
 		push_error("Arena: map_data nie je nastaveny")
 		return
+	if map_data.map_scene == null:
+		push_error("Arena: map_data.map_scene nie je nastaveny")
+		return
+	# Obsah mapy (pozadie/tilemap/prekazky/struktury) sa instancuje az za behu
+	# do prazdneho MapRoot — arena.tscn uz nereferencuje konkretnu mapu.
+	# Synchronne (nie call_deferred): struktury sa musia stihnut zaregistrovat
+	# do BattleManager tu, po _enter_tree() resete a PRED spawnom hrdinov nizsie.
+	var map_instance := map_data.map_scene.instantiate()
+	map_root.add_child(map_instance)
 	BattleManager.configure_map(map_data)
 	arena_camera.configure_map(map_data)
 
