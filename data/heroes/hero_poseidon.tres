@@ -8,5 +8,8 @@
 script = ExtResource("1_herodata")
 id = &"hero_poseidon"
 display_name = "Poseidon"
+attack_range = 20.0
+recovery_time = 0.3
 projectile_scene = ExtResource("2_bolt")
 sprite_frames = ExtResource("3_v5v47")
+attack_type = 1

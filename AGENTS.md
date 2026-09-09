@@ -79,12 +79,14 @@ Turret hurtboxes: PlayerTurret layer=8 (player_hurtbox), EnemyTurret layer=16 (e
 
 ### Implemented and working
 
-**Player hero** — `scenes/arena/player.tscn` / `scripts/player.gd`
+**Player hero** — `scenes/arena/player.tscn` / `scripts/arena/player.gd`
 - `CharacterBody2D`, tap-to-move via `InputR`, Camera2D child (currently follows player — camera system will be reworked)
-- Auto-attack: `find_nearest_enemy()` scans `get_parent()` children in `team_enemy` group, fires LightningBolt
+- Targeting: `primary_target` (explicit tap-on-enemy, sticky until moved/retargeted) takes priority; falls back to `auto_target` (passive nearest-enemy-in-range), which only engages while the player has no active move command, so tap-to-move always takes precedence over auto-attack
+- Attacks use a cast-point system (`_perform_attack()`): plays `attack_left`, locks movement for the animation's own duration (`frame_count / speed`, read live) unless `can_move_while_attacking`, then applies the hit — `fire_bolt()` for `AttackType.RANGED`, direct `take_damage()` for `AttackType.MELEE` (re-checks range/liveness on landing)
 - `take_damage(amount)` with invulnerability window (`invuln_time`), sprite flash feedback
-- Variables: `max_hp=500`, `health_points`, `speed`, `fire_cooldown`, `attack_range`
-- **Planned upgrade:** `selected_target: Node2D` for tap-to-target; hero preference in auto-attack; move-to-range if selected target is out of reach
+- Stats come from `HeroData` via `configure()`: `max_hp`, `speed`, `attack_range`, `recovery_time` (post-cast-point cooldown remainder — cast-point itself is derived live from the `attack_left` animation, so retuning its fps/frame count never requires touching cooldown data), `projectile_damage`, `attack_type`, `can_move_while_attacking`, `attack_sound`
+- Spawn/death animations (`spawn_left`, `death_left`) freeze movement for their duration
+- Mirrored by `scripts/arena/hero_dummy.gd` (`scenes/arena/hero_dummy.tscn`) for AI-controlled enemy heroes — same cast-point/attack logic, own march/retreat/heal-seek state machine instead of player input
 
 **Enemy unit** — `scenes/enemies/human.tscn` / `scripts/human.gd`
 - `CharacterBody2D`, seek+separation steering toward `target: Node2D`

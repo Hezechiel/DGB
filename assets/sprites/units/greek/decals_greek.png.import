@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://tq5olyxss0xa"
-path="res://.godot/imported/zeus_iddle.png-56f92993c89ad5bb0604dee820c45b15.ctex"
+uid="uid://ddvmhvblk13ik"
+path="res://.godot/imported/decals_greek.png-c8f9ca04da58b88488d04a3a2104c278.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/gods/zeus_iddle.png"
-dest_files=["res://.godot/imported/zeus_iddle.png-56f92993c89ad5bb0604dee820c45b15.ctex"]
+source_file="res://assets/sprites/units/greek/decals_greek.png"
+dest_files=["res://.godot/imported/decals_greek.png-c8f9ca04da58b88488d04a3a2104c278.ctex"]
 
 [params]
 

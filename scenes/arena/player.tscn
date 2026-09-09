@@ -11,6 +11,10 @@ radius = 7.0
 [sub_resource type="CircleShape2D" id="CircleShape2D_hurtbox"]
 radius = 8.0
 
+[sub_resource type="CircleShape2D" id="CircleShape2D_attackrange"]
+resource_local_to_scene = true
+radius = 80.0
+
 [node name="Player" type="CharacterBody2D" unique_id=425268589]
 collision_mask = 4
 script = ExtResource("1_g2els")
@@ -18,9 +22,9 @@ bolt_scene = ExtResource("2_dqkch")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1617835785]
 position = Vector2(0, -10)
-scale = Vector2(0.09, 0.09)
+scale = Vector2(0.1, 0.1)
 sprite_frames = ExtResource("3_5o8y0")
-animation = &"new_front_left"
+animation = &"attack_left"
 autoplay = "iddle_left"
 
 [node name="CollisionBody" type="CollisionShape2D" parent="." unique_id=1518345647]
@@ -33,9 +37,18 @@ collision_mask = 0
 [node name="CollisionShape2" type="CollisionShape2D" parent="Hurtbox" unique_id=802050379]
 shape = SubResource("CircleShape2D_hurtbox")
 
+[node name="AttackRange" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 0
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackRange"]
+shape = SubResource("CircleShape2D_attackrange")
+
 [node name="HealthBar" parent="." unique_id=1966774128 instance=ExtResource("4_hbar")]
 offset_left = -16.0
 offset_top = -30.0
 offset_right = -16.0
 offset_bottom = -30.0
 always_visible = true
+
+[node name="AttackSfx" type="AudioStreamPlayer2D" parent="." unique_id=911161436]

@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dghostscrpt01" path="res://scripts/arena/deploy_ghost.gd" id="1_ghost"]
 
-[node name="DeployGhost" type="Node2D"]
+[node name="DeployGhost" type="Node2D" unique_id=1416855745]
 script = ExtResource("1_ghost")
 
-[node name="ScrollAnim" type="AnimatedSprite2D" parent="."]
+[node name="ScrollAnim" type="AnimatedSprite2D" parent="." unique_id=890632315]

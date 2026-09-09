@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dddjhxy2fs831"
-path="res://.godot/imported/zeus_walk2.png-e78d8b82f047685eedf67d1475fa55bb.ctex"
+uid="uid://tq5olyxss0xa"
+path="res://.godot/imported/zeus_iddle.png-5831abc1a45299d0f8604272738a713e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/gods/zeus_walk2.png"
-dest_files=["res://.godot/imported/zeus_walk2.png-e78d8b82f047685eedf67d1475fa55bb.ctex"]
+source_file="res://assets/sprites/gods/greek/zeus/zeus_iddle.png"
+dest_files=["res://.godot/imported/zeus_iddle.png-5831abc1a45299d0f8604272738a713e.ctex"]
 
 [params]
 

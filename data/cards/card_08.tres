@@ -1,19 +1,19 @@
 [gd_resource type="Resource" script_class="CardData" format=3 uid="uid://csf3xfocyf70q"]
 
 [ext_resource type="Script" uid="uid://cdscsax3k7m1p" path="res://scripts/arena/ui/card_data.gd" id="1_carddata"]
-[ext_resource type="Texture2D" uid="uid://defvsdlmk4vqh" path="res://assets/sprites/scrolls/scrolls_gods_box.png" id="2_sheet"]
+[ext_resource type="Texture2D" uid="uid://ddvmhvblk13ik" path="res://assets/sprites/units/greek/decals_greek.png" id="2_5573d"]
 [ext_resource type="Resource" uid="uid://8571ogqe2nbt" path="res://data/units/melee_enemy_test.tres" id="3_unitdata"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_card08"]
-atlas = ExtResource("2_sheet")
-region = Rect2(400, 800, 400, 400)
+[sub_resource type="AtlasTexture" id="AtlasTexture_card07"]
+atlas = ExtResource("2_5573d")
+region = Rect2(1675, 0, 335, 400)
 
 [resource]
 script = ExtResource("1_carddata")
 id = &"card_08"
 display_name = "Card 8"
 cost = 4
-scroll_texture = SubResource("AtlasTexture_card08")
+scroll_texture = SubResource("AtlasTexture_card07")
 unit_data = ExtResource("3_unitdata")
-unit_count = 4
-formation_radius = 7.0
+unit_count = 3
+formation_radius = 13.0

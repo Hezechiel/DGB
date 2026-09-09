@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="HeroData" format=3]
+[gd_resource type="Resource" script_class="HeroData" format=3 uid="uid://bymeeef56fcg1"]
 
 [ext_resource type="Script" uid="uid://dieg62n05urgy" path="res://scripts/arena/hero_data.gd" id="1_herodata"]
 [ext_resource type="PackedScene" uid="uid://dyxn10n333b4k" path="res://scenes/arena/projectiles/projectile.tscn" id="2_bolt"]
@@ -8,5 +8,6 @@
 script = ExtResource("1_herodata")
 id = &"hero_zeus"
 display_name = "Zeus"
+recovery_time = 0.3
 projectile_scene = ExtResource("2_bolt")
 sprite_frames = ExtResource("3_frames")

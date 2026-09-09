@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bmm6mgx1sm12v"
-path="res://.godot/imported/substitute.png-d03e53cdd27117f3145853897a88e874.ctex"
+uid="uid://d04xk3bea7x5"
+path="res://.godot/imported/zeus_attack.png-85a53d1080d2996c996aa758ce2befff.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/scrolls/substitute.png"
-dest_files=["res://.godot/imported/substitute.png-d03e53cdd27117f3145853897a88e874.ctex"]
+source_file="res://assets/sprites/gods/greek/zeus/zeus_attack.png"
+dest_files=["res://.godot/imported/zeus_attack.png-85a53d1080d2996c996aa758ce2befff.ctex"]
 
 [params]
 

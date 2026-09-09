@@ -27,24 +27,37 @@ func apply_slow(multiplier: float, duration: float) -> void:
 	slow_left = maxf(slow_left, duration)
 
 const PLAYER_HURTBOX_LAYER := 8   # zodpoveda layer_4 "player_hurtbox"
+const ENEMY_HURTBOX_LAYER := 16   # zodpoveda layer_5 "enemy_hurtbox"
 var is_dead := false
 
 # vlastnosti Lightning projektilu
 @export var bolt_scene: PackedScene
-@export var fire_cooldown: float = 0.5
+@export var recovery_time: float = 0.4
 @export var attack_range: float = 80.0
 @export var projectile_damage: int = 25
 var fire_left: float = 0.0
 
+var attack_type: HeroData.AttackType = HeroData.AttackType.RANGED
+var can_move_while_attacking: bool = false
+var is_attacking: bool = false
+
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var hurtbox: Area2D = $Hurtbox
 @onready var health_bar: Control = $HealthBar
+@onready var attack_range_area: Area2D = $AttackRange
 
 
 var last_direction := Vector2.DOWN #default pozera dole
 
 var primary_target: Node2D = null # manualny ciel (tap na enemy/turret/base)
 var auto_target: Node2D = null # fallback ciel (najblizsi nepriatel v dosahu) — len na strielanie, bez chase
+
+# Hurtbox areas z nepriatelskeho timu prave prekryvajuce AttackRange —
+# zdroj pravdy pre "je X v dosahu", nahradza stary center-to-center
+# distance check (ktory zlyhaval na velkych cieloch ako veze/zakladne,
+# kde kolizia hrdinovi nikdy nedovoli priblizit sa na center-distance
+# <= attack_range). Rovnaky vzor ako unit.gd's hurtbox_in_range.
+var _range_areas: Array[Area2D] = []
 
 # HeroData pouzita pri configure() — zdielany resource, nikdy sa doň
 # nezapisuje runtime stav (health_points a pod.)
@@ -61,9 +74,12 @@ func configure(data: HeroData, _new_team: String) -> void:
 	max_hp = data.max_hp
 	speed = data.speed
 	attack_range = data.attack_range
-	fire_cooldown = data.fire_cooldown
+	$AttackRange/CollisionShape2D.shape.radius = data.attack_range
+	recovery_time = data.recovery_time
 	projectile_damage = data.projectile_damage
 	bolt_scene = data.projectile_scene
+	attack_type = data.attack_type
+	can_move_while_attacking = data.can_move_while_attacking
 	if data.sprite_frames != null:
 		$AnimatedSprite2D.sprite_frames = data.sprite_frames
 
@@ -74,11 +90,15 @@ func _ready() -> void:
 	add_to_group("heroes")
 	BattleManager.register(self, "player")
 	hurtbox.add_to_group("player_hurtbox")
+	attack_range_area.collision_mask = ENEMY_HURTBOX_LAYER
+	attack_range_area.area_entered.connect(_on_attack_range_area_entered)
+	attack_range_area.area_exited.connect(_on_attack_range_area_exited)
 	hurtbox.area_entered.connect(_on_hurtbox_area_entered)
 	HealingSystem.heal_instant.connect(_on_heal_instant)
 	HealingSystem.heal_tick.connect(_on_heal_tick)
 	HealingSystem.heal_ended.connect(_on_heal_ended)
 	InputR.clear_move_target() # zmaz stary ciel po reloade sceny
+	await play_spawn_animation()
 
 func _physics_process(delta):
 	stun_left = maxf(stun_left - delta, 0.0)
@@ -109,20 +129,29 @@ func _physics_process(delta):
 
 	# 2) bojova logika — manualny ciel ma prednost, fallback na auto-target (bez chase)
 	if primary_target != null and is_instance_valid(primary_target):
-		var to_target := primary_target.global_position - global_position
-		var dist_sq := to_target.length_squared()
-		if dist_sq <= attack_range * attack_range:
+		if _is_target_in_attack_range(primary_target):
 			# v dosahu — strielaj
 			_try_fire(primary_target)
 		else:
 			# mimo dosahu — chase (manualny ciel ma prioritu pred tap-to-move)
-			move_dir = to_target.normalized()
+			move_dir = (primary_target.global_position - global_position).normalized()
 	else:
-		# ziadny manualny ciel — auto-target: strielaj na najblizsieho v dosahu, ale bez chase
+		# ziadny manualny ciel — auto-target: strielaj na najblizsieho v dosahu,
+		# bez chase. Auto-utok zacne LEN ked hrac prave nezadava pohyb (move_dir
+		# je tap-to-move smer z get_move_input() vyssie, este bez chase override) —
+		# inak by kazdy nepriatel v dosahu prerusil pohyb hraca.
 		var nearest := find_nearest_enemy()
 		_update_auto_target(nearest)
-		if nearest != null:
+		if nearest != null and move_dir == Vector2.ZERO:
 			_try_fire(nearest)
+
+	# _perform_attack() spustene tento frame vyplo physics_process a vynulovalo
+	# velocity — zvysok tejto funkcie (update_*_animation + move_and_slide) by
+	# hned prepisal attack_left spat na idle/walk a klip by sa nikdy nezobrazil.
+	# Preskoc ho. Mobilni utocnici (can_move_while_attacking) pohyb zamknuty
+	# nemaju, pokracuju normalne.
+	if is_attacking and not can_move_while_attacking:
+		return
 
 	# root: hrdina moze stale utocit (uz prebehlo vyssie), ale sa nesmie hybat
 	if root_left > 0.0:
@@ -199,27 +228,79 @@ func _update_auto_target(nearest: Node2D) -> void:
 	if auto_target != null and auto_target.has_method("set_targeted"):
 		auto_target.set_targeted(true)
 
-func _try_fire(target: Node2D) -> void:
-	if fire_left <= 0.0:
-		last_direction = (target.global_position - global_position).normalized()
-		fire_bolt(target)
-		fire_left = fire_cooldown
+# Dlzka attack_left animacie prave teraz (frame_count / speed), 0.0 ak
+# animacia chyba/je nevalidna. Pouzivane aj v _try_fire() aj v
+# _perform_attack(), aby cyklus vzdy sedel s aktualne nahratou
+# animaciou bez ohladu na jej fps/pocet snimkov.
+func _current_cast_point() -> float:
+	var frames := sprite.sprite_frames
+	if frames == null or not frames.has_animation("attack_left"):
+		return 0.0
+	var fc := frames.get_frame_count("attack_left")
+	var spd := frames.get_animation_speed("attack_left")
+	if fc <= 0 or spd <= 0.0:
+		return 0.0
+	return fc / spd
 
+func _try_fire(target: Node2D) -> void:
+	if fire_left <= 0.0 and not is_attacking:
+		last_direction = (target.global_position - global_position).normalized()
+		fire_left = _current_cast_point() + recovery_time
+		_perform_attack(target)
+
+# Najblizsi zo vsetkych, co PRAVE FYZICKY prekryvaju AttackRange (nie
+# center-to-center vzdialenostny odhad) — spravne aj pre velke ciele.
 func find_nearest_enemy() -> Node2D:
 	var nearest: Node2D = null
-	var nearest_d2 := attack_range * attack_range
-	for child in get_tree().get_nodes_in_group("team_enemy"):
-		if child == self:
+	var nearest_d2 := INF
+	for area in _range_areas:
+		if not _is_hurtbox_owner_alive(area):
 			continue
-		# vraky (znicene veze/zakladne) zostavaju v groupe, ale uz nie su ciel
-		if "hp" in child and child.hp <= 0:
+		var owner_node := area.get_parent() as Node2D
+		if owner_node == null:
 			continue
-		if child is Node2D:
-			var d2: float = child.global_position.distance_squared_to(global_position)
-			if d2 <= nearest_d2:
-				nearest_d2 = d2
-				nearest = child
+		var d2 := global_position.distance_squared_to(owner_node.global_position)
+		if d2 < nearest_d2:
+			nearest_d2 = d2
+			nearest = owner_node
 	return nearest
+
+func _on_attack_range_area_entered(area: Area2D) -> void:
+	if _is_valid_attack_target(area) and not _range_areas.has(area):
+		_range_areas.append(area)
+
+func _on_attack_range_area_exited(area: Area2D) -> void:
+	_range_areas.erase(area)
+
+# Rovnaka predikat-logika ako unit.gd's _is_valid_attack_target
+# (TargetFilter.ALL ekvivalent) — hrac utoci na hociktory nepriatelsky
+# hero/unit/vezu/bazu.
+func _is_valid_attack_target(area: Area2D) -> bool:
+	if not _is_hurtbox_owner_alive(area):
+		return false
+	return area.is_in_group("enemy_hurtbox") or area.is_in_group("enemy_turret_hurtbox") or area.is_in_group("enemy_base_hurtbox")
+
+# Hurtbox je child bojujuceho nodu — platnost sa hodnoti podla jeho
+# vlastnika (rovnaky dovod ako unit.gd's _is_hurtbox_owner_alive).
+func _is_hurtbox_owner_alive(area: Area2D) -> bool:
+	if area == null or not is_instance_valid(area):
+		return false
+	var owner_node := area.get_parent()
+	if owner_node == null or not is_instance_valid(owner_node):
+		return false
+	if "is_dead" in owner_node and owner_node.is_dead:
+		return false
+	if "hp" in owner_node and owner_node.hp <= 0:
+		return false
+	return true
+
+# Je target fyzicky prekryty s AttackRange prave teraz? Pouzivane pre
+# primary_target aj pre MELEE zasah-recheck v _perform_attack().
+func _is_target_in_attack_range(target: Node2D) -> bool:
+	for area in _range_areas:
+		if is_instance_valid(area) and area.get_parent() == target:
+			return true
+	return false
 
 func take_damage(amount: int) -> void:
 	if is_dead:
@@ -295,8 +376,20 @@ func die() -> void:
 	# smrt rusi aktivny HoT — heal_ended zhasne pending pas cez _on_heal_ended
 	HealingSystem.cancel_heal("player")
 
-	if sprite.sprite_frames != null and sprite.sprite_frames.has_animation("death"):
-		sprite.play("death")
+	if sprite.sprite_frames != null and sprite.sprite_frames.has_animation("death_left"):
+		# rovnaka smerova logika ako update_idle_animation() — flip podla
+		# last_direction v momente smrti
+		if abs(last_direction.x) > abs(last_direction.y):
+			if last_direction.x > 0:
+				sprite.flip_h = true  #RIGHT
+			else:
+				sprite.flip_h = false  #LEFT
+		else:
+			if last_direction.y > 0:
+				sprite.flip_h = false  #DOWN
+			else:
+				sprite.flip_h = true  #UP
+		sprite.play("death_left")
 		await sprite.animation_finished
 		if not is_dead:
 			return  # revive() medzitym uz prebehlo
@@ -312,8 +405,8 @@ func revive() -> void:
 	hurtbox.set_deferred("collision_layer", PLAYER_HURTBOX_LAYER)
 	add_to_group("team_player")
 	BattleManager.register(self, "player")
-	set_physics_process(true)
 	invuln_left = 1.0
+	await play_spawn_animation()
 
 func fire_bolt(target: Node2D) -> void:
 	if bolt_scene == null:
@@ -324,6 +417,64 @@ func fire_bolt(target: Node2D) -> void:
 	bolt.set("damage", projectile_damage)
 	get_parent().add_child.call_deferred(bolt)
 	bolt.call_deferred("setup", global_position, target)
+
+
+# Cast-point utok. Hraje attack_left (dlzka = frame_count/speed, rovnaky vzor
+# ako play_spawn_animation()), zamkne pohyb ak !can_move_while_attacking, a az
+# PO tomto okne aplikuje zasah — bolt pre ranged, priamy take_damage pre melee
+# (re-checkne ci je ciel este zivy/v dosahu, cim melee svih moze minut ked sa
+# ciel medzitym stihol dostat mimo dosah). fire_left uz bezi od _try_fire() —
+# toto okno len oneskoruje samotny zasah, nie sazbu strelby.
+func _perform_attack(target: Node2D) -> void:
+	is_attacking = true
+	if not can_move_while_attacking:
+		set_physics_process(false)
+		velocity = Vector2.ZERO
+	update_attack_animation()
+
+	var cast_point := _current_cast_point()
+	if cast_point > 0.0:
+		await get_tree().create_timer(cast_point).timeout
+
+	is_attacking = false
+	if is_dead:
+		return  # zomrel pocas cast-pointu — die() uz vypol physics_process, nekriesime ho
+	if not can_move_while_attacking:
+		# physics_process bol vypnuty pocas cast-pointu, takze fire_left
+		# (nastaveny na _current_cast_point() + recovery_time v _try_fire())
+		# sa netikal — odpocitaj rucne uplynuty cast_point, cim zvysok je
+		# VZDY presne recovery_time, nezavisle od fps/poctu snimkov attack_left
+		fire_left = maxf(fire_left - cast_point, recovery_time)
+		set_physics_process(true)
+
+	if not is_instance_valid(target):
+		return
+
+	match attack_type:
+		HeroData.AttackType.MELEE:
+			if not _is_target_in_attack_range(target) or not target.has_method("take_damage"):
+				return
+			if "is_dead" in target and target.is_dead:
+				return
+			if "hp" in target and target.hp <= 0:
+				return
+			target.take_damage(projectile_damage)
+		_:
+			fire_bolt(target)
+
+func update_attack_animation() -> void:
+	if sprite.sprite_frames != null and sprite.sprite_frames.has_animation("attack_left"):
+		if abs(last_direction.x) > abs(last_direction.y):
+			sprite.flip_h = last_direction.x > 0
+		else:
+			sprite.flip_h = last_direction.y < 0
+		sprite.play("attack_left")
+	_play_attack_sound()
+
+func _play_attack_sound() -> void:
+	if hero_data != null and hero_data.attack_sound != null:
+		$AttackSfx.stream = hero_data.attack_sound
+		$AttackSfx.play()
 
 
 # Tato funkcia sa zavola ked nieco vstupi do Hurtboxu
@@ -339,24 +490,68 @@ func _on_hurtbox_area_entered(_area: Area2D) -> void:
 func update_animation(direction: Vector2) -> void:
 	# Porovname absolutne hodnoty osi
 	if abs(direction.x) > abs(direction.y):
-		if direction.x > 0:
-			sprite.play("new_back_right") #RIGHT
-		else:
-			sprite.play("new_front_left") #LEFT
+		sprite.flip_h = direction.x > 0 #RIGHT 
 	else:
-		if direction.y > 0:
-			sprite.play("new_front_left") #DOWN
-		else:
-			sprite.play("new_back_right") #UP
+		sprite.flip_h = direction.y < 0 #UP
+	sprite.play("walk_left")
+		
+		#if direction.x > 0:
+			#sprite.flip_h = true
+			#sprite.play("walk_left") #RIGHT
+		#else:
+			#sprite.flip_h = false
+			#sprite.play("walk_left") #LEFT
+	#else:
+		#if direction.y > 0:
+			#sprite.flip_h = false
+			#sprite.play("walk_left") #DOWN
+		#else:
+			#sprite.flip_h = true
+			#sprite.play("walk_left") #UP
 
 func update_idle_animation() -> void:
 	if abs(last_direction.x) > abs(last_direction.y):
-		if last_direction.x > 0:
-			sprite.play("new_back_right") #RIGHT
-		else:
-			sprite.play("new_front_left") #LEFT
+		sprite.flip_h = last_direction.x > 0 #RIGHT
 	else:
-		if last_direction.y > 0:
-			sprite.play("new_front_left") #DOWN
-		else:
-			sprite.play("new_back_right") #UP
+		sprite.flip_h = last_direction.y < 0 #UP
+	sprite.play("iddle_left")
+		
+	#if abs(last_direction.x) > abs(last_direction.y):
+		#if last_direction.x > 0:
+			#sprite.flip_h = true
+			#sprite.play("iddle_left") #RIGHT
+		#else:
+			#sprite.flip_h = false
+			#sprite.play("iddle_left") #LEFT
+	#else:
+		#if last_direction.y > 0:
+			#sprite.flip_h = false
+			#sprite.play("iddle_left") #DOWN
+		#else:
+			#sprite.flip_h = true
+			#sprite.play("iddle_left") #UP
+
+
+# Spawn/respawn vizualny efekt — hra sa pri prvom vstupe do zapasu aj po
+# kazdom respawne (volane z _ready() aj revive()). Pocas prehravania je
+# hrdina zamrznuty (rovnaky vzor ako die() cez set_physics_process), aby
+# nemohol hybat/strielat kym sa "materializuje". Chybajuca spawn_left
+# animacia degraduje na ziadny efekt — rovnaky guard ako has_animation
+# ("death") v die(). Cakame casovacom odvodenym z dlzky klipu (frame_count
+# / speed), nie `await animation_finished` — spawn_left moze byt loop=1 a
+# ten signal by sa nikdy neozval (architecture.md §6, vzor spell_zone.gd).
+func play_spawn_animation() -> void:
+	set_physics_process(false)
+	velocity = Vector2.ZERO
+	var frames := sprite.sprite_frames
+	if frames != null and frames.has_animation("spawn_left"):
+		sprite.flip_h = false
+		sprite.play("spawn_left")
+		var fc := frames.get_frame_count("spawn_left")
+		var spd := frames.get_animation_speed("spawn_left")
+		if fc > 0 and spd > 0.0:
+			await get_tree().create_timer(fc / spd).timeout
+	if is_dead:
+		return  # zomrel pocas spawn klipu — die() uz prebehol, nekriesime physics
+	set_physics_process(true)
+	update_idle_animation()
