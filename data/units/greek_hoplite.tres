@@ -1,13 +1,13 @@
-[gd_resource type="Resource" script_class="UnitData" format=3 uid="uid://8571ogqe2nbt"]
+[gd_resource type="Resource" script_class="UnitData" format=3 uid="uid://8171oetd4mas"]
 
 [ext_resource type="Script" uid="uid://1qytuvst77bw" path="res://scripts/arena/unit_data.gd" id="1_unitdata"]
 [ext_resource type="PackedScene" uid="uid://bakpvvohsixrh" path="res://scenes/arena/units/melee_unit.tscn" id="2_archetype"]
-[ext_resource type="SpriteFrames" uid="uid://bjbp66qu0yma6" path="res://data/units/frames/frames_enemy_placeholder.tres" id="3_frames"]
+[ext_resource type="SpriteFrames" uid="uid://bfbp61tx2uoi4" path="res://data/units/frames/frames_greek_hoplite.tres" id="3_frames"]
 
 [resource]
 script = ExtResource("1_unitdata")
-id = &"melee_test_b"
-display_name = "Melee Test B"
+id = &"greek_hoplite"
+display_name = "Greek Hoplite"
 archetype_scene = ExtResource("2_archetype")
 max_hp = 150
 sprite_frames = ExtResource("3_frames")

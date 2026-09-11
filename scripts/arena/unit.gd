@@ -49,7 +49,15 @@ var cached_sep: Vector2 = Vector2.ZERO
 @export var attack_cooldown: float = 1.2
 var attack_left: float = 0.0
 var hurtbox_in_range: Area2D = null
-@onready var attack_range: Area2D = $AttackRange
+@onready var attack_range_area: Area2D = $AttackRange
+
+# UnitData-driven attack config — pozri unit_data.gd pre vyznam
+var attack_type: UnitData.AttackType = UnitData.AttackType.MELEE
+var attack_range: float = 16.0
+var projectile_scene: PackedScene = null
+var damage_point_ratio: float = 0.7
+var windup_left: float = 0.0
+var _swing_target: Node2D = null
 
 # AggroRange — sirsia detekcia nez melee AttackRange; vsimne si nepriatelsku
 # unit a zacne ju prenasledovat este pred fyzickym kontaktom (CHASING stav)
@@ -99,6 +107,11 @@ func configure(data: UnitData, new_team: String) -> void:
 	attack_cooldown = data.attack_cooldown
 	speed = data.speed
 	target_filter = data.target_filter as TargetFilter
+	attack_type = data.attack_type
+	attack_range = data.attack_range
+	projectile_scene = data.projectile_scene
+	damage_point_ratio = data.damage_point_ratio
+	$AttackRange/CollisionShape2D.shape.radius = data.attack_range
 	if data.sprite_frames != null:
 		$AnimatedSprite2D.sprite_frames = data.sprite_frames
 
@@ -110,12 +123,12 @@ func _ready() -> void:
 	# vrstvy podla teamu treba dopocitat tu, nie spoliehat sa na staticke
 	# hodnoty zo sceny
 	$Hurtbox.collision_layer = PLAYER_HURTBOX_LAYER if team == "player" else ENEMY_HURTBOX_LAYER
-	attack_range.collision_mask = ENEMY_HURTBOX_LAYER if team == "player" else PLAYER_HURTBOX_LAYER
+	attack_range_area.collision_mask = ENEMY_HURTBOX_LAYER if team == "player" else PLAYER_HURTBOX_LAYER
 
 	add_to_group("team_" + team)   # "team_player" alebo "team_enemy"
 	BattleManager.register(self, team)
-	attack_range.area_entered.connect(_on_attack_range_area_entered)
-	attack_range.area_exited.connect(_on_attack_range_area_exited)
+	attack_range_area.area_entered.connect(_on_attack_range_area_entered)
+	attack_range_area.area_exited.connect(_on_attack_range_area_exited)
 
 	# rovnaky team-podla-masky vypocet ako attack_range vyssie; ziadny
 	# area_exited pripojeny — chase je zatial indefinitny (leash pride neskor)
@@ -183,7 +196,7 @@ func _physics_process(delta: float) -> void:
 		MarchState.CHASING:
 			_process_chasing(delta)
 		MarchState.ENGAGING:
-			_process_engaging()
+			_process_engaging(delta)
 
 func _process_marching(delta: float) -> void:
 	_update_structure_target(delta)
@@ -249,18 +262,73 @@ func _steer_towards(target_pos: Vector2, delta: float) -> void:
 	velocity = eff_speed * direction
 	move_and_slide()
 
-func _process_engaging() -> void:
+func _process_engaging(delta: float) -> void:
 	# stoj a utocaj — pohyb zastaveny
 	velocity = Vector2.ZERO
-	update_idle_animation()
 	move_and_slide()
 
+	if windup_left > 0.0:
+		windup_left = maxf(windup_left - delta, 0.0)
+		if windup_left <= 0.0:
+			_resolve_attack_hit()
+		return  # "attack" animacia uz bezi — nestlac ju idle-om nizsie
+
+	update_idle_animation()
+
 	if attack_left <= 0.0:
-		# ziskaj rodicovsky node z hurtboxu — hurtbox je child bojujuceho nodu
-		var attack_target := hurtbox_in_range.get_parent() as Node2D
-		if attack_target != null and is_instance_valid(attack_target) and attack_target.has_method("take_damage"):
-			attack_target.take_damage(damage)
-		attack_left = attack_cooldown
+		_start_attack_windup()
+
+# Zamkne aktualny hurtbox_in_range ako _swing_target a rozbehne windup —
+# dlzka = zlomok (damage_point_ratio) live "attack" animacie, rovnaky model
+# ako HeroData.damage_point_ratio v player.gd/hero_dummy.gd, ale bez await
+# (tento subor pouziva synchronny countdown timer, nie coroutine)
+func _start_attack_windup() -> void:
+	if hurtbox_in_range == null:
+		return
+	var target := hurtbox_in_range.get_parent() as Node2D
+	if target == null or not _is_hurtbox_owner_alive(hurtbox_in_range):
+		return
+	_swing_target = target
+	var full := _current_attack_duration()
+	windup_left = full * damage_point_ratio
+	if windup_left <= 0.0:
+		# ziadna "attack" animacia / nulova dlzka -> okamzity zasah
+		_resolve_attack_hit()
+		return
+	update_attack_animation()
+
+# Dlzka "attack" animacie prave teraz (frame_count / speed), 0.0 ak
+# animacia chyba/je nevalidna — rovnaky vzor ako player.gd's _current_cast_point()
+func _current_attack_duration() -> float:
+	if sprite.sprite_frames == null or not sprite.sprite_frames.has_animation("attack"):
+		return 0.0
+	var fc := sprite.sprite_frames.get_frame_count("attack")
+	var spd := sprite.sprite_frames.get_animation_speed("attack")
+	if fc <= 0 or spd <= 0.0:
+		return 0.0
+	return fc / spd
+
+func _resolve_attack_hit() -> void:
+	attack_left = attack_cooldown  # cooldown odtialto (damage point), nie od konca animacie
+	var target := _swing_target
+	_swing_target = null
+	if not is_instance_valid(target) or not _is_target_alive(target):
+		return
+	match attack_type:
+		UnitData.AttackType.RANGED:
+			fire_bolt(target)
+		_:
+			if target.has_method("take_damage"):
+				target.take_damage(damage)
+
+func fire_bolt(target: Node2D) -> void:
+	if projectile_scene == null:
+		push_error("Unit: projectile_scene nie je nastavene!")
+		return
+	var bolt := projectile_scene.instantiate()
+	bolt.set("damage", damage)
+	get_parent().add_child.call_deferred(bolt)
+	bolt.call_deferred("setup", global_position, target)
 
 func compute_separation() -> Vector2:
 	var result := Vector2.ZERO
@@ -300,6 +368,14 @@ func update_animation(direction: Vector2) -> void:
 		else:
 			sprite.play("idle")  # pohyb hore
 			sprite.flip_h = true
+
+func update_attack_animation() -> void:
+	if sprite.sprite_frames != null and sprite.sprite_frames.has_animation("attack"):
+		if abs(last_direction.x) > abs(last_direction.y):
+			sprite.flip_h = last_direction.x > 0
+		else:
+			sprite.flip_h = last_direction.y < 0
+		sprite.play("attack")
 
 func update_idle_animation() -> void:
 	# Drz poslednu smer animaciu — rovnaka logika ako player.gd
@@ -376,14 +452,17 @@ func _on_attack_range_area_exited(area: Area2D) -> void:
 # (napr. predchadzajuci ciel prave zomrel) — first-contact-wins v entered
 # handleri inak necha uz prekryvajuce sa arey navzdy nepovsimnute
 func _reacquire_attack_target() -> void:
-	for area in attack_range.get_overlapping_areas():
+	for area in attack_range_area.get_overlapping_areas():
 		if _is_valid_attack_target(area):
 			hurtbox_in_range = area
 			return
 
 # AggroRange ignoruje struktury uplne (bez ohladu na target_filter) — len
-# nepriatelske unit hurtboxy spustaju chase.
+# nepriatelske unit hurtboxy spustaju chase. STRUCTURES_ONLY jednotky (baranidlo,
+# katapult) vsak nemaju chasovat vobec nic — tie idealne bezia rovno na budovu.
 func _is_valid_aggro_target(area: Area2D) -> bool:
+	if target_filter == TargetFilter.STRUCTURES_ONLY:
+		return false
 	if not _is_hurtbox_owner_alive(area):
 		return false
 	var enemy_team := "player" if team == "enemy" else "enemy"

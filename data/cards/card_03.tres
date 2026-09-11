@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cdscsax3k7m1p" path="res://scripts/arena/ui/card_data.gd" id="1_carddata"]
 [ext_resource type="Texture2D" uid="uid://ddvmhvblk13ik" path="res://assets/sprites/units/greek/decals_greek.png" id="2_fruh6"]
-[ext_resource type="Resource" uid="uid://8171oetd4mas" path="res://data/units/melee_ally_test.tres" id="3_unitdata"]
+[ext_resource type="Resource" uid="uid://8171oetd4mas" path="res://data/units/greek_hoplite.tres" id="3_fruh6"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_5o8y0"]
 atlas = ExtResource("2_fruh6")
@@ -14,6 +14,6 @@ id = &"card_03"
 display_name = "Card 3"
 cost = 4
 scroll_texture = SubResource("AtlasTexture_5o8y0")
-unit_data = ExtResource("3_unitdata")
+unit_data = ExtResource("3_fruh6")
 unit_count = 3
 formation_radius = 10.0

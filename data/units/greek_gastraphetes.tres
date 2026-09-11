@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="UnitData" format=3 uid="uid://bnsej5oyk5fgo"]
+
+[ext_resource type="PackedScene" uid="uid://bpptc7ql6bx40" path="res://scenes/arena/units/ranged_unit.tscn" id="1_1udcp"]
+[ext_resource type="PackedScene" uid="uid://dyxn10n333b4k" path="res://scenes/arena/projectiles/projectile.tscn" id="2_yaidr"]
+[ext_resource type="Script" uid="uid://1qytuvst77bw" path="res://scripts/arena/unit_data.gd" id="3_6lier"]
+[ext_resource type="SpriteFrames" uid="uid://tyc30c2ujk56" path="res://data/units/frames/frames_greek_gastraphetes.tres" id="4_1udcp"]
+
+[resource]
+script = ExtResource("3_6lier")
+id = &"greek_gastraphetes"
+display_name = "Greek Gastraphetes"
+archetype_scene = ExtResource("1_1udcp")
+max_hp = 150
+damage = 30
+attack_cooldown = 2.0
+speed = 20.0
+target_filter = 2
+sprite_frames = ExtResource("4_1udcp")
+attack_type = 1
+attack_range = 150.0
+projectile_scene = ExtResource("2_yaidr")
+damage_point_ratio = 0.75

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://sxp3w76d2b1n"
-path="res://.godot/imported/black_archer_animation.png-780dbbd4a2844a07e139a01063830332.ctex"
+uid="uid://trmtfqisqhpu"
+path="res://.godot/imported/Gastraphetes.png-3066e721576f8900f10bd22383acce23.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/units/ranged/black_archer_animation.png"
-dest_files=["res://.godot/imported/black_archer_animation.png-780dbbd4a2844a07e139a01063830332.ctex"]
+source_file="res://assets/sprites/units/greek/Gastraphetes.png"
+dest_files=["res://.godot/imported/Gastraphetes.png-3066e721576f8900f10bd22383acce23.ctex"]
 
 [params]
 

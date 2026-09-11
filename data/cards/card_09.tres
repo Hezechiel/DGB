@@ -2,18 +2,17 @@
 
 [ext_resource type="Script" uid="uid://cdscsax3k7m1p" path="res://scripts/arena/ui/card_data.gd" id="1_carddata"]
 [ext_resource type="Texture2D" uid="uid://ddvmhvblk13ik" path="res://assets/sprites/units/greek/decals_greek.png" id="2_6ktiw"]
-[ext_resource type="Resource" uid="uid://8571ogqe2nbt" path="res://data/units/melee_enemy_test.tres" id="3_unitdata"]
+[ext_resource type="Resource" uid="uid://bnsej5oyk5fgo" path="res://data/units/greek_gastraphetes.tres" id="3_6ktiw"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_card07"]
+[sub_resource type="AtlasTexture" id="AtlasTexture_1l46w"]
 atlas = ExtResource("2_6ktiw")
-region = Rect2(1675, 0, 335, 400)
+region = Rect2(0, 400, 335, 400)
 
 [resource]
 script = ExtResource("1_carddata")
 id = &"card_09"
-display_name = "Card 9"
-cost = 5
-scroll_texture = SubResource("AtlasTexture_card07")
-unit_data = ExtResource("3_unitdata")
-unit_count = 4
+display_name = "Gastraphetes"
+cost = 3
+scroll_texture = SubResource("AtlasTexture_1l46w")
+unit_data = ExtResource("3_6ktiw")
 formation_radius = 20.0

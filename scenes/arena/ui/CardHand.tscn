@@ -12,19 +12,23 @@
 [ext_resource type="Resource" uid="uid://c10rsq7f2lam1" path="res://data/cards/card_storm.tres" id="10_cardstorm"]
 [ext_resource type="Resource" uid="uid://c11rsq7f2lam2" path="res://data/cards/card_stun.tres" id="11_cardstun"]
 [ext_resource type="Resource" uid="uid://c12rsq7f2lam3" path="res://data/cards/card_ensnaring_net.tres" id="12_cardnet"]
+[ext_resource type="Resource" uid="uid://c5e4bxy3jng7g" path="res://data/cards/card_09.tres" id="12_kd4cl"]
+[ext_resource type="Resource" uid="uid://csf3xfocyf70q" path="res://data/cards/card_08.tres" id="13_r43mg"]
+[ext_resource type="Resource" uid="uid://qllm24mu7oq4" path="res://data/cards/card_07.tres" id="14_ldftb"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hand"]
 bg_color = Color(0.25, 0.45, 0.85, 0.35)
 corner_radius_top_left = 8
 
 [node name="CardHand" type="Panel" unique_id=1976348071]
+anchors_preset = -1
 anchor_left = 0.6667
 anchor_top = 0.75
 anchor_right = 1.0
 anchor_bottom = 1.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_hand")
 script = ExtResource("1_hand")
-deck = Array[ExtResource("3_carddata")]([ExtResource("4_card01"), ExtResource("5_card02"), ExtResource("6_card03"), ExtResource("7_card04"), ExtResource("8_card05"), ExtResource("9_card06"), ExtResource("10_cardstorm"), ExtResource("11_cardstun"), ExtResource("12_cardnet")])
+deck = Array[ExtResource("3_carddata")]([ExtResource("4_card01"), ExtResource("5_card02"), ExtResource("6_card03"), ExtResource("7_card04"), ExtResource("8_card05"), ExtResource("9_card06"), ExtResource("10_cardstorm"), ExtResource("11_cardstun"), ExtResource("12_cardnet"), ExtResource("12_kd4cl"), ExtResource("13_r43mg"), ExtResource("14_ldftb")])
 
 [node name="MarginContainer" type="MarginContainer" parent="." unique_id=669966431]
 layout_mode = 1

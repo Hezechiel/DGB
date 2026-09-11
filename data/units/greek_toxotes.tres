@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="UnitData" format=3 uid="uid://8571ogqe2nbt"]
+
+[ext_resource type="Script" uid="uid://1qytuvst77bw" path="res://scripts/arena/unit_data.gd" id="1_unitdata"]
+[ext_resource type="PackedScene" uid="uid://bpptc7ql6bx40" path="res://scenes/arena/units/ranged_unit.tscn" id="2_archetype"]
+[ext_resource type="SpriteFrames" uid="uid://bjbp66qu0yma6" path="res://data/units/frames/frames_greek_toxotes.tres" id="3_frames"]
+[ext_resource type="PackedScene" uid="uid://dyxn10n333b4k" path="res://scenes/arena/projectiles/projectile.tscn" id="4_projectile"]
+
+[resource]
+script = ExtResource("1_unitdata")
+id = &"greek_toxotes"
+display_name = "Greek Toxotes"
+archetype_scene = ExtResource("2_archetype")
+max_hp = 150
+sprite_frames = ExtResource("3_frames")
+attack_type = 1
+attack_range = 90.0
+projectile_scene = ExtResource("4_projectile")

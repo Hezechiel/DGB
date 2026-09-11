@@ -1,9 +1,9 @@
-[gd_scene format=3 uid="uid://bakpvvohsixrh"]
+[gd_scene format=3 uid="uid://bpptc7ql6bx40"]
 
-[ext_resource type="Script" uid="uid://cbs5rnldelj2u" path="res://scripts/arena/unit.gd" id="1_unit"]
-[ext_resource type="SpriteFrames" uid="uid://bfbp61tx2uoi4" path="res://data/units/frames/frames_greek_hoplite.tres" id="2_wd2r1"]
-[ext_resource type="PackedScene" uid="uid://dvwpf0hx27680" path="res://scenes/ui/HealthBar.tscn" id="3_hbar"]
-[ext_resource type="Texture2D" uid="uid://dvlckfsllk4o3" path="res://assets/sprites/movemarker/target.png" id="4_marker"]
+[ext_resource type="Script" uid="uid://cbs5rnldelj2u" path="res://scripts/arena/unit.gd" id="1_60vns"]
+[ext_resource type="SpriteFrames" uid="uid://bjbp66qu0yma6" path="res://data/units/frames/frames_greek_toxotes.tres" id="2_wv882"]
+[ext_resource type="PackedScene" uid="uid://dvwpf0hx27680" path="res://scenes/ui/HealthBar.tscn" id="3_kunii"]
+[ext_resource type="Texture2D" uid="uid://dvlckfsllk4o3" path="res://assets/sprites/movemarker/target.png" id="4_7hdv1"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
 size = Vector2(16, 16)
@@ -22,13 +22,12 @@ radius = 40.0
 [node name="MeleeUnit" type="CharacterBody2D" unique_id=1300361392]
 collision_layer = 2
 collision_mask = 4
-script = ExtResource("1_unit")
+script = ExtResource("1_60vns")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1757698176]
 z_index = 2
-position = Vector2(0, -4)
-scale = Vector2(0.1, 0.1)
-sprite_frames = ExtResource("2_wd2r1")
+scale = Vector2(0.15, 0.15)
+sprite_frames = ExtResource("2_wv882")
 animation = &"spawn"
 
 [node name="CollisionBody" type="CollisionShape2D" parent="." unique_id=1126771666]
@@ -55,7 +54,7 @@ collision_mask = 0
 [node name="CollisionShape2D" type="CollisionShape2D" parent="AggroRange" unique_id=1431858333]
 shape = SubResource("CircleShape2D_aggro")
 
-[node name="HealthBar" parent="." unique_id=1153813090 instance=ExtResource("3_hbar")]
+[node name="HealthBar" parent="." unique_id=1153813090 instance=ExtResource("3_kunii")]
 offset_left = -8.0
 offset_top = -15.0
 offset_right = -8.0
@@ -67,4 +66,4 @@ visible = false
 z_index = 1
 position = Vector2(0, 4)
 scale = Vector2(0.3, 0.3)
-texture = ExtResource("4_marker")
+texture = ExtResource("4_7hdv1")
