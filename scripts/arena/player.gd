@@ -18,6 +18,8 @@ var slow_multiplier: float = 1.0
 
 func apply_stun(duration: float) -> void:
 	stun_left = maxf(stun_left, duration)
+	if is_attacking:
+		_cancel_attack_windup()
 
 func apply_root(duration: float) -> void:
 	root_left = maxf(root_left, duration)
@@ -40,6 +42,9 @@ var fire_left: float = 0.0
 var attack_type: HeroData.AttackType = HeroData.AttackType.RANGED
 var can_move_while_attacking: bool = false
 var is_attacking: bool = false
+var damage_point_ratio: float = 0.7
+var _attacking_target: Node2D = null
+var _attack_id: int = 0
 
 @onready var sprite: AnimatedSprite2D = $AnimatedSprite2D
 @onready var hurtbox: Area2D = $Hurtbox
@@ -76,6 +81,7 @@ func configure(data: HeroData, _new_team: String) -> void:
 	attack_range = data.attack_range
 	$AttackRange/CollisionShape2D.shape.radius = data.attack_range
 	recovery_time = data.recovery_time
+	damage_point_ratio = data.damage_point_ratio
 	projectile_damage = data.projectile_damage
 	bolt_scene = data.projectile_scene
 	attack_type = data.attack_type
@@ -185,6 +191,10 @@ func get_move_input() -> Vector2:
 # =========================
 
 func set_primary_target(node: Node2D) -> void:
+	if is_attacking and node == _attacking_target:
+		return  # rovnaky ciel ako prave utocim — nech swing dobehne
+	if is_attacking and node != _attacking_target:
+		_cancel_attack_windup()
 	# manualny a auto-target sa nesmu prekryvat — skry marker na auto-target, ak bezi
 	if auto_target != null and is_instance_valid(auto_target) and auto_target.has_method("set_targeted"):
 		auto_target.set_targeted(false)
@@ -215,7 +225,8 @@ func _clear_primary_target() -> void:
 	primary_target = null
 
 func on_new_move_command() -> void:
-	# hrac zadal novy tap-to-move — explicitny disengage od manualneho ciela
+	# hrac zadal novy tap-to-move — zrus rozbehnuty swing aj manualny ciel
+	_cancel_attack_windup()
 	_clear_primary_target()
 
 func _update_auto_target(nearest: Node2D) -> void:
@@ -419,32 +430,41 @@ func fire_bolt(target: Node2D) -> void:
 	bolt.call_deferred("setup", global_position, target)
 
 
-# Cast-point utok. Hraje attack_left (dlzka = frame_count/speed, rovnaky vzor
-# ako play_spawn_animation()), zamkne pohyb ak !can_move_while_attacking, a az
-# PO tomto okne aplikuje zasah — bolt pre ranged, priamy take_damage pre melee
-# (re-checkne ci je ciel este zivy/v dosahu, cim melee svih moze minut ked sa
-# ciel medzitym stihol dostat mimo dosah). fire_left uz bezi od _try_fire() —
-# toto okno len oneskoruje samotny zasah, nie sazbu strelby.
+# Cast-point utok s moznostou zrusenia. Hraje attack_left (dlzka =
+# frame_count/speed, rovnaky vzor ako play_spawn_animation()), zamkne pohyb
+# ak !can_move_while_attacking. Az PO damage_point (damage_point_ratio-zlomok
+# cast_pointu, viz hero_data.gd) sa svih POVAZUJE ZA COMMITNUTY — dovtedy
+# hociaky novy prikaz (_cancel_attack_windup(), volane z on_new_move_command(),
+# set_primary_target() pri zmene ciela, apply_stun()) ho zrusi cely bez
+# damage a bez cooldownu. _attack_id token detekuje, ci k takemuto zruseniu
+# doslo pocas cakania na await — ak ano, tento coroutine uz nema co robit,
+# canceller vsetko (physics_process/fire_left/animacia) uz vyriesil. Po
+# committnuti zvysny "backswing" (cast_point - damage_point) je uz len
+# kozmeticky, pohyb je odomknuty okamzite.
 func _perform_attack(target: Node2D) -> void:
+	_attack_id += 1
+	var my_attack_id := _attack_id
 	is_attacking = true
+	_attacking_target = target
 	if not can_move_while_attacking:
 		set_physics_process(false)
 		velocity = Vector2.ZERO
 	update_attack_animation()
 
 	var cast_point := _current_cast_point()
-	if cast_point > 0.0:
-		await get_tree().create_timer(cast_point).timeout
+	var damage_point := cast_point * damage_point_ratio
+	if damage_point > 0.0:
+		await get_tree().create_timer(damage_point).timeout
+
+	if my_attack_id != _attack_id or is_dead:
+		return  # zrusene (novy prikaz/stun) alebo hrdina medzitym zomrel — canceller uz vsetko vyriesil
 
 	is_attacking = false
-	if is_dead:
-		return  # zomrel pocas cast-pointu — die() uz vypol physics_process, nekriesime ho
+	_attacking_target = null
 	if not can_move_while_attacking:
-		# physics_process bol vypnuty pocas cast-pointu, takze fire_left
-		# (nastaveny na _current_cast_point() + recovery_time v _try_fire())
-		# sa netikal — odpocitaj rucne uplynuty cast_point, cim zvysok je
-		# VZDY presne recovery_time, nezavisle od fps/poctu snimkov attack_left
-		fire_left = maxf(fire_left - cast_point, recovery_time)
+		# fire_left uz nesie recovery_time zaciname pocitat presne od tohto
+		# damage pointu, nie od konca celej animacie
+		fire_left = recovery_time
 		set_physics_process(true)
 
 	if not is_instance_valid(target):
@@ -461,6 +481,20 @@ func _perform_attack(target: Node2D) -> void:
 			target.take_damage(projectile_damage)
 		_:
 			fire_bolt(target)
+
+# Zrusi rozbehnuty windup (pred damage pointom) bez damage a bez cooldown
+# penalty — hrdina sa "este nezaviazal". Volane pri novom tap-to-move,
+# pri zmene manualneho ciela a pri stune (viz volania vyssie).
+func _cancel_attack_windup() -> void:
+	if not is_attacking:
+		return
+	_attack_id += 1
+	is_attacking = false
+	_attacking_target = null
+	fire_left = 0.0
+	if not can_move_while_attacking:
+		set_physics_process(true)
+	update_idle_animation()
 
 func update_attack_animation() -> void:
 	if sprite.sprite_frames != null and sprite.sprite_frames.has_animation("attack_left"):

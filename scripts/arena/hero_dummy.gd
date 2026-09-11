@@ -27,6 +27,9 @@ var last_direction := Vector2.DOWN
 var attack_type: HeroData.AttackType = HeroData.AttackType.RANGED
 var can_move_while_attacking: bool = false
 var is_attacking: bool = false
+var damage_point_ratio: float = 0.7
+var _attacking_target: Node2D = null
+var _attack_id: int = 0
 
 # === STATUS EFEKTY (spells) === identicke s unit.gd/player.gd — ZAMERNA
 # duplikacia, ziadna zdielana base class (architecture.md princip). Dlhsie
@@ -38,6 +41,8 @@ var slow_multiplier: float = 1.0
 
 func apply_stun(duration: float) -> void:
 	stun_left = maxf(stun_left, duration)
+	if is_attacking:
+		_cancel_attack_windup()
 
 func apply_root(duration: float) -> void:
 	root_left = maxf(root_left, duration)
@@ -79,6 +84,7 @@ func configure(data: HeroData, new_team: String) -> void:
 	attack_range = data.attack_range
 	$AttackRange/CollisionShape2D.shape.radius = data.attack_range
 	recovery_time = data.recovery_time
+	damage_point_ratio = data.damage_point_ratio
 	projectile_damage = data.projectile_damage
 	bolt_scene = data.projectile_scene
 	attack_type = data.attack_type
@@ -328,21 +334,27 @@ func fire_bolt(target: Node2D) -> void:
 # Cast-point utok — identicka logika ako player.gd::_perform_attack(), pouziva
 # $AnimatedSprite2D priamo (tento subor nema cachovany sprite var).
 func _perform_attack(target: Node2D) -> void:
+	_attack_id += 1
+	var my_attack_id := _attack_id
 	is_attacking = true
+	_attacking_target = target
 	if not can_move_while_attacking:
 		set_physics_process(false)
 		velocity = Vector2.ZERO
 	update_attack_animation()
 
 	var cast_point := _current_cast_point()
-	if cast_point > 0.0:
-		await get_tree().create_timer(cast_point).timeout
+	var damage_point := cast_point * damage_point_ratio
+	if damage_point > 0.0:
+		await get_tree().create_timer(damage_point).timeout
+
+	if my_attack_id != _attack_id or is_dead:
+		return  # zrusene (HP-flip/stun) alebo hrdina medzitym zomrel — canceller uz vsetko vyriesil
 
 	is_attacking = false
-	if is_dead:
-		return  # zomrel pocas cast-pointu — die() uz vypol physics_process, nekriesime ho
+	_attacking_target = null
 	if not can_move_while_attacking:
-		fire_left = maxf(fire_left - cast_point, recovery_time)
+		fire_left = recovery_time
 		set_physics_process(true)
 
 	if not is_instance_valid(target):
@@ -359,6 +371,20 @@ func _perform_attack(target: Node2D) -> void:
 			target.take_damage(projectile_damage)
 		_:
 			fire_bolt(target)
+
+# Zrusi rozbehnuty windup (pred damage pointom) bez damage a bez cooldown
+# penalty — hrdina sa "este nezaviazal". Volane pri HP-hysteresis flipe
+# (take_damage()) a pri stune (viz volania vyssie).
+func _cancel_attack_windup() -> void:
+	if not is_attacking:
+		return
+	_attack_id += 1
+	is_attacking = false
+	_attacking_target = null
+	fire_left = 0.0
+	if not can_move_while_attacking:
+		set_physics_process(true)
+	update_idle_animation()
 
 func update_attack_animation() -> void:
 	if $AnimatedSprite2D.sprite_frames != null and $AnimatedSprite2D.sprite_frames.has_animation("attack_left"):
@@ -445,6 +471,11 @@ func take_damage(amount: int) -> void:
 		return
 	hp -= amount
 	health_bar.set_health(hp)
+	if is_attacking and hp > 0:
+		var hp_pct := float(hp) / float(max_hp)
+		var hp_state := HeroAI.get_hp_state(team, hp_pct)
+		if hp_state != _prev_hp_state:
+			_cancel_attack_windup()
 	if hp <= 0:
 		die()
 
