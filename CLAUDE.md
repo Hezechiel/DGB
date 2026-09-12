@@ -8,7 +8,7 @@ Technical reference for Claude Code sessions on this project.
 
 **Divine Gestures: Babylon — Arena Mode**
 
-A landscape mobile MOBA built in Godot 4.6 (GDScript) for Android. Inspired by Star Wars: Force Arena. The player controls a hero directly on the battlefield and wins by deploying units and casting spells across two horizontal lanes to destroy the enemy Command Post. Matches are against an AI opponent; multiplayer capability is a future goal and influences architecture decisions now.
+A landscape mobile MOBA built in Godot 4.7 (GDScript) for Android. Inspired by Star Wars: Force Arena. The player controls a hero directly on the battlefield and wins by deploying units and casting spells across two horizontal lanes to destroy the enemy Command Post. Matches are against an AI opponent; multiplayer capability is a future goal and influences architecture decisions now.
 
 **Active development:** MOBA arena (`scenes/arena/`).
 
@@ -18,14 +18,16 @@ The idle god-game World Map phase that was previously postponed has been removed
 
 ## Running the Project
 
-No CLI build step. Open in Godot 4.6, press F5 (main scene) or F6 (current scene).
+No CLI build step. Open in Godot 4.7, press F5 (main scene) or F6 (current scene).
 Main scene: `scenes/menu/MainMenu.tscn` → `scenes/arena/arena.tscn`.
 
 Export for Android: Project → Export → Android (Android SDK must be configured in Godot Editor Settings).
 
 No test runner — validate by running in the Godot editor or via Android APK from GitHub Actions CI (push to main, download artifact).
 
-Quick keyboard test shortcut in arena: press **T** to deal 80 damage to the PlayerTurret (wired in `arena.gd _input()`).
+Quick keyboard test shortcuts in arena (`arena.gd _input()`):
+- **T** — deal 80 damage to the PlayerTurret
+- **H** — deal 1/3 of `max_hp` to the player hero (debug trigger for death/respawn/card-lock/telegraph testing, since real combat death is slow to set up manually)
 
 ---
 
@@ -120,7 +122,16 @@ Turret hurtboxes: PlayerTurret layer=8 (player_hurtbox), EnemyTurret layer=16 (e
 **BattleManager** — autoload, `scripts/BattleManager.gd`
 - `register(unit, team)` — adds to `team_player`/`team_enemy`, connects `tree_exited` for cleanup
 - `is_team_alive(team)` — foundation for win/lose
+- Hero death/respawn: `on_hero_died(hero, team)` starts the respawn countdown (`_respawn_left: Dictionary`, team → seconds left), `respawn_seconds = clampi(3 + death_count - 1, 3, 10)`; `_process()` ticks it down and calls `_respawn_hero(team)` (teleports hero to `hero_spawn_positions[team]`, calls `hero.revive()`) when it hits 0
+- `is_hero_dead(team: String) -> bool` — single source of truth for "is this team's hero currently dead" (`_respawn_left.has(team)`); any system that needs to know should call this rather than tracking its own copy
+- Signals: `hero_died(team, respawn_seconds)`, `hero_respawn_tick(team, seconds_left)`, `hero_respawned(team)` — multiple independent UI pieces self-subscribe to these directly in their own `_ready()` (see Key Conventions)
 - **Planned addition:** `base_destroyed(team: String)` signal; `notify_hero_killed(team)` for mana regen events
+
+**Hero death gating & telegraph** — reacts to `BattleManager`'s hero-death signals above, no shared state duplicated beyond `is_hero_dead()`
+- `scripts/arena/ui/card_hand.gd` / `scripts/arena/enemy_card_ai.gd` — card plays are locked while `BattleManager.is_hero_dead(team)` is true: `CardHand._refresh_affordability()` force-greys all 3 hand slots regardless of energy, `CardHand.play_card()` gates the same way (covers double-tap/future network calls that bypass the drag UI), and `EnemyCardAI._process()` skips its decision tick entirely — `EnergySystem` regen keeps running unaffected the whole time
+- `scripts/arena/desaturate_overlay.gd` (`ColorRect`, direct child of `Arena` root in `arena.tscn`, **not** in a `CanvasLayer`) — desaturates the battlefield to greyscale while the player hero is dead via a `canvas_item` shader (`scenes/arena/ui/shaders/desaturate.gdshader`) reading `SCREEN_TEXTURE`; tracks its own `_desaturation: float` and tweens it via `create_tween().tween_method()` on `hero_died`/`hero_respawned`. Deliberately lives in the same canvas as the map/units/heroes (not HUD's `CanvasLayer`) with `z_index = 100` so it always paints after everything else, including units added later via `BattleManager.arena_root.add_child()` — see Key Conventions for why a separate `CanvasLayer` doesn't work here
+- `scripts/arena/ui/death_telegraph.gd` (`scenes/arena/ui/DeathTelegraph.tscn`, instanced in `scenes/hud/HUD.tscn` at `layer = 5`, between the world and HUD's `layer = 10`) — shows/hides a top-center "GOD DEAD" + countdown label (red/white, transparent background) on the same three signals; purely cosmetic, HUD-scoped, no shader involved
+- `scripts/arena/ui/match_info_bar.gd` — the small `PlayerRespawnCounter`/`EnemyRespawnCounter` in the top bar are a third, independent consumer of the same three signals (pre-existing, unaffected by the two additions above)
 
 **HUD** — `scenes/hud/HUD.tscn` / `scripts/hud/HUD.gd`
 - `CanvasLayer`, pause button, settings overlay, exit signal
@@ -142,7 +153,6 @@ Turret hurtboxes: PlayerTurret layer=8 (player_hurtbox), EnemyTurret layer=16 (e
 - Minimap with hero position indicators
 - Enemy AI hero
 - `CpuOpponent` (AI mana + deploy decisions)
-- Respawn timer system (3s base, up to 10s)
 - Win/lose screen
 - Map obstacles
 
@@ -214,7 +224,7 @@ Each turret has a child `SpawnProtectionZone` (Area2D with CircleShape2D). Enemy
 
 ### Respawn system
 
-On player death: `respawn_timer = clamp(base_respawn + (death_count - 1) * increment, base_respawn, max_respawn)`. Values (`base_respawn=3.0`, `max_respawn=10.0`, `increment` TBD) stored as exports for balancing. While respawning: hero invisible, `death_count` incremented, timer displayed in HUD.
+Implemented in `BattleManager.gd` (see "Hero death gating & telegraph" above) — `on_hero_died()`/`_respawn_hero()`/`is_hero_dead()`, with `hero_died`/`hero_respawn_tick`/`hero_respawned` as the shared broadcast. Respawn duration: `clampi(3 + death_count - 1, 3, 10)` seconds (`death_count` persists for the whole match, never resets). Three independent consumers react to these signals today: `match_info_bar.gd`'s small `RespawnCounter`, the card-play lock (`card_hand.gd` / `enemy_card_ai.gd`), and the full-screen death telegraph (`desaturate_overlay.gd` + `death_telegraph.gd`). Adding a fourth reaction to hero death should follow the same pattern — self-subscribe in `_ready()`, don't route through an existing consumer.
 
 ### Win / lose
 
@@ -239,3 +249,6 @@ Mirrors player mechanics exactly — same `ManaSystem`, same `SpawnSystem.deploy
 - **Slovak/English mixed** in comments and variable names — preserve the developer's style
 - **`always_visible = true`** on HealthBar for heroes; `false` for units and turrets
 - **Groups:** `"team_player"`, `"team_enemy"`, `"heroes"`, `"turrets"` — add heroes to both `"team_*"` and `"heroes"` for attack priority logic
+- **Self-subscribing UI:** small, independent UI reactions to a `BattleManager` signal (respawn counters, card-lock, death telegraph) connect to it directly in their own `_ready()` rather than being wired/relayed through `arena.gd` or another consumer — keeps each piece a drop-in addition/removal with zero coupling to sibling UI
+- **`canvas_item` screen-reading shaders (Godot 4.7):** `SCREEN_TEXTURE` is **not** a bare built-in in this Godot version — it was removed. Declare it yourself: `uniform sampler2D SCREEN_TEXTURE : hint_screen_texture, filter_linear_mipmap;` (see `scenes/arena/ui/shaders/desaturate.gdshader`). Omitting the uniform declaration is a hard compile error, not a silent fallback
+- **Screen-reading `canvas_item` shaders: keep them in the same canvas as their content.** `desaturate_overlay.gd`'s `ColorRect` lives directly under `Arena` (layer 0, with `z_index` forcing it to draw last) rather than inside a separate `CanvasLayer` alongside the HUD-style telegraph label, on the theory that `SCREEN_TEXTURE` reads don't reliably cross a `CanvasLayer` boundary. This was fixed at the same time as the missing `hint_screen_texture` uniform declaration above, so the two fixes were never isolated from each other — treat "same canvas as the content" as the safe default for any future screen-reading shader, not as a confirmed, isolated Godot behavior

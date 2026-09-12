@@ -1,0 +1,45 @@
+[gd_scene format=3 uid="uid://dtelfaraph01"]
+
+[ext_resource type="Script" uid="uid://ddv4qj26r57g1" path="res://scripts/arena/ui/death_telegraph.gd" id="1_dt"]
+[ext_resource type="FontFile" uid="uid://dkw824f3uvxf6" path="res://assets/fonts/CinzelDecorative-Bold.ttf" id="3_font"]
+
+[node name="DeathTelegraph" type="CanvasLayer" unique_id=1007517052]
+layer = 5
+visible = false
+script = ExtResource("1_dt")
+
+[node name="CenterLabel" type="Control" parent="." unique_id=809220719]
+layout_mode = 3
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -60.0
+offset_top = 40.0
+offset_right = 60.0
+offset_bottom = 76.0
+grow_horizontal = 2
+mouse_filter = 2
+
+[node name="GodDeadLabel" type="Label" parent="CenterLabel" unique_id=756724696]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_bottom = 16.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(0.9, 0.1, 0.1, 1)
+theme_override_fonts/font = ExtResource("3_font")
+theme_override_font_sizes/font_size = 14
+text = "GOD DEAD"
+horizontal_alignment = 1
+
+[node name="CountdownLabel" type="Label" parent="CenterLabel" unique_id=142715680]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 16.0
+offset_bottom = 36.0
+grow_horizontal = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 16
+text = "0"
+horizontal_alignment = 1

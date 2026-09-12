@@ -35,6 +35,7 @@ const TEAM := "enemy"
 # (architecture.md §6). Ked sa zmeni balicek hraca, uprav aj tento zoznam.
 @export var deck_card_ids: Array[StringName] = [
 	&"card_01", &"card_02", &"card_03", &"card_04", &"card_05", &"card_06",
+	&"card_07", &"card_08", &"card_09",
 	&"card_storm", &"card_stun", &"card_ensnaring_net",
 ]
 
@@ -69,6 +70,8 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	if not EnergySystem.is_running():
+		return
+	if BattleManager.is_hero_dead(TEAM):
 		return
 	_decision_timer -= delta
 	if _decision_timer > 0.0:

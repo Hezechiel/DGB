@@ -28,7 +28,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 theme_override_styles/panel = SubResource("StyleBoxFlat_hand")
 script = ExtResource("1_hand")
-deck = Array[ExtResource("3_carddata")]([ExtResource("4_card01"), ExtResource("5_card02"), ExtResource("6_card03"), ExtResource("7_card04"), ExtResource("8_card05"), ExtResource("9_card06"), ExtResource("10_cardstorm"), ExtResource("11_cardstun"), ExtResource("12_cardnet"), ExtResource("12_kd4cl"), ExtResource("13_r43mg"), ExtResource("14_ldftb")])
+deck = Array[ExtResource("3_carddata")]([ExtResource("4_card01"), ExtResource("5_card02"), ExtResource("6_card03"), ExtResource("7_card04"), ExtResource("8_card05"), ExtResource("9_card06"), ExtResource("14_ldftb"), ExtResource("13_r43mg"), ExtResource("12_kd4cl"), ExtResource("10_cardstorm"), ExtResource("11_cardstun"), ExtResource("12_cardnet")])
 
 [node name="MarginContainer" type="MarginContainer" parent="." unique_id=669966431]
 layout_mode = 1

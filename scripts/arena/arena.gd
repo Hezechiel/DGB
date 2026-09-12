@@ -128,3 +128,8 @@ func _input(event: InputEvent) -> void:
 				EnergySystem.resolve_cost("player", &"card_05")])
 		if event.keycode == KEY_P:
 			print("[energy] try_spend card_05 -> ", EnergySystem.try_spend("player", &"card_05"))
+		# --- DEBUG smrt (docasne, na testovanie respawn/lock/telegraph) ---
+		if event.keycode == KEY_H:
+			var dmg := roundi(player.max_hp / 3.0)
+			player.take_damage(dmg)
+			print("[debug] hurt player for %d (1/3 max_hp)" % dmg)

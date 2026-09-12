@@ -39,6 +39,8 @@ func _ready() -> void:
 
 	# Zosivenie kariet podla energie — refresh pri kazdej zmene celeho cisla.
 	EnergySystem.energy_int_changed.connect(_on_energy_int_changed)
+	BattleManager.hero_died.connect(_on_hero_died)
+	BattleManager.hero_respawned.connect(_on_hero_respawned)
 	_refresh_affordability()
 
 # Poistka proti zaseknutemu _drag_touch_index: ak okno strati fokus uprostred
@@ -61,11 +63,22 @@ func _on_energy_int_changed(team: String, _value: int) -> void:
 		return
 	_refresh_affordability()
 
+func _on_hero_died(team: String, _respawn_seconds: int) -> void:
+	if team != "player":
+		return
+	_refresh_affordability()
+
+func _on_hero_respawned(team: String) -> void:
+	if team != "player":
+		return
+	_refresh_affordability()
+
 # Prejde aktivne sloty a zosivie tie ktore sa hrac nemoze dovolit. Volane pri
 # zmene energie aj po kazdom play_card() (nova karta v slote ma inu cenu).
 func _refresh_affordability() -> void:
+	var locked := BattleManager.is_hero_dead("player")
 	for slot in _slots:
-		if slot.card_data == null:
+		if slot.card_data == null or locked:
 			slot.set_affordable(false)
 		else:
 			slot.set_affordable(EnergySystem.can_afford("player", slot.card_data.id))
@@ -148,6 +161,8 @@ func _finish_drag(screen_pos: Vector2) -> void:
 # ho tiez budu volat).
 func play_card(slot_index: int, world_pos: Vector2) -> bool:
 	if slot_index < 0 or slot_index >= _slots.size():
+		return false
+	if BattleManager.is_hero_dead("player"):
 		return false
 	var slot := _slots[slot_index]
 	var played_data := slot.card_data

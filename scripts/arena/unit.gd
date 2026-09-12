@@ -75,6 +75,19 @@ var root_left: float = 0.0
 var slow_left: float = 0.0
 var slow_multiplier: float = 1.0
 
+# Kratke bezzranitelne okno po spawne — rovnaky ucel ako player.gd's
+# invuln_time/invuln_left, ale (na rozdiel od playera, ktory ho dostava len
+# na revive(), nie na svoj prvy _ready()) unit ho dostava PRI KAZDOM spawne,
+# lebo unit ziadny "prvy bezpecny spawn" nema — kazde nasadenie je rovnake
+# ako hrdinov respawn uprostred boja.
+@export var invuln_time: float = 0.4
+var invuln_left: float = 0.0
+
+# Zabranuje dvojitemu vstupu do death sekvencie a dalsiemu damage po jej
+# spusteni (napr. uz vystreleny projektil ktory homing na tento Node2D priamo,
+# nie cez Hurtbox — ten stale zavola take_damage() aj po disable hurtboxu).
+var is_dying := false
+
 func apply_stun(duration: float) -> void:
 	stun_left = maxf(stun_left, duration)
 
@@ -143,10 +156,36 @@ func _ready() -> void:
 	else:
 		$Hurtbox.add_to_group("player_hurtbox")
 
+	await play_spawn_animation()
+
+# Spawn vizualny efekt — hra sa raz pri nasadeni (ziadny respawn cyklus na
+# rozdiel od hrdinov). Pocas prehravania je unit zamrznuta (rovnaky vzor ako
+# hero_dummy.gd's play_spawn_animation) — nemoze sa hybat ani utocit kym sa
+# "nezmaterializuje". Chybajuca "spawn" animacia degraduje na ziadny efekt,
+# rovnaky guard ako has_animation("death") nizsie. Invuln_left sa nastavi
+# HNED na zaciatku (nie az po animacii) — unit je kratko nezranitelna presne
+# pocas tohto okna, nie len pocas neho vizualne zamrznuta.
+func play_spawn_animation() -> void:
+	set_physics_process(false)
+	velocity = Vector2.ZERO
+	invuln_left = invuln_time
+	if sprite.sprite_frames != null and sprite.sprite_frames.has_animation("spawn"):
+		sprite.flip_h = false
+		sprite.play("spawn")
+		var fc := sprite.sprite_frames.get_frame_count("spawn")
+		var spd := sprite.sprite_frames.get_animation_speed("spawn")
+		if fc > 0 and spd > 0.0:
+			await get_tree().create_timer(fc / spd).timeout
+	if is_dying:
+		return  # zomrela pocas spawn klipu (napr. AoE spell) — die() uz prebehol
+	set_physics_process(true)
+	update_idle_animation()
+
 func _physics_process(delta: float) -> void:
 	stun_left = maxf(stun_left - delta, 0.0)
 	root_left = maxf(root_left - delta, 0.0)
 	slow_left = maxf(slow_left - delta, 0.0)
+	invuln_left = maxf(invuln_left - delta, 0.0)
 	if slow_left <= 0.0:
 		slow_multiplier = 1.0
 
@@ -504,7 +543,38 @@ func set_targeted(state: bool) -> void:
 	target_marker.visible = state
 
 func take_damage(amount: int) -> void:
+	if is_dying:
+		return
+	if invuln_left > 0.0:
+		return
 	hp -= amount
 	health_bar.set_health(hp)
 	if hp <= 0:
-		queue_free()
+		die()
+
+# Smrt je cisto kozmeticka — CollisionBody a Hurtbox sa vypnu OKAMZITE (rovnaky
+# vzor ako player.gd/hero_dummy.gd's die()), takze zomrela unit uz v tomto
+# frame nemoze byt cielom ani fyzicky blokovat pohyb spojencov, kym dohra
+# "death" klip. _is_target_alive()/_is_hurtbox_owner_alive() uz aj tak hp<=0
+# chytaju samostatne — toto len navyse rusi fyzicku kolizi/detekciu.
+func die() -> void:
+	if is_dying:
+		return
+	is_dying = true
+
+	set_physics_process(false)
+	$CollisionBody.set_deferred("disabled", true)
+	$Hurtbox.set_deferred("monitorable", false)
+	$Hurtbox.set_deferred("collision_layer", 0)
+	remove_from_group("team_" + team)
+	target_marker.visible = false
+
+	if sprite.sprite_frames != null and sprite.sprite_frames.has_animation("death"):
+		# rovnaka smerova logika ako update_idle_animation()
+		if abs(last_direction.x) > abs(last_direction.y):
+			sprite.flip_h = last_direction.x > 0
+		else:
+			sprite.flip_h = last_direction.y < 0
+		sprite.play("death")
+		await sprite.animation_finished
+	queue_free()

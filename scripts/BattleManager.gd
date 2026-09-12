@@ -406,6 +406,12 @@ func spawn_hero(hero_id: StringName, team: String, controlled: bool) -> Node:
 
 # --- Respawn ---
 
+# Jediny zdroj pravdy pre "je hero tohto timu prave mrtvy (caka na respawn)".
+# Ine systemy (card_hand, enemy_card_ai, buduci vizualny telegraph) maju
+# vzdy pytat tuto funkciu — nikdy si duplikovat vlastny stav.
+func is_hero_dead(team: String) -> bool:
+	return _respawn_left.has(team)
+
 func on_hero_died(_hero: Node2D, team: String) -> void:
 	if _respawn_left.has(team):
 		return  # uz respawnuje — guard proti dvojitemu volaniu
