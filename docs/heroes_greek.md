@@ -1,6 +1,6 @@
 # Heroes — Greek Era (Wave 1 Design Spec)
  
-> **Divine Gestures: Babylon — Arena Mode**
+> **Duel of Gods: Babylon — Arena Mode**
 > Hero + sidekick pairs for the Greek mythology era.
 > Format per SWFA model: each playable god has one unique sidekick unit.
 >

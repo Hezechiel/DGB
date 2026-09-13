@@ -1,6 +1,6 @@
 # Heroes & Cards — Norse Era (Season 2 Draft Spec)
 
-> **Divine Gestures: Babylon — Arena Mode**
+> **Duel of Gods: Babylon — Arena Mode**
 > Draft ahead of asset production. Format follows `heroes_greek.md` (hero/sidekick
 > pairs) + `cards_greek.md` (common pool + rarity). NOT implementation-ready —
 > numbers, factions, and several sidekick choices are placeholders pending the

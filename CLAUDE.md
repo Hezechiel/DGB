@@ -6,7 +6,7 @@ Technical reference for Claude Code sessions on this project.
 
 ## Project Identity
 
-**Divine Gestures: Babylon — Arena Mode**
+**Duel of Gods: Babylon — Arena Mode**
 
 A landscape mobile MOBA built in Godot 4.7 (GDScript) for Android. Inspired by Star Wars: Force Arena. The player controls a hero directly on the battlefield and wins by deploying units and casting spells across two horizontal lanes to destroy the enemy Command Post. Matches are against an AI opponent; multiplayer capability is a future goal and influences architecture decisions now.
 

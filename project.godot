@@ -10,7 +10,7 @@ config_version=5
 
 [application]
 
-config/name="arena"
+config/name="Duel of Gods: Babylon"
 run/main_scene="uid://26kaj1qw10dd"
 config/features=PackedStringArray("4.7", "Mobile")
 

@@ -1,4 +1,4 @@
-# Divine Gestures: Babylon — Game Design
+# Duel of Gods: Babylon — Game Design
  
 > Living design document. Architecture and technical conventions live in `docs/architecture.md`;
 > Claude Code session rules live in `CLAUDE.md`. Update this file when a design decision is made,

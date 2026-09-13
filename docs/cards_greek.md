@@ -1,6 +1,6 @@
 # Card System — Greek Era (Design Spec)
  
-> **Divine Gestures: Babylon — Arena Mode**
+> **Duel of Gods: Babylon — Arena Mode**
 > Card collecting and faction structure, modeled on Star Wars: Force Arena (SWFA).
 > SWFA reference: sides (Light/Dark) → factions (Rebels, Empire...) → shared side cards + faction-unique cards + faction synergy bonuses.
  

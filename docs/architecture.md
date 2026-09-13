@@ -1,4 +1,4 @@
-# Divine Gestures: Babylon — Architecture
+# Duel of Gods: Babylon — Architecture
  
 > Technical companion to `docs/game_design.md`. Session rules and environment setup
 > live in `CLAUDE.md`. Update this file when an architectural decision is made.
