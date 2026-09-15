@@ -11,7 +11,7 @@ region = Rect2(0, 0, 335, 400)
 [resource]
 script = ExtResource("1_carddata")
 id = &"card_03"
-display_name = "Card 3"
+display_name = "Hoplite 3"
 cost = 4
 scroll_texture = SubResource("AtlasTexture_5o8y0")
 unit_data = ExtResource("3_fruh6")

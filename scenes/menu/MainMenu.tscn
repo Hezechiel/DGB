@@ -21,7 +21,16 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_2nud1")
 
-[node name="Background" type="Panel" parent="." unique_id=1490062950]
+[node name="SettingOverlay" parent="." unique_id=470544241 instance=ExtResource("8_e1dod")]
+process_mode = 0
+visible = false
+layout_mode = 1
+
+[node name="CreditsOverlay" parent="." unique_id=1311075437 instance=ExtResource("9_bvc5d")]
+visible = false
+layout_mode = 1
+
+[node name="Background" type="Panel" parent="." unique_id=352699290]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -31,14 +40,14 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_mgsx5")
 
-[node name="HBoxContainer" type="VBoxContainer" parent="Background" unique_id=1309924478]
+[node name="HBoxContainer" type="VBoxContainer" parent="Background" unique_id=564597481]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
 offset_bottom = 252.0
 grow_horizontal = 2
 
-[node name="Title" type="Label" parent="Background/HBoxContainer" unique_id=965943811]
+[node name="Title" type="Label" parent="Background/HBoxContainer" unique_id=236994376]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.827451, 0, 1)
 theme_override_constants/shadow_offset_x = 1
@@ -48,23 +57,23 @@ theme_override_font_sizes/font_size = 44
 text = "Duel of Gods: Babylon"
 horizontal_alignment = 1
 
-[node name="MarginContainer" type="MarginContainer" parent="Background/HBoxContainer" unique_id=1844618724]
+[node name="MarginContainer" type="MarginContainer" parent="Background/HBoxContainer" unique_id=1750271351]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 
-[node name="MainButtons" type="HBoxContainer" parent="Background/HBoxContainer/MarginContainer" unique_id=1823648996]
+[node name="MainButtons" type="HBoxContainer" parent="Background/HBoxContainer/MarginContainer" unique_id=212098914]
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="Background/HBoxContainer/MarginContainer/MainButtons" unique_id=148114719]
+[node name="VBoxContainer" type="VBoxContainer" parent="Background/HBoxContainer/MarginContainer/MainButtons" unique_id=312680307]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="StartArenaButon" type="TextureButton" parent="Background/HBoxContainer/MarginContainer/MainButtons/VBoxContainer" unique_id=1319778161]
+[node name="StartArenaButon" type="TextureButton" parent="Background/HBoxContainer/MarginContainer/MainButtons/VBoxContainer" unique_id=1482172492]
 layout_mode = 2
 texture_normal = ExtResource("4_84lro")
 
-[node name="Label" type="Label" parent="Background/HBoxContainer/MarginContainer/MainButtons/VBoxContainer/StartArenaButon" unique_id=168207067]
+[node name="Label" type="Label" parent="Background/HBoxContainer/MarginContainer/MainButtons/VBoxContainer/StartArenaButon" unique_id=889026191]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -82,14 +91,14 @@ theme_override_fonts/font = ExtResource("5_y6vun")
 theme_override_font_sizes/font_size = 24
 text = "Arena"
 
-[node name="VBoxContainer2" type="VBoxContainer" parent="Background/HBoxContainer/MarginContainer/MainButtons" unique_id=1358639640]
+[node name="VBoxContainer2" type="VBoxContainer" parent="Background/HBoxContainer/MarginContainer/MainButtons" unique_id=1369350276]
 layout_mode = 2
 
-[node name="SettingsButton" type="TextureButton" parent="Background/HBoxContainer/MarginContainer/MainButtons/VBoxContainer2" unique_id=307822656]
+[node name="SettingsButton" type="TextureButton" parent="Background/HBoxContainer/MarginContainer/MainButtons/VBoxContainer2" unique_id=272909697]
 layout_mode = 2
 texture_normal = ExtResource("4_84lro")
 
-[node name="SettingsLabel" type="Label" parent="Background/HBoxContainer/MarginContainer/MainButtons/VBoxContainer2/SettingsButton" unique_id=300481940]
+[node name="SettingsLabel" type="Label" parent="Background/HBoxContainer/MarginContainer/MainButtons/VBoxContainer2/SettingsButton" unique_id=878977067]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -107,11 +116,11 @@ theme_override_fonts/font = ExtResource("5_y6vun")
 theme_override_font_sizes/font_size = 18
 text = "Settings"
 
-[node name="CreditsButton" type="TextureButton" parent="Background/HBoxContainer/MarginContainer/MainButtons/VBoxContainer2" unique_id=951025125]
+[node name="CreditsButton" type="TextureButton" parent="Background/HBoxContainer/MarginContainer/MainButtons/VBoxContainer2" unique_id=642070110]
 layout_mode = 2
 texture_normal = ExtResource("4_84lro")
 
-[node name="CreditsLabel" type="Label" parent="Background/HBoxContainer/MarginContainer/MainButtons/VBoxContainer2/CreditsButton" unique_id=689204712]
+[node name="CreditsLabel" type="Label" parent="Background/HBoxContainer/MarginContainer/MainButtons/VBoxContainer2/CreditsButton" unique_id=884819073]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -129,11 +138,11 @@ theme_override_fonts/font = ExtResource("5_y6vun")
 theme_override_font_sizes/font_size = 22
 text = "Credits"
 
-[node name="ExitButton" type="TextureButton" parent="Background/HBoxContainer/MarginContainer/MainButtons/VBoxContainer2" unique_id=1470635400]
+[node name="ExitButton" type="TextureButton" parent="Background/HBoxContainer/MarginContainer/MainButtons/VBoxContainer2" unique_id=310808498]
 layout_mode = 2
 texture_normal = ExtResource("4_84lro")
 
-[node name="ExitLabel" type="Label" parent="Background/HBoxContainer/MarginContainer/MainButtons/VBoxContainer2/ExitButton" unique_id=1921600793]
+[node name="ExitLabel" type="Label" parent="Background/HBoxContainer/MarginContainer/MainButtons/VBoxContainer2/ExitButton" unique_id=1762928773]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -150,15 +159,6 @@ theme_override_colors/font_color = Color(0, 0.25882354, 0.42745098, 1)
 theme_override_fonts/font = ExtResource("5_y6vun")
 theme_override_font_sizes/font_size = 24
 text = "Exit"
-
-[node name="SettingOverlay" parent="." unique_id=470544241 instance=ExtResource("8_e1dod")]
-process_mode = 0
-visible = false
-layout_mode = 1
-
-[node name="CreditsOverlay" parent="." unique_id=1311075437 instance=ExtResource("9_bvc5d")]
-visible = false
-layout_mode = 1
 
 [connection signal="closed_requested" from="SettingOverlay" to="." method="_on_setting_overlay_close_requested"]
 [connection signal="closed" from="CreditsOverlay" to="." method="_on_credits_overlay_closed"]

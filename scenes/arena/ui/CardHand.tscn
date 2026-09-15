@@ -48,6 +48,16 @@ layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 8
 
+[node name="NextCardPreview" parent="MarginContainer/HBoxContainer" unique_id=1317245045 instance=ExtResource("2_card")]
+modulate = Color(1, 1, 1, 0.6)
+custom_minimum_size = Vector2(58, 70)
+layout_mode = 2
+size_flags_vertical = 8
+mouse_filter = 2
+
+[node name="CostLabel" parent="MarginContainer/HBoxContainer/NextCardPreview/VBoxContainer/MarginContainer" index="1" unique_id=1700974687]
+theme_override_font_sizes/font_size = 12
+
 [node name="Card1" parent="MarginContainer/HBoxContainer" unique_id=963964173 instance=ExtResource("2_card")]
 layout_mode = 2
 size_flags_horizontal = 3
@@ -59,10 +69,3 @@ size_flags_horizontal = 3
 [node name="Card3" parent="MarginContainer/HBoxContainer" unique_id=1252304756 instance=ExtResource("2_card")]
 layout_mode = 2
 size_flags_horizontal = 3
-
-[node name="NextCardPreview" parent="MarginContainer/HBoxContainer" unique_id=1317245045 instance=ExtResource("2_card")]
-modulate = Color(1, 1, 1, 0.6)
-custom_minimum_size = Vector2(44, 60)
-layout_mode = 2
-size_flags_vertical = 8
-mouse_filter = 2
