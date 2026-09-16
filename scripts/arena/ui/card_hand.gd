@@ -12,10 +12,10 @@ signal deploy_preview_started(card: CardData)
 
 @export var deck: Array[CardData] = []
 
-@onready var card_1: Card = $MarginContainer/HBoxContainer/Card1
-@onready var card_2: Card = $MarginContainer/HBoxContainer/Card2
-@onready var card_3: Card = $MarginContainer/HBoxContainer/Card3
-@onready var next_card_preview: Card = $MarginContainer/HBoxContainer/NextCardPreview
+@onready var card_1: Card = $MarginContainer/HBoxContainer/Card1Aspect/Card1
+@onready var card_2: Card = $MarginContainer/HBoxContainer/Card2Aspect/Card2
+@onready var card_3: Card = $MarginContainer/HBoxContainer/Card3Aspect/Card3
+@onready var next_card_preview: Card = $MarginContainer/HBoxContainer/NextCardPreviewAspect/NextCardPreview
 
 var _slots: Array[Card] = []
 var _cycle: Array[CardData] = [] # fronta kariet — zahrana karta ide na koniec (Clash Royale styl)

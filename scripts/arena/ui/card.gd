@@ -6,7 +6,8 @@ class_name Card
 const SCROLL_BACK: Texture2D = preload("res://assets/sprites/scrolls/scrolls_back.png")
 
 @onready var scroll_icon: TextureRect = $VBoxContainer/MarginContainer/ScrollIcon
-@onready var cost_label: Label = $VBoxContainer/MarginContainer/CostLabel
+@onready var energy_badge: Control = $VBoxContainer/MarginContainer/EnergyBadge
+@onready var cost_label: Label = $VBoxContainer/MarginContainer/EnergyBadge/CostLabel
 @onready var name_label: Label = $VBoxContainer/MarginContainer/NameLabel
 
 var card_data: CardData = null
@@ -37,13 +38,13 @@ func show_back() -> void:
 	scroll_icon.texture = SCROLL_BACK
 	name_label.visible = false
 	# Rub karty nezobrazuje cenu, rovnako ako meno.
-	cost_label.visible = false
+	energy_badge.visible = false
 
 # Vrat lic karty. Cita znovu z card_data — ziadny cachovany texture stav,
 # takze sa to nemoze rozejst s configure().
 func show_face() -> void:
 	name_label.visible = true
-	cost_label.visible = true
+	energy_badge.visible = true
 	if card_data != null:
 		scroll_icon.texture = card_data.scroll_texture
 
@@ -72,7 +73,11 @@ func _gui_input(event: InputEvent) -> void:
 		return
 	if event is InputEventScreenTouch:
 		if event.pressed:
-			var hand := get_parent().get_parent().get_parent() as CardHand
+			# Card -> AspectRatioContainer -> HBoxContainer -> MarginContainer -> CardHand.
+			# One extra .get_parent() vs. before the AspectRatioContainer wrapper
+			# was added (CardHand.tscn) — if CardHand.tscn's nesting changes again,
+			# this count needs to change with it.
+			var hand := get_parent().get_parent().get_parent().get_parent() as CardHand
 			if hand != null:
 				hand.begin_drag(slot_index, event.index)
 		accept_event()

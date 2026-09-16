@@ -7,13 +7,13 @@ signal recenter_camera_requested
 ## Node wired in arena.tscn inspector — hidden when settings are open.
 @export var mobile_controls: CanvasLayer
 
-#@onready var pause_button: TextureButton = $Root/PauseButton
-@onready var pause_button: TouchScreenButton = $Root/PauseButton
+@onready var pause_button: TextureButton = $Root/PauseButton
 @onready var setting_overlay: SettingsOverlay = $SettingOverlay
-@onready var player_character_button: TouchScreenButton = $Root/PlayerCharacter
+@onready var player_character_button: TextureButton = $Root/PlayerCharacter
 @onready var card_hand: CardHand = $CardHand
 @onready var match_info_bar: MatchInfoBar = $MatchInfoBar
 @onready var energy_bar: EnergyBar = $EnergyBar
+@onready var minimap: Minimap = $Minimap
 
 const BUTTON_SIZE := 80.0
 const MARGIN := 8.0
@@ -24,6 +24,15 @@ func _ready() -> void:
 	player_character_button.pressed.connect(_on_player_character_pressed)
 	setting_overlay.closed_requested.connect(_on_close_requested)
 	setting_overlay.exit_requested.connect(_on_exit_requested)
+	Settings.settings_changed.connect(_update_recenter_button)
+	_update_recenter_button()
+
+# Recenter-na-hraca button je viditelny len ked kamera NIE je zamknuta na
+# hrdinu (v lock rezime je recentrovanie zbytocne — kamera uz hrdinu sleduje).
+# Ziadna ina pozicia neexistuje — button je bud skryty, alebo na fixnej
+# ukotvenej pozicii zo sceny (stred laveho okraja obrazovky).
+func _update_recenter_button() -> void:
+	player_character_button.visible = not Settings.lock_camera
 
 #func _apply_safe_area() -> void:
 	#var safe_rect := DisplayServer.get_display_safe_area()
@@ -59,9 +68,9 @@ func _on_exit_requested() -> void:
 	exit_requested.emit()
 
 func _on_player_character_pressed() -> void:
-	# TouchScreenButton nespotrebuje event — potlac nasledujuci release aby
-	# arena.gd nespustil tap-to-move na pozicii buttonu
-	InputR.suppress_next_release()
+	# TextureButton (Control) spotrebuje touch event sam (mouse_filter = STOP),
+	# narozdiel od povodneho TouchScreenButton uz netreba
+	# InputR.suppress_next_release()
 	recenter_camera_requested.emit()
 
 # ---------------------------------------------------------------------------

@@ -72,6 +72,8 @@ func _ready() -> void:
 	enemy_hero.global_position = map_data.hero_spawn_enemy
 	BattleManager.hero_spawn_positions["enemy"] = map_data.hero_spawn_enemy
 
+	hud.minimap.configure_map(map_data)
+
 	add_child(EnemyCardAI.new())
 
 	BattleManager.start_match_timer()

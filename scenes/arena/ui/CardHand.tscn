@@ -48,24 +48,43 @@ layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 8
 
-[node name="NextCardPreview" parent="MarginContainer/HBoxContainer" unique_id=1317245045 instance=ExtResource("2_card")]
+[node name="NextCardPreviewAspect" type="AspectRatioContainer" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+size_flags_vertical = 8
+ratio = 0.8286
+
+[node name="NextCardPreview" parent="MarginContainer/HBoxContainer/NextCardPreviewAspect" unique_id=1317245045 instance=ExtResource("2_card")]
 modulate = Color(1, 1, 1, 0.6)
 custom_minimum_size = Vector2(58, 70)
 layout_mode = 2
-size_flags_vertical = 8
 mouse_filter = 2
 
-[node name="CostLabel" parent="MarginContainer/HBoxContainer/NextCardPreview/VBoxContainer/MarginContainer" index="1" unique_id=1700974687]
-theme_override_font_sizes/font_size = 12
+[node name="EnergyBadge" parent="MarginContainer/HBoxContainer/NextCardPreviewAspect/NextCardPreview/VBoxContainer/MarginContainer" index="1"]
+custom_minimum_size = Vector2(16, 17)
 
-[node name="Card1" parent="MarginContainer/HBoxContainer" unique_id=963964173 instance=ExtResource("2_card")]
+[node name="CostLabel" parent="MarginContainer/HBoxContainer/NextCardPreviewAspect/NextCardPreview/VBoxContainer/MarginContainer/EnergyBadge" index="1"]
+theme_override_font_sizes/font_size = 11
+
+[node name="Card1Aspect" type="AspectRatioContainer" parent="MarginContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+ratio = 0.8409
 
-[node name="Card2" parent="MarginContainer/HBoxContainer" unique_id=1330950419 instance=ExtResource("2_card")]
+[node name="Card1" parent="MarginContainer/HBoxContainer/Card1Aspect" unique_id=963964173 instance=ExtResource("2_card")]
+layout_mode = 2
+
+[node name="Card2Aspect" type="AspectRatioContainer" parent="MarginContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+ratio = 0.8409
 
-[node name="Card3" parent="MarginContainer/HBoxContainer" unique_id=1252304756 instance=ExtResource("2_card")]
+[node name="Card2" parent="MarginContainer/HBoxContainer/Card2Aspect" unique_id=1330950419 instance=ExtResource("2_card")]
+layout_mode = 2
+
+[node name="Card3Aspect" type="AspectRatioContainer" parent="MarginContainer/HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+ratio = 0.8409
+
+[node name="Card3" parent="MarginContainer/HBoxContainer/Card3Aspect" unique_id=1252304756 instance=ExtResource("2_card")]
+layout_mode = 2

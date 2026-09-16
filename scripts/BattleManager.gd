@@ -129,6 +129,18 @@ func get_active_protection_zones(team: String) -> Array:
 		return []
 	return _protection_zones[team].duplicate()
 
+# Read-only zoznam zivych aj mrtvych vezi daneho timu (oba pruhy
+# spolu) — pre minimapu a buduce podobne UI. Rovnaky princip ako
+# get_active_protection_zones() vyssie — volajuci nikdy nedostane
+# priamu referenciu na interne _turrets polia.
+func get_turrets(team: String) -> Array:
+	if not _turrets.has(team):
+		return []
+	var result: Array = []
+	result.append_array(_turrets[team]["top"])
+	result.append_array(_turrets[team]["bot"])
+	return result
+
 # --- Registracia zakladni ---
 
 func register_base(base: Node2D, team: String) -> void:
