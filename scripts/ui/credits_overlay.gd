@@ -3,7 +3,7 @@ class_name CreditsOverlay
 
 signal closed
 
-@onready var close_credits: TouchScreenButton = $CreditsPanel/CloseCredits
+@onready var close_credits: TextureButton = $CreditsPanel/CloseCredits
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:

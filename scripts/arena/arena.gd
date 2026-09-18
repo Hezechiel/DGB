@@ -51,6 +51,7 @@ func _ready() -> void:
 	map_root.add_child(map_instance)
 	BattleManager.configure_map(map_data)
 	arena_camera.configure_map(map_data)
+	hud.match_info_bar.wire_tower_icons()
 
 	hud.exit_requested.connect(_on_hud_exit_requested)
 	hud.recenter_camera_requested.connect(_on_recenter_camera_requested)

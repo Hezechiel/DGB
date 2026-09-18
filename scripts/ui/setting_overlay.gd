@@ -3,15 +3,18 @@ class_name SettingsOverlay
 
 signal closed_requested
 signal exit_requested
+signal credits_requested
 
-@onready var close_settings: TouchScreenButton = $SettingsPanel/CloseSettings
+@onready var close_settings: TextureButton = $SettingsPanel/CloseSettings
 @onready var exit_button: TouchScreenButton = $ExitButton
 @onready var lock_camera_toggle: CheckButton = $SettingsPanel/MarginContainer/ScrollContainer/SettingsContent/LockCameraRow/LockCameraToggle
+@onready var credits_button: Button = $SettingsPanel/MarginContainer/ScrollContainer/SettingsContent/CreditsButton
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
 	exit_button.pressed.connect(_on_exit_button_pressed)
 	lock_camera_toggle.toggled.connect(_on_lock_camera_toggled)
+	credits_button.pressed.connect(_on_credits_button_pressed)
 	visible = false
 
 #show_return_to_mainmenu_button sluzi na skritie alebo ukazanie Main Menu tlacidla
@@ -31,6 +34,12 @@ func close() -> void:
 func _on_close_settings_pressed() -> void:
 	#print("Close_request emited")
 	closed_requested.emit()
+
+func _on_credits_button_pressed() -> void:
+	# Settings sa zatvori PRED vyziadanim Credits — oba su fullscreen overlay,
+	# nechceme mat naraz otvorene oba naraz.
+	close()
+	credits_requested.emit()
 
 func _on_exit_button_pressed() -> void:
 	exit_requested.emit()
