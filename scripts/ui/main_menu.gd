@@ -12,8 +12,8 @@ extends Control
 @onready var shop_button: Button = $Background/NavRail/ShopButton
 @onready var rewards_button: Button = $Background/NavRail/RewardsButton
 @onready var version_label: Label = $Background/FooterBar/VersionLabel
-@onready var mail_button: Button = $Background/TopBar/MailButton
-@onready var gift_button: Button = $Background/TopBar/GiftButton
+@onready var mail_button: TextureButton = $Background/TopBar/MailButton
+@onready var gift_button: TextureButton = $Background/TopBar/GiftButton
 @onready var coming_soon_toast: PanelContainer = $Background/ComingSoonToast
 @onready var coming_soon_label: Label = $Background/ComingSoonToast/ComingSoonLabel
 

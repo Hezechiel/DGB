@@ -4,34 +4,17 @@
 [ext_resource type="Texture2D" uid="uid://bfsg3fb2osnra" path="res://assets/menu/main_menu.webp" id="2_y6vun"]
 [ext_resource type="Texture2D" uid="uid://bsquqbowm0moo" path="res://assets/menu/UI_note.png" id="4_84lro"]
 [ext_resource type="FontFile" uid="uid://bweqmg7kjyyai" path="res://assets/fonts/CinzelDecorative-Black.ttf" id="5_y6vun"]
+[ext_resource type="Texture2D" uid="uid://dj6rsikiddm60" path="res://assets/menu/settings_gear.png" id="8_bvc5d"]
 [ext_resource type="PackedScene" uid="uid://bbav7qxtv7i6x" path="res://scenes/menu/setting_overlay.tscn" id="8_e1dod"]
+[ext_resource type="Texture2D" uid="uid://c8q305b2h6q2i" path="res://assets/menu/mail_letter.png" id="8_ekkse"]
+[ext_resource type="Texture2D" uid="uid://hq8sqitnhm4" path="res://assets/menu/gifts_box.png" id="9_84lro"]
 [ext_resource type="PackedScene" uid="uid://pfm88dv1cava" path="res://scenes/menu/credits_overlay.tscn" id="9_bvc5d"]
+[ext_resource type="Texture2D" uid="uid://cc4tjrimt68by" path="res://assets/menu/settings_gear_pressed.png" id="9_ekkse"]
 [ext_resource type="SpriteFrames" uid="uid://75pi7xqp2vus" path="res://data/heroes/frames/frames_zeus.tres" id="10_zeusframes"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_mgsx5"]
 texture = ExtResource("2_y6vun")
 modulate_color = Color(0.7380309, 0.73803085, 0.7380308, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_toast"]
-bg_color = Color(0, 0, 0, 0.75)
-corner_radius_top_left = 6
-corner_radius_top_right = 6
-corner_radius_bottom_right = 6
-corner_radius_bottom_left = 6
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_mail"]
-bg_color = Color(0.3, 0.45, 0.6, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gift"]
-bg_color = Color(0.55, 0.25, 0.5, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_deck"]
 bg_color = Color(0.45, 0.35, 0.55, 1)
@@ -73,6 +56,13 @@ corner_radius_top_right = 12
 corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_toast"]
+bg_color = Color(0, 0, 0, 0.75)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
 [node name="MainMenu" type="Control" unique_id=1972656411]
 layout_mode = 3
 anchors_preset = 15
@@ -101,7 +91,7 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxTexture_mgsx5")
 
-[node name="NavRail" type="VBoxContainer" parent="Background"]
+[node name="NavRail" type="VBoxContainer" parent="Background" unique_id=468215766]
 layout_mode = 1
 anchors_preset = 9
 anchor_bottom = 1.0
@@ -113,47 +103,47 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_constants/separation = 8
 
-[node name="DeckButton" type="Button" parent="Background/NavRail"]
+[node name="DeckButton" type="Button" parent="Background/NavRail" unique_id=1680314696]
 custom_minimum_size = Vector2(100, 36)
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_deck")
 text = "Deck"
 
-[node name="HeroesButton" type="Button" parent="Background/NavRail"]
+[node name="HeroesButton" type="Button" parent="Background/NavRail" unique_id=1578356168]
 custom_minimum_size = Vector2(100, 36)
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_heroes")
 text = "Heroes"
 
-[node name="ShopButton" type="Button" parent="Background/NavRail"]
+[node name="ShopButton" type="Button" parent="Background/NavRail" unique_id=786745926]
 custom_minimum_size = Vector2(100, 36)
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_shop")
 text = "Shop"
 
-[node name="RewardsButton" type="Button" parent="Background/NavRail"]
+[node name="RewardsButton" type="Button" parent="Background/NavRail" unique_id=2042428869]
 custom_minimum_size = Vector2(100, 36)
 layout_mode = 2
 theme_override_font_sizes/font_size = 14
 theme_override_styles/normal = SubResource("StyleBoxFlat_rewards")
 text = "Rewards"
 
-[node name="NavRailSpacer" type="Control" parent="Background/NavRail"]
+[node name="NavRailSpacer" type="Control" parent="Background/NavRail" unique_id=517394107]
 layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 2
 
-[node name="ExitButton" type="TextureButton" parent="Background/NavRail"]
+[node name="ExitButton" type="TextureButton" parent="Background/NavRail" unique_id=1865112108]
 custom_minimum_size = Vector2(100, 42.25)
 layout_mode = 2
 texture_normal = ExtResource("4_84lro")
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="ExitLabel" type="Label" parent="Background/NavRail/ExitButton"]
+[node name="ExitLabel" type="Label" parent="Background/NavRail/ExitButton" unique_id=1962366157]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -171,7 +161,7 @@ theme_override_fonts/font = ExtResource("5_y6vun")
 theme_override_font_sizes/font_size = 16
 text = "Exit"
 
-[node name="MainContent" type="HBoxContainer" parent="Background"]
+[node name="MainContent" type="HBoxContainer" parent="Background" unique_id=502741429]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -185,20 +175,20 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_constants/separation = 20
 
-[node name="HeroShowcase" type="Control" parent="Background/MainContent"]
+[node name="HeroShowcase" type="Control" parent="Background/MainContent" unique_id=1432969049]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 mouse_filter = 2
 
-[node name="ZeusIdle" type="AnimatedSprite2D" parent="Background/MainContent/HeroShowcase"]
+[node name="ZeusIdle" type="AnimatedSprite2D" parent="Background/MainContent/HeroShowcase" unique_id=793001848]
+scale = Vector2(1.2, 1.2)
 sprite_frames = ExtResource("10_zeusframes")
 animation = &"iddle_left"
 autoplay = "iddle_left"
 flip_h = true
-scale = Vector2(1.2, 1.2)
 
-[node name="BattleCard" type="Button" parent="Background/MainContent"]
+[node name="BattleCard" type="Button" parent="Background/MainContent" unique_id=612707258]
 custom_minimum_size = Vector2(220, 280)
 layout_mode = 2
 size_flags_vertical = 4
@@ -206,7 +196,7 @@ theme_override_font_sizes/font_size = 28
 theme_override_styles/normal = SubResource("StyleBoxFlat_battle")
 text = "Battle"
 
-[node name="TopBar" type="HBoxContainer" parent="Background"]
+[node name="TopBar" type="HBoxContainer" parent="Background" unique_id=500653719]
 layout_mode = 1
 anchors_preset = 10
 anchor_right = 1.0
@@ -218,69 +208,51 @@ grow_horizontal = 2
 mouse_filter = 2
 theme_override_constants/separation = 10
 
-[node name="CurrencyGroup" type="HBoxContainer" parent="Background/TopBar"]
+[node name="CurrencyGroup" type="HBoxContainer" parent="Background/TopBar" unique_id=1237888817]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 6
 
-[node name="CurrencyIcon" type="ColorRect" parent="Background/TopBar/CurrencyGroup"]
+[node name="CurrencyIcon" type="ColorRect" parent="Background/TopBar/CurrencyGroup" unique_id=2018192252]
 custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
 size_flags_vertical = 4
 color = Color(0.85, 0.65, 0.15, 1)
 
-[node name="CurrencyAmountLabel" type="Label" parent="Background/TopBar/CurrencyGroup"]
+[node name="CurrencyAmountLabel" type="Label" parent="Background/TopBar/CurrencyGroup" unique_id=949226636]
 layout_mode = 2
-size_flags_vertical = 4
 theme_override_colors/font_color = Color(0.95, 0.95, 0.9, 1)
 theme_override_font_sizes/font_size = 14
 text = "0"
 
-[node name="TopBarSpacer" type="Control" parent="Background/TopBar"]
+[node name="TopBarSpacer" type="Control" parent="Background/TopBar" unique_id=221315535]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
-[node name="MailButton" type="Button" parent="Background/TopBar"]
-custom_minimum_size = Vector2(64, 32)
+[node name="MailButton" type="TextureButton" parent="Background/TopBar" unique_id=594168797]
+custom_minimum_size = Vector2(40, 32)
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_mail")
-text = "Mail"
-
-[node name="GiftButton" type="Button" parent="Background/TopBar"]
-custom_minimum_size = Vector2(64, 32)
-layout_mode = 2
-theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_gift")
-text = "Gift"
-
-[node name="SettingsButton" type="TextureButton" parent="Background/TopBar"]
-custom_minimum_size = Vector2(70, 29.6)
-layout_mode = 2
-texture_normal = ExtResource("4_84lro")
+texture_normal = ExtResource("8_ekkse")
 ignore_texture_size = true
 stretch_mode = 5
 
-[node name="SettingsLabel" type="Label" parent="Background/TopBar/SettingsButton"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -20.0
-offset_top = -8.0
-offset_right = 20.0
-offset_bottom = 8.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0, 0.25882354, 0.42745098, 1)
-theme_override_fonts/font = ExtResource("5_y6vun")
-theme_override_font_sizes/font_size = 12
-text = "Settings"
+[node name="GiftButton" type="TextureButton" parent="Background/TopBar" unique_id=405365050]
+custom_minimum_size = Vector2(40, 32)
+layout_mode = 2
+texture_normal = ExtResource("9_84lro")
+ignore_texture_size = true
+stretch_mode = 5
 
-[node name="ComingSoonToast" type="PanelContainer" parent="Background"]
+[node name="SettingsButton" type="TextureButton" parent="Background/TopBar" unique_id=1934424450]
+custom_minimum_size = Vector2(40, 32)
+layout_mode = 2
+texture_normal = ExtResource("8_bvc5d")
+texture_pressed = ExtResource("9_ekkse")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="ComingSoonToast" type="PanelContainer" parent="Background" unique_id=631932008]
 visible = false
 layout_mode = 1
 anchors_preset = 5
@@ -290,10 +262,11 @@ offset_left = -110.0
 offset_top = 50.0
 offset_right = 110.0
 offset_bottom = 80.0
+grow_horizontal = 2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxFlat_toast")
 
-[node name="ComingSoonLabel" type="Label" parent="Background/ComingSoonToast"]
+[node name="ComingSoonLabel" type="Label" parent="Background/ComingSoonToast" unique_id=520728185]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_font_sizes/font_size = 14
@@ -301,7 +274,7 @@ text = "Coming soon"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="FooterBar" type="HBoxContainer" parent="Background"]
+[node name="FooterBar" type="HBoxContainer" parent="Background" unique_id=1412237850]
 layout_mode = 1
 anchors_preset = 12
 anchor_top = 1.0
@@ -311,36 +284,37 @@ offset_left = 12.0
 offset_top = -22.0
 offset_right = -12.0
 offset_bottom = -4.0
+grow_horizontal = 2
 grow_vertical = 0
 mouse_filter = 2
-alignment = 1
 theme_override_constants/separation = 16
+alignment = 1
 
-[node name="FooterTitleLabel" type="Label" parent="Background/FooterBar"]
+[node name="FooterTitleLabel" type="Label" parent="Background/FooterBar" unique_id=699683389]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 0.8)
 theme_override_font_sizes/font_size = 12
 text = "Duel of Gods: Babylon"
 
-[node name="FooterSep1" type="Label" parent="Background/FooterBar"]
+[node name="FooterSep1" type="Label" parent="Background/FooterBar" unique_id=1103278434]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 0.6)
 theme_override_font_sizes/font_size = 12
 text = "•"
 
-[node name="VersionLabel" type="Label" parent="Background/FooterBar"]
+[node name="VersionLabel" type="Label" parent="Background/FooterBar" unique_id=1585779380]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 0.8)
 theme_override_font_sizes/font_size = 12
 text = "v0.0.0"
 
-[node name="FooterSep2" type="Label" parent="Background/FooterBar"]
+[node name="FooterSep2" type="Label" parent="Background/FooterBar" unique_id=1609404183]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.5, 0.5, 0.5, 0.6)
 theme_override_font_sizes/font_size = 12
 text = "•"
 
-[node name="ServerStatusLabel" type="Label" parent="Background/FooterBar"]
+[node name="ServerStatusLabel" type="Label" parent="Background/FooterBar" unique_id=1619704906]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 0.8)
 theme_override_font_sizes/font_size = 12
