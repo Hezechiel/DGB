@@ -5,8 +5,8 @@
 [ext_resource type="PackedScene" uid="uid://bx5ubwkcebqbx" path="res://scenes/arena/MoveMarker.tscn" id="8_mvmrk"]
 [ext_resource type="PackedScene" uid="uid://dghostscn0001" path="res://scenes/arena/DeployGhost.tscn" id="9_ghost"]
 [ext_resource type="Script" uid="uid://dpoqc2pl2x3x4" path="res://scripts/arena/arena_camera.gd" id="12_cam"]
-[ext_resource type="PackedScene" path="res://scenes/arena/DenialZoneOverlay.tscn" id="15_denialzone"]
-[ext_resource type="Script" path="res://scripts/arena/desaturate_overlay.gd" id="16_desatscript"]
+[ext_resource type="PackedScene" path="res://scenes/arena/maps/DenialZoneOverlay.tscn" id="15_denialzone"]
+[ext_resource type="Script" uid="uid://dhupbpnth48b" path="res://scripts/arena/desaturate_overlay.gd" id="16_desatscript"]
 [ext_resource type="Shader" uid="uid://dwntbccsgplut" path="res://scenes/arena/ui/shaders/desaturate.gdshader" id="17_desatshader"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_desat"]
@@ -19,12 +19,13 @@ script = ExtResource("1_u52cf")
 [node name="MapRoot" type="Node2D" parent="." unique_id=760947014]
 
 [node name="DesaturateRect" type="ColorRect" parent="." unique_id=700000001]
-layout_mode = 0
-position = Vector2(-5000, -5000)
-size = Vector2(10000, 10000)
 z_index = 100
-mouse_filter = 2
 material = SubResource("ShaderMaterial_desat")
+offset_left = -5000.0
+offset_top = -5000.0
+offset_right = 5000.0
+offset_bottom = 5000.0
+mouse_filter = 2
 script = ExtResource("16_desatscript")
 
 [node name="MoveMarker" parent="." unique_id=1387004111 instance=ExtResource("8_mvmrk")]

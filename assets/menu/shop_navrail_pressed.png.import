@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bvkxls316jr1s"
-path="res://.godot/imported/UI_user.png-7440e3b33b4adead10e1fde7de1e3e98.ctex"
+uid="uid://d3ed6pptogjga"
+path="res://.godot/imported/shop_navrail_pressed.png-cf6b79d691206e66ec4c481072c0a970.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/menu/UI_user.png"
-dest_files=["res://.godot/imported/UI_user.png-7440e3b33b4adead10e1fde7de1e3e98.ctex"]
+source_file="res://assets/menu/shop_navrail_pressed.png"
+dest_files=["res://.godot/imported/shop_navrail_pressed.png-cf6b79d691206e66ec4c481072c0a970.ctex"]
 
 [params]
 

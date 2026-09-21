@@ -6,8 +6,8 @@
 [ext_resource type="FontFile" uid="uid://v1n7s30p30ib" path="res://assets/fonts/Marcellus-Regular.ttf" id="4_8twik"]
 [ext_resource type="Texture2D" uid="uid://bsquqbowm0moo" path="res://assets/menu/UI_note.png" id="6_aby01"]
 [ext_resource type="Script" uid="uid://5dp3eu06t38m" path="res://scripts/ui/scrollable.gd" id="6_scroll"]
-[ext_resource type="Texture2D" uid="uid://dv8mpu640lf7v" path="res://assets/menu/UI_pause_btn.png" id="20_pausebtn"]
-[ext_resource type="Texture2D" uid="uid://c865n2j5w8div" path="res://assets/menu/UI_pause_btn_pressed.png" id="21_pausebtnp"]
+[ext_resource type="Texture2D" uid="uid://dv8mpu640lf7v" path="res://assets/UI/pause_btn.png" id="20_pausebtn"]
+[ext_resource type="Texture2D" uid="uid://c865n2j5w8div" path="res://assets/UI/pause_btn_pressed.png" id="21_pausebtnp"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_3g7hk"]
 texture = ExtResource("2_8twik")

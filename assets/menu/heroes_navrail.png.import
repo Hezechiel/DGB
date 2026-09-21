@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cv1ensqo3ineq"
-path="res://.godot/imported/energy.png-ef035054be1148612fd55ebbff189729.ctex"
+uid="uid://cr3a562xn2b4"
+path="res://.godot/imported/heroes_navrail.png-d5828ad303362f0a46a9da8dedf158d1.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/menu/energy.png"
-dest_files=["res://.godot/imported/energy.png-ef035054be1148612fd55ebbff189729.ctex"]
+source_file="res://assets/menu/heroes_navrail.png"
+dest_files=["res://.godot/imported/heroes_navrail.png-d5828ad303362f0a46a9da8dedf158d1.ctex"]
 
 [params]
 

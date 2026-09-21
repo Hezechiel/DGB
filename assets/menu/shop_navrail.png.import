@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cfolk62b1hdfy"
-path="res://.godot/imported/gold_bar.png-05d27269b72551852e7e38068d3706bb.ctex"
+uid="uid://6ewntk336vxa"
+path="res://.godot/imported/shop_navrail.png-a48045db0917e4248858691a62861858.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/menu/gold_bar.png"
-dest_files=["res://.godot/imported/gold_bar.png-05d27269b72551852e7e38068d3706bb.ctex"]
+source_file="res://assets/menu/shop_navrail.png"
+dest_files=["res://.godot/imported/shop_navrail.png-a48045db0917e4248858691a62861858.ctex"]
 
 [params]
 

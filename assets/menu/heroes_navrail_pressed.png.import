@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dv8mpu640lf7v"
-path="res://.godot/imported/UI_pause_btn.png-a9f593770bd4d57dc16bd6b62ccbf054.ctex"
+uid="uid://dsc8qortiv72a"
+path="res://.godot/imported/heroes_navrail_pressed.png-5456256f6fd15618eccb5be2827853c0.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/menu/UI_pause_btn.png"
-dest_files=["res://.godot/imported/UI_pause_btn.png-a9f593770bd4d57dc16bd6b62ccbf054.ctex"]
+source_file="res://assets/menu/heroes_navrail_pressed.png"
+dest_files=["res://.godot/imported/heroes_navrail_pressed.png-5456256f6fd15618eccb5be2827853c0.ctex"]
 
 [params]
 

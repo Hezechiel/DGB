@@ -3,46 +3,27 @@
 [ext_resource type="Script" uid="uid://cxqr40v74ph0n" path="res://scripts/ui/main_menu.gd" id="1_2nud1"]
 [ext_resource type="Texture2D" uid="uid://bfsg3fb2osnra" path="res://assets/menu/main_menu.webp" id="2_y6vun"]
 [ext_resource type="Texture2D" uid="uid://bsquqbowm0moo" path="res://assets/menu/UI_note.png" id="4_84lro"]
+[ext_resource type="Texture2D" uid="uid://duf2yfgdqsj2q" path="res://assets/menu/inventory_navrail.png" id="5_scuer"]
 [ext_resource type="FontFile" uid="uid://bweqmg7kjyyai" path="res://assets/fonts/CinzelDecorative-Black.ttf" id="5_y6vun"]
+[ext_resource type="Texture2D" uid="uid://cr3a562xn2b4" path="res://assets/menu/heroes_navrail.png" id="6_oq8re"]
+[ext_resource type="Texture2D" uid="uid://dsc8qortiv72a" path="res://assets/menu/heroes_navrail_pressed.png" id="7_ddky8"]
 [ext_resource type="Texture2D" uid="uid://dj6rsikiddm60" path="res://assets/menu/settings_gear.png" id="8_bvc5d"]
+[ext_resource type="Texture2D" uid="uid://6ewntk336vxa" path="res://assets/menu/shop_navrail.png" id="8_ddky8"]
 [ext_resource type="PackedScene" uid="uid://bbav7qxtv7i6x" path="res://scenes/menu/setting_overlay.tscn" id="8_e1dod"]
 [ext_resource type="Texture2D" uid="uid://c8q305b2h6q2i" path="res://assets/menu/mail_letter.png" id="8_ekkse"]
 [ext_resource type="Texture2D" uid="uid://hq8sqitnhm4" path="res://assets/menu/gifts_box.png" id="9_84lro"]
 [ext_resource type="PackedScene" uid="uid://pfm88dv1cava" path="res://scenes/menu/credits_overlay.tscn" id="9_bvc5d"]
 [ext_resource type="Texture2D" uid="uid://cc4tjrimt68by" path="res://assets/menu/settings_gear_pressed.png" id="9_ekkse"]
+[ext_resource type="Texture2D" uid="uid://d3ed6pptogjga" path="res://assets/menu/shop_navrail_pressed.png" id="9_h8wvk"]
+[ext_resource type="Texture2D" uid="uid://sns78375d14t" path="res://assets/menu/mail_letter_pressed.png" id="9_u1wty"]
+[ext_resource type="Texture2D" uid="uid://co4s64g7giqe5" path="res://assets/menu/events_navrail.png" id="10_5657p"]
 [ext_resource type="SpriteFrames" uid="uid://75pi7xqp2vus" path="res://data/heroes/frames/frames_zeus.tres" id="10_zeusframes"]
+[ext_resource type="Texture2D" uid="uid://bogsukk5lesba" path="res://assets/menu/events_navrail_pressed.png" id="11_t1xqk"]
+[ext_resource type="Texture2D" uid="uid://bgxlwhck0h6kw" path="res://assets/menu/gifts_box_pressed.png" id="11_u2yxo"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_mgsx5"]
 texture = ExtResource("2_y6vun")
 modulate_color = Color(0.7380309, 0.73803085, 0.7380308, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_deck"]
-bg_color = Color(0.45, 0.35, 0.55, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_heroes"]
-bg_color = Color(0.3, 0.5, 0.35, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_shop"]
-bg_color = Color(0.6, 0.45, 0.15, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_rewards"]
-bg_color = Color(0.55, 0.25, 0.25, 1)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_battle"]
 bg_color = Color(0.75, 0.15, 0.1, 1)
@@ -103,33 +84,37 @@ grow_vertical = 2
 mouse_filter = 2
 theme_override_constants/separation = 8
 
-[node name="DeckButton" type="Button" parent="Background/NavRail" unique_id=1680314696]
-custom_minimum_size = Vector2(100, 36)
+[node name="DeckButton" type="TextureButton" parent="Background/NavRail" unique_id=1643586087]
+custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_deck")
-text = "Deck"
+texture_normal = ExtResource("5_scuer")
+texture_pressed = ExtResource("5_scuer")
+ignore_texture_size = true
+stretch_mode = 5
 
-[node name="HeroesButton" type="Button" parent="Background/NavRail" unique_id=1578356168]
-custom_minimum_size = Vector2(100, 36)
+[node name="HeroesButton" type="TextureButton" parent="Background/NavRail" unique_id=1562915707]
+custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_heroes")
-text = "Heroes"
+texture_normal = ExtResource("6_oq8re")
+texture_pressed = ExtResource("7_ddky8")
+ignore_texture_size = true
+stretch_mode = 5
 
-[node name="ShopButton" type="Button" parent="Background/NavRail" unique_id=786745926]
-custom_minimum_size = Vector2(100, 36)
+[node name="ShopButton" type="TextureButton" parent="Background/NavRail" unique_id=1175767601]
+custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_shop")
-text = "Shop"
+texture_normal = ExtResource("8_ddky8")
+texture_pressed = ExtResource("9_h8wvk")
+ignore_texture_size = true
+stretch_mode = 5
 
-[node name="RewardsButton" type="Button" parent="Background/NavRail" unique_id=2042428869]
-custom_minimum_size = Vector2(100, 36)
+[node name="RewardsButton" type="TextureButton" parent="Background/NavRail" unique_id=377405957]
+custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
-theme_override_font_sizes/font_size = 14
-theme_override_styles/normal = SubResource("StyleBoxFlat_rewards")
-text = "Rewards"
+texture_normal = ExtResource("10_5657p")
+texture_pressed = ExtResource("11_t1xqk")
+ignore_texture_size = true
+stretch_mode = 5
 
 [node name="NavRailSpacer" type="Control" parent="Background/NavRail" unique_id=517394107]
 layout_mode = 2
@@ -182,6 +167,7 @@ size_flags_vertical = 3
 mouse_filter = 2
 
 [node name="ZeusIdle" type="AnimatedSprite2D" parent="Background/MainContent/HeroShowcase" unique_id=793001848]
+visible = false
 scale = Vector2(1.2, 1.2)
 sprite_frames = ExtResource("10_zeusframes")
 animation = &"iddle_left"
@@ -234,6 +220,7 @@ mouse_filter = 2
 custom_minimum_size = Vector2(40, 32)
 layout_mode = 2
 texture_normal = ExtResource("8_ekkse")
+texture_pressed = ExtResource("9_u1wty")
 ignore_texture_size = true
 stretch_mode = 5
 
@@ -241,6 +228,7 @@ stretch_mode = 5
 custom_minimum_size = Vector2(40, 32)
 layout_mode = 2
 texture_normal = ExtResource("9_84lro")
+texture_pressed = ExtResource("11_u2yxo")
 ignore_texture_size = true
 stretch_mode = 5
 
