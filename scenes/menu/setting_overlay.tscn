@@ -5,9 +5,9 @@
 [ext_resource type="Script" uid="uid://b112ll4m8h56y" path="res://scripts/ui/audio_control.gd" id="4_04rkv"]
 [ext_resource type="FontFile" uid="uid://v1n7s30p30ib" path="res://assets/fonts/Marcellus-Regular.ttf" id="4_8twik"]
 [ext_resource type="Texture2D" uid="uid://bsquqbowm0moo" path="res://assets/menu/UI_note.png" id="6_aby01"]
+[ext_resource type="Texture2D" uid="uid://cn18eu65x486q" path="res://assets/menu/exit_btn.png" id="6_e3hi1"]
 [ext_resource type="Script" uid="uid://5dp3eu06t38m" path="res://scripts/ui/scrollable.gd" id="6_scroll"]
-[ext_resource type="Texture2D" uid="uid://dv8mpu640lf7v" path="res://assets/UI/pause_btn.png" id="20_pausebtn"]
-[ext_resource type="Texture2D" uid="uid://c865n2j5w8div" path="res://assets/UI/pause_btn_pressed.png" id="21_pausebtnp"]
+[ext_resource type="Texture2D" uid="uid://8jdti1d4oflf" path="res://assets/menu/exit_btn_pressed.png" id="7_e3hi1"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_3g7hk"]
 texture = ExtResource("2_8twik")
@@ -106,22 +106,22 @@ text = "Lock Camera"
 layout_mode = 2
 size_flags_horizontal = 0
 
-[node name="CreditsButton" type="Button" parent="SettingsPanel/MarginContainer/ScrollContainer/SettingsContent"]
+[node name="CreditsButton" type="Button" parent="SettingsPanel/MarginContainer/ScrollContainer/SettingsContent" unique_id=1683136338]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "Credits"
 
 [node name="CloseSettings" type="TextureButton" parent="SettingsPanel" unique_id=159458134]
 process_mode = 3
-anchors_preset = 1
+layout_mode = 0
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -115.0
 offset_top = 15.0
 offset_right = -20.0
 offset_bottom = 97.5
-texture_normal = ExtResource("20_pausebtn")
-texture_pressed = ExtResource("21_pausebtnp")
+texture_normal = ExtResource("6_e3hi1")
+texture_pressed = ExtResource("7_e3hi1")
 ignore_texture_size = true
 stretch_mode = 5
 

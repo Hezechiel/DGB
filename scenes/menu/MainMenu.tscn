@@ -2,9 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cxqr40v74ph0n" path="res://scripts/ui/main_menu.gd" id="1_2nud1"]
 [ext_resource type="Texture2D" uid="uid://bfsg3fb2osnra" path="res://assets/menu/main_menu.webp" id="2_y6vun"]
-[ext_resource type="Texture2D" uid="uid://bsquqbowm0moo" path="res://assets/menu/UI_note.png" id="4_84lro"]
 [ext_resource type="Texture2D" uid="uid://duf2yfgdqsj2q" path="res://assets/menu/inventory_navrail.png" id="5_scuer"]
-[ext_resource type="FontFile" uid="uid://bweqmg7kjyyai" path="res://assets/fonts/CinzelDecorative-Black.ttf" id="5_y6vun"]
 [ext_resource type="Texture2D" uid="uid://cr3a562xn2b4" path="res://assets/menu/heroes_navrail.png" id="6_oq8re"]
 [ext_resource type="Texture2D" uid="uid://dsc8qortiv72a" path="res://assets/menu/heroes_navrail_pressed.png" id="7_ddky8"]
 [ext_resource type="Texture2D" uid="uid://dj6rsikiddm60" path="res://assets/menu/settings_gear.png" id="8_bvc5d"]
@@ -20,22 +18,14 @@
 [ext_resource type="SpriteFrames" uid="uid://75pi7xqp2vus" path="res://data/heroes/frames/frames_zeus.tres" id="10_zeusframes"]
 [ext_resource type="Texture2D" uid="uid://bogsukk5lesba" path="res://assets/menu/events_navrail_pressed.png" id="11_t1xqk"]
 [ext_resource type="Texture2D" uid="uid://bgxlwhck0h6kw" path="res://assets/menu/gifts_box_pressed.png" id="11_u2yxo"]
+[ext_resource type="Texture2D" uid="uid://cn18eu65x486q" path="res://assets/menu/exit_btn.png" id="12_h8wvk"]
+[ext_resource type="Texture2D" uid="uid://8jdti1d4oflf" path="res://assets/menu/exit_btn_pressed.png" id="13_5657p"]
+[ext_resource type="Texture2D" uid="uid://fenjtkrllway" path="res://assets/menu/newgame_btn.png" id="15_heq2t"]
+[ext_resource type="Texture2D" uid="uid://qwl5vpl4sc40" path="res://assets/menu/newgame_btn_pressed.png" id="16_pb5pf"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_mgsx5"]
 texture = ExtResource("2_y6vun")
 modulate_color = Color(0.7380309, 0.73803085, 0.7380308, 1)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_battle"]
-bg_color = Color(0.75, 0.15, 0.1, 1)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(1, 0.8, 0.3, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_toast"]
 bg_color = Color(0, 0, 0, 0.75)
@@ -78,7 +68,7 @@ anchors_preset = 9
 anchor_bottom = 1.0
 offset_left = 8.0
 offset_top = 50.0
-offset_right = 118.0
+offset_right = 73.0
 offset_bottom = -26.0
 grow_vertical = 2
 mouse_filter = 2
@@ -122,29 +112,12 @@ size_flags_vertical = 3
 mouse_filter = 2
 
 [node name="ExitButton" type="TextureButton" parent="Background/NavRail" unique_id=1865112108]
-custom_minimum_size = Vector2(100, 42.25)
+custom_minimum_size = Vector2(60, 60)
 layout_mode = 2
-texture_normal = ExtResource("4_84lro")
+texture_normal = ExtResource("12_h8wvk")
+texture_pressed = ExtResource("13_5657p")
 ignore_texture_size = true
 stretch_mode = 5
-
-[node name="ExitLabel" type="Label" parent="Background/NavRail/ExitButton" unique_id=1962366157]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -18.0
-offset_top = -10.0
-offset_right = 18.0
-offset_bottom = 10.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_colors/font_color = Color(0, 0.25882354, 0.42745098, 1)
-theme_override_fonts/font = ExtResource("5_y6vun")
-theme_override_font_sizes/font_size = 16
-text = "Exit"
 
 [node name="MainContent" type="HBoxContainer" parent="Background" unique_id=502741429]
 layout_mode = 1
@@ -167,20 +140,20 @@ size_flags_vertical = 3
 mouse_filter = 2
 
 [node name="ZeusIdle" type="AnimatedSprite2D" parent="Background/MainContent/HeroShowcase" unique_id=793001848]
-visible = false
 scale = Vector2(1.2, 1.2)
 sprite_frames = ExtResource("10_zeusframes")
 animation = &"iddle_left"
 autoplay = "iddle_left"
 flip_h = true
 
-[node name="BattleCard" type="Button" parent="Background/MainContent" unique_id=612707258]
+[node name="BattleCard" type="TextureButton" parent="Background/MainContent" unique_id=956517196]
 custom_minimum_size = Vector2(220, 280)
 layout_mode = 2
 size_flags_vertical = 4
-theme_override_font_sizes/font_size = 28
-theme_override_styles/normal = SubResource("StyleBoxFlat_battle")
-text = "Battle"
+texture_normal = ExtResource("15_heq2t")
+texture_pressed = ExtResource("16_pb5pf")
+ignore_texture_size = true
+stretch_mode = 5
 
 [node name="TopBar" type="HBoxContainer" parent="Background" unique_id=500653719]
 layout_mode = 1

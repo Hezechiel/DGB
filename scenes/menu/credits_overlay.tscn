@@ -4,8 +4,8 @@
 [ext_resource type="Texture2D" uid="uid://dk16fd82k42u8" path="res://assets/menu/UI_note_large_landscape.png" id="2_05wj5"]
 [ext_resource type="FontFile" uid="uid://v1n7s30p30ib" path="res://assets/fonts/Marcellus-Regular.ttf" id="3_perpt"]
 [ext_resource type="Script" uid="uid://5dp3eu06t38m" path="res://scripts/ui/scrollable.gd" id="4_05wj5"]
-[ext_resource type="Texture2D" uid="uid://dv8mpu640lf7v" path="res://assets/UI/pause_btn.png" id="20_pausebtn"]
-[ext_resource type="Texture2D" uid="uid://c865n2j5w8div" path="res://assets/UI/pause_btn_pressed.png" id="21_pausebtnp"]
+[ext_resource type="Texture2D" uid="uid://cn18eu65x486q" path="res://assets/menu/exit_btn.png" id="5_y4d1c"]
+[ext_resource type="Texture2D" uid="uid://8jdti1d4oflf" path="res://assets/menu/exit_btn_pressed.png" id="6_ypx1t"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_74oyc"]
 texture = ExtResource("2_05wj5")
@@ -204,15 +204,15 @@ text = "Bilbanek"
 horizontal_alignment = 1
 
 [node name="CloseCredits" type="TextureButton" parent="CreditsPanel" unique_id=2122519792]
-anchors_preset = 1
+layout_mode = 0
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -115.0
 offset_top = 15.0
 offset_right = -20.0
 offset_bottom = 97.5
-texture_normal = ExtResource("20_pausebtn")
-texture_pressed = ExtResource("21_pausebtnp")
+texture_normal = ExtResource("5_y4d1c")
+texture_pressed = ExtResource("6_ypx1t")
 ignore_texture_size = true
 stretch_mode = 5
 
