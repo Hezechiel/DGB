@@ -37,12 +37,6 @@ script = ExtResource("16_desatscript")
 [node name="ArenaCamera" type="Camera2D" parent="." unique_id=555000123]
 position = Vector2(-250, 0)
 zoom = Vector2(3, 3)
-limit_left = -450
-limit_top = -350
-limit_right = 450
-limit_bottom = 350
 script = ExtResource("12_cam")
-bounds_min = Vector2(-250, -300)
-bounds_max = Vector2(250, 300)
 
 [node name="HUD" parent="." unique_id=661909964 instance=ExtResource("7_hud")]

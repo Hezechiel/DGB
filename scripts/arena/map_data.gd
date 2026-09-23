@@ -22,14 +22,19 @@ class_name MapData
 # arena.tscn ju bude vediet nacitat za behu (buduci krok migracie).
 @export var map_scene: PackedScene
 
-# Hranice mapy — jediny zdroj pravdy pre BattleManager.deploy_bounds AJ
-# ArenaCamera.bounds_min/bounds_max.
+# Hranice mapy — mapin obrysovy obdlznik. Jediny zdroj pravdy pre
+# BattleManager.deploy_bounds, ArenaCamera (co SMIE ukazat obrazovka —
+# edge clamp, nie stred kamery) a minimapu.
 @export var bounds: Rect2 = Rect2(-450.0, -350.0, 900.0, 700.0)
 
 # Drag-to-deploy edge-pan (arena_camera.gd) — per-map, kedze vacsia mapa
 # chce sirsi okraj/rychlejsi pan.
 @export var camera_edge_margin: float = 100.0
 @export var camera_edge_pan_speed_max: float = 650.0
+
+# Zoom kamery pre tuto mapu (uniformny, Camera2D.zoom = Vector2(z, z)).
+# Vacsie = priblizenejsie. Predtym napevno na ArenaCamera v arena.tscn.
+@export var camera_zoom: float = 3.0
 
 # Spawn pozicie hrdinov — predtym @export priamo na arena.gd.
 @export var hero_spawn_player: Vector2 = Vector2(-250, 0)

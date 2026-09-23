@@ -87,6 +87,7 @@ func _unhandled_input(event: InputEvent) -> void:
 		if InputR.is_release_suppressed(event.index):
 			return
 		var world_pos: Vector2 = get_canvas_transform().affine_inverse() * event.position
+		world_pos = BattleManager.snap_to_navigation(world_pos) # prisun tap mimo navmesh (prekazka/hranica) na najblizsi platny bod
 		InputR.set_move_target(world_pos)
 		player.on_new_move_command() # novy tap-to-move zrusi manualny lock na cieli
 		move_marker.show_at(world_pos)

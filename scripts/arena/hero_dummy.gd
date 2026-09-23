@@ -72,6 +72,13 @@ var _prev_hp_state: int = HeroAI.State.NORMAL
 @onready var health_bar: Control = $HealthBar
 @onready var target_marker: Sprite2D = $TargetMarker
 @onready var attack_range_area: Area2D = $AttackRange
+@onready var nav_agent: NavigationAgent2D = $NavAgent
+
+# Posledny ciel poslany NavAgentu. Vector2.INF = ziadny (donutim prvy vypocet
+# cesty). Prepocet cesty len ked sa ciel posunie o viac ako NAV_REPATH_DIST_SQ
+# (chase pohybliveho ciela) — nie kazdy frame.
+var _nav_goal: Vector2 = Vector2.INF
+const NAV_REPATH_DIST_SQ := 16.0 * 16.0
 
 # Nastavi hrdinu podla HeroData PRED vstupom do stromu (spawn flow:
 # instantiate → configure → add_child). Pouziva $NodePath priamo, nie
@@ -168,8 +175,12 @@ func _physics_process(delta: float) -> void:
 			_steer_towards(heal_target.global_position)
 			is_marching_or_retreating = true
 		else:
-			# ziadny ready pod nikde — ustup k vlastnemu spawnu
-			var retreat: Vector2 = BattleManager.hero_spawn_positions.get(team, global_position)
+			# ziadny ready pod nikde — ustup k vlastnemu spawnu. Prisunute na
+			# navmesh: spawn point moze lezat tesne pri prekazke (agent radius
+			# margin), bez toho by cesta koncila kus pred nim a 8px arrival
+			# check by nikdy neprešiel.
+			var retreat: Vector2 = BattleManager.snap_to_navigation(
+					BattleManager.hero_spawn_positions.get(team, global_position))
 			if global_position.distance_squared_to(retreat) <= 8.0 * 8.0:
 				_stand_idle()
 			else:
@@ -231,6 +242,20 @@ func _update_heal_target(delta: float) -> void:
 
 	heal_target = BattleManager.get_nearest_ready_healing_pod(team, global_position)
 
+# Smer k cielu cez navmesh. Bez navmeshu (NordPlains / prvy frame) = priamy
+# smer, identicky so starym spravanim. Cesta sa prepocita len ked sa ciel
+# posunie o viac ako NAV_REPATH_DIST (chase pohybliveho ciela), nie kazdy frame.
+func _nav_direction_to(goal: Vector2) -> Vector2:
+	if not BattleManager.has_navigation():
+		return (goal - global_position).normalized()
+	if _nav_goal == Vector2.INF or _nav_goal.distance_squared_to(goal) > NAV_REPATH_DIST_SQ:
+		_nav_goal = goal
+		nav_agent.target_position = goal
+	if nav_agent.is_navigation_finished():
+		return (goal - global_position).normalized()
+	var next := nav_agent.get_next_path_position()
+	return (next - global_position).normalized()
+
 # Single-hero steering — ZIADNA separation/neighbor logika (to je unit.gd
 # vec pre squady, nie pre osamoteneho hrdinu)
 func _steer_towards(target_pos: Vector2) -> void:
@@ -240,7 +265,7 @@ func _steer_towards(target_pos: Vector2) -> void:
 		move_and_slide()
 		return
 
-	var dir := (target_pos - global_position).normalized()
+	var dir := _nav_direction_to(target_pos)
 	last_direction = dir
 	update_animation(dir)
 	var eff_speed := speed * slow_multiplier
@@ -511,6 +536,7 @@ func die() -> void:
 	if is_dead:
 		return
 	is_dead = true
+	_nav_goal = Vector2.INF
 
 	set_physics_process(false)
 	target_marker.visible = false  # mrtvy hrdina nesmie drzat viditelny marker
@@ -557,6 +583,7 @@ func revive() -> void:
 	last_direction = Vector2.DOWN
 	structure_target = null
 	heal_target = null
+	_nav_goal = Vector2.INF
 	await play_spawn_animation()
 
 func _on_hurtbox_input_event(_viewport, event, _shape_idx) -> void:

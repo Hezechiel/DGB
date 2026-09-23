@@ -56,3 +56,7 @@ always_visible = true
 [node name="TargetMarker" type="Sprite2D" parent="." unique_id=1476954274]
 scale = Vector2(0.4, 0.4)
 texture = ExtResource("4_ngm5m")
+
+[node name="NavAgent" type="NavigationAgent2D" parent="."]
+path_desired_distance = 4.0
+target_desired_distance = 8.0

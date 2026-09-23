@@ -117,8 +117,10 @@ func _try_play_cards() -> void:
 func _resolve_play_position(card):
 	if card.unit_data != null:
 		# okolo enemy hrdinu, drzane na vlastnej polovici — "bezpecny default"
-		# minimalnej politiky, len rozptyleny
-		return _jittered_deploy_pos(_enemy_hero_pos(), UNIT_JITTER, true)
+		# minimalnej politiky, len rozptyleny. Prisunute na navmesh: blizko
+		# patchu by inak vela jitterovanych bodov padlo mimo navmesh a slot
+		# by cakal na nahodny validny roll o dalsi tick.
+		return BattleManager.snap_to_navigation(_jittered_deploy_pos(_enemy_hero_pos(), UNIT_JITTER, true))
 	if card.spell_data != null:
 		var target := BattleManager.get_nearest_structure("player", _enemy_hero_pos())
 		if target == null:

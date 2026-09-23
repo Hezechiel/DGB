@@ -6,7 +6,7 @@
 [ext_resource type="Texture2D" uid="uid://dvlckfsllk4o3" path="res://assets/sprites/movemarker/target.png" id="4_7hdv1"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
-size = Vector2(16, 16)
+size = Vector2(14, 14)
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_attack"]
 resource_local_to_scene = true
@@ -67,3 +67,7 @@ z_index = 1
 position = Vector2(0, 4)
 scale = Vector2(0.3, 0.3)
 texture = ExtResource("4_7hdv1")
+
+[node name="NavAgent" type="NavigationAgent2D" parent="."]
+path_desired_distance = 4.0
+target_desired_distance = 8.0

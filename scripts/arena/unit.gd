@@ -39,6 +39,13 @@ var target_check_timer: float = 0.0
 @export var separation_update_interval: float = 0.10
 var sep_timer: float = 0.0
 var cached_sep: Vector2 = Vector2.ZERO
+@onready var nav_agent: NavigationAgent2D = $NavAgent
+
+# Posledny ciel poslany NavAgentu. Vector2.INF = ziadny (donutim prvy vypocet
+# cesty). Prepocet cesty len ked sa ciel posunie o viac ako NAV_REPATH_DIST_SQ
+# (chase pohybliveho ciela) — nie kazdy frame.
+var _nav_goal: Vector2 = Vector2.INF
+const NAV_REPATH_DIST_SQ := 16.0 * 16.0
 # Ak sa budú "rozliezať" príliš do strán, zníž separation_strength.
 # Ak sa stále zlepia, zvýš separation_radius (10.0 az 14.0) alebo strength (1.0 až 2.0).
 @export var seek_strength: float = 1.0
@@ -271,6 +278,20 @@ func _process_chasing(delta: float) -> void:
 	_steer_towards(combat_target.global_position, delta)
 
 
+# Smer k cielu cez navmesh. Bez navmeshu (NordPlains / prvy frame) = priamy
+# smer, identicky so starym spravanim. Cesta sa prepocita len ked sa ciel
+# posunie o viac ako NAV_REPATH_DIST (chase pohybliveho ciela), nie kazdy frame.
+func _nav_direction_to(goal: Vector2) -> Vector2:
+	if not BattleManager.has_navigation():
+		return (goal - global_position).normalized()
+	if _nav_goal == Vector2.INF or _nav_goal.distance_squared_to(goal) > NAV_REPATH_DIST_SQ:
+		_nav_goal = goal
+		nav_agent.target_position = goal
+	if nav_agent.is_navigation_finished():
+		return (goal - global_position).normalized()
+	var next := nav_agent.get_next_path_position()
+	return (next - global_position).normalized()
+
 # Spolocny seek+separation steering krok — pouzity pre march k waypointu
 # aj pre march priamo k final targetu (fallback ked nezostanu waypointy)
 func _steer_towards(target_pos: Vector2, delta: float) -> void:
@@ -281,15 +302,14 @@ func _steer_towards(target_pos: Vector2, delta: float) -> void:
 		move_and_slide()
 		return
 
-	var to_target: Vector2 = target_pos - global_position
-
 	# separation od rovnakych unity (zachovana z povodneho kodu)
 	sep_timer -= delta
 	if sep_timer <= 0.0:
 		sep_timer = separation_update_interval
 		cached_sep = compute_separation()
 
-	var seek_dir: Vector2 = to_target.normalized()
+	# navmesh dava len seek smer — separation sa pricitava navrchu rovnako ako predtym
+	var seek_dir: Vector2 = _nav_direction_to(target_pos)
 	var steer: Vector2 = (seek_dir * seek_strength) + (cached_sep * separation_strength)
 	if steer.length() < 0.001:
 		steer = seek_dir

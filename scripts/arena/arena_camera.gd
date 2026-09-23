@@ -1,7 +1,9 @@
 extends Camera2D
 class_name ArenaCamera
 
-# Hranice kamery — nastav podla mapy, zmenitelne cez Inspector pre kazdu mapu
+# Hranice kamery — nastavene za behu z MapData.bounds (configure_map()).
+# Znamenaju co SMIE ukazat OBRAZOVKA (edge clamp), nie kam smie ist stred
+# kamery — pozri _clamp_point() nizsie.
 @export var bounds_min: Vector2 = Vector2(-450, -350)
 @export var bounds_max: Vector2 = Vector2(450, 350)
 
@@ -124,9 +126,22 @@ func _unhandled_input(event: InputEvent) -> void:
 			# spotrebuj event — drag nesmie spustit tap-to-move v arena.gd
 			get_viewport().set_input_as_handled()
 
+# Clamp pre STRED kamery tak, aby OKRAJE obrazovky ostali v bounds_min/max.
+# Viditelna polovica sveta = velkost viewportu / zoom / 2 — pocita sa pri
+# kazdom volani (ziadny cache), takze sedi pre kazdy pomer stran zariadenia
+# (stretch aspect = expand) aj po zmene zoomu. Ak je mapa v niektorej osi
+# mensia nez obrazovka, kamera sa v tej osi centruje na stred bounds.
+func _clamp_point(p: Vector2) -> Vector2:
+	var half_view := get_viewport_rect().size / zoom / 2.0
+	var lo := bounds_min + half_view
+	var hi := bounds_max - half_view
+	var out := p
+	out.x = (bounds_min.x + bounds_max.x) * 0.5 if lo.x > hi.x else clampf(p.x, lo.x, hi.x)
+	out.y = (bounds_min.y + bounds_max.y) * 0.5 if lo.y > hi.y else clampf(p.y, lo.y, hi.y)
+	return out
+
 func _clamp_to_bounds() -> void:
-	position.x = clampf(position.x, bounds_min.x, bounds_max.x)
-	position.y = clampf(position.y, bounds_min.y, bounds_max.y)
+	position = _clamp_point(position)
 
 func _screen_to_world(screen_pos: Vector2) -> Vector2:
 	return get_canvas_transform().affine_inverse() * screen_pos
@@ -155,6 +170,10 @@ func configure_map(map_data: MapData) -> void:
 	bounds_max = map_data.bounds.position + map_data.bounds.size
 	edge_margin = map_data.camera_edge_margin
 	edge_pan_speed_max = map_data.camera_edge_pan_speed_max
+	zoom = Vector2(map_data.camera_zoom, map_data.camera_zoom)
+	# start na spawne hraca — zoom MUSI byt nastaveny pred clampom (clamp z neho pocita)
+	position = map_data.hero_spawn_player
+	_clamp_to_bounds()
 
 # Volane z arena.gd pri deploy_preview_started — zaciatok drag-to-deploy gesta.
 func begin_deploy_pan() -> void:
@@ -213,8 +232,7 @@ func recenter_on_player(duration: float = 0.4) -> void:
 		_recenter_tween.kill()
 	# vypocitaj cielovu poziciu s respektovanim hranic mapy
 	var target_pos := _player.global_position
-	target_pos.x = clampf(target_pos.x, bounds_min.x, bounds_max.x)
-	target_pos.y = clampf(target_pos.y, bounds_min.y, bounds_max.y)
+	target_pos = _clamp_point(target_pos)
 	# plynuly prechod cez tween
 	_recenter_tween = create_tween()
 	_recenter_tween.set_ease(Tween.EASE_OUT)

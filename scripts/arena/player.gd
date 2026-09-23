@@ -50,6 +50,13 @@ var _attack_id: int = 0
 @onready var hurtbox: Area2D = $Hurtbox
 @onready var health_bar: Control = $HealthBar
 @onready var attack_range_area: Area2D = $AttackRange
+@onready var nav_agent: NavigationAgent2D = $NavAgent
+
+# Posledny ciel poslany NavAgentu. Vector2.INF = ziadny (donutim prvy vypocet
+# cesty). Prepocet cesty len ked sa ciel posunie o viac ako NAV_REPATH_DIST_SQ
+# (chase pohybliveho ciela) — nie kazdy frame.
+var _nav_goal: Vector2 = Vector2.INF
+const NAV_REPATH_DIST_SQ := 16.0 * 16.0
 
 
 var last_direction := Vector2.DOWN #default pozera dole
@@ -140,7 +147,7 @@ func _physics_process(delta):
 			_try_fire(primary_target)
 		else:
 			# mimo dosahu — chase (manualny ciel ma prioritu pred tap-to-move)
-			move_dir = (primary_target.global_position - global_position).normalized()
+			move_dir = _nav_direction_to(primary_target.global_position)
 	else:
 		# ziadny manualny ciel — auto-target: strielaj na najblizsieho v dosahu,
 		# bez chase. Auto-utok zacne LEN ked hrac prave nezadava pohyb (move_dir
@@ -175,14 +182,29 @@ func _physics_process(delta):
 	velocity = velocity.move_toward(move_dir * eff_speed, 500 * delta)
 	move_and_slide()
 
+# Smer k cielu cez navmesh. Bez navmeshu (NordPlains / prvy frame) = priamy
+# smer, identicky so starym spravanim. Cesta sa prepocita len ked sa ciel
+# posunie o viac ako NAV_REPATH_DIST (chase pohybliveho ciela), nie kazdy frame.
+func _nav_direction_to(goal: Vector2) -> Vector2:
+	if not BattleManager.has_navigation():
+		return (goal - global_position).normalized()
+	if _nav_goal == Vector2.INF or _nav_goal.distance_squared_to(goal) > NAV_REPATH_DIST_SQ:
+		_nav_goal = goal
+		nav_agent.target_position = goal
+	if nav_agent.is_navigation_finished():
+		return (goal - global_position).normalized()
+	var next := nav_agent.get_next_path_position()
+	return (next - global_position).normalized()
+
 func get_move_input() -> Vector2:
 	# Tap-to-move (autoload InputRouter)
 	if InputR.has_move_target:
 		var to_target := InputR.move_target - global_position
 		if to_target.length() <= 8.0:
 			InputR.clear_move_target() # sme dost blizko, stop
+			_nav_goal = Vector2.INF
 			return Vector2.ZERO
-		return to_target.normalized()
+		return _nav_direction_to(InputR.move_target)
 
 	return Vector2.ZERO
 
@@ -228,6 +250,7 @@ func on_new_move_command() -> void:
 	# hrac zadal novy tap-to-move — zrus rozbehnuty swing aj manualny ciel
 	_cancel_attack_windup()
 	_clear_primary_target()
+	_nav_goal = Vector2.INF
 
 func _update_auto_target(nearest: Node2D) -> void:
 	# bez flickeru — marker sa prepne len ked sa auto-target skutocne zmeni
@@ -371,6 +394,7 @@ func die() -> void:
 	is_dead = true
 
 	InputR.clear_move_target()
+	_nav_goal = Vector2.INF
 	_clear_primary_target()
 	if auto_target != null and is_instance_valid(auto_target) and auto_target.has_method("set_targeted"):
 		auto_target.set_targeted(false)
@@ -408,6 +432,7 @@ func die() -> void:
 
 func revive() -> void:
 	is_dead = false
+	_nav_goal = Vector2.INF
 	health_points = max_hp
 	health_bar.set_health(health_points)
 	visible = true

@@ -279,12 +279,51 @@ var deploy_bounds: Rect2 = Rect2(-450.0, -350.0, 900.0, 700.0)
 func configure_map(map_data: MapData) -> void:
 	deploy_bounds = map_data.bounds
 
+# --- Navigacia (navmesh) ---
+
+# Ma aktualna mapa navmesh? False na mapach bez NavigationRegion2D (NordPlains
+# zatial) a aj prvy physics frame po nacitani mapy, kym NavigationServer
+# nesynchronizoval mapu (iteration_id == 0). Volajuci vtedy padaju spat na
+# priame riadenie (stare spravanie).
+func has_navigation() -> bool:
+	if arena_root == null:
+		return false
+	var nav_map: RID = arena_root.get_viewport().find_world_2d().navigation_map
+	if NavigationServer2D.map_get_iteration_id(nav_map) == 0:
+		return false
+	return not NavigationServer2D.map_get_regions(nav_map).is_empty()
+
+# Prisunie bod na najblizsie miesto na navmeshi (tap do prekazky / za hranicu
+# mapy). Bez navmeshu vrati bod nezmeneny.
+func snap_to_navigation(pos: Vector2) -> Vector2:
+	if not has_navigation():
+		return pos
+	return NavigationServer2D.map_get_closest_point(arena_root.get_viewport().find_world_2d().navigation_map, pos)
+
+# Tolerancia pre "bod lezi na navmeshi" — map_get_closest_point vrati pre bod
+# vnutri polygonu ten isty bod, rozdiel je len float sum.
+const NAV_ON_MESH_TOLERANCE_SQ := 1.0 * 1.0
+
+# Lezi bod na navmeshi? False vnutri prekazky (diera v navmeshi) aj mimo
+# MapBorder. Bez navmeshu (prvy frame / mapa bez NavigationRegion2D) vrati
+# true — ziadne pravidlo na kontrolu, deploy sa sprava ako predtym.
+func is_on_navigation(pos: Vector2) -> bool:
+	if not has_navigation():
+		return true
+	return snap_to_navigation(pos).distance_squared_to(pos) <= NAV_ON_MESH_TOLERANCE_SQ
+
 # Jediny zdroj pravdy pre "da sa sem deployovat?". Vola ho aj live preview
 # (farba kruhu) aj spawn na release — nikdy nesmu rozhodnut rozdielne.
-# Buduce dalsie pravidla sa pridavaju SEM, nie na volajucich:
-#   - prekazky a struktury na mape
+# Buduce dalsie pravidla sa pridavaju SEM, nie na volajucich. Prekazky a
+# struktury na mape uz kryje is_on_navigation() nizsie (navmesh diera).
 func is_deploy_position_valid(pos: Vector2, team: String) -> bool:
 	if not deploy_bounds.has_point(pos):
+		return false
+	# musi lezat na navmeshi — odmietne drop do patchu aj mimo MapBorder.
+	# Navmesh je inset o agent radius (10px), takze drop tesne pri prekazke/
+	# hranici je tiez odmietnuty — unit by sa z takeho miesta aj tak nevedel
+	# vypatchovat von.
+	if not is_on_navigation(pos):
 		return false
 	# Predtym hardcodovana stredova ciara (x = 0). Teraz: nesmie byt
 	# vnutri ZIADNEJ aktualne aktivnej ochrannej zony opacneho timu —
@@ -335,7 +374,12 @@ func spawn_unit(card_id: StringName, pos: Vector2, team: String) -> Array[Node]:
 	for i in range(count):
 		var unit := unit_data.archetype_scene.instantiate()
 		unit.configure(unit_data, team)
-		unit.global_position = pos + _formation_offset(i, count, card.formation_radius)
+		# Drop point je uz validovany (is_on_navigation), ale formacny ring
+		# offset blizko okraja moze este stale padnut do prekazky/mimo hranice
+		# — kazdeho clena preto prisunieme zvlast. Deterministicke: rovnaky
+		# navmesh + rovnaka {card_id, pos, team} sprava dava rovnake pozicie
+		# na oboch klientoch. Bez navmeshu je snap_to_navigation() no-op.
+		unit.global_position = snap_to_navigation(pos + _formation_offset(i, count, card.formation_radius))
 		arena_root.add_child.call_deferred(unit)
 		spawned.append(unit)
 	return spawned
