@@ -20,15 +20,23 @@ var _aim_tick: int     = 0                # pocitadlo pre throttlovanie preracov
 var _current_anim: String = ""
 
 
-# Volane deferred po add_child — nastavi poziciu a ciel
-func setup(start_pos: Vector2, target: Node2D) -> void:
+# Volane deferred po add_child — nastavi poziciu a ciel.
+# Druhy parameter je zamerne netypovany: ide cez call_deferred, takze medzi
+# zaradenim do fronty a jej spracovanim moze byt ciel medzitym uvolneny
+# (queue_free spracovanej skor v tej istej fronte) — typovany Node2D parameter
+# by v takom pripade zhavaroval priamo v message queue s "Cannot convert
+# argument 2 from Object to Object" este pred vstupom do tela funkcie, kde by
+# ho is_instance_valid() uz bezpecne odchytil.
+func setup(start_pos: Vector2, target) -> void:
 	global_position = start_pos
-	_target    = target
 	_lifetime  = max_lifetime
 	_aim_tick  = 0
-	if is_instance_valid(_target):
+	if is_instance_valid(target):
+		_target    = target
 		_direction = (_target.global_position - start_pos).normalized()
 		_update_sprite_direction(_direction)
+	else:
+		_target = null
 
 
 func _physics_process(delta: float) -> void:
