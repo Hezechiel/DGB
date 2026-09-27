@@ -13,6 +13,7 @@ func _ready() -> void:
 	else:
 		winner_label.text = winner.to_upper() + " TEAM WINS!"
 	menu_button.pressed.connect(_on_menu_button_pressed)
+	AudioManager.play_music(&"menu")
 
 
 func _on_menu_button_pressed() -> void:

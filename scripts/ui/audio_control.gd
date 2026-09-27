@@ -1,14 +1,19 @@
 extends HSlider
 
+# Jeden slider script pre vsetky hlasitosti — audio_bus_name vyberie ktory
+# kanal ovlada (Music / SFX / Voice). Hodnota zije v Settings (single source
+# of truth), na busy ju aplikuje AudioManager; tento script k busom
+# nepristupuje priamo.
+
 @export var audio_bus_name: String
 
-var audio_bus_id: int
 var _is_dragging: bool = false
 
 func _ready() -> void:
-	audio_bus_id = AudioServer.get_bus_index(audio_bus_name)
-	# obnov slider z ulozeneho nastavenia
-	value = Settings.music_volume
+	# obnov slider z ulozeneho nastavenia — no_signal, aby samotne otvorenie
+	# overlayu nespustilo zapis do Settings
+	set_value_no_signal(AudioManager.get_volume(StringName(audio_bus_name)))
+	value_changed.connect(_on_value_changed)
 
 func _gui_input(event: InputEvent) -> void:
 	if event is InputEventScreenTouch:
@@ -17,7 +22,7 @@ func _gui_input(event: InputEvent) -> void:
 			_apply_touch_position(event.position)
 		else:
 			_is_dragging = false
-	
+
 	elif event is InputEventScreenDrag:
 		if _is_dragging:
 			_apply_touch_position(event.position)
@@ -29,32 +34,4 @@ func _apply_touch_position(local_pos: Vector2) -> void:
 	#print(value)
 
 func _on_value_changed(val: float) -> void:
-	if audio_bus_id == -1:
-		return
-	
-	if val <= 0.001:
-		AudioServer.set_bus_mute(audio_bus_id, true)
-	else:
-		AudioServer.set_bus_mute(audio_bus_id, false)
-		#print(linear_to_db(val))
-		AudioServer.set_bus_volume_db(audio_bus_id, linear_to_db(val))
-
-	# uloz do globalnych nastaveni
-	Settings.set_music_volume(val)
-
-
-#@export var audio_bus_name : String
-#var audio_bus_id : int
-#
-#func _ready() -> void:
-	#audio_bus_id = AudioServer.get_bus_index(audio_bus_name)
-#
-#func _on_value_changed(value: float) -> void:
-	#if audio_bus_id == -1:
-		#return
-		#
-	#if value <= 0.001:
-		#AudioServer.set_bus_mute(audio_bus_id, true)
-	#else:
-		#AudioServer.set_bus_mute(audio_bus_id, false)
-		#AudioServer.set_bus_volume_db(audio_bus_id, linear_to_db(value))
+	AudioManager.set_volume(StringName(audio_bus_name), val)

@@ -34,3 +34,7 @@ enum AttackType { RANGED, MELEE }
 @export var attack_type: AttackType = AttackType.RANGED
 @export var can_move_while_attacking: bool = false
 @export var attack_sound: AudioStream
+# Hlaska boha pri spawne/respawne LOKALNEHO hrdinu (len player.gd, nie
+# hero_dummy). Typicky AudioStreamRandomizer s viacerymi variantami —
+# AudioManager.play_voice() si pri kazdom prehrati vyberie nahodnu.
+@export var spawn_voice: AudioStream

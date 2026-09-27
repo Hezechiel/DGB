@@ -600,6 +600,8 @@ func update_idle_animation() -> void:
 # / speed), nie `await animation_finished` — spawn_left moze byt loop=1 a
 # ten signal by sa nikdy neozval (architecture.md §6, vzor spell_zone.gd).
 func play_spawn_animation() -> void:
+	if hero_data != null:
+		AudioManager.play_voice(hero_data.spawn_voice)  # null = ticho, play_voice to osetri
 	set_physics_process(false)
 	velocity = Vector2.ZERO
 	var frames := sprite.sprite_frames

@@ -79,6 +79,7 @@ func _ready() -> void:
 
 	BattleManager.start_match_timer()
 	EnergySystem.start()
+	AudioManager.play_music(&"battle")
 
 func _unhandled_input(event: InputEvent) -> void:
 	# Tap-to-move: tap mimo UI (UI eventy sem nedojdu, su handled v _gui_input)

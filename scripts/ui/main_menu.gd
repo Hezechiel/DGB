@@ -48,6 +48,7 @@ func _ready() -> void:
 	shop_button.pressed.connect(_show_coming_soon.bind("Shop"))
 	rewards_button.pressed.connect(_show_coming_soon.bind("Rewards"))
 	#setting_overlay.visible = false
+	AudioManager.play_music(&"menu")
 
 # Docasny "Coming soon" toast pre placeholder tlacidla (Mail/Gift teraz, dalsie
 # pribudnu v kroku 3 — nav rail). _toast_token zaruci ze rychle po sebe idúce
