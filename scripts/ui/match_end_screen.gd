@@ -13,7 +13,14 @@ func _ready() -> void:
 	else:
 		winner_label.text = winner.to_upper() + " TEAM WINS!"
 	menu_button.pressed.connect(_on_menu_button_pressed)
-	AudioManager.play_music(&"menu")
+	# Vitazstvo/prehra z pohladu LOKALNEHO hraca (last_winner je "player"/"enemy"/"draw").
+	match winner:
+		"player":
+			AudioManager.play_stinger(&"stinger_victory", &"menu")
+		"enemy":
+			AudioManager.play_stinger(&"stinger_defeat", &"menu")
+		_:
+			AudioManager.play_music(&"menu")
 
 
 func _on_menu_button_pressed() -> void:

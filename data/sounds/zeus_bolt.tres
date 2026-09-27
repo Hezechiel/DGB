@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="SoundData" format=3]
+
+[ext_resource type="Script" path="res://scripts/sound_data.gd" id="1_sound"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/heroes/zeus/zeus_bolt_travel.wav" id="2_bolt"]
+
+[resource]
+script = ExtResource("1_sound")
+id = &"zeus_bolt"
+streams = Array[AudioStream]([ExtResource("2_bolt")])
+bus = "Combat"
+priority = 2
+volume_db = 0.0
+max_instances = 2
+min_interval = 0.05

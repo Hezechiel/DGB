@@ -373,6 +373,8 @@ func _resolve_attack_hit() -> void:
 	_swing_target = null
 	if not is_instance_valid(target) or not _is_target_alive(target):
 		return
+	if unit_data != null:
+		AudioManager.play_sfx(unit_data.attack_sfx, global_position)
 	match attack_type:
 		UnitData.AttackType.RANGED:
 			fire_bolt(target)
@@ -581,6 +583,8 @@ func die() -> void:
 	if is_dying:
 		return
 	is_dying = true
+	if unit_data != null:
+		AudioManager.play_sfx(unit_data.death_sfx, global_position)
 
 	set_physics_process(false)
 	$CollisionBody.set_deferred("disabled", true)

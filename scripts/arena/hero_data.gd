@@ -33,8 +33,12 @@ enum AttackType { RANGED, MELEE }
 
 @export var attack_type: AttackType = AttackType.RANGED
 @export var can_move_while_attacking: bool = false
-@export var attack_sound: AudioStream
+# Id-cka SoundData (data/sounds/) — prehravane cez AudioManager.play_sfx().
+# attack_sfx hra v DAMAGE POINTE (dopad melee / vypustenie strely), nie na
+# zaciatku svihu — zruseny windup tak nikdy nevyda zvuk. &"" = ticho.
+@export var attack_sfx: StringName
+@export var death_sfx: StringName
 # Hlaska boha pri spawne/respawne LOKALNEHO hrdinu (len player.gd, nie
-# hero_dummy). Typicky AudioStreamRandomizer s viacerymi variantami —
-# AudioManager.play_voice() si pri kazdom prehrati vyberie nahodnu.
-@export var spawn_voice: AudioStream
+# hero_dummy). Id-cko SoundData na Voice buse (data/sounds/) — varianty
+# zije v SoundData.streams, nikdy nie tu. &"" = ticho.
+@export var spawn_voice: StringName

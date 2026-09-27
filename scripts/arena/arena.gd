@@ -35,6 +35,10 @@ func _enter_tree() -> void:
 	# HeroAI tiez — dalsi autoload, rovnaka pastca.
 	HeroAI.reset_match_state()
 
+func _exit_tree() -> void:
+	# ziadna hlaska zapasu nesmie dohravat do menu / MatchEndScreen
+	AudioManager.stop_announcer()
+
 func _ready() -> void:
 	map_data = MapDB.get_map(MatchConfig.map_id)
 	if map_data == null:
@@ -76,6 +80,7 @@ func _ready() -> void:
 	hud.minimap.configure_map(map_data)
 
 	add_child(EnemyCardAI.new())
+	add_child(MatchAnnouncer.new())
 
 	BattleManager.start_match_timer()
 	EnergySystem.start()
@@ -138,3 +143,9 @@ func _input(event: InputEvent) -> void:
 			var dmg := roundi(player.max_hp / 3.0)
 			player.take_damage(dmg)
 			print("[debug] hurt player for %d (1/3 max_hp)" % dmg)
+		# --- DEBUG audio (docasne) — 10x sword_hit v jednom frame pri hracovi:
+		# ma byt pocut max 3 (max_instances) a min_interval ich este preriedi ---
+		if event.keycode == KEY_J:
+			for _i in 10:
+				AudioManager.play_sfx(&"sword_hit", player.global_position)
+			print("[audio] 10x sword_hit spam")

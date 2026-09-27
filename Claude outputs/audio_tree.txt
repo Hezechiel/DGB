@@ -1,0 +1,159 @@
+DGB — AUDIO ASSET TREE  (res://assets/audio/)          stav k 2026-09-27
+=====================================================================================
+
+LEGEND
+  [OK]  file exists and is wired into the game (plays)
+  [3b]  file exists, gets wired by the phase 3b prompt
+  [--]  file exists but has no role / is in the wrong place
+  +P1   MISSING — basic sound you hear every match (do these first)
+  +P2   MISSING — polish, the game feels better with it
+  +P3   MISSING — later; the game system doesn't exist yet (don't make it now)
+
+FORMAT
+  .wav  → short SFX and UI (import: Mono, 44.1 kHz, Trim, Normalize, QOA, Loop OFF)
+  .ogg  → music, ambient, voice (import: Loop ON only for music and ambient beds)
+  _01…  → variants of the same sound (the code picks one at random, never the same twice)
+          Hits/shots: 3–6 variants. Rare events: 1–2 are enough.
+
+-------------------------------------------------------------------------------------
+assets/audio/
+│
+├── music/                                   ── Music bus, crossfade in AudioManager
+│   ├── menu/                                   menu + PreMatchFlow + after the match
+│   │   ├── music_menu_gods_descent.ogg          [OK]
+│   │   └── music_menu_timpani_rolls.ogg         [OK]
+│   ├── battle/                                 arena, picked at random each match
+│   │   ├── music_battle_arena_of_thunder.ogg    [OK]
+│   │   ├── music_battle_gods_descent.ogg        [OK]
+│   │   └── music_battle_norse_*.ogg             +P2  Norse map currently plays Greek tracks
+│   └── stingers/                               short one-shot musical cue, Loop OFF
+│       ├── stinger_victory.ogg                  [3b]
+│       ├── stinger_defeat.ogg                   [3b]
+│       ├── stinger_draw.ogg                     +P2  draw currently goes straight to menu music
+│       └── stinger_match_start.ogg              +P2  "gong" at match start (2–3 s)
+│
+├── ambient/                                 ── Environment bus, AmbientEmitter in the map scene
+│   ├── greek/                                  Greek Plateau
+│   │   ├── amb_greek_harp_01…06.ogg             [OK]  random one-shot, 15–35 s
+│   │   ├── amb_greek_cymbals.ogg                [OK]  random one-shot, 30–60 s
+│   │   └── amb_greek_bed_wind.ogg               +P1  continuous quiet background (wind, cicadas),
+│   │                                                  NON-musical, 20–40 s seamless loop.
+│   │                                                  Without it the map is silent between harp phrases.
+│   └── norse/                                  Nord Plains
+│       ├── amb_norse_thin_ice.ogg               [OK]  bed loop
+│       └── amb_norse_raven_01…03.ogg /          +P2  random one-shots (raven, gust of wind,
+│           amb_norse_wind_gust_01…03.ogg              ice cracking), same as harp on Greek
+│
+├── sfx/
+│   ├── ui/                                  ── UI bus (plays even while paused)
+│   │   ├── ui_select.wav                        [OK]  every button (automatic)
+│   │   ├── ui_close.wav                         [OK]  close X (group ui_sfx_close)
+│   │   ├── ui_card_pickup.wav                   +P1  you pick up a card from the hand (start of drag)
+│   │   ├── ui_card_cancel.wav                   +P1  drop on an invalid spot / back into the hand
+│   │   ├── ui_no_energy.wav                     +P1  tap on a card you can't afford
+│   │   ├── ui_timer_tick.wav                    +P2  last 10 s of the match timer
+│   │   └── ui_toggle.wav                        +P3  CheckButton / slider (select covers it for now)
+│   │
+│   ├── combat/                              ── Combat bus, positional (left/right + distance)
+│   │   ├── melee/                              melee hit (plays when the hit LANDS)
+│   │   │   └── sword_hit_01…06.wav              [OK]  hoplite + (temporarily) Poseidon — ENOUGH,
+│   │   │                                              no more variants needed
+│   │   ├── ranged/                             shot fired (plays when the arrow/bolt LEAVES)
+│   │   │   ├── arrow_shot_01…03.wav             [OK]  toxotes (bow)
+│   │   │   └── crossbow_shot_01…03.wav          +P2  gastraphetes currently uses the bow sound
+│   │   ├── impact/                             projectile hits its target — NEW folder
+│   │   │   ├── arrow_impact_01…03.wav           +P1  arrows currently hit silently
+│   │   │   └── stone_impact_01…03.wav           +P2  hit on a turret/base (instead of sword on stone)
+│   │   ├── hurt/                               own hero takes damage — NEW folder
+│   │   │   └── hero_hurt_01…03.wav              +P1  short "thud"/flash; key feedback for the
+│   │   │                                              player, HIGH priority
+│   │   ├── death/
+│   │   │   ├── unit_death_01.wav                [OK]  all units — add _02, _03 (+P2) so
+│   │   │   │                                          mass deaths aren't all the same sound
+│   │   │   └── hero_death_greek_01.wav          [OK]  Zeus + Poseidon
+│   │   ├── deploy/                             unit lands on the battlefield — NEW folder
+│   │   │   └── unit_deploy_01…03.wav            +P1  every card play (a "thump" + dust), heard
+│   │   │                                              dozens of times per match
+│   │   └── structures/
+│   │       ├── turret_destroyed_01.wav          [3b]  rubble; add _02 (+P2)
+│   │       ├── base_destroyed_01.wav            [3b]  plays on the MatchEndScreen before the stinger
+│   │       └── turret_fire_01…03.wav            +P1  turrets currently fire silently
+│   │
+│   ├── spells/                              ── NEW folder, Combat bus, one subfolder per spell
+│   │   ├── storm/
+│   │   │   ├── storm_cast.wav                   +P1  the moment the spell is cast
+│   │   │   └── storm_loop.ogg                   +P2  rain/thunder for as long as the zone lasts (loop)
+│   │   ├── stun/
+│   │   │   └── stun_cast.wav                    +P1
+│   │   └── ensnaring_net/
+│   │       └── net_cast.wav                     +P1  throw + net landing
+│   │
+│   ├── status/                              ── NEW folder, short sound when an effect lands on a unit
+│   │   ├── status_stun.wav                      +P2  "dizzy"
+│   │   ├── status_root.wav                      +P2  entangled
+│   │   └── status_slow.wav                      +P3
+│   │
+│   ├── pickups/                             ── NEW folder, healing pods
+│   │   ├── heal_pickup.wav                      +P1  hero picks up a pod (instant heal)
+│   │   └── pod_ready.wav                        +P2  pod is available again (quiet, positional)
+│   │
+│   └── heroes/                              ── attacks unique to a hero
+│       ├── common/
+│       │   └── hero_spawn_01.wav                +P1  "materialize" whoosh at spawn/respawn
+│       │                                              (both heroes; the spawn voice line is separate)
+│       ├── zeus/
+│       │   ├── zeus_bolt_travel.wav             [OK]  Zeus attack
+│       │   ├── zeus_bolt_impact_01…03.wav       +P1  lightning hitting the target
+│       │   └── zeus_chain_lightning.wav         +P3  special ability — the system doesn't exist yet
+│       └── poseidon/                         NEW folder
+│           ├── poseidon_trident_hit_01…03.wav   +P1  currently uses sword_hit (a trident ≠ a sword)
+│           └── poseidon_tidal_slam.wav          +P3  special ability — the system doesn't exist yet
+│
+└── voice/                                   ── Voice bus, no position
+    ├── heroes/
+    │   ├── zeus/
+    │   │   ├── zeus_spawn_01.ogg                [3b]  spawn/respawn of your own hero
+    │   │   ├── zeus_spawn_02.ogg                [3b]
+    │   │   └── zeus_spawn_03…05.ogg             +P2  with 2 lines they just alternate;
+    │   │                                              3+ starts to feel random
+    │   └── poseidon/                         NEW folder
+    │       └── poseidon_spawn_01…03.ogg         +P1  needed as soon as Poseidon is playable
+    │                                                  as your own hero
+    └── announcer/                              queue; music ducks while it speaks
+        ├── announcer_first_blood_01.ogg         [3b]
+        ├── announcer_match_start_01.ogg         +P1  "Let the battle begin!"
+        ├── announcer_turret_destroyed_01.ogg    +P1  "Enemy tower has fallen"   ┐ split by POV,
+        ├── announcer_turret_lost_01.ogg         +P1  "Our tower has fallen"     ┘ like LoL/SWFA
+        ├── announcer_victory_01.ogg             +P2  spoken, on top of stinger_victory
+        ├── announcer_defeat_01.ogg              +P2
+        └── announcer_last_30s_01.ogg            +P3  "Thirty seconds remain" (end of the timer)
+
+-------------------------------------------------------------------------------------
+LEFTOVERS OUTSIDE assets/audio/  (delete in the Godot FileSystem panel, not in Explorer)
+  assets/sounds/   coin, explosion, hurt, jump, power_up, tap .wav, god_intro.mp3   [--]
+  assets/music/    soundtrack1.mp3 / music_menu.mp3                                 [--]
+  scenes/music.tscn  the old Music autoload, no longer used                         [--]
+
+-------------------------------------------------------------------------------------
+WHAT TO MAKE FIRST  (P1 = 18 sounds, ordered by how often you hear them)
+   1. unit_deploy_01…03.wav          every card play
+   2. arrow_impact_01…03.wav         half the shots are currently silent
+   3. zeus_bolt_impact_01…03.wav     your own hero's attack with no impact
+   4. hero_hurt_01…03.wav            feedback: "I'm taking damage"
+   5. turret_fire_01…03.wav          turrets fire constantly
+   6. ui_card_pickup / ui_card_cancel / ui_no_energy .wav
+   7. storm_cast / stun_cast / net_cast .wav
+   8. heal_pickup.wav
+   9. hero_spawn_01.wav
+  10. poseidon_trident_hit_01…03.wav
+  11. amb_greek_bed_wind.ogg
+  12. announcer_match_start / _turret_destroyed / _turret_lost .ogg
+  (poseidon_spawn_*.ogg only once Poseidon is playable as your own hero)
+
+NOTES
+  - Each new sound = 1 audio file + 1 SoundData .tres in data/sounds/ + (for a new
+    kind of event) one hook in the code. Adding a variant to an existing sound is just a
+    new file in the SoundData's streams array — no code.
+  - [3b] items start playing once the phase 3b prompt lands.
+  - P3 sounds are tied to the special-ability and sidekick systems (heroes_greek.md) —
+    don't record them until those mechanics exist; the sound usually changes with the final design.

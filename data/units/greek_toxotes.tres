@@ -15,3 +15,5 @@ sprite_frames = ExtResource("3_frames")
 attack_type = 1
 attack_range = 90.0
 projectile_scene = ExtResource("4_projectile")
+attack_sfx = &"arrow_shot"
+death_sfx = &"unit_death"

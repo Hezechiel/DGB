@@ -51,8 +51,6 @@ offset_right = -16.0
 offset_bottom = -30.0
 always_visible = true
 
-[node name="AttackSfx" type="AudioStreamPlayer2D" parent="." unique_id=264449019]
-
 [node name="TargetMarker" type="Sprite2D" parent="." unique_id=1476954274]
 scale = Vector2(0.4, 0.4)
 texture = ExtResource("4_ngm5m")

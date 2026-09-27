@@ -1,0 +1,22 @@
+[gd_resource type="Resource" script_class="SoundData" format=3]
+
+[ext_resource type="Script" path="res://scripts/sound_data.gd" id="1_sound"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambient/greek/amb_greek_harp_01.ogg" id="2_h01"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambient/greek/amb_greek_harp_02.ogg" id="3_h02"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambient/greek/amb_greek_harp_03.ogg" id="4_h03"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambient/greek/amb_greek_harp_04.ogg" id="5_h04"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambient/greek/amb_greek_harp_05.ogg" id="6_h05"]
+[ext_resource type="AudioStream" path="res://assets/audio/ambient/greek/amb_greek_harp_06.ogg" id="7_h06"]
+
+[resource]
+script = ExtResource("1_sound")
+id = &"amb_greek_harp"
+streams = Array[AudioStream]([ExtResource("2_h01"), ExtResource("3_h02"), ExtResource("4_h03"), ExtResource("5_h04"), ExtResource("6_h05"), ExtResource("7_h06")])
+bus = "Environment"
+priority = 0
+volume_db = -10.0
+volume_jitter_db = 2.0
+pitch_jitter = 0.0
+max_instances = 1
+min_interval = 0.0
+positional = false

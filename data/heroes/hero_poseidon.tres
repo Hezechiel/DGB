@@ -13,3 +13,5 @@ recovery_time = 0.3
 projectile_scene = ExtResource("2_bolt")
 sprite_frames = ExtResource("3_v5v47")
 attack_type = 1
+attack_sfx = &"hero_melee_hit"
+death_sfx = &"hero_death_greek"

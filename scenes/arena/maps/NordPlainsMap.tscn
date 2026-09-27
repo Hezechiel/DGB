@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://c0pbasepl4yr1" path="res://scenes/arena/bases/PlayerBase.tscn" id="10_xgbxb"]
 [ext_resource type="PackedScene" uid="uid://c0pbasenmy4r2" path="res://scenes/arena/bases/EnemyBase.tscn" id="11_vmsrg"]
 [ext_resource type="PackedScene" uid="uid://chealpodscn01" path="res://scenes/arena/maps/HealingPod.tscn" id="13_pod"]
+[ext_resource type="PackedScene" path="res://scenes/arena/audio/AmbientEmitter.tscn" id="14_amb"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_s15og"]
 vertices = PackedVector2Array(194.89844, -160, 351.6328, -126.546875, 370.8672, -40, 320, -40, 146, -82, 146, -134, 351.64063, 126.52344, 190.92969, 160, 153, 120, 153, 68, 320, 40, 370.8672, 40, -47.46875, 58.46875, -29.421875, 131.07813, -57.3125, 160.96094, -98, 137, -98, 85, -83.25, 64.78906, -191.89844, 160, -150, 137, 101, 120, 60.203125, 160.96094, 30.15625, 129.92188, 61.203125, -160.96094, 94, -134, -44.976563, 14.9765625, -49.617188, -61.476563, 44, -19.671875, 49.75, 67.78906, 44, -56.507813, -101, -85, -320, -40, -370.6172, -40, -349.7422, -129.35156, -189.17969, -158.97656, -350.65625, 125.57031, -370.3203, 40, -320, 40, 274, -26, 274, 26, 101, 68, 88.02344, 17.976563, 83.38281, -58.476563, 94, -82, 30.320313, -129.09375, 320, -26, -89, -59.507813, -153, -85, 320, 26, 85.53125, 61.46875, -320, 26, -274, 26, -150, 85, -274, -26, -320, -26, -153, -137, -26.773438, -127.921875, -101, -137, -58.921875, -157.04688, -89, -22.671875)
@@ -98,3 +99,9 @@ position = Vector2(300, -150)
 
 [node name="HealingPodEnemyBot" parent="EnemyStructures" unique_id=1674065346 instance=ExtResource("13_pod")]
 position = Vector2(300, 150)
+
+[node name="Ambient" type="Node2D" parent="." unique_id=900000004]
+
+[node name="IceBed" parent="Ambient" unique_id=900000005 instance=ExtResource("14_amb")]
+sound_id = &"amb_norse_thin_ice"
+mode = 0

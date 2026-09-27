@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" uid="uid://c0pbasenmy4r2" path="res://scenes/arena/bases/EnemyBase.tscn" id="11_vmsrg"]
 [ext_resource type="PackedScene" uid="uid://c8nrxu24pjwx8" path="res://scenes/arena/maps/MapBorder.tscn" id="12_xsh43"]
 [ext_resource type="PackedScene" uid="uid://chealpodscn01" path="res://scenes/arena/maps/HealingPod.tscn" id="13_pod"]
+[ext_resource type="PackedScene" path="res://scenes/arena/audio/AmbientEmitter.tscn" id="14_amb"]
 
 [sub_resource type="NavigationPolygon" id="NavigationPolygon_fx3ou"]
 vertices = PackedVector2Array(351.64063, 126.52344, 190.92969, 160, 150, 138, 150, 86, 330, 40, 370.8672, 40, 194.89844, -160, 351.6328, -126.546875, 370.8672, -40, 330, -40, 147, -76, 147, -128, 326, 26, 326, -26, 16.226563, -81.09375, -20.789063, -69.390625, -112.61719, -62.476563, -102, -86, -26.773438, -127.921875, 30.320313, -129.09375, 60.203125, 160.96094, 98, 138, -29.421875, 131.07813, -57.3125, 160.96094, -115, 139, -115, 87, -110.46875, 57.46875, -21.226563, 72.53125, 11.2734375, 78.25781, -191.89844, 160, -167, 139, 61.203125, -160.96094, 95, -128, -152, -23.671875, -146.25, 63.789063, -167, 87, -274, 26, -274, -26, -107.97656, 13.9765625, -24.007813, 43.328125, -154, -86, -152, -60.507813, -330, -40, -370.6172, -40, -349.7422, -129.35156, -189.17969, -158.97656, -350.65625, 125.57031, -370.3203, 40, -330, 40, 23.03125, -33.492188, 107, -56.507813, 107, -19.671875, 18.90625, 59.140625, 95, -76, 112.75, 67.78906, 98, 86, 274, -26, 151.02344, 17.976563, 274, 26, 148.53125, 61.46875, 146.38281, -58.476563, -102, -138, -58.921875, -157.04688, -154, -138, 30.15625, 129.92188, -326, 26, -326, -26)
@@ -105,3 +106,19 @@ position = Vector2(250, -100)
 
 [node name="HealingPodEnemyBot" parent="EnemyStructures" unique_id=1270188238 instance=ExtResource("13_pod")]
 position = Vector2(250, 100)
+
+[node name="Ambient" type="Node2D" parent="." unique_id=900000001]
+
+[node name="HarpEmitter" parent="Ambient" unique_id=900000002 instance=ExtResource("14_amb")]
+sound_id = &"amb_greek_harp"
+min_interval = 15.0
+max_interval = 35.0
+first_delay_min = 5.0
+first_delay_max = 15.0
+
+[node name="CymbalsEmitter" parent="Ambient" unique_id=900000003 instance=ExtResource("14_amb")]
+sound_id = &"amb_greek_cymbals"
+min_interval = 30.0
+max_interval = 60.0
+first_delay_min = 20.0
+first_delay_max = 40.0

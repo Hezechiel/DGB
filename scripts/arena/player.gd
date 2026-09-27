@@ -392,6 +392,8 @@ func die() -> void:
 	if is_dead:
 		return
 	is_dead = true
+	if hero_data != null:
+		AudioManager.play_sfx(hero_data.death_sfx, global_position)
 
 	InputR.clear_move_target()
 	_nav_goal = Vector2.INF
@@ -504,7 +506,11 @@ func _perform_attack(target: Node2D) -> void:
 			if "hp" in target and target.hp <= 0:
 				return
 			target.take_damage(projectile_damage)
+			if hero_data != null:
+				AudioManager.play_sfx(hero_data.attack_sfx, global_position)
 		_:
+			if hero_data != null:
+				AudioManager.play_sfx(hero_data.attack_sfx, global_position)
 			fire_bolt(target)
 
 # Zrusi rozbehnuty windup (pred damage pointom) bez damage a bez cooldown
@@ -528,12 +534,6 @@ func update_attack_animation() -> void:
 		else:
 			sprite.flip_h = last_direction.y < 0
 		sprite.play("attack_left")
-	_play_attack_sound()
-
-func _play_attack_sound() -> void:
-	if hero_data != null and hero_data.attack_sound != null:
-		$AttackSfx.stream = hero_data.attack_sound
-		$AttackSfx.play()
 
 
 # Tato funkcia sa zavola ked nieco vstupi do Hurtboxu
@@ -601,7 +601,7 @@ func update_idle_animation() -> void:
 # ten signal by sa nikdy neozval (architecture.md §6, vzor spell_zone.gd).
 func play_spawn_animation() -> void:
 	if hero_data != null:
-		AudioManager.play_voice(hero_data.spawn_voice)  # null = ticho, play_voice to osetri
+		AudioManager.play_voice(hero_data.spawn_voice)  # &"" = ticho, play_voice to osetri
 	set_physics_process(false)
 	velocity = Vector2.ZERO
 	var frames := sprite.sprite_frames

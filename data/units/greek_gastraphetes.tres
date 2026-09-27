@@ -20,3 +20,5 @@ attack_type = 1
 attack_range = 150.0
 projectile_scene = ExtResource("2_yaidr")
 damage_point_ratio = 0.75
+attack_sfx = &"arrow_shot"
+death_sfx = &"unit_death"

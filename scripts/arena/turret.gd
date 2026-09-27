@@ -22,6 +22,7 @@ signal destroyed
 @export var owner_team: String = "player"        # "player" or "enemy" — for BattleManager registration
 @export var lane: String = "top"   # "top" alebo "bot" — pre BattleManager sledovanie pruhu
 @export var protection_zone: Rect2 = Rect2()  # opacny tim sem nemoze deployovat, kym vezicka zije
+@export var destroyed_sfx: StringName = &"turret_destroyed"
 
 var hp: int
 var fire_left: float = 0.0
@@ -205,6 +206,7 @@ func _update_damage_visual() -> void:
 
 
 func _on_destroyed() -> void:
+	AudioManager.play_sfx(destroyed_sfx, global_position)
 	hp = 0
 	health_bar.visible = false
 	target_marker.visible = false

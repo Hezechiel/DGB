@@ -26,3 +26,9 @@ enum AttackType { MELEE, RANGED }
 # rolu ako HeroData.recovery_time — je to cooldown PO dopade zasahu, nie
 # celkova dlzka cyklu.
 @export_range(0.0, 1.0, 0.01) var damage_point_ratio: float = 0.7
+
+# Id-cka SoundData (data/sounds/) — prehravane cez AudioManager.play_sfx().
+# attack_sfx hra v DAMAGE POINTE (dopad melee / vypustenie strely), nie na
+# zaciatku svihu — zruseny windup tak nikdy nevyda zvuk. &"" = ticho.
+@export var attack_sfx: StringName
+@export var death_sfx: StringName

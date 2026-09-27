@@ -394,7 +394,11 @@ func _perform_attack(target: Node2D) -> void:
 			if "hp" in target and target.hp <= 0:
 				return
 			target.take_damage(projectile_damage)
+			if hero_data != null:
+				AudioManager.play_sfx(hero_data.attack_sfx, global_position)
 		_:
+			if hero_data != null:
+				AudioManager.play_sfx(hero_data.attack_sfx, global_position)
 			fire_bolt(target)
 
 # Zrusi rozbehnuty windup (pred damage pointom) bez damage a bez cooldown
@@ -418,12 +422,6 @@ func update_attack_animation() -> void:
 		else:
 			$AnimatedSprite2D.flip_h = last_direction.y < 0
 		$AnimatedSprite2D.play("attack_left")
-	_play_attack_sound()
-
-func _play_attack_sound() -> void:
-	if hero_data != null and hero_data.attack_sound != null:
-		$AttackSfx.stream = hero_data.attack_sound
-		$AttackSfx.play()
 
 # =========================
 # ANIMATION LOGIC (port z player.gd)
@@ -536,6 +534,8 @@ func die() -> void:
 	if is_dead:
 		return
 	is_dead = true
+	if hero_data != null:
+		AudioManager.play_sfx(hero_data.death_sfx, global_position)
 	_nav_goal = Vector2.INF
 
 	set_physics_process(false)

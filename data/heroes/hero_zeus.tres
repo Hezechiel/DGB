@@ -11,3 +11,6 @@ display_name = "Zeus"
 recovery_time = 0.3
 projectile_scene = ExtResource("2_bolt")
 sprite_frames = ExtResource("3_frames")
+attack_sfx = &"zeus_bolt"
+death_sfx = &"hero_death_greek"
+spawn_voice = &"zeus_spawn"

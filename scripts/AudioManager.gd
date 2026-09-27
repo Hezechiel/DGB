@@ -5,7 +5,7 @@ extends Node
 # autoloadov (EnergySystem / HealingSystem / HeroAI) — zvuky spustaju scene
 # nody ako reakciu na udalosti, kazdy klient si ich prehra lokalne.
 # Hlasitosti drzi Settings (single source of truth), tu sa len aplikuju na busy.
-# Faza 1: music (crossfade), UI, voice, hlasitosti. play_sfx() + pool = faza 2.
+# Faza 1: music (crossfade), UI, voice, hlasitosti. Faza 2: play_sfx() + SFX pool (SoundData). Faza 3a: ambient (AmbientEmitter, na map scene, nie tu). Faza 3b: voice cez id, announcer fronta + duck hudby, stingery.
 
 const BUS_MUSIC := &"Music"
 const BUS_SFX := &"SFX"
@@ -49,6 +49,31 @@ var _ui_cache: Dictionary = {}  # id -> AudioStream (lazy load)
 
 var _voice: AudioStreamPlayer
 
+const ANNOUNCER_QUEUE_MAX := 2      # viac cakajucich hlasok sa zahodi — stare spravy su bezcenne
+const MUSIC_DUCK_DB := -8.0
+const MUSIC_DUCK_TIME := 0.25
+
+var _announcer: AudioStreamPlayer   # BUS_VOICE, PROCESS_MODE_PAUSABLE, finished → _on_announcer_finished
+var _announcer_queue: Array[StringName] = []
+var _music_duck_db: float = 0.0
+var _duck_tween: Tween
+
+var _stinger: AudioStreamPlayer     # BUS_MUSIC, PROCESS_MODE_ALWAYS, finished → _on_stinger_finished
+var _music_after_stinger: StringName = &""
+
+const SOUNDS_PATH := "res://data/sounds/"
+const SFX_POOL_SIZE := 16        # pozicne hlasy (AudioStreamPlayer2D)
+const SFX_FLAT_POOL_SIZE := 4    # nepozicne SFX (positional=false / bez pozicie)
+
+var _sounds: Dictionary = {}         # StringName -> SoundData
+var _sfx_pool: Array[AudioStreamPlayer2D] = []
+var _sfx_flat_pool: Array[AudioStreamPlayer] = []
+# Co prave hra v ktorom hlase: player -> {"id", "prio", "start"}.
+var _voice_meta: Dictionary = {}
+var _last_played: Dictionary = {}    # id -> cas posledneho spustenia (s)
+var _last_variant: Dictionary = {}   # id -> index poslednej varianty
+var _warned: Dictionary = {}         # id -> true (kazde varovanie len raz)
+
 func _ready() -> void:
 	# Music a UI musia hrat aj pocas pauzy (settings overlay v arene pauzuje strom).
 	process_mode = Node.PROCESS_MODE_ALWAYS
@@ -59,6 +84,21 @@ func _ready() -> void:
 		_ui_pool.append(_make_player(BUS_UI, Node.PROCESS_MODE_ALWAYS))
 	# Voice sa pauzuje spolu s hrou — hlaska boha nema dohravat cez pause menu.
 	_voice = _make_player(BUS_VOICE, Node.PROCESS_MODE_PAUSABLE)
+	_announcer = _make_player(BUS_VOICE, Node.PROCESS_MODE_PAUSABLE)
+	_announcer.finished.connect(_on_announcer_finished)
+	# Stinger hra aj pocas pauzy (napr. MatchEndScreen moze pauzu zdedit) — ALWAYS.
+	_stinger = _make_player(BUS_MUSIC, Node.PROCESS_MODE_ALWAYS)
+	_stinger.finished.connect(_on_stinger_finished)
+
+	# SFX pool pauzuje spolu s hrou (rovnako ako voice) — boj zamrzne aj zvukovo.
+	for _i in SFX_POOL_SIZE:
+		var p := AudioStreamPlayer2D.new()
+		p.process_mode = Node.PROCESS_MODE_PAUSABLE
+		add_child(p)
+		_sfx_pool.append(p)
+	for _i in SFX_FLAT_POOL_SIZE:
+		_sfx_flat_pool.append(_make_player(BUS_SFX, Node.PROCESS_MODE_PAUSABLE))
+	_scan_sounds()
 
 	_apply_volumes()
 	Settings.settings_changed.connect(_apply_volumes)
@@ -77,6 +117,9 @@ func _make_player(bus: StringName, mode: Node.ProcessMode) -> AudioStreamPlayer:
 # Rovnake id ako prave hrajuce = no-op (MainMenu → PreMatchFlow → MainMenu
 # nerestartuje track). Ine id = crossfade na nahodny track z MUSIC_TRACKS.
 func play_music(id: StringName, fade: float = DEFAULT_MUSIC_FADE) -> void:
+	if _stinger.playing:
+		_stinger.stop()
+		_music_after_stinger = &""
 	if id == _music_id and _music_active.playing:
 		return
 	var paths: Array = MUSIC_TRACKS.get(id, [])
@@ -150,14 +193,226 @@ func _on_node_added(node: Node) -> void:
 
 # ---------------------------------------------------------------- VOICE
 
-# Max jedna hlaska naraz — nova prerusi staru. Stream moze byt
-# AudioStreamRandomizer (nahodna varianta pri kazdom play()).
-func play_voice(stream: AudioStream) -> void:
-	if stream == null:
+# get_sound() + kontrola prazdnych streams (raz varuje). &"" = ticho bez varovania.
+func _get_playable(id: StringName) -> SoundData:
+	var def := get_sound(id)
+	if def == null:
+		return null
+	if def.streams.is_empty():
+		_warn_once(id, "SoundData nema ziadne streams (chyba asset)")
+		return null
+	return def
+
+# Hlaska boha (spawn a pod.) — max jedna naraz, nova prerusi staru.
+# Varianty z SoundData (bez opakovania), jitter sa pri hlase NEPOUZIVA.
+func play_voice(id: StringName) -> void:
+	var def := _get_playable(id)
+	if def == null:
 		return
 	_voice.stop()
-	_voice.stream = stream
+	_voice.stream = _pick_variant(id, def)
+	_voice.volume_db = def.volume_db
 	_voice.play()
+
+# Hlasatel — vlastny prehravac, hlasky sa NEPRERUSUJU: ak prave hovori,
+# nova ide do kratkej fronty. Pocas hlasky je hudba stlmena (duck).
+func play_announcer(id: StringName) -> void:
+	if id == &"":
+		return
+	if _announcer.playing:
+		if _announcer_queue.size() < ANNOUNCER_QUEUE_MAX:
+			_announcer_queue.append(id)
+		return
+	_start_announcer(id)
+
+func _start_announcer(id: StringName) -> void:
+	var def := _get_playable(id)
+	if def == null:
+		_on_announcer_finished()  # pokracuj frontou, nezasekni sa na chybajucom assete
+		return
+	_announcer.stream = _pick_variant(id, def)
+	_announcer.volume_db = def.volume_db
+	_announcer.play()
+	_set_music_duck(true)
+
+func _on_announcer_finished() -> void:
+	if _announcer_queue.is_empty():
+		_set_music_duck(false)
+		return
+	_start_announcer(_announcer_queue.pop_front())
+
+# Volane pri odchode z areny — ziadna hlaska zapasu nedohrava do menu.
+func stop_announcer() -> void:
+	_announcer_queue.clear()
+	_announcer.stop()
+	_set_music_duck(false)
+
+func _set_music_duck(on: bool) -> void:
+	if _duck_tween != null:
+		_duck_tween.kill()
+	_duck_tween = create_tween()
+	_duck_tween.tween_method(_set_duck_db, _music_duck_db, MUSIC_DUCK_DB if on else 0.0, MUSIC_DUCK_TIME)
+
+func _set_duck_db(v: float) -> void:
+	_music_duck_db = v
+	_apply_bus(BUS_MUSIC, Settings.music_volume)
+
+# Kratka hudobna fraza (vitazstvo/prehra). Aktualna hudba rychlo odide,
+# stinger zahra raz, potom sa spusti then_music (ak je zadane).
+# Chybajuci asset → rovno then_music, nic sa nezasekne.
+func play_stinger(id: StringName, then_music: StringName = &"") -> void:
+	var def := _get_playable(id)
+	if def == null:
+		if then_music != &"":
+			play_music(then_music)
+		return
+	stop_music(0.3)
+	_music_after_stinger = then_music
+	_stinger.stream = _pick_variant(id, def)
+	_stinger.volume_db = def.volume_db
+	_stinger.play()
+
+func _on_stinger_finished() -> void:
+	var next := _music_after_stinger
+	_music_after_stinger = &""
+	if next != &"":
+		play_music(next)
+
+# ---------------------------------------------------------------- SFX
+
+# Jediny vstup pre herne zvuky. pos = Vector2.INF → bez pozicie.
+# Prazdne id = ticho bez varovania (volajuci nemusia guardovat nenastavene polia).
+func play_sfx(id: StringName, pos: Vector2 = Vector2.INF) -> void:
+	if id == &"":
+		return
+	var def: SoundData = _sounds.get(id)
+	if def == null:
+		_warn_once(id, "neznamy sfx id")
+		return
+	if def.streams.is_empty():
+		_warn_once(id, "SoundData nema ziadne streams (chyba asset)")
+		return
+	var now := Time.get_ticks_msec() / 1000.0
+	if now - float(_last_played.get(id, -1000.0)) < def.min_interval:
+		return
+	var positional := def.positional and pos != Vector2.INF
+	if positional and _is_beyond_listener(pos, def.max_distance):
+		return  # mimo dosahu — neobsadzuj hlas zvukom, ktory by nebolo pocut
+	var player: Node = _acquire_voice(id, def, positional)
+	if player == null:
+		return  # vsetky hlasy hraju nieco dolezitejsie — novy zvuk sa zahodi
+	_last_played[id] = now
+	player.stop()
+	player.stream = _pick_variant(id, def)
+	player.bus = def.bus
+	player.volume_db = def.volume_db - randf() * def.volume_jitter_db
+	player.pitch_scale = 1.0 + randf_range(-def.pitch_jitter, def.pitch_jitter)
+	if positional:
+		player.global_position = pos
+		player.max_distance = def.max_distance
+	_voice_meta[player] = {"id": id, "prio": def.priority, "start": now}
+	player.play()
+
+# Verejny lookup SoundData pre nody, ktore si prehravaju zvuk samy (ambient bed).
+# Neznáme id = raz varuje a vrati null; prazdne id = ticho, null bez varovania.
+func get_sound(id: StringName) -> SoundData:
+	if id == &"":
+		return null
+	var def: SoundData = _sounds.get(id)
+	if def == null:
+		_warn_once(id, "neznamy sound id")
+	return def
+
+# Poradie: (1) limit instancii tohto id → ukradni jeho najstarsiu instanciu,
+# (2) volny hlas, (3) ukradni hlas s najnizsou prioritou (pri zhode najstarsi),
+# ale len ak jeho priorita <= nova. Inak null (drop).
+func _acquire_voice(id: StringName, def: SoundData, positional: bool) -> Node:
+	var pool: Array = _sfx_pool if positional else _sfx_flat_pool
+	var same: Array = []
+	for p in pool:
+		if p.playing and _voice_meta.get(p, {}).get("id") == id:
+			same.append(p)
+	if same.size() >= def.max_instances:
+		return _oldest(same)
+	for p in pool:
+		if not p.playing:
+			return p
+	var victim: Node = null
+	for p in pool:
+		var m: Dictionary = _voice_meta[p]
+		if m.prio > def.priority:
+			continue
+		if victim == null:
+			victim = p
+			continue
+		var v: Dictionary = _voice_meta[victim]
+		if m.prio < v.prio or (m.prio == v.prio and m.start < v.start):
+			victim = p
+	return victim
+
+func _oldest(players: Array) -> Node:
+	var best: Node = players[0]
+	for p in players:
+		if _voice_meta[p].start < _voice_meta[best].start:
+			best = p
+	return best
+
+# Nahodna varianta, nikdy nie ta ista ako minule (pri 2+ variantach).
+func _pick_variant(id: StringName, def: SoundData) -> AudioStream:
+	var n := def.streams.size()
+	if n == 1:
+		return def.streams[0]
+	var last: int = _last_variant.get(id, -1)
+	var i: int
+	if last < 0:
+		i = randi() % n
+	else:
+		i = randi() % (n - 1)
+		if i >= last:
+			i += 1
+	_last_variant[id] = i
+	return def.streams[i]
+
+# Listener 2D audia = stred obrazovky aktivnej Camera2D.
+func _is_beyond_listener(pos: Vector2, max_dist: float) -> bool:
+	var cam := get_viewport().get_camera_2d()
+	if cam == null:
+		return false
+	return cam.get_screen_center_position().distance_squared_to(pos) > max_dist * max_dist
+
+func _warn_once(id: StringName, msg: String) -> void:
+	if _warned.has(id):
+		return
+	_warned[id] = true
+	push_warning("AudioManager: %s '%s'" % [msg, id])
+
+# Rovnaky scan ako CardDB._scan_into() — vratane .remap v Android exporte.
+func _scan_sounds() -> void:
+	var dir := DirAccess.open(SOUNDS_PATH)
+	if dir == null:
+		push_error("AudioManager: cannot open directory " + SOUNDS_PATH)
+		return
+	dir.list_dir_begin()
+	var file_name := dir.get_next()
+	while file_name != "":
+		if not dir.current_is_dir():
+			if file_name.ends_with(".remap"):
+				file_name = file_name.substr(0, file_name.length() - len(".remap"))
+			if file_name.ends_with(".tres"):
+				_load_sound(SOUNDS_PATH + file_name)
+		file_name = dir.get_next()
+	dir.list_dir_end()
+
+func _load_sound(path: String) -> void:
+	var res := load(path)
+	if res == null or not (res is SoundData):
+		push_error("AudioManager: failed to load SoundData at " + path)
+		return
+	var id: StringName = res.id
+	if _sounds.has(id):
+		push_error("AudioManager: duplicate sound id '%s' (path %s)" % [id, path])
+		return
+	_sounds[id] = res
 
 # ---------------------------------------------------------------- VOLUME
 
@@ -199,4 +454,5 @@ func _apply_bus(bus: StringName, linear: float) -> void:
 		return
 	AudioServer.set_bus_mute(idx, linear <= 0.001)
 	if linear > 0.001:
-		AudioServer.set_bus_volume_db(idx, linear_to_db(linear))
+		var db := linear_to_db(linear) + (_music_duck_db if bus == BUS_MUSIC else 0.0)
+		AudioServer.set_bus_volume_db(idx, db)

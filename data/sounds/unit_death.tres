@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="SoundData" format=3]
+
+[ext_resource type="Script" path="res://scripts/sound_data.gd" id="1_sound"]
+[ext_resource type="AudioStream" path="res://assets/audio/sfx/combat/death/unit_death_01.wav" id="2_d01"]
+
+[resource]
+script = ExtResource("1_sound")
+id = &"unit_death"
+streams = Array[AudioStream]([ExtResource("2_d01")])
+bus = "Combat"
+priority = 0
+volume_db = -4.0
+max_instances = 2
+min_interval = 0.1

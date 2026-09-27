@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="SoundData" format=3]
+
+[ext_resource type="Script" path="res://scripts/sound_data.gd" id="1_sound"]
+
+[resource]
+script = ExtResource("1_sound")
+id = &"turret_destroyed"
+streams = Array[AudioStream]([])
+bus = "Combat"
+priority = 3
+volume_db = 0.0
+max_instances = 1
+min_interval = 0.0
