@@ -29,7 +29,8 @@ z_index = 2
 position = Vector2(0, -4)
 scale = Vector2(0.1, 0.1)
 sprite_frames = ExtResource("2_wd2r1")
-animation = &"idle"
+animation = &"spawn"
+frame_progress = 0.2635164
 
 [node name="CollisionBody" type="CollisionShape2D" parent="." unique_id=1126771666]
 shape = SubResource("RectangleShape2D_body")
@@ -69,6 +70,6 @@ position = Vector2(0, 4)
 scale = Vector2(0.3, 0.3)
 texture = ExtResource("4_marker")
 
-[node name="NavAgent" type="NavigationAgent2D" parent="."]
+[node name="NavAgent" type="NavigationAgent2D" parent="." unique_id=2103058034]
 path_desired_distance = 4.0
 target_desired_distance = 8.0
