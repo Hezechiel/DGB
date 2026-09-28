@@ -37,8 +37,8 @@
 | `HealingSystem` | Per-team pod cooldowns + active heal-over-time state. **Zero scene/UI dependencies by design**, same contract as `EnergySystem` — no scene/node/Area2D/Sprite2D references, pure state+math so it ports to an authoritative server as-is. Third autoload with its own `reset_match_state()` (same pattern as `EnergySystem`). Death safeguard lives in the hero scripts: `die()` calls `HealingSystem.cancel_heal(team)`, which clears the active HoT and emits `heal_ended` — the same signal path a normally-completed heal uses to clear the health bar's pending band. Emits `pod_ready`, `heal_instant`, `heal_tick`, `heal_started`, `heal_ended`. |
 | `MatchConfig` | Placeholder holder for pre-match display data (rank, `map_id`, both players' name/faction). `map_id` is set once by `PreMatchFlow` via `MapDB.get_random_map_id()` — `MatchConfig` itself never calls `MapDB` or resolves a display name, staying a plain data holder with no logic it doesn't own. Populated by `setup_placeholder_match()` today; matchmaking later. Display-only, never networked. |
 | `InputR` | Input routing (tap-to-move targets, gesture state). |
-| `Settings` | Persistent user settings. |
-| `Music` | Audio. |
+| `Settings` | Persistent user settings (`user://settings.cfg`): `lock_camera`, `music_volume`, `sfx_volume`, `voice_volume` (linear 0–1). Single source of truth for volumes — emits `settings_changed`, never touches `AudioServer` itself. |
+| `AudioManager` | The single entry point for all sound (§9). Owns every audio player (music A/B crossfade, UI pool, voice, announcer, stinger, 16-voice positional SFX pool + 4 flat SFX voices), scans `data/sounds/` into id-keyed `SoundData` (same scan/`.remap` pattern as `CardDB`), applies bus volumes from `Settings`. **Presentation-only, client-side** — the one autoload that deliberately holds nodes; it is never called from the pure-logic autoloads (`BattleManager`, `EnergySystem`, `HealingSystem`, `HeroAI`). Listed directly after `Settings` in `project.godot` because its `_ready()` reads it. Replaced the old `Music` autoload (`scenes/music.tscn`, an `AudioStreamPlayer2D` — wrong node type for music). No per-match state → no `reset_match_state()`. |
 | `HeroAI` | Per-team HP-threshold hysteresis for the AI-controlled hero (`NORMAL` / `LOW_HP`, 20%→50% band). **Zero scene/UI dependencies by design** — pure state+math, same contract as `EnergySystem`/`HealingSystem`. Doesn't know about pods, positions, targets, or navigation — that decision-making and pathing lives in `hero_dummy.gd`. Own `reset_match_state()`. |
 
 `BattleManager.arena_root` is injected by `arena.gd` each match (autoload has no
@@ -56,9 +56,11 @@ data/
   units/    UnitData     — id, archetype_scene, max_hp, damage, attack_cooldown,
                            speed, target_filter, sprite_frames, attack_type
                            (MELEE/RANGED, Sept 2026), attack_range,
-                           projectile_scene, damage_point_ratio
+                           projectile_scene, damage_point_ratio,
+                           attack_sfx / death_sfx (SoundData ids)
     frames/ SpriteFrames — extracted animation sets, swappable per unit
-  heroes/   HeroData     — id, stats, projectile_scene, sprite_frames
+  heroes/   HeroData     — id, stats, projectile_scene, sprite_frames,
+                           attack_sfx / death_sfx / spawn_voice (SoundData ids)
                            (no archetype_scene: control mode picks the scene)
   spells/   SpellData    — id, display_name, spell_type (int: 0=STORM,
                            1=STUN, 2=NET), radius, cast_time,
@@ -69,6 +71,9 @@ data/
                            bounds (Rect2), camera_edge_margin,
                            camera_edge_pan_speed_max, hero_spawn_player,
                            hero_spawn_enemy
+  sounds/   SoundData    — id, streams (variants), bus, priority, volume_db,
+                           volume_jitter_db, pitch_jitter, max_instances,
+                           min_interval, positional, max_distance (§9)
 ```
  
 Resolution chain for a played card:
@@ -321,6 +326,21 @@ alongside, the checklist in that doc's §1–§4).
   `MatchConfig.map_id` once, and shows the resolved `MapData.display_name`
   on the finding screen (§3). Faction/avatar are ColorRect placeholders
   pending assets.
+- `scenes/arena/audio/AmbientEmitter.tscn` (`ambient_emitter.gd`,
+  `class_name AmbientEmitter`) — map ambient sound, hand-placed in each map
+  scene under an `Ambient` `Node2D` (same authoring style as turrets/pods).
+  `LOOP` mode = bed on its own `AudioStreamPlayer` (fade-in, never through
+  the SFX pool); `RANDOM` mode = one-shot via `AudioManager.play_sfx()` every
+  `min_interval`–`max_interval` s after a random `first_delay`. Lives with
+  the map scene, so match end / scene change clean it up — no reset code
+  (§9, `map_authoring_guide.md` §2.11).
+- `MatchAnnouncer` (`scripts/arena/match_announcer.gd`, plain `Node`,
+  added by `arena.gd::_ready()` via `add_child(MatchAnnouncer.new())`, same
+  as `EnemyCardAI`) — self-subscribes to `BattleManager.hero_died` and calls
+  `AudioManager.play_announcer()`; today only "first blood" (first hero
+  death of the match, either side). Per-match state lives on the node and
+  resets with the arena. `arena.gd::_exit_tree()` calls
+  `AudioManager.stop_announcer()` so no line or music duck leaks into the menu.
 ### Key BattleManager signals
  
 `match_ended(winner)`, `match_time_tick(seconds_left)`,
@@ -596,6 +616,29 @@ alongside, the checklist in that doc's §1–§4).
   isn't a real type in that sense. Runtime access like
   `HeroAI.State.LOW_HP` in expressions/comparisons is fine; cache the
   value as untyped/`int` and branch with `if`/`elif` instead of `match`.
+- **An autoload's `get_tree().node_added` listener never sees the boot
+  scene.** At startup the autoloads *and* the main scene (`MainMenu.tscn`)
+  are all under `root` before the SceneTree initializes; Godot runs
+  `_enter_tree` (which emits every `node_added`) for the whole tree first
+  and only then `_ready`. So a listener connected in an autoload's
+  `_ready()` misses every node of the first scene — that's why MainMenu
+  buttons had no tap sound while later scenes did (confirmed in a minimal
+  Godot 4.7 headless repro). Fix/pattern: after connecting, also walk the
+  nodes already present once (`get_tree().root.find_children("*", "",
+  true, false)`) through the same handler, with an idempotency guard
+  (`AudioManager` uses meta `_ui_sfx_wired`). Applies to any future
+  "auto-wire every X" autoload.
+- **Looping sounds never go through a stealable voice pool.** A loop would
+  hold a pool voice forever, and priority stealing would silence it
+  permanently. Ambient beds own their own `AudioStreamPlayer`
+  (`AmbientEmitter` LOOP mode); only finite one-shots use `play_sfx()`.
+  Corollary: a one-shot `.ogg` imported with `loop=true` (Godot's OGG
+  default can be on) plays forever and pins a voice — check the Import dock
+  when adding any one-shot OGG (`amb_greek_cymbals.ogg` hit this).
+- **Attack sounds fire at the damage point, not at swing start.** Hero and
+  unit `attack_sfx` play where the hit lands (melee) or the projectile is
+  released (ranged) — a hero's windup is cancelable (§5), and a swing-start
+  sound would play for swings that never happened.
 - **A fourth autoload (`HeroAI`) holds per-match state outside
   `BattleManager.reset_match_state()`.** Same pitfall as `EnergySystem`/
   `HealingSystem`: its own `reset_match_state()` must be called from
@@ -807,6 +850,13 @@ No transport exists. The prepared seams:
   letting each client resolve its own. The cast delay is also a genuine
   gameplay window (not just a visual), so it must be server-timed, not
   client-timed, once authority exists.
+- **Audio is never networked and never authoritative.** Every client plays
+  its own sounds from its own local events (hit landed, unit died, hero
+  died signal), so nothing about audio enters a message. `AudioManager`
+  randomness (variant pick, pitch/volume jitter, ambient timers) uses the
+  global `randf()`/`randi()` — if gameplay ever moves to a seeded,
+  lockstep RNG, audio must keep using a separate generator so a sound
+  choice can't desync the simulation.
 - Map selection will need the same treatment: `MatchConfig.map_id` is
   currently a client-local TEMP random pick (§2/§3) with no server
   involved — real matchmaking will need to agree on a map id before either
@@ -882,3 +932,102 @@ Two general Control-layout pitfalls surfaced building this screen — the
 draw-order one and the `Node2D`-in-a-`Control` centering one — are filed in
 §6 rather than duplicated here, since both are reusable lessons beyond the
 main menu specifically.
+
+---
+
+## 9. Audio
+
+All sound goes through the `AudioManager` autoload (§2). Built in three
+phases (Sept 2026): music/UI/voice/volumes → positional SFX pool +
+`SoundData` → ambient, announcer, stingers.
+
+### Bus layout (`default_bus_layout.tres`)
+
+```
+Master (+ AudioEffectHardLimiter)
+├── Music          ← music A/B players, stingers           (Music slider)
+├── SFX            ←                                        (Effects slider)
+│   ├── Combat     ← play_sfx() combat sounds
+│   ├── UI         ← play_ui() taps (ALWAYS — plays while paused)
+│   └── Environment← ambient (AmbientEmitter)
+└── Voice          ← hero voice lines, announcer             (Voice slider)
+```
+
+Order matters: a bus can only send to a lower-index bus. Volumes are
+linear 0–1 in `Settings`; `AudioManager._apply_volumes()` converts with
+`linear_to_db()`, mutes at 0, and adds the announcer duck offset on Music
+only. `audio_control.gd` is one generic slider script
+(`audio_bus_name` = `"Music"`/`"SFX"`/`"Voice"`), three instances in
+`setting_overlay.tscn`.
+
+### Public API
+
+| Call | Used for | Notes |
+|---|---|---|
+| `play_music(id, fade)` | menu / battle music | TEMP `MUSIC_TRACKS` table in code; several paths per id → random track; same id already playing = no-op; crossfades two players; stops a running stinger |
+| `stop_music(fade)` | — | |
+| `play_stinger(id, then_music)` | victory/defeat on `MatchEndScreen` | fades music out, plays once, then `play_music(then_music)`; missing asset → straight to `then_music` |
+| `play_ui(id)` | button taps | TEMP `UI_SOUNDS` table; auto-wired to every `BaseButton`/`TouchScreenButton` via `node_added` (+ one walk of the boot scene, §6). Groups: `ui_sfx_close` → close sound, `ui_sfx_none` → silent |
+| `play_sfx(id, pos := INF)` | all gameplay sounds | positional if `SoundData.positional` and `pos` given; empty id = silent (callers never guard) |
+| `play_voice(id)` | hero spawn line (local hero only) | one at a time, new cuts old; no jitter |
+| `play_announcer(id)` | announcer | own player, queue of max 2, never cuts itself or hero voice; ducks music −8 dB while speaking |
+| `stop_announcer()` | `arena.gd::_exit_tree()` | clears queue + duck |
+| `get_sound(id)` | nodes that play sound themselves (ambient bed) | warns once on unknown id |
+| `set_*_volume()`, `set_volume(bus, v)`, `get_volume(bus)` | settings sliders | forward to `Settings` |
+
+### `SoundData` (`scripts/sound_data.gd`, `data/sounds/<id>.tres`)
+
+One resource per sound **event**, not per file: `streams` holds the
+variants (random pick, never the same twice in a row). `priority` is the
+enum `SoundData.Priority { LOW, NORMAL, HIGH, CRITICAL }` — on the
+`class_name` resource, not on the autoload (§6 autoload-enum pitfall).
+`bus` is `Combat`/`Environment`/`Voice`/`Music`; Voice/Music ids use
+`volume_db` + variants but ignore jitter, `positional` and the pool.
+Priority belongs to the event, so the same files can back two ids
+(`sword_hit` LOW for hoplites, `hero_melee_hit` HIGH for Poseidon).
+Empty `streams` = asset not made yet → one warning, then silent.
+
+### SFX pool and priorities
+
+16 `AudioStreamPlayer2D` (positional) + 4 `AudioStreamPlayer` (flat),
+children of the autoload, `PAUSABLE` (combat freezes with the game). Per
+`play_sfx()`: `min_interval` gate → skip if farther than `max_distance`
+from the camera's screen center (don't waste a voice) → acquire a voice:
+(1) at `max_instances` for this id → steal its own oldest instance,
+(2) a free voice, (3) steal the lowest-priority/oldest voice whose
+priority ≤ the new one, else drop the new sound. The 2D listener is the
+active `Camera2D`; `max_distance` is in world px.
+
+### Who calls what
+
+- Heroes (`player.gd` + `hero_dummy.gd`): `attack_sfx` at the damage point
+  (§6), `death_sfx` in `die()`. `player.gd::play_spawn_animation()` plays
+  `spawn_voice` → only the **local** hero speaks.
+- Units (`unit.gd`): `attack_sfx` in `_resolve_attack_hit()`, `death_sfx`
+  in `die()`.
+- Turrets: `destroyed_sfx` export (default `&"turret_destroyed"`) in
+  `_on_destroyed()`.
+- Maps: `AmbientEmitter` nodes (§4).
+- `MatchAnnouncer` (§4), `MatchEndScreen` (stingers), `main_menu.gd` /
+  `arena.gd` / `match_end_screen.gd` (music).
+- Debug key **J** in `arena.gd` = 10× `sword_hit` in one frame (limit test).
+
+### Pause behaviour
+
+Music, stinger and UI players are `ALWAYS`; voice, announcer, SFX pool and
+map ambient are `PAUSABLE`.
+
+### Known gaps (Sept 2026)
+
+- `MUSIC_TRACKS` / `UI_SOUNDS` are still hardcoded tables in
+  `AudioManager.gd` (TEMP) — candidates to move into `SoundData`.
+- `turret_destroyed.tres` still has empty `streams` although
+  `turret_destroyed_01.wav` exists; `base_destroyed_01.wav` is not wired
+  (base death changes scene in the same frame — plan is to play it on
+  `MatchEndScreen` before the stinger).
+- Many base sounds have no asset or hook yet (deploy, impacts, hero hurt,
+  turret fire, spells, pickups) — tracked in `Claude outputs/audio_tree.txt`.
+- 2D panning/attenuation at camera zoom 3 hasn't been formally tuned;
+  `max_distance = 500` world px is a starting value.
+- No music ducking for anything except the announcer; no stereo/mono
+  setting; no master volume slider.

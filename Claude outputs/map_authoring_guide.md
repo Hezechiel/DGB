@@ -126,7 +126,8 @@ A map is two files that must agree with each other:
   file.
 - **`scenes/arena/maps/<Name>Map.tscn`** — a plain `Node2D` scene holding
   everything visually and structurally specific to that map: ground,
-  obstacles, border, navmesh, `PlayerStructures`, `EnemyStructures`.
+  obstacles, border, navmesh, `PlayerStructures`, `EnemyStructures`,
+  and `Ambient` (the map's ambient sound emitters, §2.11).
 
 Neither file does anything by itself. At boot, the `MapDB` autoload scans
 `data/maps/*.tres` into an id-keyed dictionary — the same pattern
@@ -321,6 +322,38 @@ Pitfalls (details in `architecture.md` §6):
 - Not yet enforced: unit cards can still be deployed inside a navmesh hole
   (deploy validation doesn't check the navmesh yet).
 
+### 2.11 Ambient sound — `Ambient` + `AmbientEmitter` nodes
+Every map should have its own ambient layer (Sept 2026). It's scene
+authoring, not `MapData`:
+
+1. Add a plain `Node2D` named **`Ambient`** as a direct child of the map
+   root (after `EnemyStructures`).
+2. Instance `scenes/arena/audio/AmbientEmitter.tscn` under it, once per
+   ambient sound, and set its exports:
+   - `sound_id` — a `SoundData` id from `data/sounds/` (bus `Environment`).
+   - `mode` — `LOOP` for a **bed** (quiet, continuous, non-musical loop:
+     wind, cicadas, ice) — at most one per map; `RANDOM` for **one-shots**
+     (harp phrase, raven, gust).
+   - `RANDOM` only: `min_interval`/`max_interval` (s between one-shots) and
+     `first_delay_min`/`first_delay_max` (nothing right at match start).
+     Existing values: harp 15–35 s (first 5–15), cymbals 30–60 s
+     (first 20–40).
+   - `LOOP` only: `loop_fade_in` (default 2 s).
+3. Position only matters if the `SoundData` has `positional = true` (a
+   waterfall/temple you hear louder when the camera is near). All current
+   ambient is non-positional — leave emitters at `(0, 0)`.
+4. Create the `SoundData` for each sound (see `audio_authoring_guide.md`).
+   Rules for ambient: `pitch_jitter = 0` for anything tonal (harp) so it
+   never detunes against the battle music; `max_instances = 1`.
+5. **Import settings:** the bed's `.ogg` must have **Loop ON**; every
+   one-shot `.ogg` must have **Loop OFF** — a looping one-shot plays forever
+   (`amb_greek_cymbals.ogg` hit this).
+
+Existing setup: Greek Plateau = `HarpEmitter` + `CymbalsEmitter` (RANDOM,
+no bed yet — a quiet wind/cicada bed is on the missing-audio list); Nord
+Plains = `IceBed` (LOOP). Emitters live with the map scene, so match end
+and scene change clean them up — no reset code.
+
 ---
 
 ## 3. `release_ready` and the current (temporary) random picker
@@ -358,5 +391,9 @@ map from anything today; it currently hides it from nothing.
    denial-zone overlay matches the protection zones you set in §2.7 —
    specifically, destroy a turret through play and confirm only that
    turret's own territory opens up, not the rest of that side's half.
-6. Play a full match to completion (base destroyed or timer expiry) on
+6. **Ambient:** the bed (if any) fades in at match start and loops without a
+   click; one-shots arrive at irregular intervals, never right at load,
+   and never pile up; all of it pauses with the pause menu and stops on
+   leaving the match.
+7. Play a full match to completion (base destroyed or timer expiry) on
    the new map without errors.
