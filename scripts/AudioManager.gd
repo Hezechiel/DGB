@@ -104,6 +104,12 @@ func _ready() -> void:
 	Settings.settings_changed.connect(_apply_volumes)
 	# Auto-wiring tap zvuku na kazdy button v kazdej scene — ziadne rucne connecty.
 	get_tree().node_added.connect(_on_node_added)
+	# Boot scena (MainMenu) vstupi do stromu SPOLU s autoloadmi — vsetky jej
+	# node_added prebehnu este pred tymto _ready(), takze connect vyssie ich
+	# nezachyti. Preto jednorazovo prejdeme uzly, ktore uz v strome su.
+	# Dvojite zapojenie nehrozi — _on_node_added() ma guard cez meta _ui_sfx_wired.
+	for n in get_tree().root.find_children("*", "", true, false):
+		_on_node_added(n)
 
 func _make_player(bus: StringName, mode: Node.ProcessMode) -> AudioStreamPlayer:
 	var p := AudioStreamPlayer.new()
