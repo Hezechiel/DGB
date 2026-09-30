@@ -164,6 +164,8 @@ func play_card(slot_index: int, world_pos: Vector2) -> bool:
 		return false
 	if BattleManager.is_hero_dead("player"):
 		return false
+	if BattleManager.is_match_over():
+		return false
 	var slot := _slots[slot_index]
 	var played_data := slot.card_data
 	if played_data == null:

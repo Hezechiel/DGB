@@ -1,13 +1,12 @@
-[gd_resource type="Resource" script_class="SoundData" format=3]
+[gd_resource type="Resource" script_class="SoundData" format=3 uid="uid://c8gn4xh8da558"]
 
-[ext_resource type="Script" path="res://scripts/sound_data.gd" id="1_sound"]
+[ext_resource type="Script" uid="uid://b8xlminom23s1" path="res://scripts/sound_data.gd" id="1_sound"]
+[ext_resource type="AudioStream" uid="uid://dxsc1fn8b4v3y" path="res://assets/audio/sfx/combat/structures/turret_destroyed_01.wav" id="2_turret"]
 
 [resource]
 script = ExtResource("1_sound")
 id = &"turret_destroyed"
-streams = Array[AudioStream]([])
-bus = "Combat"
+streams = Array[AudioStream]([ExtResource("2_turret")])
 priority = 3
-volume_db = 0.0
 max_instances = 1
 min_interval = 0.0

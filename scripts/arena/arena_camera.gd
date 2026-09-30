@@ -42,6 +42,28 @@ var _has_deploy_pos := false
 var _return_timer := 0.0  # odpocitava grace period po skonceni dragu
 var _return_ramp := 1.0   # 0..1 sila navratu; 1 = plne sledovanie, po dragu od 0
 
+# Zaverecna sekvencia (znicena baza): kamera ide na ciel, hrac ju nemoze
+# ovladat, follow/edge-pan/drag su vypnute az do zmeny sceny.
+var _cinematic := false
+
+func play_focus(target: Vector2, zoom_mult: float = 1.35, duration: float = 0.8) -> void:
+	_cinematic = true
+	_is_dragging = false
+	_touch_id = -1
+	_is_deploy_dragging = false
+	if _recenter_tween != null and _recenter_tween.is_valid():
+		_recenter_tween.kill()
+	var target_zoom := zoom * zoom_mult
+	# clamp pocita s CIELOVYM zoomom — pri vacsom zoome je vidiet menej mapy
+	var old_zoom := zoom
+	zoom = target_zoom
+	var target_pos := _clamp_point(target)
+	zoom = old_zoom
+	var t := create_tween().set_parallel(true)
+	t.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUART)
+	t.tween_property(self, "position", target_pos, duration)
+	t.tween_property(self, "zoom", target_zoom, duration)
+
 func _ready() -> void:
 	# odpoj kameru od pohybu hraca — kamera je samostatny node, nie child Playera
 	# (v scene je Camera2D presunuty pod Arena root, nie pod Player)
@@ -71,6 +93,8 @@ func _find_player() -> void:
 		_player = hero
 
 func _physics_process(delta: float) -> void:
+	if _cinematic:
+		return
 	# edge-pan pocas tahania karty ma prednost a bezi v OBOCH lock rezimoch —
 	# preto pred kontrolou Settings.lock_camera
 	if _is_deploy_dragging:
@@ -102,6 +126,8 @@ func _physics_process(delta: float) -> void:
 # Drag funguje v OBOCH rezimoch — v lock rezime len docasne pozastavi
 # sledovanie (soft-follow, pozri _physics_process).
 func _unhandled_input(event: InputEvent) -> void:
+	if _cinematic:
+		return
 	if event is InputEventScreenTouch:
 		if event.pressed and _touch_id == -1:
 			_touch_id = event.index

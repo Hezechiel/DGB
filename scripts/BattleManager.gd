@@ -468,6 +468,11 @@ func spawn_hero(hero_id: StringName, team: String, controlled: bool) -> Node:
 func is_hero_dead(team: String) -> bool:
 	return _respawn_left.has(team)
 
+# Je zapas rozhodnuty? (base padla / cas vyprsal). Citaju UI/vstup, aby pocas
+# zaverecnej sekvencie nic nespawnovali — BattleManager sam nic neoneskoruje.
+func is_match_over() -> bool:
+	return _match_ended
+
 func on_hero_died(_hero: Node2D, team: String) -> void:
 	if _respawn_left.has(team):
 		return  # uz respawnuje — guard proti dvojitemu volaniu

@@ -1,0 +1,66 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/arena/ui/match_result_banner.gd" id="1_mrb"]
+[ext_resource type="FontFile" path="res://assets/fonts/CinzelDecorative-Black.ttf" id="2_title_font"]
+[ext_resource type="FontFile" path="res://assets/fonts/Marcellus-Regular.ttf" id="3_sub_font"]
+
+[node name="MatchResultBanner" type="CanvasLayer" unique_id=1]
+layer = 20
+visible = false
+script = ExtResource("1_mrb")
+
+[node name="Band" type="ColorRect" parent="." unique_id=2]
+layout_mode = 3
+anchor_left = 0.0
+anchor_right = 1.0
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -75.0
+offset_bottom = 75.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.6)
+mouse_filter = 2
+
+[node name="Title" type="Label" parent="Band" unique_id=3]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_fonts/font = ExtResource("2_title_font")
+theme_override_font_sizes/font_size = 72
+theme_override_constants/outline_size = 8
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+horizontal_alignment = 1
+vertical_alignment = 1
+text = "VICTORY"
+mouse_filter = 2
+
+[node name="Subtitle" type="Label" parent="Band" unique_id=4]
+layout_mode = 1
+anchors_preset = 12
+anchor_left = 0.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_top = -28.0
+offset_bottom = -8.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_fonts/font = ExtResource("3_sub_font")
+theme_override_font_sizes/font_size = 18
+theme_override_colors/font_color = Color(1, 1, 1, 0.9)
+horizontal_alignment = 1
+text = ""
+mouse_filter = 2
+
+[node name="Fade" type="ColorRect" parent="." unique_id=5]
+layout_mode = 3
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0)
+mouse_filter = 2

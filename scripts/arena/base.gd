@@ -7,6 +7,7 @@ extends StaticBody2D
 @export var max_hp: int = 3000
 @export var owner_team: String = "player"
 @export var protection_zone: Rect2 = Rect2()  # opacny tim sem nemoze deployovat, kym baza zije
+@export var destroyed_sfx: StringName = &"base_destroyed"
 
 # Zakladna je nezranitelna kym nie je aspon jeden pruh plne vycisteny
 var is_vulnerable: bool = false
@@ -94,6 +95,8 @@ func _update_damage_visual() -> void:
 
 
 func _on_destroyed() -> void:
+	# musi prehrat PRED on_base_destroyed() nizsie — ten spusti koniec zapasu
+	AudioManager.play_sfx(destroyed_sfx)
 	hp = 0
 	health_bar.visible = false
 	target_marker.visible = false

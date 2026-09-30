@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" path="res://scenes/arena/maps/DenialZoneOverlay.tscn" id="15_denialzone"]
 [ext_resource type="Script" uid="uid://dhupbpnth48b" path="res://scripts/arena/desaturate_overlay.gd" id="16_desatscript"]
 [ext_resource type="Shader" uid="uid://dwntbccsgplut" path="res://scenes/arena/ui/shaders/desaturate.gdshader" id="17_desatshader"]
+[ext_resource type="PackedScene" path="res://scenes/arena/ui/MatchResultBanner.tscn" id="18_banner"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_desat"]
 shader = ExtResource("17_desatshader")
@@ -40,3 +41,5 @@ zoom = Vector2(3, 3)
 script = ExtResource("12_cam")
 
 [node name="HUD" parent="." unique_id=661909964 instance=ExtResource("7_hud")]
+
+[node name="MatchResultBanner" parent="." unique_id=880123456 instance=ExtResource("18_banner")]

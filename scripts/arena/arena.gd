@@ -6,9 +6,14 @@ extends Node2D
 @onready var deploy_ghost: Node2D = $DeployGhost
 @onready var denial_zone_overlay: Node2D = $DenialZoneOverlay
 @onready var arena_camera: ArenaCamera = $ArenaCamera
+@onready var result_banner: MatchResultBanner = $MatchResultBanner
 var player: CharacterBody2D = null
 
 const MAIN_MENU_SCENE := "res://scenes/menu/MainMenu.tscn"
+
+# Dlzka zaverecnej sekvencie po padnuti zakladne — zhruba dlzka base_destroyed zvuku.
+const END_SEQUENCE_SECONDS := 3.5
+var _match_over := false
 
 # TEMP: kym nepride realny hero-select/network flow, hrdinovia su nastaveni
 # napevno — player Zeus, enemy Poseidon. Rovnaka kategoria TEMP ako predtym.
@@ -87,6 +92,8 @@ func _ready() -> void:
 	AudioManager.play_music(&"battle")
 
 func _unhandled_input(event: InputEvent) -> void:
+	if _match_over:
+		return
 	# Tap-to-move: tap mimo UI (UI eventy sem nedojdu, su handled v _gui_input)
 	if event is InputEventScreenTouch and not event.pressed:
 		# release tapnutia ktoreho press bol pouzity na vyber primary_target sa ignoruje
@@ -118,8 +125,30 @@ func _on_deploy_preview_ended() -> void:
 	arena_camera.end_deploy_pan()
 	denial_zone_overlay.hide_zones()
 
-func _on_match_ended(_winner: String) -> void:
+func _on_match_ended(winner: String) -> void:
+	_match_over = true
 	EnergySystem.stop()
+	if winner == "draw":
+		# ziadna budova nepadla — nie je co ukazat, rovno na vysledok
+		get_tree().change_scene_to_file("res://scenes/menu/MatchEndScreen.tscn")
+		return
+	_play_end_sequence(winner)
+
+# Presentation-only: BattleManager uz vysledok rozhodol, tu ho len "ukazeme".
+func _play_end_sequence(winner: String) -> void:
+	# znicena je zakladna PORAZENEHO timu
+	var fallen: Node2D = BattleManager.enemy_base if winner == "player" else BattleManager.player_base
+	_on_deploy_preview_ended()          # zrus pripadny rozbehnuty drag karty (ghost, edge-pan)
+	hud.visible = false                 # karty, pauza, timer — nic uz nejde stlacit
+	$DesaturateRect.visible = false     # ak hrdina prave mrtvy, vitazny/prehrany zaber nema byt sedy
+	result_banner.show_result(winner, END_SEQUENCE_SECONDS)
+	AudioManager.stop_announcer()
+	AudioManager.stop_music(1.0)        # nech je rucanie zakladne pocut; stinger pride na MatchEndScreen
+	if fallen != null and is_instance_valid(fallen):
+		arena_camera.play_focus(fallen.global_position)
+	await get_tree().create_timer(END_SEQUENCE_SECONDS).timeout
+	if not is_inside_tree():
+		return
 	get_tree().change_scene_to_file("res://scenes/menu/MatchEndScreen.tscn")
 
 func _input(event: InputEvent) -> void:

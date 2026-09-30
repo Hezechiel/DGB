@@ -1,19 +1,17 @@
-[gd_resource type="Resource" script_class="SoundData" format=3]
+[gd_resource type="Resource" script_class="SoundData" format=3 uid="uid://bv0jo7cvd47ag"]
 
-[ext_resource type="Script" path="res://scripts/sound_data.gd" id="1_sound"]
-[ext_resource type="AudioStream" path="res://assets/audio/sfx/combat/melee/sword_hit_01.wav" id="2_s01"]
-[ext_resource type="AudioStream" path="res://assets/audio/sfx/combat/melee/sword_hit_02.wav" id="3_s02"]
-[ext_resource type="AudioStream" path="res://assets/audio/sfx/combat/melee/sword_hit_03.wav" id="4_s03"]
-[ext_resource type="AudioStream" path="res://assets/audio/sfx/combat/melee/sword_hit_04.wav" id="5_s04"]
-[ext_resource type="AudioStream" path="res://assets/audio/sfx/combat/melee/sword_hit_05.wav" id="6_s05"]
-[ext_resource type="AudioStream" path="res://assets/audio/sfx/combat/melee/sword_hit_06.wav" id="7_s06"]
+[ext_resource type="Script" uid="uid://b8xlminom23s1" path="res://scripts/sound_data.gd" id="1_sound"]
+[ext_resource type="AudioStream" uid="uid://m5baux5j41hp" path="res://assets/audio/sfx/combat/melee/sword_hit_01.wav" id="2_s01"]
+[ext_resource type="AudioStream" uid="uid://dj38qmru5g50x" path="res://assets/audio/sfx/combat/melee/sword_hit_02.wav" id="3_s02"]
+[ext_resource type="AudioStream" uid="uid://clrtcex4k2ksf" path="res://assets/audio/sfx/combat/melee/sword_hit_03.wav" id="4_s03"]
+[ext_resource type="AudioStream" uid="uid://d71cj8lpnco7" path="res://assets/audio/sfx/combat/melee/sword_hit_04.wav" id="5_s04"]
+[ext_resource type="AudioStream" uid="uid://dbdhlcfkw7r7x" path="res://assets/audio/sfx/combat/melee/sword_hit_05.wav" id="6_s05"]
+[ext_resource type="AudioStream" uid="uid://c3nih3xowjbr7" path="res://assets/audio/sfx/combat/melee/sword_hit_06.wav" id="7_s06"]
 
 [resource]
 script = ExtResource("1_sound")
 id = &"sword_hit"
 streams = Array[AudioStream]([ExtResource("2_s01"), ExtResource("3_s02"), ExtResource("4_s03"), ExtResource("5_s04"), ExtResource("6_s05"), ExtResource("7_s06")])
-bus = "Combat"
 priority = 0
 volume_db = -6.0
 max_instances = 3
-min_interval = 0.05
