@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="CardData" format=3]
+
+[ext_resource type="Script" uid="uid://cdscsax3k7m1p" path="res://scripts/arena/ui/card_data.gd" id="1_carddata"]
+[ext_resource type="Texture2D" uid="uid://ddvmhvblk13ik" path="res://assets/sprites/units/greek/decals_greek.png" id="2_decals"]
+[ext_resource type="Resource" path="res://data/units/greek/greek_sphendonetes.tres" id="3_unitdata"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_scroll"]
+atlas = ExtResource("2_decals")
+region = Rect2(1340, 0, 335, 400)
+
+[resource]
+script = ExtResource("1_carddata")
+id = &"card_greek_sphendonetes"
+display_name = "Sphendonetes"
+cost = 1
+scroll_texture = SubResource("AtlasTexture_scroll")
+unit_data = ExtResource("3_unitdata")
+unit_count = 2
+formation_radius = 10.0
+obtain_source = 1

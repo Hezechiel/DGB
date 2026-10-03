@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bpptc7ql6bx40"]
 
 [ext_resource type="Script" uid="uid://cbs5rnldelj2u" path="res://scripts/arena/unit.gd" id="1_60vns"]
-[ext_resource type="SpriteFrames" uid="uid://bjbp66qu0yma6" path="res://data/units/frames/frames_greek_toxotes.tres" id="2_wv882"]
+[ext_resource type="SpriteFrames" uid="uid://bjbp66qu0yma6" path="res://data/units/greek/frames/frames_greek_toxotes.tres" id="2_wv882"]
 [ext_resource type="PackedScene" uid="uid://dvwpf0hx27680" path="res://scenes/ui/HealthBar.tscn" id="3_kunii"]
 [ext_resource type="Texture2D" uid="uid://dvlckfsllk4o3" path="res://assets/sprites/movemarker/target.png" id="4_7hdv1"]
 

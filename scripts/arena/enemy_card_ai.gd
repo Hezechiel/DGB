@@ -29,15 +29,9 @@ const TEAM := "enemy"
 # default; @export je priprava na buducu .tscn / per-match config).
 @export var decision_interval: float = 1.75
 
-# Zrkadli exportovany `deck` array z CardHand.tscn.
-# POZOR: medzi tymto zoznamom a CardHand.tscn NEEXISTUJE zdielany zdroj
-# pravdy — rovnaky duplication-by-design tradeoff ako status efekty
-# (architecture.md §6). Ked sa zmeni balicek hraca, uprav aj tento zoznam.
-@export var deck_card_ids: Array[StringName] = [
-	&"card_01", &"card_02", &"card_03", &"card_04", &"card_05", &"card_06",
-	&"card_07", &"card_08", &"card_09",
-	&"card_storm", &"card_stun", &"card_ensnaring_net",
-]
+# Balicek AI prichadza z MatchConfig.opponent_deck_card_ids — rovnaky zdroj
+# ako hracova ruka (MatchConfig.local_deck_card_ids), oba plni PreMatchFlow.
+# Ziadny hardcoded zoznam tu uz nie je.
 
 # Rozptyl deploy pozicie (world units, polovica sirky pasu do kazdej osi).
 # Unit karty: okolo enemy hrdinu. Spell karty: okolo najblizsej hracovej
@@ -54,7 +48,7 @@ var _decision_timer: float = 0.0
 
 func _ready() -> void:
 	var deck: Array[CardData] = []
-	for id in deck_card_ids:
+	for id in MatchConfig.opponent_deck_card_ids:
 		var card := CardDB.get_card(id)
 		if card == null:
 			# CardDB.get_card uz push_error-uje samo; nepokracuj s null kartou
@@ -66,6 +60,8 @@ func _ready() -> void:
 	_cycle.shuffle()
 
 	for i in 3:
+		if _cycle.is_empty():
+			break
 		_hand.append(_cycle.pop_front())
 
 func _process(delta: float) -> void:

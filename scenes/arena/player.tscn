@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://cyp86e8wyfv18" path="res://scripts/arena/player.gd" id="1_g2els"]
 [ext_resource type="PackedScene" uid="uid://dyxn10n333b4k" path="res://scenes/arena/projectiles/projectile.tscn" id="2_dqkch"]
-[ext_resource type="SpriteFrames" uid="uid://75pi7xqp2vus" path="res://data/heroes/frames/frames_zeus.tres" id="3_5o8y0"]
+[ext_resource type="SpriteFrames" uid="uid://75pi7xqp2vus" path="res://data/heroes/greek/frames/frames_zeus.tres" id="3_5o8y0"]
 [ext_resource type="PackedScene" uid="uid://dvwpf0hx27680" path="res://scenes/ui/HealthBar.tscn" id="4_hbar"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_g2els"]

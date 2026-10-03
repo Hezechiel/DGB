@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="CardData" format=3 uid="uid://c12rsq7f2lam3"]
+
+[ext_resource type="Script" uid="uid://cdscsax3k7m1p" path="res://scripts/arena/ui/card_data.gd" id="1_e1nru"]
+[ext_resource type="Texture2D" uid="uid://blhyekjwlu8ps" path="res://assets/sprites/scrolls/decals_spells.png" id="2_e1nru"]
+[ext_resource type="Resource" uid="uid://bykfawog5c784" path="res://data/spells/greek/ensnaring_net.tres" id="3_e1nru"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cardnet"]
+atlas = ExtResource("2_e1nru")
+region = Rect2(670, 0, 335, 400)
+
+[resource]
+script = ExtResource("1_e1nru")
+id = &"card_greek_ensnaring_net"
+display_name = "Ensnaring net"
+cost = 3
+scroll_texture = SubResource("AtlasTexture_cardnet")
+spell_data = ExtResource("3_e1nru")
+obtain_source = 1

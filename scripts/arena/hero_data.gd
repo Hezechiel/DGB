@@ -42,3 +42,17 @@ enum AttackType { RANGED, MELEE }
 # hero_dummy). Id-cko SoundData na Voice buse (data/sounds/) — varianty
 # zije v SoundData.streams, nikdy nie tu. &"" = ticho.
 @export var spawn_voice: StringName
+
+# --- Scrolls (zbierka kariet) metadata ---
+# Bohovia su tiez karty: rovnake kody ako CardData. rarity 4 = UNIQUE.
+@export var rarity: int = 4
+@export var obtain_source: int = 0
+# Panteon boha (greek, norse, ...) — rovnaky vyznam ako CardData.faction.
+@export var faction: StringName = &"greek"
+# Domena napriec panteonmi (olympus/sky, sea, underworld).
+@export var domain: StringName
+# Synergy bonus pre jednotky ROVNAKEJ domain ako boh. Kluc = stat,
+# hodnota = nasobic (1.1 = +10 %). Povolene kluce: &"max_hp", &"damage",
+# &"speed", &"attack_speed". Prazdny dictionary = ziadny bonus.
+# Zatial sa NIKDE necita — aplikuje sa az v kroku "levels in matches".
+@export var synergy_bonuses: Dictionary = {}

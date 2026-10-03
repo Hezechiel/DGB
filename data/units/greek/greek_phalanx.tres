@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="UnitData" format=3]
+
+[ext_resource type="Script" uid="uid://1qytuvst77bw" path="res://scripts/arena/unit_data.gd" id="1_unitdata"]
+[ext_resource type="PackedScene" uid="uid://bakpvvohsixrh" path="res://scenes/arena/units/melee_unit.tscn" id="2_archetype"]
+[ext_resource type="SpriteFrames" uid="uid://bfbp61tx2uoi4" path="res://data/units/greek/frames/frames_greek_hoplite.tres" id="3_frames"]
+
+[resource]
+script = ExtResource("1_unitdata")
+id = &"greek_phalanx"
+display_name = "Phalanx"
+archetype_scene = ExtResource("2_archetype")
+max_hp = 190
+damage = 12
+attack_cooldown = 1.4
+speed = 28.0
+sprite_frames = ExtResource("3_frames")
+attack_range = 22.0
+damage_point_ratio = 0.7
+attack_sfx = &"sword_hit"
+death_sfx = &"unit_death"

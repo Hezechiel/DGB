@@ -15,7 +15,7 @@
 [ext_resource type="Texture2D" uid="uid://d3ed6pptogjga" path="res://assets/menu/shop_navrail_pressed.png" id="9_h8wvk"]
 [ext_resource type="Texture2D" uid="uid://sns78375d14t" path="res://assets/menu/mail_letter_pressed.png" id="9_u1wty"]
 [ext_resource type="Texture2D" uid="uid://co4s64g7giqe5" path="res://assets/menu/events_navrail.png" id="10_5657p"]
-[ext_resource type="SpriteFrames" uid="uid://75pi7xqp2vus" path="res://data/heroes/frames/frames_zeus.tres" id="10_zeusframes"]
+[ext_resource type="SpriteFrames" uid="uid://75pi7xqp2vus" path="res://data/heroes/greek/frames/frames_zeus.tres" id="10_zeusframes"]
 [ext_resource type="Texture2D" uid="uid://bogsukk5lesba" path="res://assets/menu/events_navrail_pressed.png" id="11_t1xqk"]
 [ext_resource type="Texture2D" uid="uid://bgxlwhck0h6kw" path="res://assets/menu/gifts_box_pressed.png" id="11_u2yxo"]
 [ext_resource type="Texture2D" uid="uid://cn18eu65x486q" path="res://assets/menu/exit_btn.png" id="12_h8wvk"]

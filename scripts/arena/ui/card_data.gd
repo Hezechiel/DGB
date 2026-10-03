@@ -15,5 +15,17 @@ class_name CardData
 # Polomer formacie pri unit_count > 1 (world units).
 @export var formation_radius: float = 12.0
 
-# PLACEHOLDER: faction filtering comes in a later step.
-@export var faction: StringName
+# --- Scrolls (zbierka kariet) metadata ---
+# Plain int kody, NIE enum — rovnaky dovod ako SpellData.spell_type.
+# rarity: 0 = COMMON, 1 = RARE, 2 = EPIC, 3 = LEGENDARY (4 = UNIQUE je len pre bohov)
+@export var rarity: int = 0
+# Odkial hrac ziskava DALSIE kopie. 0 = NONE (test/placeholder karta, nikdy
+# sa neudeluje), 1 = PACK, 2 = ACHIEVEMENT, 3 = QUEST, 4 = EVENT.
+# Starter grant sa tu NEKODUJE — to je zoznam v neskorsom kroku.
+@export var obtain_source: int = 0
+
+# Panteon karty (greek, norse, ...). Karty roznych panteonov sa nemiesaju.
+@export var faction: StringName = &"greek"
+# Domena napriec panteonmi (olympus/sky, sea, underworld). &"" = common pool.
+# Pouzije sa pre synergy bonus boha v neskorsom kroku.
+@export var domain: StringName

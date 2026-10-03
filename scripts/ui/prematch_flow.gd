@@ -36,6 +36,12 @@ var _last_search_seconds: int = -1
 func _ready() -> void:
 	MatchConfig.setup_placeholder_match()
 	MatchConfig.map_id = MapDB.get_random_map_id()
+	# Balicek hraca z profilu. AI zatial ZRKADLI hracove karty (ferovy zaklad
+	# pre testovanie); boh supera je TEMP napevno, kym nie je realny vyber.
+	MatchConfig.local_hero_id = PlayerProfile.get_deck_hero()
+	MatchConfig.local_deck_card_ids = PlayerProfile.get_deck_cards()
+	MatchConfig.opponent_hero_id = &"hero_poseidon"
+	MatchConfig.opponent_deck_card_ids = PlayerProfile.get_deck_cards()
 
 	finding_title_label.text = "Searching for a battle..."
 	finding_rank_label.text = MatchConfig.rank_label

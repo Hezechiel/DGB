@@ -1,7 +1,9 @@
 extends Node
 
-# CardDB — registruje vsetky CardData a UnitData resources podla ich `id`
-# polia. Skenuje data/cards/ a data/units/ pri starte (autoload _ready()).
+# CardDB — registruje vsetky CardData, UnitData, HeroData a SpellData
+# resources podla ich `id` polia. Skenuje data/cards/, data/units/,
+# data/heroes/ a data/spells/ REKURZIVNE (napr. cards/greek/) pri starte
+# (autoload _ready()); priecinky "frames" preskakuje.
 # Buduci network handler a drag-to-deploy citaju len z tychto dictionaries —
 # ziadne priame load()/preload() ciest po tomto bode.
 
@@ -45,6 +47,14 @@ func get_spell(id: StringName) -> SpellData:
 		return null
 	return _spells[id]
 
+# Tiche overenie existencie — get_card()/get_hero() pri neznamom id
+# push_error-uju, co sa nehodi pri validacii ulozeneho profilu.
+func has_card(id: StringName) -> bool:
+	return _cards.has(id)
+
+func has_hero(id: StringName) -> bool:
+	return _heroes.has(id)
+
 func _scan_into(dir_path: String, target: Dictionary) -> void:
 	var dir := DirAccess.open(dir_path)
 	if dir == null:
@@ -54,7 +64,12 @@ func _scan_into(dir_path: String, target: Dictionary) -> void:
 	dir.list_dir_begin()
 	var file_name := dir.get_next()
 	while file_name != "":
-		if not dir.current_is_dir():
+		if dir.current_is_dir():
+			# rekurzia do podpriecinkov (napr. cards/greek/); "frames" drzi
+			# SpriteFrames bez `id` — tie CardDB nenacitava
+			if file_name != "frames" and not file_name.begins_with("."):
+				_scan_into(dir_path + file_name + "/", target)
+		else:
 			# export build listuje "*.tres.remap" namiesto "*.tres" — orezat
 			# priponu skor nez sa zavola load()
 			if file_name.ends_with(".remap"):

@@ -10,8 +10,6 @@ signal deploy_preview_ended
 # deploy_preview_updated, ktory sa NEMENI.
 signal deploy_preview_started(card: CardData)
 
-@export var deck: Array[CardData] = []
-
 @onready var card_1: Card = $MarginContainer/HBoxContainer/Card1Aspect/Card1
 @onready var card_2: Card = $MarginContainer/HBoxContainer/Card2Aspect/Card2
 @onready var card_3: Card = $MarginContainer/HBoxContainer/Card3Aspect/Card3
@@ -27,14 +25,20 @@ var _drag_showing_back: bool = false
 func _ready() -> void:
 	_slots = [card_1, card_2, card_3]
 
-	# skopiruj a zamiesaj balicek do cyklickej fronty
-	_cycle = deck.duplicate()
+	# balicek prichadza z MatchConfig (naplneny z PlayerProfile v PreMatchFlow)
+	_cycle.clear()
+	for id in MatchConfig.local_deck_card_ids:
+		var card := CardDB.get_card(id)
+		if card != null:   # CardDB.get_card uz push_error-uje samo
+			_cycle.append(card)
 	randomize()
 	_cycle.shuffle()
 
 	for i in _slots.size():
 		_slots[i].slot_index = i
-		_slots[i].configure(_cycle.pop_front())
+		# kratky/prazdny balicek (napr. F6) — slot ostane prazdny, nie crash
+		if not _cycle.is_empty():
+			_slots[i].configure(_cycle.pop_front())
 	_update_preview()
 
 	# Zosivenie kariet podla energie — refresh pri kazdej zmene celeho cisla.

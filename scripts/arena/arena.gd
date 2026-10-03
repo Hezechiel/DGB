@@ -15,14 +15,10 @@ const MAIN_MENU_SCENE := "res://scenes/menu/MainMenu.tscn"
 const END_SEQUENCE_SECONDS := 3.5
 var _match_over := false
 
-# TEMP: kym nepride realny hero-select/network flow, hrdinovia su nastaveni
-# napevno — player Zeus, enemy Poseidon. Rovnaka kategoria TEMP ako predtym.
-const PLAYER_HERO_ID := &"hero_zeus"
-const ENEMY_HERO_ID := &"hero_poseidon"
-
 # Resolvuje sa za behu z MapDB.get_map(MatchConfig.map_id) na zaciatku _ready().
 # Ak sa arena.tscn otvori priamo (F6) bez PreMatchFlow, map_id je &"" a nizsie
-# null-guardy to zachytia — znama limitacia, rovnaka kategoria ako TEMP hero ids.
+# null-guardy to zachytia — znama limitacia. Rovnako F6 necha prazdne aj
+# MatchConfig hero id-cka a balicky (plni ich PreMatchFlow z PlayerProfile).
 var map_data: MapData
 
 func _enter_tree() -> void:
@@ -73,12 +69,12 @@ func _ready() -> void:
 	get_viewport().physics_object_picking = true
 	get_viewport().physics_object_picking_sort = true
 
-	var player_hero := BattleManager.spawn_hero(PLAYER_HERO_ID, "player", true)
+	var player_hero := BattleManager.spawn_hero(MatchConfig.local_hero_id, "player", true)
 	player_hero.global_position = map_data.hero_spawn_player
 	player = player_hero as CharacterBody2D
 	BattleManager.hero_spawn_positions["player"] = map_data.hero_spawn_player
 
-	var enemy_hero := BattleManager.spawn_hero(ENEMY_HERO_ID, "enemy", false)
+	var enemy_hero := BattleManager.spawn_hero(MatchConfig.opponent_hero_id, "enemy", false)
 	enemy_hero.global_position = map_data.hero_spawn_enemy
 	BattleManager.hero_spawn_positions["enemy"] = map_data.hero_spawn_enemy
 
@@ -161,12 +157,12 @@ func _input(event: InputEvent) -> void:
 			EnergySystem.add_modifier("player", EnergySystem.ModType.COST_REDUCE, 1.0, 5.0, &"debug_bloodlust")
 			print("[energy] bloodlust -1 cena na 5s")
 		if event.keycode == KEY_Y:
-			print("[energy] player=%.2f enemy=%.2f | regen=%.2f/s | card_05 cost=%d" % [
+			print("[energy] player=%.2f enemy=%.2f | regen=%.2f/s | card_greek_hoplite cost=%d" % [
 				EnergySystem.get_energy("player"), EnergySystem.get_energy("enemy"),
 				EnergySystem.get_regen_rate("player"),
-				EnergySystem.resolve_cost("player", &"card_05")])
+				EnergySystem.resolve_cost("player", &"card_greek_hoplite")])
 		if event.keycode == KEY_P:
-			print("[energy] try_spend card_05 -> ", EnergySystem.try_spend("player", &"card_05"))
+			print("[energy] try_spend card_greek_hoplite -> ", EnergySystem.try_spend("player", &"card_greek_hoplite"))
 		# --- DEBUG smrt (docasne, na testovanie respawn/lock/telegraph) ---
 		if event.keycode == KEY_H:
 			var dmg := roundi(player.max_hp / 3.0)

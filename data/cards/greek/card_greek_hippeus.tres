@@ -1,0 +1,20 @@
+[gd_resource type="Resource" script_class="CardData" format=3 uid="uid://b1tw77frn65wf"]
+
+[ext_resource type="Script" uid="uid://cdscsax3k7m1p" path="res://scripts/arena/ui/card_data.gd" id="1_carddata"]
+[ext_resource type="Texture2D" uid="uid://ddvmhvblk13ik" path="res://assets/sprites/units/greek/decals_greek.png" id="2_decals"]
+[ext_resource type="Resource" path="res://data/units/greek/greek_hippeus.tres" id="3_unitdata"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_scroll"]
+atlas = ExtResource("2_decals")
+region = Rect2(1005, 0, 335, 400)
+
+[resource]
+script = ExtResource("1_carddata")
+id = &"card_greek_hippeus"
+display_name = "Hippeus"
+cost = 4
+scroll_texture = SubResource("AtlasTexture_scroll")
+unit_data = ExtResource("3_unitdata")
+formation_radius = 8.0
+rarity = 1
+obtain_source = 1
