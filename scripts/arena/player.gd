@@ -78,18 +78,19 @@ var hero_data: HeroData = null
 # Nastavi hrdinu podla HeroData PRED vstupom do stromu (spawn flow:
 # instantiate → configure → add_child). Pouziva $AnimatedSprite2D priamo
 # (nie @onready var sprite) — onready vary sa priradia az pri _ready().
-func configure(data: HeroData, _new_team: String) -> void:
+func configure(data: HeroData, _new_team: String, stat_mods: Dictionary = {}) -> void:
 	hero_data = data
 	# team ostava efektivne "player" pre lokalneho hrdinu — hardcoded team
 	# stringy v _ready() (BattleManager.register(self, "player") atd.)
 	# TODO: nahradit premennou team, ked pride multiplayer/sidekick
-	max_hp = data.max_hp
+	max_hp = roundi(data.max_hp * float(stat_mods.get(&"max_hp", 1.0)))
 	speed = data.speed
 	attack_range = data.attack_range
 	$AttackRange/CollisionShape2D.shape.radius = data.attack_range
-	recovery_time = data.recovery_time
+	# attack speed = zatial len kratsi recovery po zasahu (rework neskor)
+	recovery_time = data.recovery_time / maxf(float(stat_mods.get(&"attack_speed", 1.0)), 0.01)
 	damage_point_ratio = data.damage_point_ratio
-	projectile_damage = data.projectile_damage
+	projectile_damage = roundi(data.projectile_damage * float(stat_mods.get(&"damage", 1.0)))
 	bolt_scene = data.projectile_scene
 	attack_type = data.attack_type
 	can_move_while_attacking = data.can_move_while_attacking

@@ -34,11 +34,15 @@ var _zone_left: float = 0.0
 # animacia dopadu. Uzol sa uvolni az ked su hotove OBE.
 var _anim_left: float = 0.0
 var _tick_left: float = 0.0
+# Damage skalovany levelom karty (BattleManager) — zije LEN na uzle,
+# SpellData resource sa nikdy nemeni. CC trvania sa neskaluju.
+var _damage: int = 0
 
 # Volane PRED add_child() (spawn flow: instantiate → configure →
 # add_child), rovnaky kontrakt ako unit.configure()/hero.configure().
-func configure(data: SpellData, team: String, pos: Vector2) -> void:
+func configure(data: SpellData, team: String, pos: Vector2, damage_mult: float = 1.0) -> void:
 	spell = data
+	_damage = roundi(data.damage * damage_mult)
 	caster_team = team
 	_affected_team = "player" if team == "enemy" else "enemy"
 	_cast_left = data.cast_time
@@ -121,7 +125,7 @@ func _apply_tick() -> void:
 		0:  # STORM — damage + obnovenie kratkeho slow
 			for n in targets:
 				if is_instance_valid(n) and n.has_method("take_damage"):
-					n.take_damage(spell.damage)
+					n.take_damage(_damage)
 				if is_instance_valid(n) and n.has_method("apply_slow"):
 					n.apply_slow(spell.slow_multiplier, spell.effect_duration)
 		1:  # STUN

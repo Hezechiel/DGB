@@ -83,16 +83,17 @@ const NAV_REPATH_DIST_SQ := 16.0 * 16.0
 # Nastavi hrdinu podla HeroData PRED vstupom do stromu (spawn flow:
 # instantiate → configure → add_child). Pouziva $NodePath priamo, nie
 # @onready vary — tie sa priradia az pri _ready(), ktory tu este neprebehol.
-func configure(data: HeroData, new_team: String) -> void:
+func configure(data: HeroData, new_team: String, stat_mods: Dictionary = {}) -> void:
 	hero_data = data
 	team = new_team
-	max_hp = data.max_hp
+	max_hp = roundi(data.max_hp * float(stat_mods.get(&"max_hp", 1.0)))
 	speed = data.speed
 	attack_range = data.attack_range
 	$AttackRange/CollisionShape2D.shape.radius = data.attack_range
-	recovery_time = data.recovery_time
+	# attack speed = zatial len kratsi recovery po zasahu (rework neskor)
+	recovery_time = data.recovery_time / maxf(float(stat_mods.get(&"attack_speed", 1.0)), 0.01)
 	damage_point_ratio = data.damage_point_ratio
-	projectile_damage = data.projectile_damage
+	projectile_damage = roundi(data.projectile_damage * float(stat_mods.get(&"damage", 1.0)))
 	bolt_scene = data.projectile_scene
 	attack_type = data.attack_type
 	can_move_while_attacking = data.can_move_while_attacking

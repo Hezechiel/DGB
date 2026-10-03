@@ -15,11 +15,17 @@ var opponent_faction: String = "Underworld"
 
 # Balicky pre zapas — naplna PreMatchFlow z PlayerProfile (MatchConfig sam
 # neberie zavislost na inom autoloade). Zaklad buduceho "deck manifest"-u,
-# ktory si klienti vymenia na zaciatku zapasu; levely pridu v dalsom kroku.
+# ktory si klienti vymenia na zaciatku zapasu.
 var local_hero_id: StringName = &""
 var local_deck_card_ids: Array[StringName] = []
 var opponent_hero_id: StringName = &""
 var opponent_deck_card_ids: Array[StringName] = []
+
+# Levely pre zapas (manifest). card_levels: StringName card_id -> int level.
+var local_hero_level: int = 1
+var local_card_levels: Dictionary = {}
+var opponent_hero_level: int = 1
+var opponent_card_levels: Dictionary = {}
 
 func setup_placeholder_match() -> void:
 	# Naplni holder mock hodnotami. Neskor nahradi matchmaking.

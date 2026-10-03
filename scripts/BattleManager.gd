@@ -63,6 +63,59 @@ var last_winner: String = ""
 # bez vlastnej scenografie, takze potrebuje referenciu kam pridat spawnute uzly.
 var arena_root: Node = null
 
+# --- Match manifest (levely + synergy) ---
+
+const LEVEL_CURVE: LevelCurve = preload("res://data/progression/level_curve.tres")
+
+# Match manifest: team -> {"hero_id": StringName, "hero_level": int,
+# "card_levels": Dictionary}. Nastavuje arena.gd raz na zaciatku zapasu
+# (neskor pride zo siete). Spawn spravy ostavaju {card_id, pos, team} —
+# level sa NIKDY neposiela per spawn, vzdy sa dohlada tu podla timu.
+var _manifests: Dictionary = {}
+
+func set_team_manifest(team: String, hero_id: StringName, hero_level: int, card_levels: Dictionary) -> void:
+	_manifests[team] = {
+		"hero_id": hero_id,
+		"hero_level": maxi(1, hero_level),
+		"card_levels": card_levels.duplicate(),
+	}
+
+func get_card_level(team: String, card_id: StringName) -> int:
+	# Chybajuci manifest/karta = level 1 (nikdy nezhodi zapas).
+	if not _manifests.has(team):
+		return 1
+	return maxi(1, int(_manifests[team]["card_levels"].get(card_id, 1)))
+
+func get_hero_level(team: String) -> int:
+	if not _manifests.has(team):
+		return 1
+	return _manifests[team]["hero_level"]
+
+# Nasobice pre jednotku z karty: level (HP + damage) x synergy boha timu.
+# Synergy plati len ked karta MA domain a zhoduje sa s domain boha timu.
+# &"" domain = common pool = ziadna synergy.
+func _unit_stat_mods(card: CardData, team: String) -> Dictionary:
+	var level_mult := LEVEL_CURVE.get_stat_multiplier(get_card_level(team, card.id))
+	var mods := {&"max_hp": level_mult, &"damage": level_mult, &"speed": 1.0, &"attack_speed": 1.0}
+	if card.domain == &"" or not _manifests.has(team):
+		return mods
+	var hero_id: StringName = _manifests[team]["hero_id"]
+	if not CardDB.has_hero(hero_id):
+		return mods
+	var hero_data := CardDB.get_hero(hero_id)
+	if hero_data.domain != card.domain:
+		return mods
+	for stat in mods.keys():
+		mods[stat] *= float(hero_data.synergy_bonuses.get(stat, 1.0))
+	return mods
+
+# Nasobice pre boha: level skaluje HP, damage a (mensim stropom) attack speed.
+func _hero_stat_mods(team: String) -> Dictionary:
+	var level := get_hero_level(team)
+	var m := LEVEL_CURVE.get_stat_multiplier(level)
+	return {&"max_hp": m, &"damage": m, &"speed": 1.0,
+		&"attack_speed": LEVEL_CURVE.get_hero_attack_speed_multiplier(level)}
+
 # --- Registracia jednotiek ---
 
 func register(unit: Node2D, team: String) -> void:
@@ -234,6 +287,8 @@ func reset_match_state() -> void:
 		"enemy": []
 	}
 
+	_manifests = {}  # arena.gd ich znovu nastavi pred spawnom hrdinov
+
 	last_winner = ""
 	arena_root = null  # arena._enter_tree() ho hned nato nastavi znova
 
@@ -371,9 +426,10 @@ func spawn_unit(card_id: StringName, pos: Vector2, team: String) -> Array[Node]:
 
 	var spawned: Array[Node] = []
 	var count: int = maxi(1, card.unit_count)
+	var mods := _unit_stat_mods(card, team)
 	for i in range(count):
 		var unit := unit_data.archetype_scene.instantiate()
-		unit.configure(unit_data, team)
+		unit.configure(unit_data, team, mods)
 		# Drop point je uz validovany (is_on_navigation), ale formacny ring
 		# offset blizko okraja moze este stale padnut do prekazky/mimo hranice
 		# — kazdeho clena preto prisunieme zvlast. Deterministicke: rovnaky
@@ -382,6 +438,7 @@ func spawn_unit(card_id: StringName, pos: Vector2, team: String) -> Array[Node]:
 		unit.global_position = snap_to_navigation(pos + _formation_offset(i, count, card.formation_radius))
 		arena_root.add_child.call_deferred(unit)
 		spawned.append(unit)
+	print("[spawn] %s team=%s L%d mods=%s" % [card_id, team, get_card_level(team, card_id), mods])
 	return spawned
 
 # Deterministicke rozmiestnenie squadu do kruhu — ZIADNY random, oba klienti
@@ -433,7 +490,7 @@ func cast_spell(card_id: StringName, pos: Vector2, team: String) -> void:
 		return
 
 	var zone := SPELL_ZONE_SCENE.instantiate()
-	zone.configure(card.spell_data, team, pos)
+	zone.configure(card.spell_data, team, pos, LEVEL_CURVE.get_stat_multiplier(get_card_level(team, card_id)))
 	arena_root.add_child.call_deferred(zone)
 
 # --- Spawn (hrdinovia) ---
@@ -455,7 +512,9 @@ func spawn_hero(hero_id: StringName, team: String, controlled: bool) -> Node:
 
 	var scene: PackedScene = PLAYER_SCENE if controlled else HERO_DUMMY_SCENE
 	var hero := scene.instantiate()
-	hero.configure(data, team)
+	var mods := _hero_stat_mods(team)
+	hero.configure(data, team, mods)
+	print("[spawn] %s team=%s L%d mods=%s" % [hero_id, team, get_hero_level(team), mods])
 	heroes[team] = hero
 	arena_root.add_child.call_deferred(hero)
 	return hero

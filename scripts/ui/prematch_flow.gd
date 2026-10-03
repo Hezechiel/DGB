@@ -42,6 +42,14 @@ func _ready() -> void:
 	MatchConfig.local_deck_card_ids = PlayerProfile.get_deck_cards()
 	MatchConfig.opponent_hero_id = &"hero_poseidon"
 	MatchConfig.opponent_deck_card_ids = PlayerProfile.get_deck_cards()
+	# Levely z profilu; AI zrkadli aj levely (rozhodnutie #10 — ferovy zaklad).
+	MatchConfig.local_hero_level = PlayerProfile.get_hero_level(MatchConfig.local_hero_id)
+	var levels: Dictionary = {}
+	for id in MatchConfig.local_deck_card_ids:
+		levels[id] = PlayerProfile.get_card_level(id)
+	MatchConfig.local_card_levels = levels
+	MatchConfig.opponent_hero_level = MatchConfig.local_hero_level
+	MatchConfig.opponent_card_levels = levels.duplicate()
 
 	finding_title_label.text = "Searching for a battle..."
 	finding_rank_label.text = MatchConfig.rank_label

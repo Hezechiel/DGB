@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="PackData" format=3]
+
+[ext_resource type="Script" path="res://scripts/pack_data.gd" id="1_packdata"]
+
+[resource]
+script = ExtResource("1_packdata")
+id = &"greek_cherished_pack"
+display_name = "Cherished Greek Pack"
+card_count = 5
+faction = &"greek"
+rarity_weights = PackedFloat32Array(50, 30, 13, 5, 2)
+guaranteed_min_rarity = 2
+price = 0

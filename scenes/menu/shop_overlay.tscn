@@ -1,0 +1,69 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/shop_overlay.gd" id="1_shop"]
+
+[node name="ShopOverlay" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_shop")
+
+[node name="ShopPanel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="ShopPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 24
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 24
+
+[node name="Content" type="VBoxContainer" parent="ShopPanel/Margin"]
+layout_mode = 2
+
+[node name="Header" type="HBoxContainer" parent="ShopPanel/Margin/Content"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="ShopPanel/Margin/Content/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Shop"
+
+[node name="CloseButton" type="Button" parent="ShopPanel/Margin/Content/Header"]
+layout_mode = 2
+text = "Close"
+
+[node name="PackList" type="VBoxContainer" parent="ShopPanel/Margin/Content"]
+layout_mode = 2
+
+[node name="RevealBox" type="VBoxContainer" parent="ShopPanel/Margin/Content"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="RevealTitle" type="Label" parent="ShopPanel/Margin/Content/RevealBox"]
+layout_mode = 2
+
+[node name="RevealScroll" type="ScrollContainer" parent="ShopPanel/Margin/Content/RevealBox"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="RevealList" type="HBoxContainer" parent="ShopPanel/Margin/Content/RevealBox/RevealScroll"]
+layout_mode = 2
+
+[node name="RevealOkButton" type="Button" parent="ShopPanel/Margin/Content/RevealBox"]
+layout_mode = 2
+text = "OK"

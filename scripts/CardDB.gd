@@ -1,9 +1,10 @@
 extends Node
 
-# CardDB — registruje vsetky CardData, UnitData, HeroData a SpellData
-# resources podla ich `id` polia. Skenuje data/cards/, data/units/,
-# data/heroes/ a data/spells/ REKURZIVNE (napr. cards/greek/) pri starte
-# (autoload _ready()); priecinky "frames" preskakuje.
+# CardDB — registruje vsetky CardData, UnitData, HeroData, SpellData a
+# PackData resources podla ich `id` polia. Skenuje data/cards/, data/units/,
+# data/heroes/, data/spells/ a data/packs/ REKURZIVNE (napr. cards/greek/)
+# pri starte (autoload _ready()); priecinky "frames" preskakuje. Z kariet a
+# bohov s obtain_source == 1 sklada drop pool pre PackRoller.
 # Buduci network handler a drag-to-deploy citaju len z tychto dictionaries —
 # ziadne priame load()/preload() ciest po tomto bode.
 
@@ -11,17 +12,20 @@ const CARDS_PATH := "res://data/cards/"
 const UNITS_PATH := "res://data/units/"
 const HEROES_PATH := "res://data/heroes/"
 const SPELLS_PATH := "res://data/spells/"
+const PACKS_PATH := "res://data/packs/"
 
 var _cards: Dictionary = {} # StringName -> CardData
 var _units: Dictionary = {} # StringName -> UnitData
 var _heroes: Dictionary = {} # StringName -> HeroData
 var _spells: Dictionary = {} # StringName -> SpellData
+var _packs: Dictionary = {} # StringName -> PackData
 
 func _ready() -> void:
 	_scan_into(CARDS_PATH, _cards)
 	_scan_into(UNITS_PATH, _units)
 	_scan_into(HEROES_PATH, _heroes)
 	_scan_into(SPELLS_PATH, _spells)
+	_scan_into(PACKS_PATH, _packs)
 
 func get_card(id: StringName) -> CardData:
 	if not _cards.has(id):
@@ -46,6 +50,37 @@ func get_spell(id: StringName) -> SpellData:
 		push_error("CardDB: unknown spell id '%s'" % id)
 		return null
 	return _spells[id]
+
+func get_pack(id: StringName) -> PackData:
+	if not _packs.has(id):
+		push_error("CardDB: unknown pack id '%s'" % id)
+		return null
+	return _packs[id]
+
+# Zoradene (deterministicke poradie nezavisle od poradia suborov na disku).
+func list_pack_ids() -> Array[StringName]:
+	var ids: Array[StringName] = []
+	ids.assign(_packs.keys())
+	ids.sort()
+	return ids
+
+# Drop pool pre PackRoller: rarity kod -> ZORADENE pole id-ciek. Obsahuje
+# karty AJ bohov s obtain_source == 1 (PACK). faction &"" = bez filtra.
+func get_pack_pool(faction: StringName) -> Dictionary:
+	var pool: Dictionary = {}
+	for source in [_cards, _heroes]:
+		for id in source:
+			var res = source[id]
+			if res.obtain_source != 1:
+				continue
+			if faction != &"" and res.faction != faction:
+				continue
+			if not pool.has(res.rarity):
+				pool[res.rarity] = []
+			pool[res.rarity].append(id)
+	for rarity in pool:
+		pool[rarity].sort()
+	return pool
 
 # Tiche overenie existencie — get_card()/get_hero() pri neznamom id
 # push_error-uju, co sa nehodi pri validacii ulozeneho profilu.

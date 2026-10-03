@@ -1,12 +1,12 @@
 # Scrolls — Confirmed Decisions (2026-10-03)
 
-Companion to `DGB_Scrolls_Card_Collection_Design.docx`. Records Bakula's answers to decisions 1–11 and the follow-up answers on gods. Where this file and the docx disagree, this file wins.
+Companion to `DGB_Scrolls_Card_Collection_Design.docx`. Records Bakula's answers to decisions 1–11 and the follow-up answers on gods. Where this file and the docx disagree, this file wins. Implementation progress is tracked separately in `claude/scrolls_build_log.md`.
 
 ## Vocabulary (changed 2026-10-03)
 
 - **Faction = pantheon**: Greek, Norse, Chinese, Mayan… (the docs and step 1 called this "era").
 - **Domain = cross-pantheon grouping**: Olympus/sky, sea, underworld… (the docs and step 1 called this "faction"). All sea gods across all pantheons give the same synergy bonus.
-- Data fields are renamed to match in step 1b: `era` → `faction`, `faction` → `domain`.
+- Data fields were renamed to match in step 1b: `era` → `faction`, `faction` → `domain`.
 
 ## Decisions
 
@@ -43,16 +43,24 @@ Companion to `DGB_Scrolls_Card_Collection_Design.docx`. Records Bakula's answers
 
 - Folders are **type, then pantheon**: `data/cards/greek/`, `data/units/greek/` (+ `frames/`), `data/heroes/greek/` (+ `frames/`), `data/spells/greek/` (+ `frames/`). No folders by rarity or domain (both are tunable data, not identity).
 - `CardDB` scans recursively and skips `frames` folders.
-- Cards are named, not numbered: file and id `card_<pantheon>_<name>` (e.g. `card_greek_hoplite`). The numbered test cards `card_01`–`card_09` are deleted; spell cards become `card_greek_storm` / `_stun` / `_ensnaring_net`.
+- Cards are named, not numbered: file and id `card_<pantheon>_<name>` (e.g. `card_greek_hoplite`). The numbered test cards `card_01`–`card_09` are deleted; spell cards are `card_greek_storm` / `_stun` / `_ensnaring_net`.
 - Unit, hero and spell-data ids are unchanged (`greek_hoplite`, `hero_zeus`, `spell_storm`).
+
+## Profile, deck and match manifest
+
+- `PlayerProfile` autoload, saved to `user://profile.json` with `save_version` 1: owned cards and gods as `{level, copies}`, plus the deck `{hero, cards[7]}`. Mutations only through `grant_cards()`, `set_deck()`, `reset_profile()` (later `upgrade_card()`).
+- **Starter grant** (placeholder, not explicitly confirmed by Bakula): Zeus + Hoplite, Toxotes, Peltast, Hippeus, Gastraphetes, Storm, Stun. Sphendonetes, Phalanx, Priestess and Ensnaring Net start unowned.
+- One deck source: `PreMatchFlow` copies the profile deck and levels into `MatchConfig`; the hand and the enemy AI both read from there. The AI mirrors the player's cards and levels; its god stays Poseidon (TEMP).
+- Levels never travel per spawn: spawn messages stay `{card_id, position, team}` and a per-team **match manifest** (god id, god level, card levels) is set once at match start.
+- A bad or incompatible save falls back to the starter profile; unknown ids in a save are dropped.
 
 ## Consequences
 
-- **Hero cards are in scope** (the docx listed them as out of scope). The deck is `{hero_id, cards[7]}`, and the deck manifest exchanged at match start carries the hero and its level too.
+- **Hero cards are in scope** (the docx listed them as out of scope).
 - Gods use the same ownership record as cards (`copies`, `level`), so `grant_cards()` / `upgrade_card()` need no god-specific path.
 - `obtain_source` (plain int: 0 NONE, 1 PACK, 2 ACHIEVEMENT, 3 QUEST, 4 EVENT) says where additional copies come from. The starter grant is a separate list, not a source value, because starter cards must also drop from packs. `PackRoller` only rolls source PACK, and Unique only when the pack's Unique weight is above 0.
 - `PackData` carries a rarity-weight table per pack rather than one global table.
-- Synergy is data on the god: `HeroData.synergy_bonuses` is a `{stat: multiplier}` dictionary (keys `max_hp`, `damage`, `speed`, `attack_speed`), applied at unit spawn next to level scaling when the card's `domain` matches the god's. `&""` domain = common pool.
+- Synergy is data on the god: `HeroData.synergy_bonuses` is a `{stat: multiplier}` dictionary (keys `max_hp`, `damage`, `speed`, `attack_speed`), applied at unit spawn next to level scaling when the card's `domain` matches the god's. `&""` domain = common pool = no synergy.
 - Deck restrictions: a pure-math `DeckRules.validate(hero_id, card_ids) -> Array` of violations, driven by data (exclusion list empty for now), called from `PlayerProfile.set_deck()` and later by the server.
 - A 7-card deck with 3 hand slots + 1 preview leaves 3 cards unseen in the cycle queue.
 - cards_greek.md Open Question 2 is resolved on deck size (hero + 7). The sidekick part is still open.
@@ -71,27 +79,16 @@ Companion to `DGB_Scrolls_Card_Collection_Design.docx`. Records Bakula's answers
 - God attack-speed multiplier by level 1–10: 1.00 to 1.18 in steps of 0.02 (smaller cap because it multiplies with damage).
 - Synergy bonus: ×1.1 on each boosted stat.
 
-## Build progress
-
-| Step | Status |
-|---|---|
-| 1. Data: fields on CardData/HeroData, `LevelCurve`, tags on existing data | Prompt `prompt_scrolls_step1_data.md`; Claude Code working on it 2026-10-03 |
-| 1b. Restructure: type/pantheon folders, recursive `CardDB`, named cards, `era`→`faction` / `faction`→`domain` | Prompt `prompt_scrolls_step1b_restructure.md` written 2026-10-03; run after step 1 |
-| 2. `PlayerProfile` autoload, starter grant, deck as single source for hand and AI | Not started |
-| 3. Levels and synergy in matches (deck manifest, scaling in `configure()`) | Not started |
-| 4. `PackData` + `PackRoller` + Shop screen | Not started |
-| 5. Collection + Deck screen, `DeckRules` | Not started |
-| 6. Debug panel | Not started |
-
 ## Still open
 
 1. Which gods are pack / achievement / quest / event. Zeus is the starter; Poseidon is tagged PACK as a placeholder so the cherished-pack path is testable.
-2. Starter deck: which 7 of the 11 named cards (8 units + 3 spells).
+2. Starter deck confirmation (see placeholder above).
 3. Card rarities for the Greek roster (placeholders: Hippeus, Phalanx, Priestess, Gastraphetes, Storm, Stun = Rare; the rest Common).
 4. God passive-ability conditions that unlock the synergy bonus.
 5. Attack-speed rework (postponed).
 6. Sidekick: escort, card, or separate unlock (cards_greek.md Open Question 2, second half).
 7. Priestess scroll art is missing from `decals_greek.png` (her card uses the Hoplite cell as a placeholder).
+8. No card has a `domain` yet, so no unit currently receives a synergy bonus; the first Olympus cards (Pegasus, Bronze Automaton) will.
 
 ## Greek unit roster — first stat pass (2026-10-03)
 

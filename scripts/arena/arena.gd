@@ -69,6 +69,12 @@ func _ready() -> void:
 	get_viewport().physics_object_picking = true
 	get_viewport().physics_object_picking_sort = true
 
+	# Match manifest — raz na zaciatku, pred spawnom hrdinov (levely bohov).
+	BattleManager.set_team_manifest("player", MatchConfig.local_hero_id,
+		MatchConfig.local_hero_level, MatchConfig.local_card_levels)
+	BattleManager.set_team_manifest("enemy", MatchConfig.opponent_hero_id,
+		MatchConfig.opponent_hero_level, MatchConfig.opponent_card_levels)
+
 	var player_hero := BattleManager.spawn_hero(MatchConfig.local_hero_id, "player", true)
 	player_hero.global_position = map_data.hero_spawn_player
 	player = player_hero as CharacterBody2D

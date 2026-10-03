@@ -119,13 +119,16 @@ var last_direction := Vector2.DOWN
 # instantiate → configure → add_child). Pouziva $AnimatedSprite2D priamo
 # (nie @onready var sprite) — onready vary sa priradia az pri _ready(),
 # ktory v tomto bode este neprebehol.
-func configure(data: UnitData, new_team: String) -> void:
+func configure(data: UnitData, new_team: String, stat_mods: Dictionary = {}) -> void:
 	unit_data = data
 	team = new_team
-	max_hp = data.max_hp
-	damage = data.damage
-	attack_cooldown = data.attack_cooldown
-	speed = data.speed
+	# stat_mods = nasobice z BattleManager (level + synergy). Skalovane
+	# hodnoty ziju LEN na tomto uzle — UnitData resource sa nikdy nemeni.
+	max_hp = roundi(data.max_hp * float(stat_mods.get(&"max_hp", 1.0)))
+	damage = roundi(data.damage * float(stat_mods.get(&"damage", 1.0)))
+	# attack speed = zatial len kratsi cooldown po zasahu (rework neskor)
+	attack_cooldown = data.attack_cooldown / maxf(float(stat_mods.get(&"attack_speed", 1.0)), 0.01)
+	speed = data.speed * float(stat_mods.get(&"speed", 1.0))
 	target_filter = data.target_filter as TargetFilter
 	attack_type = data.attack_type
 	attack_range = data.attack_range

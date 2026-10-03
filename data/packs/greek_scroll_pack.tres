@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="PackData" format=3]
+
+[ext_resource type="Script" path="res://scripts/pack_data.gd" id="1_packdata"]
+
+[resource]
+script = ExtResource("1_packdata")
+id = &"greek_scroll_pack"
+display_name = "Greek Scroll Pack"
+card_count = 5
+faction = &"greek"
+rarity_weights = PackedFloat32Array(70, 22, 6, 2, 0)
+guaranteed_min_rarity = 1
+price = 0

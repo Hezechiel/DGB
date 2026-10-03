@@ -19,6 +19,7 @@ extends Control
 
 @onready var setting_overlay: SettingsOverlay = $SettingOverlay
 @onready var credits_overlay: CreditsOverlay = $CreditsOverlay
+@onready var shop_overlay: ShopOverlay = $ShopOverlay
 
 const PREMATCH_FLOW_SCENE := "res://scenes/ui/PreMatchFlow.tscn"
 const COMING_SOON_DURATION := 1.5
@@ -45,7 +46,8 @@ func _ready() -> void:
 	gift_button.pressed.connect(_show_coming_soon.bind("Gift"))
 	deck_button.pressed.connect(_show_coming_soon.bind("Deck"))
 	heroes_button.pressed.connect(_show_coming_soon.bind("Heroes"))
-	shop_button.pressed.connect(_show_coming_soon.bind("Shop"))
+	shop_button.pressed.connect(_on_shop_button_pressed)
+	shop_overlay.closed.connect(_on_shop_overlay_closed)
 	rewards_button.pressed.connect(_show_coming_soon.bind("Rewards"))
 	#setting_overlay.visible = false
 	AudioManager.play_music(&"menu")
@@ -95,6 +97,16 @@ func _on_setting_overlay_close_requested() -> void:
 	#get_tree().paused = false
 
 func _on_credits_overlay_closed() -> void:
+	nav_rail.visible = true
+	main_content.visible = true
+
+func _on_shop_button_pressed() -> void:
+	nav_rail.visible = false
+	main_content.visible = false
+	shop_overlay.move_to_front()
+	shop_overlay.open()
+
+func _on_shop_overlay_closed() -> void:
 	nav_rail.visible = true
 	main_content.visible = true
 
