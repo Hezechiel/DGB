@@ -20,6 +20,8 @@ extends Control
 @onready var setting_overlay: SettingsOverlay = $SettingOverlay
 @onready var credits_overlay: CreditsOverlay = $CreditsOverlay
 @onready var shop_overlay: ShopOverlay = $ShopOverlay
+@onready var deck_overlay: DeckOverlay = $DeckOverlay
+@onready var encyclopedia_overlay: EncyclopediaOverlay = $EncyclopediaOverlay
 
 const PREMATCH_FLOW_SCENE := "res://scenes/ui/PreMatchFlow.tscn"
 const COMING_SOON_DURATION := 1.5
@@ -44,8 +46,10 @@ func _ready() -> void:
 	exit_button.pressed.connect(_on_exit_button_pressed)
 	mail_button.pressed.connect(_show_coming_soon.bind("Mail"))
 	gift_button.pressed.connect(_show_coming_soon.bind("Gift"))
-	deck_button.pressed.connect(_show_coming_soon.bind("Deck"))
-	heroes_button.pressed.connect(_show_coming_soon.bind("Heroes"))
+	deck_button.pressed.connect(_on_deck_button_pressed)
+	encyclopedia_overlay.closed.connect(_on_encyclopedia_overlay_closed)
+	heroes_button.pressed.connect(_on_heroes_button_pressed)
+	deck_overlay.closed.connect(_on_deck_overlay_closed)
 	shop_button.pressed.connect(_on_shop_button_pressed)
 	shop_overlay.closed.connect(_on_shop_overlay_closed)
 	rewards_button.pressed.connect(_show_coming_soon.bind("Rewards"))
@@ -107,6 +111,26 @@ func _on_shop_button_pressed() -> void:
 	shop_overlay.open()
 
 func _on_shop_overlay_closed() -> void:
+	nav_rail.visible = true
+	main_content.visible = true
+
+func _on_heroes_button_pressed() -> void:
+	nav_rail.visible = false
+	main_content.visible = false
+	deck_overlay.move_to_front()
+	deck_overlay.open()
+
+func _on_deck_overlay_closed() -> void:
+	nav_rail.visible = true
+	main_content.visible = true
+
+func _on_deck_button_pressed() -> void:
+	nav_rail.visible = false
+	main_content.visible = false
+	encyclopedia_overlay.move_to_front()
+	encyclopedia_overlay.open()
+
+func _on_encyclopedia_overlay_closed() -> void:
 	nav_rail.visible = true
 	main_content.visible = true
 

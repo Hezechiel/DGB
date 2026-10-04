@@ -1,0 +1,78 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/deck_overlay.gd" id="1_deck"]
+
+[node name="DeckOverlay" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_deck")
+
+[node name="DeckPanel" type="Panel" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="DeckPanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="Content" type="VBoxContainer" parent="DeckPanel/Margin"]
+layout_mode = 2
+
+[node name="Header" type="HBoxContainer" parent="DeckPanel/Margin/Content"]
+layout_mode = 2
+
+[node name="TitleLabel" type="Label" parent="DeckPanel/Margin/Content/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Deck"
+
+[node name="EditButton" type="Button" parent="DeckPanel/Margin/Content/Header"]
+layout_mode = 2
+text = "Edit"
+
+[node name="SaveButton" type="Button" parent="DeckPanel/Margin/Content/Header"]
+visible = false
+layout_mode = 2
+text = "Save"
+
+[node name="CancelButton" type="Button" parent="DeckPanel/Margin/Content/Header"]
+visible = false
+layout_mode = 2
+text = "Cancel"
+
+[node name="CloseButton" type="Button" parent="DeckPanel/Margin/Content/Header"]
+layout_mode = 2
+text = "Close"
+
+[node name="SlotRow" type="HBoxContainer" parent="DeckPanel/Margin/Content"]
+layout_mode = 2
+
+[node name="HintLabel" type="Label" parent="DeckPanel/Margin/Content"]
+visible = false
+layout_mode = 2
+
+[node name="PoolScroll" type="ScrollContainer" parent="DeckPanel/Margin/Content"]
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="PoolGrid" type="GridContainer" parent="DeckPanel/Margin/Content/PoolScroll"]
+layout_mode = 2
+columns = 8

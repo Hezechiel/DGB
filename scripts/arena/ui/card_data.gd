@@ -24,8 +24,14 @@ class_name CardData
 # Starter grant sa tu NEKODUJE — to je zoznam v neskorsom kroku.
 @export var obtain_source: int = 0
 
-# Panteon karty (greek, norse, ...). Karty roznych panteonov sa nemiesaju.
+# Panteon karty (greek, norse, ...). Panteony sa v jednom balicku mozu miesat.
 @export var faction: StringName = &"greek"
 # Domena napriec panteonmi (olympus/sky, sea, underworld). &"" = common pool.
 # Pouzije sa pre synergy bonus boha v neskorsom kroku.
 @export var domain: StringName
+# Volne znacky (holy, undead, beast, ...). Boh moze niektore odmietat
+# (HeroData.forbidden_tags). faction a domain sa pri pravidlach rataju ako
+# znacky automaticky — netreba ich sem opakovat.
+@export var tags: Array[StringName] = []
+# Kratky popis pre flashcard (encyklopedia). Prazdny = nic sa nezobrazi.
+@export_multiline var description: String = ""

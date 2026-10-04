@@ -56,3 +56,8 @@ enum AttackType { RANGED, MELEE }
 # &"speed", &"attack_speed". Prazdny dictionary = ziadny bonus.
 # Zatial sa NIKDE necita — aplikuje sa az v kroku "levels in matches".
 @export var synergy_bonuses: Dictionary = {}
+# Znacky kariet, ktore tento boh ODMIETA v balicku. Prazdne = neutralny boh.
+# Porovnava sa s CardData.tags + faction + domain karty.
+@export var forbidden_tags: Array[StringName] = []
+# Kratky popis pre flashcard (encyklopedia). Prazdny = nic sa nezobrazi.
+@export_multiline var description: String = ""

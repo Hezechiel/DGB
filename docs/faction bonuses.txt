@@ -1,0 +1,78 @@
+Ako fungujú faction bonuses
+Faction bonus sa aktivuje, keď máš v decku minimálne 4 karty z rovnakej frakcie (vrátane lídra).
+Bonusy sú pasívne, automaticky sa aktivujú na začiatku zápasu a ovplyvňujú celý tvoj tím.
+
+Frakcie v hre:
+
+Galactic Empire
+
+Rebel Alliance
+
+First Order
+
+Resistance
+
+Republic
+
+Separatists
+
+Scoundrels (niekedy označovaní ako neutral, ale majú vlastný bonus)
+
+🔥 Kompletný zoznam faction bonuses
+Galactic Empire
++10 % damage pre všetky jednotky Empire
+
++10 % attack speed pre Empire jednotky
+
+Zamerané na rýchle rozbitie turretov a silný pressure.
+
+Rebel Alliance
++10 % HP pre všetky Rebel jednotky
+
++10 % movement speed
+
+Rebels sú mobilní, prežijú dlhšie a lepšie držia mapu.
+
+First Order
++10 % damage proti turretom
+
++10 % energy regeneration speed
+
+Skvelé na agresívny push a spamovanie jednotiek.
+
+Resistance
++10 % HP pre všetky Resistance jednotky
+
++10 % heal bonus z podporných kariet
+
+Hrá sa ako sustain/control frakcia.
+
+Republic
++10 % damage pre ranged jednotky
+
++10 % cooldown reduction
+
+Silné pri kombinovaní klonov a Jedi lídrov.
+
+Separatists
++10 % HP pre droidov
+
++10 % damage pre droidov
+
+Droid swarms sú extrémne efektívne s týmto bonusom.
+
+Scoundrels / Neutral
++10 % movement speed
+
++10 % attack speed
+
+Bonus je slabší, ale univerzálny — vhodné pre hybridné decky.
+
+📌 Tipy pre deckbuilding
+Najsilnejšie bonusy v hre: Separatists, First Order, Empire
+
+Najlepšie pre mobilitu: Rebels, Scoundrels
+
+Najlepšie pre sustain: Resistance
+
+Najlepšie pre burst push: First Order + Empire

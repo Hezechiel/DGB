@@ -1,0 +1,98 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/card_flashcard.gd" id="1_flashcard"]
+
+[node name="CardFlashcard" type="Control"]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_flashcard")
+
+[node name="Dim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.6)
+
+[node name="Card" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(900, 470)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -450.0
+offset_top = -235.0
+offset_right = 450.0
+offset_bottom = 235.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Margin" type="MarginContainer" parent="Card"]
+layout_mode = 2
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+theme_override_constants/margin_right = 16
+theme_override_constants/margin_bottom = 16
+
+[node name="Layout" type="HBoxContainer" parent="Card/Margin"]
+layout_mode = 2
+
+[node name="Left" type="VBoxContainer" parent="Card/Margin/Layout"]
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
+
+[node name="Picture" type="TextureRect" parent="Card/Margin/Layout/Left"]
+custom_minimum_size = Vector2(200, 240)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="LevelLabel" type="Label" parent="Card/Margin/Layout/Left"]
+layout_mode = 2
+
+[node name="CopiesBar" type="ProgressBar" parent="Card/Margin/Layout/Left"]
+layout_mode = 2
+show_percentage = false
+
+[node name="CopiesLabel" type="Label" parent="Card/Margin/Layout/Left"]
+layout_mode = 2
+
+[node name="LevelUpButton" type="Button" parent="Card/Margin/Layout/Left"]
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+text = "Level up"
+
+[node name="Right" type="VBoxContainer" parent="Card/Margin/Layout"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Header" type="HBoxContainer" parent="Card/Margin/Layout/Right"]
+layout_mode = 2
+
+[node name="NameLabel" type="Label" parent="Card/Margin/Layout/Right/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CloseButton" type="Button" parent="Card/Margin/Layout/Right/Header"]
+layout_mode = 2
+text = "X"
+
+[node name="MetaLabel" type="Label" parent="Card/Margin/Layout/Right"]
+layout_mode = 2
+
+[node name="DescriptionLabel" type="Label" parent="Card/Margin/Layout/Right"]
+layout_mode = 2
+autowrap_mode = 3
+
+[node name="StatsGrid" type="GridContainer" parent="Card/Margin/Layout/Right"]
+layout_mode = 2
+columns = 3

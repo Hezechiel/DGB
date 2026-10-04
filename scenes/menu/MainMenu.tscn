@@ -23,6 +23,8 @@
 [ext_resource type="Texture2D" uid="uid://fenjtkrllway" path="res://assets/menu/newgame_btn.png" id="15_heq2t"]
 [ext_resource type="Texture2D" uid="uid://qwl5vpl4sc40" path="res://assets/menu/newgame_btn_pressed.png" id="16_pb5pf"]
 [ext_resource type="PackedScene" path="res://scenes/menu/shop_overlay.tscn" id="20_shopoverlay"]
+[ext_resource type="PackedScene" path="res://scenes/menu/deck_overlay.tscn" id="21_deckoverlay"]
+[ext_resource type="PackedScene" path="res://scenes/menu/encyclopedia_overlay.tscn" id="22_encyclopediaoverlay"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_mgsx5"]
 texture = ExtResource("2_y6vun")
@@ -54,6 +56,14 @@ visible = false
 layout_mode = 1
 
 [node name="ShopOverlay" parent="." instance=ExtResource("20_shopoverlay")]
+visible = false
+layout_mode = 1
+
+[node name="DeckOverlay" parent="." instance=ExtResource("21_deckoverlay")]
+visible = false
+layout_mode = 1
+
+[node name="EncyclopediaOverlay" parent="." instance=ExtResource("22_encyclopediaoverlay")]
 visible = false
 layout_mode = 1
 

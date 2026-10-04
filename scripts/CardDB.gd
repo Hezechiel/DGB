@@ -64,6 +64,19 @@ func list_pack_ids() -> Array[StringName]:
 	ids.sort()
 	return ids
 
+# Zoradene id-cka — deterministicke poradie pre UI zoznamy.
+func list_card_ids() -> Array[StringName]:
+	var ids: Array[StringName] = []
+	ids.assign(_cards.keys())
+	ids.sort()
+	return ids
+
+func list_hero_ids() -> Array[StringName]:
+	var ids: Array[StringName] = []
+	ids.assign(_heroes.keys())
+	ids.sort()
+	return ids
+
 # Drop pool pre PackRoller: rarity kod -> ZORADENE pole id-ciek. Obsahuje
 # karty AJ bohov s obtain_source == 1 (PACK). faction &"" = bez filtra.
 func get_pack_pool(faction: StringName) -> Dictionary:
