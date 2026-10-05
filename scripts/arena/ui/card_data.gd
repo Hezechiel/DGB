@@ -27,7 +27,7 @@ class_name CardData
 # Panteon karty (greek, norse, ...). Panteony sa v jednom balicku mozu miesat.
 @export var faction: StringName = &"greek"
 # Domena napriec panteonmi (olympus/sky, sea, underworld). &"" = common pool.
-# Pouzije sa pre synergy bonus boha v neskorsom kroku.
+# Pri pravidlach balicka aj pri prahu synergy boha sa domain rata ako znacka.
 @export var domain: StringName
 # Volne znacky (holy, undead, beast, ...). Boh moze niektore odmietat
 # (HeroData.forbidden_tags). faction a domain sa pri pravidlach rataju ako

@@ -136,3 +136,28 @@ func _on_encyclopedia_overlay_closed() -> void:
 
 func _on_exit_button_pressed() -> void:
 	get_tree().quit()
+
+# --- DEBUG profil (len debug build) ---
+# F9  = reset profilu na starter
+# F10 = +1 kopia kazdej ziskatelnej karty a kazdeho boha
+# F11 = zapni/vypni DebugLog vypisy
+func _unhandled_key_input(event: InputEvent) -> void:
+	if not OS.is_debug_build():
+		return
+	if not (event is InputEventKey) or not event.pressed or event.echo:
+		return
+	match event.keycode:
+		KEY_F9:
+			PlayerProfile.reset_profile()
+			print("[debug] profile reset to starter")
+		KEY_F10:
+			var ids: Array[StringName] = []
+			for id in CardDB.list_card_ids():
+				if CardDB.get_card(id).obtain_source != 0:
+					ids.append(id)
+			ids.append_array(CardDB.list_hero_ids())
+			PlayerProfile.grant_cards(ids)
+			print("[debug] granted +1 copy of %d cards/gods" % ids.size())
+		KEY_F11:
+			DebugLog.enabled = not DebugLog.enabled
+			print("[debug] DebugLog %s" % ("ON" if DebugLog.enabled else "OFF"))

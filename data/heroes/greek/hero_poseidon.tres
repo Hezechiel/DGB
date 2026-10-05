@@ -17,6 +17,7 @@ attack_sfx = &"hero_melee_hit"
 death_sfx = &"hero_death_greek"
 obtain_source = 1
 domain = &"sea"
+synergy_tag = &"sea"
 synergy_bonuses = {
 &"damage": 1.1,
 &"max_hp": 1.1

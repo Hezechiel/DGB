@@ -229,7 +229,7 @@ func load_profile() -> void:
 			var hero_id := StringName(deck.get("hero"))
 			_decks[hero_id] = _read_id_list(deck.get("cards"))
 			_active_hero = hero_id
-		print("[profile] migrated save v1 -> v2")
+		DebugLog.info("profile", "migrated save v1 -> v2")
 		needs_save = true
 	else:
 		var active_raw: Variant = parsed.get("active_hero")
@@ -341,5 +341,5 @@ func _read_owned(raw: Variant, target: Dictionary, is_card: bool) -> void:
 		target[id] = {"level": maxi(level, 1), "copies": maxi(copies, 0)}
 
 func _print_summary() -> void:
-	print("[profile] active_hero=%s deck=%s saved_decks=%d owned_cards=%d owned_heroes=%d" % [
+	DebugLog.info("profile", "active_hero=%s deck=%s saved_decks=%d owned_cards=%d owned_heroes=%d" % [
 		_active_hero, get_deck_cards(), _decks.size(), _cards.size(), _heroes.size()])

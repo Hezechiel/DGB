@@ -19,18 +19,24 @@ The idle god-game World Map phase that was previously postponed has been removed
 ## Running the Project
 
 No CLI build step. Open in Godot 4.7, press F5 (main scene) or F6 (current scene).
-Main scene: `scenes/menu/MainMenu.tscn` → `scenes/arena/arena.tscn`.
+Main scene: `scenes/menu/MainMenu.tscn` → (Battle) `scenes/ui/PreMatchFlow.tscn` → `scenes/arena/arena.tscn`. `PreMatchFlow` fills `MatchConfig` (heroes, decks, levels, map) from `PlayerProfile`; opening `arena.tscn` directly with F6 leaves those empty (known limitation — null-guarded, not a crash).
 
 Export for Android: Project → Export → Android (Android SDK must be configured in Godot Editor Settings).
 
 No test runner — validate by running in the Godot editor or via Android APK from GitHub Actions CI (push to main, download artifact).
 
-Quick keyboard test shortcuts in arena (`arena.gd _input()`):
+Quick keyboard test shortcuts in arena (`arena.gd _input()`) — **debug builds only** (`OS.is_debug_build()` gate at the top of `_input()`; dead in release/Android export builds):
 - **U** — 2× energy regen boost for the player, 5s (`EnergySystem.add_modifier(..., ModType.REGEN_MULT, 2.0, 5.0, &"debug_boost")`)
 - **I** — -1 flat card cost for the player, 5s, "bloodlust" style (`ModType.COST_REDUCE`, tag `debug_bloodlust`)
-- **Y** — prints current energy state for both teams: player/enemy energy, player regen rate, resolved cost of `card_05` (read-only, no mutation)
-- **P** — calls `EnergySystem.try_spend("player", &"card_05")` and prints whether it succeeded
+- **Y** — prints current energy state for both teams: player/enemy energy, player regen rate, resolved cost of `card_greek_hoplite` (read-only, no mutation)
+- **P** — calls `EnergySystem.try_spend("player", &"card_greek_hoplite")` and prints whether it succeeded
 - **H** — deal 1/3 of `max_hp` to the player hero (debug trigger for death/respawn/card-lock/telegraph testing, since real combat death is slow to set up manually)
+- **J** — plays `sword_hit` 10× in one frame at the player (audio `max_instances`/`min_interval` throttling test)
+
+Profile debug keys in the main menu (`main_menu.gd _unhandled_key_input()`) — also **debug builds only**, and only through `PlayerProfile`'s public mutation API:
+- **F9** — `PlayerProfile.reset_profile()` (back to the starter god + 7 starter cards at level 1)
+- **F10** — `PlayerProfile.grant_cards()` with +1 copy of every obtainable card (`obtain_source != 0`) and every god
+- **F11** — toggles `DebugLog.enabled` (the `[pack]` / `[profile]` / `[synergy]` / `[spawn]` diagnostics, off by default — see "Pure helpers" below)
 
 ---
 
@@ -90,13 +96,13 @@ Combat units (`scripts/arena/unit.gd`) compute their `Hurtbox`/`AttackRange`/`Ag
 - Targeting: `primary_target` (explicit tap-on-enemy, sticky until moved/retargeted) takes priority; falls back to `auto_target` (passive nearest-enemy-in-range via `find_nearest_enemy()`), which only engages while the player has no active move command, so tap-to-move always takes precedence over auto-attack. There is no separate "nearest hero" priority tier — `find_nearest_enemy()` treats every valid in-range hurtbox owner (unit, hero, structure) identically by distance; see "Auto-attack priority" below for the corrected description
 - Attacks use a cast-point system (`_perform_attack()`): plays `attack_left`, locks movement for the animation's own duration (`frame_count / speed`, read live) unless `can_move_while_attacking`, then applies the hit — `fire_bolt()` for `AttackType.RANGED`, direct `take_damage()` for `AttackType.MELEE` (re-checks range/liveness on landing)
 - `take_damage(amount)` with invulnerability window (`invuln_time`), sprite flash feedback
-- Stats come from `HeroData` via `configure()`: `max_hp`, `speed`, `attack_range`, `recovery_time` (post-cast-point cooldown remainder — cast-point itself is derived live from the `attack_left` animation, so retuning its fps/frame count never requires touching cooldown data), `projectile_damage`, `attack_type`, `can_move_while_attacking`, `attack_sound`
+- Stats come from `HeroData` via `configure(data, team, stat_mods := {})` — `stat_mods` are `BattleManager._hero_stat_mods()` multipliers (`max_hp`/`damage`/`attack_speed` from the god's level; synergy never buffs the god): `max_hp`, `speed`, `attack_range`, `recovery_time` (post-cast-point cooldown remainder — cast-point itself is derived live from the `attack_left` animation, so retuning its fps/frame count never requires touching cooldown data), `projectile_damage`, `attack_type`, `can_move_while_attacking`, `attack_sound`
 - Spawn/death animations (`spawn_left`, `death_left`) freeze movement for their duration
 - Mirrored by `scripts/arena/hero_dummy.gd` (`scenes/arena/hero_dummy.tscn`) for AI-controlled enemy heroes — same cast-point/attack logic, own march/retreat/heal-seek movement. The underlying "am I in trouble" decision (when to retreat/seek healing) is delegated to a separate autoload, `scripts/HeroAI.gd` — pure HP-hysteresis state logic with no scene/node/position awareness (same "no scenes, no nodes" rule as `EnergySystem`/`HealingSystem`); `hero_dummy.gd` owns the actual movement/targeting once `HeroAI` says which state it's in
 
 **Combat unit** — `scenes/arena/units/melee_unit.tscn`, `scenes/arena/units/ranged_unit.tscn` / `scripts/arena/unit.gd`
 - Shared archetype for both teams (`CharacterBody2D`); `team` export drives which hurtbox/attack-range/aggro-range physics layers and groups it joins at `_ready()`, since the scenes carry no team-specific static layer values
-- Configured entirely from `UnitData` via `configure(data, team)` — `max_hp`, `damage`, `attack_cooldown`, `speed`, `attack_type` (MELEE/RANGED), `attack_range`, `projectile_scene`, `damage_point_ratio`, `target_filter` (`ALL` / `UNITS_ONLY` / `STRUCTURES_ONLY` — e.g. a battering-ram unit ignores units and only closes on turrets/bases)
+- Configured entirely from `UnitData` via `configure(data, team, stat_mods := {})` — `stat_mods` (`max_hp`/`damage`/`speed`/`attack_speed` multipliers, level × synergy) come from `BattleManager._unit_stat_mods()`; fields: `max_hp`, `damage`, `attack_cooldown`, `speed`, `attack_type` (MELEE/RANGED), `attack_range`, `projectile_scene`, `damage_point_ratio`, `target_filter` (`ALL` / `UNITS_ONLY` / `STRUCTURES_ONLY` — e.g. a battering-ram unit ignores units and only closes on turrets/bases)
 - 3-state march/chase/engage state machine (`MarchState`): `MARCHING` (seeks `structure_target`, refreshed periodically via `BattleManager.get_nearest_structure()` rather than any fixed waypoint path — see "Lane system" below), `CHASING` (spotted an enemy unit in the wider `AggroRange`, pursues indefinitely — no leash yet), `ENGAGING` (enemy hurtbox in melee/attack `AttackRange` — stops, winds up, fires/hits on a damage-point timer derived from the live "attack" animation, same cast-point pattern as the hero scripts)
 - Seek + separation steering (`compute_separation()`) shared between marching and chasing
 - Status effects: `apply_stun()`, `apply_root()`, `apply_slow()` — each independently timed, re-applying takes the longer of current/new duration (never shortens an active effect)
@@ -136,11 +142,12 @@ Combat units (`scripts/arena/unit.gd`) compute their `Hurtbox`/`AttackRange`/`Ag
 - `get_nearest_structure(defending_team, from_pos) -> Node2D` — returns the nearest *alive* turret or base belonging to `defending_team`, no lane priority; this is what drives all unit/hero march targeting (see "Lane system" below)
 - Deploy/protection: `configure_map(map_data)` sets `deploy_bounds`; `register_protection_zone()`/`unregister_protection_zone()` and `is_deploy_position_valid()`/`is_card_target_valid()` — see "Spawn protection zones" below
 - Win/lose: `match_ended(winner_team: String)` signal, `last_winner`, 180s match timer — see "Win / lose" below
+- Match manifest (levels + synergy) and `cast_spell()` damage multiplier — see "Match manifest & synergy" below
 
 **EnergySystem** — autoload, `scripts/EnergySystem.gd`
 - Per-team resource pool — always called "energy," never "mana," throughout the codebase
 - `MAX_ENERGY = 10.0`, `START_ENERGY = 7.0`, `BASE_REGEN_PER_SEC = 0.25` (1 energy / 4s)
-- Modifier layer: `add_modifier(team, type: ModType, value, duration, tag)` / `remove_modifier(team, tag)` / `has_modifier(team, tag)`. `ModType.REGEN_MULT` modifiers multiply and stack (e.g. a temporary regen boost); `ModType.COST_REDUCE` modifiers sum and stack, clamped so resolved cost never drops below 0 (e.g. a temporary "bloodlust" cost reduction). `duration = INFINITE_DURATION (-1.0)` marks a modifier that only ends via explicit `remove_modifier()`
+- Modifier layer: `add_modifier(team, type: ModType, value, duration, tag)` / `remove_modifier(team, tag)` / `has_modifier(team, tag)`. `ModType.REGEN_MULT` modifiers multiply and stack (e.g. a temporary regen boost); `ModType.COST_REDUCE` modifiers sum and stack, clamped so resolved cost never drops below 0 (e.g. a temporary "bloodlust" cost reduction). `duration = INFINITE_DURATION (-1.0)` marks a modifier that only ends via explicit `remove_modifier()` (or `reset_match_state()`). The synergy `energy_regen` bonus is exactly this: `arena.gd::_ready()` adds an infinite `REGEN_MULT` tagged `&"synergy"` per team when the bonus isn't 1.0
 - Atomic spend: `try_spend(team, card_id) -> bool` — checks `can_afford()` then deducts in one call; per its own header comment, callers must never decrement energy themselves. Also exposes `can_afford()`, `resolve_cost()`, `add_energy()`, `drain_energy()`, `start()`/`stop()`/`is_running()`
 - Deliberately holds no scene/node references — pure state + math, kept server-authoritative-ready for future multiplayer; its only dependency is `CardDB`
 
@@ -164,7 +171,7 @@ Combat units (`scripts/arena/unit.gd`) compute their `Hurtbox`/`AttackRange`/`Ag
 
 **Card hand & drag-to-deploy** — `scenes/arena/ui/CardHand.tscn` / `scripts/arena/ui/card_hand.gd` + `scripts/arena/ui/card.gd`
 - 3 playable slots (`Card1`/`Card2`/`Card3`, each wrapped in its own `AspectRatioContainer`) plus a `NextCardPreview` slot — not 4 playable slots
-- 12-card deck shuffled into a cyclic queue at `_ready()`; Clash-Royale style refill — a played card goes to the back of the queue, the vacated slot is refilled from the front, `NextCardPreview` always mirrors the queue's front
+- The deck is the player's active 7-card deck, read from `MatchConfig.local_deck_card_ids` (filled by `PreMatchFlow` from `PlayerProfile`) — `CardHand.tscn` holds no deck of its own. Shuffled into a cyclic queue at `_ready()`; a short/empty deck (e.g. F6) leaves slots empty rather than crashing. Clash-Royale style refill — a played card goes to the back of the queue, the vacated slot is refilled from the front, `NextCardPreview` always mirrors the queue's front
 - Drag starts in `Card._gui_input()` (press) → `CardHand.begin_drag(slot_index, touch_index)`, which emits `deploy_preview_started`. `CardHand._input()` (runs ahead of GUI) then tracks the matching `InputEventScreenDrag`, converts screen→world, flips the card to its back while dragged outside the hand's rect, and emits `deploy_preview_updated(world_pos, is_valid, screen_pos)` every frame using `BattleManager.is_card_target_valid(card, world_pos, team) -> bool`
 - On release (`_finish_drag`): releasing over the hand cancels; releasing over an invalid map position cancels (card stays in the slot); only a valid map position calls `play_card()`, which re-checks `is_hero_dead()`, atomically spends via `EnergySystem.try_spend()`, then calls `BattleManager.spawn_unit()` or `BattleManager.cast_spell()` depending on the card
 - Card affordability greying (`set_affordable()`) refreshes on every energy change and after every play
@@ -176,12 +183,12 @@ Combat units (`scripts/arena/unit.gd`) compute their `Hurtbox`/`AttackRange`/`Ag
 
 **EnemyCardAI** — `scripts/arena/enemy_card_ai.gd` (plain `Node`, instantiated directly in `arena.gd::_ready()`, not an autoload or a `.tscn`)
 - Ticks every `decision_interval` (1.75s default) in `_process()`, gated on `EnergySystem.is_running()` and the enemy hero being alive
-- Mirrors `CardHand`'s 3-slot mechanic with its own hardcoded deck-id list (deliberately duplicated, not shared with `CardHand.tscn`'s deck — must be kept in sync by hand) and no preview slot
+- Mirrors `CardHand`'s 3-slot mechanic (no preview slot); its deck comes from `MatchConfig.opponent_deck_card_ids` — same source path as the player's hand. Today `PreMatchFlow` fills it with a copy of the player's deck (and mirrors the player's levels), with Poseidon as a temporary hardcoded opponent god
 - Each tick, plays *every* slot that is simultaneously affordable and has a resolvable, valid position (not just one card per tick): checks `EnergySystem.can_afford()`, resolves a jittered deploy position (`_resolve_play_position()` — unit cards jitter around its own hero, spell cards jitter around the nearest player-owned structure via `get_nearest_structure()` and are skipped if none is found), validates through the same `BattleManager.is_card_target_valid()` the human player uses, then atomically spends via `try_spend()`
 
 **Win / lose** — `scenes/menu/MatchEndScreen.tscn` / `scripts/ui/match_end_screen.gd`
 - `BattleManager` emits `match_ended(winner_team: String)` from `on_base_destroyed()` (a Command Post reaches 0 HP) or when its 180s match timer expires (`"draw"` — marked TODO to become a progress-based tiebreak later)
-- `arena.gd::_on_match_ended()` stops `EnergySystem` and changes scene to `MatchEndScreen.tscn`, which reads `BattleManager.last_winner` in its own `_ready()` (not the signal argument, since it's a fresh scene) and offers a button back to `MainMenu.tscn`
+- `arena.gd::_on_match_ended()` stops `EnergySystem`. On a draw it goes straight to `MatchEndScreen.tscn`; when a base fell it first plays a presentation-only end sequence (`_play_end_sequence()`: HUD hidden, `MatchResultBanner` VICTORY/DEFEAT on its own `CanvasLayer`, `arena_camera.play_focus()` on the fallen base, `END_SEQUENCE_SECONDS`) and then changes scene. `MatchEndScreen` reads `BattleManager.last_winner` in its own `_ready()` (not the signal argument, since it's a fresh scene) and offers a button back to `MainMenu.tscn`
 
 **Hero death gating & telegraph** — reacts to `BattleManager`'s hero-death signals above, no shared state duplicated beyond `is_hero_dead()`
 - `scripts/arena/ui/card_hand.gd` / `scripts/arena/enemy_card_ai.gd` — card plays are locked while `BattleManager.is_hero_dead(team)` is true: `CardHand._refresh_affordability()` force-greys all 3 hand slots regardless of energy, `CardHand.play_card()` gates the same way (covers double-tap/future network calls that bypass the drag UI), and `EnemyCardAI._process()` skips its decision tick entirely — `EnergySystem` regen keeps running unaffected the whole time
@@ -190,19 +197,60 @@ Combat units (`scripts/arena/unit.gd`) compute their `Hurtbox`/`AttackRange`/`Ag
 - `scripts/arena/ui/match_info_bar.gd` — the small `PlayerRespawnCounter`/`EnemyRespawnCounter` in the top bar are a third, independent consumer of the same three signals (pre-existing, unaffected by the two additions above)
 
 **HUD** — `scenes/hud/HUD.tscn` / `scripts/hud/HUD.gd`
-- `CanvasLayer` → `Root` (`Control`) with children: `PauseButton` (TouchScreenButton), `PlayerCharacter` (TouchScreenButton — despite the name, this is the recenter-camera button, wired to `HUD.recenter_camera_requested` → `arena.gd` → `arena_camera.recenter_on_player()`), `CardHand`, `EnergyBar`, `MatchInfoBar`, `DeathTelegraph`, `SettingOverlay` (initially hidden)
-- No minimap exists anywhere under `scenes/hud` — that's still genuinely not implemented, not a placeholder like the others used to be
+- `CanvasLayer` with `Root` (`Control`) holding `PauseButton` (TextureButton) and `PlayerCharacter` (TextureButton — despite the name, this is the recenter-camera button, wired to `HUD.recenter_camera_requested` → `arena.gd` → `arena_camera.recenter_on_player()`, hidden while `Settings.lock_camera` is on); direct siblings of `Root`: `CardHand`, `EnergyBar`, `SynergyIcon`, `Minimap`, `MatchInfoBar`, `DeathTelegraph`, `SettingOverlay` (initially hidden)
+- `Minimap` (`scenes/arena/ui/Minimap.tscn` / `scripts/arena/ui/minimap.gd`) — top-left panel sized from `MapData.bounds` aspect ratio in `configure_map(map_data)` (called by `arena.gd` after hero spawn); structures and heroes as team-coloured dots, full visibility (no fog of war). Tap-to-navigate is not built yet
+- `SynergyIcon` (`scenes/arena/ui/SynergyIcon.tscn` / `scripts/arena/ui/synergy_icon.gd`) — placeholder 56 px round `Button` left of the hand showing the player's synergy `have/need`; grey when inactive, gold pulse when active; tap toggles a tooltip (count + `DeckRules.describe_synergy()`, 4 s auto-hide). A `Button` on purpose — it consumes the touch, so tapping it never falls through to tap-to-move. Configured once via `configure("player")` from `arena.gd` (synergy cannot change mid-match)
 - `HUD.gd` also exposes an `@export var mobile_controls: CanvasLayer` wired externally from `arena.tscn`'s Inspector, not part of `HUD.tscn` itself
 
 **Arena root** — `scenes/arena/arena.tscn` / `scripts/arena/arena.gd`
 - `_unhandled_input` handles tap-to-move; free-drag camera panning is handled by `ArenaCamera` itself (see above), not here
 - Connects `HUD.exit_requested` → MainMenu, `HUD.recenter_camera_requested` → `arena_camera.recenter_on_player()`, `BattleManager.match_ended` → `_on_match_ended()`
-- Loads the active map via `MapDB`/`MapData` into `MapRoot` at `_ready()` — see "MapDB / MapData" above
+- `_ready()` order: load the active map via `MapDB`/`MapData` into `MapRoot` (see "MapDB / MapData" above) → `BattleManager.set_team_manifest()` for both teams from `MatchConfig` → synergy `energy_regen` modifiers → `hud.synergy_icon.configure("player")` → spawn both heroes via `BattleManager.spawn_hero(MatchConfig.local_hero_id / opponent_hero_id, ...)` (no hardcoded hero constants) → `hud.minimap.configure_map()` → `EnemyCardAI` + `MatchAnnouncer` → `BattleManager.start_match_timer()`
+
+**Data layout & CardDB** — autoload `scripts/CardDB.gd`
+- Resources live in `data/<type>/<pantheon>/` (`data/cards/greek/`, `data/units/greek/`, `data/heroes/greek/`, `data/spells/greek/`); `CardDB` scans `data/cards|units|heroes|spells|packs/` **recursively** at startup, skipping `frames/` folders (SpriteFrames), and indexes every resource by its `id`
+- Card ids are named, `card_greek_<name>` (e.g. `card_greek_hoplite`, `card_greek_storm`); gods are `hero_<name>`
+- `data/packs/` holds `PackData` (`greek_scroll_pack.tres`, `greek_cherished_pack.tres`); `data/progression/level_curve.tres` is the single `LevelCurve` used by both `PlayerProfile` and `BattleManager`
+- `get_pack_pool(faction)` builds the `PackRoller` drop pool (rarity → ids) from cards **and** gods with `obtain_source == 1`
+
+**Scrolls metadata on `CardData` / `HeroData`** — `scripts/arena/ui/card_data.gd`, `scripts/arena/hero_data.gd`
+- Shared: `rarity` (plain int: 0 COMMON, 1 RARE, 2 EPIC, 3 LEGENDARY, 4 UNIQUE = gods only), `obtain_source` (0 NONE — never granted, 1 PACK, 2 ACHIEVEMENT, 3 QUEST, 4 EVENT), `faction` (pantheon: `greek`, `norse`, …), `domain` (cross-pantheon: `olympus`, `sea`, …; `&""` = common pool), `description` (flashcard text)
+- Cards only: `tags: Array[StringName]` (free tags; `faction` + `domain` count as tags automatically via `DeckRules.card_tags()`)
+- Gods only: `forbidden_tags` (deck rules — tags this god refuses), `synergy_tag` + `synergy_count` (deck threshold, default 4), `synergy_bonuses` (effect key → multiplier: `max_hp`/`damage`/`speed`/`attack_speed` for units, `spell_damage`, `energy_regen`)
+
+**PlayerProfile** — autoload `scripts/PlayerProfile.gd` (after `CardDB`, before `MapDB`/`MatchConfig` in the autoload order — it validates against `CardDB` in its own `_ready()`)
+- The player's collection: owned cards/gods with `{level, copies}`, **one 7-card deck per god** (`DECK_SIZE = 7`) plus the active god whose deck goes into the match
+- Saved to `user://profile.json`, `SAVE_VERSION = 2` (v1 single-deck saves migrate automatically); corrupt/incompatible save → starter grant (`STARTER_HERO = hero_zeus` + 7 `STARTER_CARDS`)
+- Read API returns copies only (`owns_card`, `get_card_level`, `get_copies_to_next`, `can_upgrade`, `get_deck_hero`, `get_deck_cards`, `get_deck_for`, …)
+- **Only** mutation API: `grant_cards()`, `set_deck()` (validates via `DeckRules`, also makes that god active), `upgrade_card()` (manual level up, spends copies), `reset_profile()`; each saves and emits `profile_changed`. Same "no scenes/nodes" contract as `EnergySystem` — these become server calls later
+
+**Pure helpers** — `scripts/level_curve.gd`, `scripts/pack_data.gd`, `scripts/pack_roller.gd`, `scripts/deck_rules.gd`, `scripts/debug_log.gd`
+- `LevelCurve` (`Resource`) — all progression tuning: copies per level by rarity, `stat_multiplier` per level (units: HP + damage; spells: damage only; gods: HP + damage), `hero_attack_speed_multiplier`. CC durations never scale
+- `PackData` (`Resource`) — `card_count`, `faction` filter, per-pack `rarity_weights`, `guaranteed_min_rarity` on the last slot, `price` (always 0 — no currency yet)
+- `PackRoller` (static) — `roll(pack, rng, pool)`; pool and RNG come in as arguments so a server can call exactly this later
+- `DeckRules` (static) — god-vs-card deck rules (`card_tags`, `is_card_allowed`, `find_forbidden`, `build_default_deck`), synergy (`count_synergy_cards`, `is_synergy_active`, `is_synergy_beneficiary`) and the shared UI text `describe_synergy(hero)` used by both the HUD tooltip and the deck screen
+- `DebugLog` (static) — `DebugLog.info(tag, text)` prints `[tag] text` only while `DebugLog.enabled` (off by default, F11 in the main menu toggles it in debug builds). Used for the `[pack]`, `[profile]`, `[synergy]`, `[spawn]` diagnostics
+- None of these hold nodes or call autoloads — callers (`PlayerProfile`, `BattleManager`, `CardDB`, UI) pass the data in
+
+**Match manifest & synergy** — `scripts/BattleManager.gd`
+- `set_team_manifest(team, hero_id, hero_level, card_levels)` — called once per team by `arena.gd::_ready()` from `MatchConfig`; `get_card_level()` / `get_hero_level()` read it (missing → level 1). Spawns look levels up here; they are never sent per spawn
+- Synergy is evaluated **once** in `set_team_manifest()` — the deck is the key set of `card_levels`. Active when the deck holds at least `synergy_count` cards that carry the god's `synergy_tag` **and** belong to the god's pantheon (units and spells both count). Stored as `synergy_have` / `synergy_active` in the manifest; never re-evaluated mid-match
+- Beneficiaries: every card of the god's own pantheon (`card.faction == hero.faction`), tagged or not; foreign-pantheon cards neither count nor benefit; the god itself is never buffed
+- Applied at the entry points: `_unit_stat_mods()` = level × `_synergy_mult()`; `cast_spell()` passes level × `spell_damage` as `SpellZone.configure(..., damage_mult)` (damage only, CC durations untouched); `get_synergy_energy_regen(team)` feeds the `&"synergy"` energy modifier
+- Read helpers for UI: `is_synergy_active(team)`, `get_synergy_status(team)` (`{tag, have, need, active, bonuses}`, empty = no synergy), `get_team_hero_data(team)`
+
+**Menu screens** — `scenes/menu/MainMenu.tscn` / `scripts/ui/main_menu.gd`, overlays in `scripts/ui/`
+- All overlays follow the same pattern: `open()` / `close()` + `closed` signal; the main menu hides its nav rail/content while one is open
+- **Battle** → `PreMatchFlow` (finding → pre-match panel → arena; fills `MatchConfig`)
+- **Shop** → `ShopOverlay` — pack list → `PackRoller.roll()` → `PlayerProfile.grant_cards()` → plain reveal list (placeholder UI, no currency)
+- **Heroes** → `DeckOverlay` (+ `DeckTile`) — 8 slots (god + 7 cards); Edit mode shows the god/card pool, drag&drop or tap-then-tap into slots; forbidden cards grey; per-god decks with a Discard/Cancel dialog on unsaved god switch; saves only through `PlayerProfile.set_deck()`. A line under the slots shows the draft god's synergy rule with a live `have / need` count (gold when met)
+- **Deck** → `EncyclopediaOverlay` — every god and card of a pantheon, owned and locked; tap opens `CardFlashcard` (art, level, copy progress, stats with "cur > next" preview; manual level up via `PlayerProfile.upgrade_card()`)
+- `DeckTile` changes nothing itself — it only reports taps/drops; logic stays in the overlays
 
 ### Not yet implemented
 
 - Lane system (top lane, bottom lane, fixed waypoints, unit marching along a path) — units and hero AI currently march straight at `BattleManager.get_nearest_structure()`, the nearest *alive* structure regardless of lane, refreshed periodically; see "Lane system" under Architecture below
-- Minimap with hero position indicators
+- Minimap tap-to-navigate (the minimap itself exists — see "HUD" above)
 
 ---
 
@@ -220,7 +268,8 @@ Arena (Node2D, arena.gd)
 ├── DenialZoneOverlay
 ├── DeployGhost
 ├── ArenaCamera           (Camera2D)
-└── HUD                   (CanvasLayer)
+├── HUD                   (CanvasLayer)
+└── MatchResultBanner     (CanvasLayer, end-of-match VICTORY/DEFEAT banner)
 ```
 
 Map-specific content (tilemap, obstacles, Command Posts, turrets, healing pods) lives inside the per-map scene that gets instantiated into `MapRoot` (see "MapDB / MapData" above) — not hardcoded into `arena.tscn`. Units and heroes are spawned at runtime directly under `Arena` by `BattleManager`, not placed as static scene nodes either. This replaces the previous plan of a single fixed map baked directly into `arena.tscn` with `TileMapLayer`/`Obstacles`/`TopLane`/`BotLane`/`PlayerBase`/`EnemyBase`/per-lane turrets/`UnitContainer` as direct children — that structure no longer exists.
@@ -273,7 +322,7 @@ Implemented — see "EnemyCardAI" under "Implemented and working" above. Mirrors
 - **`take_damage(amount: int)`** — universal damage interface; all damageable nodes implement it
 - **`distance_squared_to()`** everywhere for range checks (avoids sqrt)
 - **Code-based signal connections** in `_ready()` — no Inspector wiring
-- **`TouchScreenButton`** for in-game tappable UI on Android
+- **`TextureButton` / `Button`** for in-game tappable HUD UI — GUI controls consume the touch, so a tap on them never falls through to `arena.gd`'s `_unhandled_input` tap-to-move
 - **Health bar:** `health_bar.init(max_hp, team_name)` in `_ready()`; `health_bar.set_health(hp)` after every HP change; `health_bar.visible = false` on death
 - **Turrets do not `queue_free()`** — `_on_destroyed()` disables physics, detection, and protection zone; leaves wreck visual
 - **Animation names:** 4-dir: `"up" "down" "left" "right"`. 8-dir adds `"up_left" "up_right" "down_left" "down_right"`
@@ -283,4 +332,8 @@ Implemented — see "EnemyCardAI" under "Implemented and working" above. Mirrors
 - **Self-subscribing UI:** small, independent UI reactions to a `BattleManager` signal (respawn counters, card-lock, death telegraph) connect to it directly in their own `_ready()` rather than being wired/relayed through `arena.gd` or another consumer — keeps each piece a drop-in addition/removal with zero coupling to sibling UI
 - **`canvas_item` screen-reading shaders (Godot 4.7):** `SCREEN_TEXTURE` is **not** a bare built-in in this Godot version — it was removed. Declare it yourself: `uniform sampler2D SCREEN_TEXTURE : hint_screen_texture, filter_linear_mipmap;` (see `scenes/arena/ui/shaders/desaturate.gdshader`). Omitting the uniform declaration is a hard compile error, not a silent fallback
 - **Screen-reading `canvas_item` shaders: keep them in the same canvas as their content.** `desaturate_overlay.gd`'s `ColorRect` lives directly under `Arena` (layer 0, with `z_index` forcing it to draw last) rather than inside a separate `CanvasLayer` alongside the HUD-style telegraph label, on the theory that `SCREEN_TEXTURE` reads don't reliably cross a `CanvasLayer` boundary. This was fixed at the same time as the missing `hint_screen_texture` uniform declaration above, so the two fixes were never isolated from each other — treat "same canvas as the content" as the safe default for any future screen-reading shader, not as a confirmed, isolated Godot behavior
-- **No scenes/nodes/positions in "pure logic" autoloads** — `EnergySystem`, `HealingSystem`, and `HeroAI` all deliberately hold zero scene-tree references, kept as pure state + math so they stay server-authoritative-ready for future multiplayer and easy to unit-reason about. Systems that need scene/position awareness (movement, spawning) stay in the node scripts that call into these autoloads, not inside them
+- **No scenes/nodes/positions in "pure logic" autoloads** — `EnergySystem`, `HealingSystem`, `HeroAI` and `PlayerProfile` all deliberately hold zero scene-tree references, kept as pure state + math so they stay server-authoritative-ready for future multiplayer and easy to unit-reason about. Systems that need scene/position awareness (movement, spawning) stay in the node scripts that call into these autoloads, not inside them. The static helpers (`LevelCurve`, `PackRoller`, `DeckRules`, `DebugLog`) go one step further: no nodes **and** no autoload calls — everything comes in as arguments
+- **Spawn messages stay `{card_id, position, team}`** — levels and synergy are looked up from the per-team match manifest in `BattleManager`, never passed per spawn (keeps the future network message minimal and cheat-resistant)
+- **The player collection changes only through `PlayerProfile`'s mutation API** (`grant_cards`, `set_deck`, `upgrade_card`, `reset_profile`) — no UI or debug tool edits profile data directly; these become server calls later
+- **Match-state UI gets a `configure()` from `arena.gd`** — HUD pieces that need state which doesn't exist yet at the HUD's own `_ready()` (map bounds, manifest/synergy) are handed it once by `arena.gd::_ready()` (`hud.minimap.configure_map()`, `hud.synergy_icon.configure()`); signal-driven pieces still self-subscribe (see above)
+- **Diagnostics go through `DebugLog.info(tag, text)`**, not bare `print()` — off by default so the console stays clean. Plain `print` is reserved for direct answers to a debug key press. `push_warning` / `push_error` are for real problems and are never routed through `DebugLog`

@@ -24,18 +24,28 @@
 - **Per-match state is explicitly reset.** `BattleManager.reset_match_state()` is
   called from `arena._enter_tree()` — before children `_ready()` runs, because
   turrets/bases self-register in their own `_ready()`.
+- **Levels and synergy never travel per spawn.** Spawn messages stay
+  `{card_id, position, team}`. A per-team **match manifest** (god, god level,
+  card levels) is set once at match start; `BattleManager` looks multipliers up
+  by team at its three entry points.
+- **The collection changes through one API.** Owned cards, copies, levels and
+  decks are mutated only by `PlayerProfile`'s `grant_cards()`, `upgrade_card()`,
+  `set_deck()`, `reset_profile()` — the calls a server will later own. Rules
+  and math around them (`LevelCurve`, `PackRoller`, `DeckRules`) are pure
+  static code with no nodes and no autoload calls.
 ---
  
 ## 2. Autoloads
  
 | Autoload | Role |
 |---|---|
-| `BattleManager` | Match state owner: team registries, structures, spawn entry points, hero respawn, match timer, `match_ended`. Also the navigation query helpers `has_navigation()` / `snap_to_navigation()` (§5 Navigation) — stateless wrappers over `NavigationServer2D`, no per-match state of their own. |
-| `CardDB` | Startup scan of `data/cards/`, `data/units/`, `data/heroes/`, `data/spells/` into id-keyed dictionaries. Handles `.tres.remap` suffixes in Android exports. Duplicate-id guard. |
+| `BattleManager` | Match state owner: team registries, structures, spawn entry points, the per-team **match manifest** (levels + synergy, §3), hero respawn, match timer, `match_ended`. Also the navigation query helpers `has_navigation()` / `snap_to_navigation()` (§5 Navigation) — stateless wrappers over `NavigationServer2D`, no per-match state of their own. |
+| `CardDB` | Startup scan of `data/cards/`, `data/units/`, `data/heroes/`, `data/spells/`, `data/packs/` into id-keyed dictionaries. The scan is **recursive** (content sits in per-pantheon subfolders) and skips folders named `frames`. Handles `.tres.remap` suffixes in Android exports. Duplicate-id guard. Also: `has_card()` / `has_hero()` (silent existence checks), sorted `list_card_ids()` / `list_hero_ids()` / `list_pack_ids()`, and `get_pack_pool(faction)` — the drop pool by rarity for `PackRoller`. |
+| `PlayerProfile` | The player's collection and decks, saved to `user://profile.json` (`save_version` 2; v1 is migrated on load). Owned cards and gods as `{level, copies}`, **one deck per god** (`_decks`) and the active god. Read API returns copies only. Mutation API: `grant_cards()`, `upgrade_card()`, `set_deck()`, `reset_profile()` — nothing else may change the collection. `get_deck_hero()` / `get_deck_cards()` = what goes into the match; `get_deck_for(god)` = saved deck or a default built by `DeckRules`. A broken save falls back to the starter profile; ids the game no longer knows are dropped. Logs a content error for any god that cannot field 7 allowed cards. No scene or node references; depends only on `CardDB`. Must be listed **after `CardDB`** in `project.godot`. No per-match state. |
 | `MapDB` | Same scan pattern as `CardDB`, over `data/maps/` into a single id-keyed `MapData` dictionary. Exposes `get_map(id)`, `list_map_ids()`, and a TEMP `get_random_map_id()` (uniform random, ignores `release_ready` on purpose — see §3) used by `PreMatchFlow` for testing until real map selection exists. |
 | `EnergySystem` | Per-team energy: float pools, base regen, and a modifier list (temporary regen multipliers / cost reductions). **Zero scene/UI dependencies by design** — pure state+math so it ports to an authoritative server as-is; its only dependency is `CardDB` (cost lookup). Driven by the caller (`arena.gd` today): `reset_match_state()` / `start()` / `stop()`. Emits `energy_int_changed`. |
 | `HealingSystem` | Per-team pod cooldowns + active heal-over-time state. **Zero scene/UI dependencies by design**, same contract as `EnergySystem` — no scene/node/Area2D/Sprite2D references, pure state+math so it ports to an authoritative server as-is. Third autoload with its own `reset_match_state()` (same pattern as `EnergySystem`). Death safeguard lives in the hero scripts: `die()` calls `HealingSystem.cancel_heal(team)`, which clears the active HoT and emits `heal_ended` — the same signal path a normally-completed heal uses to clear the health bar's pending band. Emits `pod_ready`, `heal_instant`, `heal_tick`, `heal_started`, `heal_ended`. |
-| `MatchConfig` | Placeholder holder for pre-match display data (rank, `map_id`, both players' name/faction). `map_id` is set once by `PreMatchFlow` via `MapDB.get_random_map_id()` — `MatchConfig` itself never calls `MapDB` or resolves a display name, staying a plain data holder with no logic it doesn't own. Populated by `setup_placeholder_match()` today; matchmaking later. Display-only, never networked. |
+| `MatchConfig` | Holder for pre-match data. Display fields (rank, both players' name/faction label) are placeholders and never networked. It also carries the **deck manifest inputs**: `local_hero_id`, `local_deck_card_ids`, `local_hero_level`, `local_card_levels` and the `opponent_*` twins, filled by `PreMatchFlow` from `PlayerProfile` (the AI mirrors the player's cards and levels; its god is a TEMP constant). `map_id` is set by `PreMatchFlow` via `MapDB.get_random_map_id()`. `MatchConfig` itself calls no other autoload. |
 | `InputR` | Input routing (tap-to-move targets, gesture state). |
 | `Settings` | Persistent user settings (`user://settings.cfg`): `lock_camera`, `music_volume`, `sfx_volume`, `voice_volume` (linear 0–1). Single source of truth for volumes — emits `settings_changed`, never touches `AudioServer` itself. |
 | `AudioManager` | The single entry point for all sound (§9). Owns every audio player (music A/B crossfade, UI pool, voice, announcer, stinger, 16-voice positional SFX pool + 4 flat SFX voices), scans `data/sounds/` into id-keyed `SoundData` (same scan/`.remap` pattern as `CardDB`), applies bus volumes from `Settings`. **Presentation-only, client-side** — the one autoload that deliberately holds nodes; it is never called from the pure-logic autoloads (`BattleManager`, `EnergySystem`, `HealingSystem`, `HeroAI`). Listed directly after `Settings` in `project.godot` because its `_ready()` reads it. Replaced the old `Music` autoload (`scenes/music.tscn`, an `AudioStreamPlayer2D` — wrong node type for music). No per-match state → no `reset_match_state()`. |
@@ -50,23 +60,39 @@ scene of its own to parent spawned nodes under).
  
 ```
 data/
-  cards/    CardData     — id, display_name, cost, scroll_texture (AtlasTexture
-                           region of the scroll spritesheet), unit_data,
-                           unit_count, formation_radius
-  units/    UnitData     — id, archetype_scene, max_hp, damage, attack_cooldown,
-                           speed, target_filter, sprite_frames, attack_type
-                           (MELEE/RANGED, Sept 2026), attack_range,
-                           projectile_scene, damage_point_ratio,
-                           attack_sfx / death_sfx (SoundData ids)
-    frames/ SpriteFrames — extracted animation sets, swappable per unit
-  heroes/   HeroData     — id, stats, projectile_scene, sprite_frames,
-                           attack_sfx / death_sfx / spawn_voice (SoundData ids)
-                           (no archetype_scene: control mode picks the scene)
-  spells/   SpellData    — id, display_name, spell_type (int: 0=STORM,
-                           1=STUN, 2=NET), radius, cast_time,
-                           zone_duration, effect_duration, damage,
-                           tick_interval, slow_multiplier, sprite_frames
-                           (animation names are a contract: "drag", "cast")
+  cards/<pantheon>/    CardData   — id (card_<pantheon>_<name>), display_name,
+                                    cost, scroll_texture, unit_data XOR
+                                    spell_data, unit_count, formation_radius,
+                                    + collection fields: rarity (int 0–3),
+                                    obtain_source (int), faction (pantheon),
+                                    domain, tags, description
+  units/<pantheon>/    UnitData   — id, archetype_scene, max_hp, damage,
+                                    attack_cooldown, speed, target_filter,
+                                    sprite_frames, attack_type, attack_range,
+                                    projectile_scene, damage_point_ratio,
+                                    attack_sfx / death_sfx
+    frames/            SpriteFrames
+  heroes/<pantheon>/   HeroData   — id, stats, projectile_scene, sprite_frames,
+                                    sounds, + collection fields: rarity (4 =
+                                    UNIQUE), obtain_source, faction, domain,
+                                    description, forbidden_tags, synergy_tag,
+                                    synergy_count, synergy_bonuses
+                                    (no archetype_scene: control mode picks
+                                    the scene)
+    frames/            SpriteFrames
+  spells/<pantheon>/   SpellData  — id, display_name, spell_type (int),
+                                    radius, cast_time, zone_duration,
+                                    effect_duration, damage, tick_interval,
+                                    slow_multiplier, sprite_frames
+                                    (animation names are a contract: "drag",
+                                    "cast")
+    frames/            SpriteFrames
+  packs/               PackData   — id, display_name, card_count, faction
+                                    filter, rarity_weights (5), guaranteed_
+                                    min_rarity, price
+  progression/         LevelCurve — max_level, copies per level per rarity,
+                                    stat multiplier per level, god attack-speed
+                                    multiplier per level (one file, all tuning)
   maps/     MapData      — id, display_name, release_ready, map_scene,
                            bounds (Rect2), camera_edge_margin,
                            camera_edge_pan_speed_max, hero_spawn_player,
@@ -78,7 +104,8 @@ data/
  
 Resolution chain for a played card:
 `card_id → CardDB.get_card() → CardData.unit_data → archetype_scene.instantiate()
-→ configure(data, team) → add to arena`.
+→ configure(data, team, stat_mods) → add to arena`, where `stat_mods` is the
+multiplier dictionary `BattleManager` builds from the team's manifest (below).
  
 A card with `unit_count > 1` summons a squad: `BattleManager.spawn_unit()` returns
 `Array[Node]` and places each unit with a **deterministic** ring offset
@@ -173,6 +200,55 @@ for a third map without checking with the author first;
 `map_authoring_guide.md` §0 has the running list of what's unresolved
 before this becomes the real pipeline (and replaces, rather than sits
 alongside, the checklist in that doc's §1–§4).
+
+**Collection fields are plain `int` codes, not enums** (same reason as
+`SpellData.spell_type`): `rarity` 0 COMMON, 1 RARE, 2 EPIC, 3 LEGENDARY,
+4 UNIQUE (gods); `obtain_source` 0 NONE (test card, never granted or listed),
+1 PACK, 2 ACHIEVEMENT, 3 QUEST, 4 EVENT. `obtain_source` says where *additional
+copies* come from; the starter grant is a separate list in `PlayerProfile`,
+because starter cards must also drop from packs. **Vocabulary:** `faction` is
+the pantheon (greek, norse…); `domain` is the cross-pantheon grouping (olympus,
+sea, underworld…); `tags` are free labels. A card's effective tags are
+`tags + faction + domain` (`DeckRules.card_tags()`).
+
+**Pure helpers (no nodes, no autoload calls — server-portable, same contract
+as `EnergySystem`):**
+- `LevelCurve` (`scripts/level_curve.gd`, resource) — `copies_to_next(rarity,
+  level)`, `get_stat_multiplier(level)`, `get_hero_attack_speed_multiplier
+  (level)`. Preloaded as a constant by `BattleManager` and `PlayerProfile`.
+- `PackRoller.roll(pack, rng, pool)` — weighted rarity per slot; the last slot
+  carries the guarantee; an empty rarity falls to the nearest lower, then
+  nearest higher, **never** to a rarity whose weight is 0 (so a 0 % pack can
+  never give a god). Pool and RNG are arguments.
+- `DeckRules` — `card_tags()`, `is_card_allowed(god, card)` / `find_forbidden()`
+  (god-against-card only, default allowed), `build_default_deck()`, the synergy
+  trio `count_synergy_cards()` / `is_synergy_active()` /
+  `is_synergy_beneficiary()`, and `describe_synergy(god)` (the one UI text for
+  a rule).
+- `DebugLog.info(tag, text)` — static switch for the `[pack]` / `[profile]` /
+  `[synergy]` / `[spawn]` diagnostics, off by default.
+
+**Deck source.** There is exactly one: `PreMatchFlow` copies the active god,
+deck and levels from `PlayerProfile` into `MatchConfig`; `card_hand.gd` and
+`enemy_card_ai.gd` both build their cycle from `MatchConfig`. Neither scene
+holds a deck. Opening `arena.tscn` directly (F6) therefore has no map, god or
+deck — start from the main menu.
+
+**Match manifest.** `arena.gd::_ready()` calls
+`BattleManager.set_team_manifest(team, hero_id, hero_level, card_levels)` for
+both teams **before** spawning the gods. The deck is the key set of
+`card_levels`. Synergy is evaluated there, once, and stored
+(`synergy_have`, `synergy_active`); `reset_match_state()` clears the
+manifests. At the entry points: `spawn_unit()` → `_unit_stat_mods()` (level ×
+synergy, keys `max_hp`, `damage`, `speed`, `attack_speed`); `cast_spell()` →
+level × `spell_damage` synergy passed to `SpellZone.configure()` as a damage
+multiplier; `spawn_hero()` → `_hero_stat_mods()` (level only — synergy never
+buffs the god). Scaled values live on the spawned node; shared resources are
+never written. The energy-regeneration synergy is an infinite
+`EnergySystem` modifier added by `arena.gd`. `get_synergy_status(team)` and
+`get_team_hero_data(team)` are the read side for UI. **Attack speed is the
+simple version** — `attack_cooldown / m` for units, `recovery_time / m` for
+gods; animation and windup are untouched (rework postponed).
 ---
  
 ## 4. Battle scene structure
@@ -307,6 +383,14 @@ alongside, the checklist in that doc's §1–§4).
   `FrameOverlay` stone frame, with an `EmptyBg` ColorRect showing through empty
   cells; the count label updates from `energy_int_changed`. `bar` stays typed
   `Range`, so the swap from the placeholder `ProgressBar` needed no script change.
+- `scenes/arena/ui/SynergyIcon.tscn` (`synergy_icon.gd`, `class_name
+  SynergyIcon`) — a `Button` in the HUD beside the energy bar, left of the
+  hand. Shows the player's synergy count; grey when the deck threshold is not
+  met, gold and pulsing when it is; a tap toggles a tooltip (auto-hides) with
+  the `DeckRules.describe_synergy()` text. Being a `Button`, it consumes the
+  tap so it never reaches tap-to-move. Configured once by
+  `arena.gd` (`hud.synergy_icon.configure("player")`) after the manifests are
+  set — the state cannot change during a match. Placeholder look, no art.
 - `scenes/hud/HUD.tscn` (CanvasLayer) — TouchScreenButtons (pause, recenter),
   `CardHand` (hand + draw cycle in `card_hand.gd`; `play_card(slot_index, world_pos)`
   is the single card-play entry point — drag-to-deploy calls it today, future
@@ -314,8 +398,9 @@ alongside, the checklist in that doc's §1–§4).
   spends energy via `EnergySystem.try_spend()` and refuses unaffordable plays; emits
   `deploy_preview_started` (once, at drag start, carrying the `CardData`) /
   `deploy_preview_updated` / `deploy_preview_ended` for `arena.gd` to drive the
-  DeployGhost), `EnergyBar`, `MatchInfoBar` (timer label, tower icons, two
-  `RespawnCounter`s driven by BattleManager signals).
+  DeployGhost), `EnergyBar`, `SynergyIcon`, `Minimap`, `MatchInfoBar` (timer
+  label, tower icons, two `RespawnCounter`s driven by BattleManager signals).
+  The hand's deck comes from `MatchConfig` (§3), not from `CardHand.tscn`.
   `play_card()` branches on payload type: `unit_data` → `BattleManager.spawn_unit()`,
   `spell_data` → `BattleManager.cast_spell()`. Both the live drag preview and
   the release check call `BattleManager.is_card_target_valid(card, pos, team)`.
@@ -813,6 +898,31 @@ alongside, the checklist in that doc's §1–§4).
   syncs). Anything querying the navmesh during spawn must tolerate the
   fallback (direct steering / unsnapped point) rather than assume a path
   exists.
+- **The HUD is ready before the match manifest exists.** HUD children run
+  `_ready()` before `arena.gd::_ready()` sets the manifests, so HUD UI that
+  shows match-derived state gets an explicit `configure()` call from the arena
+  afterwards (`minimap.configure_map()`, `synergy_icon.configure()`), instead
+  of reading `BattleManager` in its own `_ready()`.
+- **A fifth resource directory changed nothing in the scanner** — but the
+  recursive scan must keep skipping `frames/`: `SpriteFrames` have no `id` and
+  would each raise "failed to load resource".
+- **Autoload order matters for `PlayerProfile`.** It validates its save against
+  `CardDB` in `_ready()`, so it must come after `CardDB` in `project.godot`.
+- **Save files are versioned and migrated, never silently reset.** A known
+  older `save_version` is converted in memory and rewritten; only an unreadable
+  or unknown-version file falls back to the starter profile. Add a migration
+  branch whenever the profile's shape changes.
+- **Menu tiles listen to mouse-button events only.** With
+  `emulate_touch_from_mouse` on and Godot's mouse-from-touch emulation, handling
+  `InputEventScreenTouch` as well makes every tap fire twice (`DeckTile`).
+- **A tap inside a scrolling list needs a distance check.** `DeckTile` only
+  counts a release within 10 px of the press; otherwise a finger that scrolled
+  the pool selects whatever tile it lifts off.
+- **`self_modulate` to tint a control without tinting its children.**
+  `SynergyIcon` greys the circle and count but leaves its tooltip readable.
+- **Hand-written `.tres` / `.tscn` reference new files by `path=` only.** Never
+  invent a `uid`; Godot assigns one. When moving resources outside the editor,
+  keep every existing `uid` and fix the `path=` strings.
 ---
  
 ## 7. Networking posture (design-time only)
@@ -869,6 +979,18 @@ No transport exists. The prepared seams:
   sides must agree on, the same as the card database. Under a
   server-authoritative model the server runs the agents and clients only
   render positions.
+- **The match manifest is the deck message.** Today `MatchConfig` is filled
+  locally; with networking, both sides exchange `{hero_id, hero_level,
+  card_levels}` once before the match and a server validates it against the
+  player's inventory. Spawn messages do not change.
+- **`PlayerProfile`'s mutation API is the server boundary** for the meta game:
+  `grant_cards()`, `upgrade_card()`, `set_deck()` become requests; `PackRoller`
+  and `DeckRules` run server-side unchanged because they take all inputs as
+  arguments. The local JSON save is a stand-in and is cheatable by design.
+- **Synergy is derived, not transmitted.** Both sides compute it from the same
+  manifest and the same card database, so it needs no message — but it makes
+  `tags`, `domain`, `faction` and the gods' synergy fields part of the database
+  version both clients must agree on.
 
 ---
 
@@ -882,12 +1004,10 @@ menu root so it draws over the overlay instances declared above it, see the
 draw-order pitfall in §6):
 
 - `NavRail` (`VBoxContainer`, left edge, anchored full-height) —
-  `DeckButton`/`HeroesButton`/`ShopButton`/`RewardsButton` (plain `Button`s,
-  each with its own flat-color `StyleBoxFlat` override on `styles/normal`
-  only — the theme's default hover/pressed styles still apply, no art
-  assets exist for these yet), a `Control` spacer (`size_flags_vertical =
-  3`), then `ExitButton` (`TextureButton`). All placeholder buttons route to
-  `_show_coming_soon(feature_name)` (below).
+  `DeckButton` (inventory icon) → `EncyclopediaOverlay`; `HeroesButton` →
+  `DeckOverlay` (the button will be renamed); `ShopButton` → `ShopOverlay`;
+  `RewardsButton` → `_show_coming_soon()`; a `Control` spacer; `ExitButton`.
+  All are `TextureButton`s.
 - `TopBar` (`HBoxContainer`, top edge) — `CurrencyGroup` (a `ColorRect` +
   static `"0"` `Label`, placeholder), `MailButton`/`GiftButton` (same
   flat-color placeholder pattern as the nav rail), `SettingsButton`
@@ -927,6 +1047,29 @@ draw-order pitfall in §6):
   a `credits_requested` signal, which `main_menu.gd` answers by opening
   `CreditsOverlay` — Credits is reachable through Settings, not its own
   nav-rail entry, so the two fullscreen overlays are never open at once.
+- `ShopOverlay`, `DeckOverlay`, `EncyclopediaOverlay` — three more fullscreen
+  overlay instances following the same pattern (`open()` / `close()`, a
+  `closed` signal, `move_to_front()` at open, nav rail and main content hidden
+  while open). Unlike the two older overlays they are connected **in code** in
+  `main_menu.gd::_ready()`, not with `[connection]` entries. Plain default-theme
+  controls, no art yet.
+  - `shop_overlay.gd` — lists `CardDB.list_pack_ids()`; opening a pack rolls
+    with `PackRoller`, grants through `PlayerProfile.grant_cards()` (one call
+    per pack) and shows a list reveal (NEW / +1 copy).
+  - `deck_overlay.gd` + `deck_tile.gd` (`DeckTile`, built in code) — 8 slots
+    (god + 7) and, in edit mode, the pool. Works on a draft; one `_place()`
+    function serves both Godot's Control drag-and-drop and tap-then-tap. Only
+    Save writes (`PlayerProfile.set_deck()`, which also makes that god active).
+    Switching god loads `get_deck_for(god)`; unsaved card edits raise a
+    Discard / Cancel dialog. Cards the draft god refuses are greyed
+    ("Forbidden"). A live synergy line sits under the slots.
+  - `encyclopedia_overlay.gd` — a tab per pantheon found in the data; sections
+    Gods / Units / Spells of `DeckTile`s (locked ones tappable). Hosts
+    `card_flashcard.tscn` (`CardFlashcard`): the detail panel with the stat
+    preview and the level-up button (`PlayerProfile.upgrade_card()`). The
+    overlay rebuilds on `PlayerProfile.profile_changed`.
+- Debug keys in the main menu (debug builds only): **F9** reset profile,
+  **F10** +1 copy of everything obtainable, **F11** toggle `DebugLog`.
 
 Two general Control-layout pitfalls surfaced building this screen — the
 draw-order one and the `Node2D`-in-a-`Control` centering one — are filed in

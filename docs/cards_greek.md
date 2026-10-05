@@ -3,6 +3,9 @@
 > **Duel of Gods: Babylon — Arena Mode**
 > Card collecting and faction structure, modeled on Star Wars: Force Arena (SWFA).
 > SWFA reference: sides (Light/Dark) → factions (Rebels, Empire...) → shared side cards + faction-unique cards + faction synergy bonuses.
+> **Vocabulary changed (Oct 2026):** what this file calls an *era* is now a
+> **faction / pantheon**; what it calls a *faction* (Olympus, Sea, Underworld)
+> is now a **domain**, shared across pantheons. See `game_design.md` §3.14.
  
 ---
  
@@ -18,17 +21,25 @@ ERA (Greek)
  
 - Mythological basis: the three brothers divided the cosmos **by lot** — sky, sea, underworld. Factions are canon, not invented.
 - Later heroes slot into factions: Athena / Apollo / Ares / Artemis / Hermes → **Olympus**; Triton-adjacent → **Sea**; Demeter + Persephone → straddle **Underworld** (seasonal flavor).
-- **Era rule**: common cards never cross eras. Norse era (Aesir / Vanir / Jotunn) gets its own common pool. Keeps each era's identity strong — SWFA never mixed Rebels with Republic units.
+- **Pantheon rule (changed Oct 2026):** a deck *may* mix pantheons — a Greek
+  god can field Norse scrolls. The cost is synergy: foreign scrolls neither
+  count toward the god's threshold nor receive its bonus. Card ids are still
+  never reused between pantheons.
 ---
  
 ## 2. Faction synergy rule
  
-Units matching the deck leader's faction receive a bonus (SWFA-style leader synergy).
- 
-> ⚠️ **OPEN QUESTION 1 — faction bonus type** *(researching how SWFA handled this)*
-> - Option A: **stat boost** (+10% HP / damage for faction units) — easier to balance
-> - Option B: **cost discount** (−1 scroll energy for faction units) — strategically stronger, harder to balance
-> - Rule either way: pick ONE, do not stack both.
+**Resolved (Oct 2026).** Each god has one synergy rule: *if the deck holds at
+least N scrolls carrying the god's synergy tag, from the god's own pantheon,
+every scroll of that pantheon gets the god's bonus.* Units and spells both
+count. One threshold, no tiers. The bonus is always a boost (unit stats, spell
+damage or energy regeneration, depending on the god) — never a cost discount.
+
+Zeus: four Olympus scrolls → Greek units +10 % HP and +10 % damage (numbers are
+placeholders). Poseidon: four Sea scrolls, same placeholder bonus.
+
+Most spells will carry only their pantheon as a tag; a domain tag (sea,
+olympus, underworld, nature) on a spell is the exception.
  
 ---
  
@@ -148,10 +159,14 @@ the *spec*, not the roster:
  
 ## 6. Deck composition
  
-> ⚠️ **OPEN QUESTION 2 — deck size & sidekick acquisition** *(researching how SWFA spawned/obtained sidekicks)*
-> - Working assumption: **hero + sidekick + N cards** (SWFA used hero + 7 cards)
-> - To resolve: is the sidekick a permanent escort spawned with the hero, a card in the deck, or unlocked/leveled separately from the hero?
-> - Related open questions already listed in `heroes_greek.md`: sidekick death handling, auto-cast vs player-triggered specials.
+**Deck size resolved (Oct 2026): 1 god + 7 scrolls**, units and spells mixed,
+no duplicates, one deck per god.
+
+> ⚠️ **OPEN QUESTION 2 — sidekick acquisition** *(still open)*
+> - Is the sidekick a permanent escort spawned with the hero, a card in the
+>   deck, or unlocked/leveled separately from the hero?
+> - Related open questions already listed in `heroes_greek.md`: sidekick death
+>   handling, auto-cast vs player-triggered specials.
  
 ---
  
@@ -165,16 +180,30 @@ Norse era:   common pool (huscarl, berserker, draugr, valkyrie...)
 Chinese era: common pool + factions (TBD)
 ```
  
-Design work per era = 1 common pool + 2–3 factions + hero/sidekick pairs. No cross-era deck mixing.
+Design work per pantheon = 1 common pool + 2–3 domains + god/sidekick pairs,
+plus the tags its gods refuse and each god's synergy rule. Decks may mix
+pantheons at the cost of synergy.
  
 ---
  
 ## 8. Next steps
  
-- [ ] Resolve Open Question 1 (faction bonus type) — SWFA research
-- [ ] Resolve Open Question 2 (sidekick spawn/acquisition) — SWFA research
-- [ ] Stat pass on the common, rare, and faction-unique pools (HP / DPS / speed /
-      cost numbers)
+- [x] Open Question 1 (synergy type) — resolved, §2
+- [ ] Open Question 2 — deck size resolved (god + 7); sidekick still open
+- [x] First stat pass on all 20 Greek units (values in
+      `scrolls_decisions.md`); cards exist for the eight human units.
+      Balance pass still to do.
+- [x] Card rarity, leveling and collection — built (`game_design.md` §3.14);
+      per-card rarities are still placeholders
+- [x] Spells take normal deck slots
+- [ ] Domain cards: Pegasus, Bronze Automaton (Olympus); Hippocampus Rider,
+      Nereid, Ketos (Sea); Shades, Spartoi, Erinyes (Underworld) — unit data
+      exists with placeholder sprites, no cards yet
+- [ ] Tag vocabulary (holy, undead, beast…) and which gods refuse what
+- [ ] Synergy rule for every god beyond Zeus and Poseidon
+- [ ] Mechanics the unit data cannot express yet: healing (Priestess, Nereid),
+      charge bonus (Hippeus), formation armor (Phalanx), flying (Harpy,
+      Pegasus), Cyclops boulder throw
 - [ ] Give Olympus at least one more unique unit — one against Sea's two and
       Underworld's three (§4a, §5)
 - [ ] Decide which §4a mechanics are worth building: unit armor / damage
@@ -182,10 +211,7 @@ Design work per era = 1 common pool + 2–3 factions + hero/sidekick pairs. No c
       targeting, flying / terrain-crossing, charge-distance damage. Each is a new
       `UnitData` field plus archetype work — cost them before committing the cards
 - [ ] Faction-unique unit spec (`cards_greek_factions.md`)
-- [ ] Card rarity & upgrade/collection progression (separate economy spec)
 - [ ] Per-era spell art (Norse/Egyptian/Chinese reskins of Storm/Stun/Net)
-- [ ] Decide whether spells count against the deck's card slots or occupy a
-      separate spell slot (SWFA treated support cards as normal deck slots)
 - [ ] Are there faction-unique spells, or do spells stay strictly common?
  
  ### 9.1 Kozmetické odmeny — vhodné plochy (64×64 chibi sprite obmedzenie)

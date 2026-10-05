@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="CardData" format=3]
+[gd_resource type="Resource" script_class="CardData" format=3 uid="uid://b6l2671vn4n7f"]
 
 [ext_resource type="Script" uid="uid://cdscsax3k7m1p" path="res://scripts/arena/ui/card_data.gd" id="1_carddata"]
 [ext_resource type="Texture2D" uid="uid://ddvmhvblk13ik" path="res://assets/sprites/units/greek/decals_greek.png" id="2_decals"]
@@ -19,3 +19,5 @@ unit_count = 3
 formation_radius = 10.0
 rarity = 1
 obtain_source = 1
+domain = &"olympus"
+tags = Array[StringName]([&"olympus"])

@@ -16,6 +16,7 @@ death_sfx = &"hero_death_greek"
 spawn_voice = &"zeus_spawn"
 obtain_source = 1
 domain = &"olympus"
+synergy_tag = &"olympus"
 synergy_bonuses = {
 &"damage": 1.1,
 &"max_hp": 1.1

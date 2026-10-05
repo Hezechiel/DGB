@@ -34,8 +34,10 @@ are mock data (`MatchConfig`).
    auto-fires at the nearest target in range.
 3. Player plays scroll cards from a **3-slot hand** (+ next-card preview) to summon
    units or cast spells; the played card cycles to the back of the deck queue
-   (Clash Royale draw cycle — deterministic after the initial shuffle). The AI
-   opponent plays from an identical but hidden hand on the same rules (§3.10).
+   (Clash Royale draw cycle — deterministic after the initial shuffle).
+   The deck is the player's own: one god plus seven scrolls chosen in the Deck
+   screen (§3.14). The AI opponent plays a mirror of that deck from a hidden hand
+   on the same rules (§3.10).
 4. Units march toward the nearest living enemy structure, aggro onto enemy units
    they detect, and fight along two horizontal lanes guarded by turrets
    (Top, Bot, plus a Base turret per team).
@@ -61,12 +63,19 @@ are mock data (`MatchConfig`).
   cancelled play does not advance the draw cycle.
 - **Squad cards:** a card may summon several units (`unit_count`), placed in a ring
   around the drop point. Squad size belongs to the *card*, not the unit.
-- Every card is data (`CardData` resource): id, name, cost, scroll art, linked unit.
-  Cards with no unit are **spells** (§3.11) — `CardData` carries either
-  `unit_data` or `spell_data`, never both.
-- Nine placeholder cards exist (costs 2–6, varying squad sizes); scroll arts and
-  assignments are intentionally temporary. A shared scroll-back art shows while a
-  card is being dragged.
+- Every card is data (`CardData` resource): id, name, cost, scroll art, and
+  either a unit or a spell (§3.11) — never both. Cards also carry collection
+  data: rarity, pantheon, domain, tags, where copies come from, a description
+  (§3.14).
+- **The deck is 1 god + 7 scrolls** (SWFA shape), units and spells mixed, no
+  duplicates. It comes from the player's profile, not from the hand scene. With
+  3 slots and a preview, three cards are always out of sight in the cycle.
+- Eleven named Greek cards exist: eight units (Hoplite, Toxotes, Peltast,
+  Sphendonetes, Hippeus, Phalanx, Priestess, Gastraphetes) and three spells
+  (Storm, Stun, Ensnaring Net). Costs, squad sizes and rarities are
+  placeholders; five of the eight units still use placeholder sprites, and
+  Priestess has no scroll art yet. A shared scroll-back art shows while a card
+  is being dragged.
 ### 3.2 Units
 - Behavior archetypes are scenes (**melee** exists; ranged, siege, special planned);
   individual units are `UnitData` resources feeding an archetype: stats + animations.
@@ -84,6 +93,10 @@ are mock data (`MatchConfig`).
 - Local hero: tap-to-move, manual target priority, auto-fire fallback without chase.
 - Enemy avatar: AI-controlled (§3.10) — movement, targeting, healing-pod seeking
   and card plays. One fixed baseline, not a tuned difficulty tier.
+- **The god is part of the deck** (§3.14): the player fields the god of the
+  active deck. The enemy god is still a fixed placeholder (Poseidon).
+- Gods are scrolls too — they are collected and leveled like cards. A god's
+  level raises HP, damage and attack speed.
 ### 3.4 Death & respawn
 - Per-team respawn penalty: first death **3 s**, +1 s per subsequent death,
   capped at **10 s**. Counters are fully independent per team and persist for the
@@ -192,10 +205,11 @@ are mock data (`MatchConfig`).
   mistake injection, chasing beyond attack range.
 
 **Wave 2 — card plays**
-- The AI side holds **its own hand on the player's exact rules**: same 9-card
-  deck, shuffled once at match start, same back-of-the-queue draw cycle, same
-  3 active slots, same costs, same atomic energy spend. It is the player's
-  mechanic run by a different decider — not a spawn script with its own economy.
+- The AI side holds **its own hand on the player's exact rules**: a mirror of
+  the player's 7-card deck and card levels, shuffled once at match start, same
+  back-of-the-queue draw cycle, same 3 active slots, same costs, same atomic
+  energy spend. It is the player's mechanic run by a different decider — not a
+  spawn script with its own economy.
 - **No hand UI, and none planned** — the opponent's hand is hidden for the same
   reason its energy bar is (§3.8). It also carries no next-card preview slot:
   that is a player-facing affordance, and it affects neither cycle fairness nor
@@ -215,9 +229,10 @@ are mock data (`MatchConfig`).
   `cast_spell()` entry points the drag UI uses, so replacing it with a remote
   player swaps the input source and nothing else. This is the reason the card-play
   AI was built before the tactics that would make it interesting.
-- Deck parity is maintained **by hand** — the AI's card list and the player's
-  deck are two separate declarations with no shared source of truth. Changing the
-  player's deck means changing both.
+- Deck parity is automatic: the hand and the AI both read their deck from the
+  same match configuration, filled once from the player's profile before the
+  match. The AI's god is not mirrored (still Poseidon), so its synergy rule is
+  checked against the mirrored deck.
 - Explicitly deferred: which card answers what, where to place it, when to hold
   energy for a bigger play, varying the tick rate, and any reaction to the player
   (§6).
@@ -328,6 +343,56 @@ are mock data (`MatchConfig`).
   hardcoded) — needed since future maps (§5) will vary in size. Starting
   values are placeholders pending a feel pass, same status as the numeric
   gameplay values elsewhere in this doc (§3.1, §3.9, §3.11).
+### 3.14 Scrolls — collection, packs, decks, synergy
+- **Collection.** A card or god is unlocked by owning one copy; duplicates
+  stack as copies. Everything is stored in a local profile (cheatable — fine
+  until there is a server).
+- **Rarities:** Common, Rare, Epic, Legendary on one shared level scale; gods
+  have their own tier, **Unique**.
+- **Leveling is manual.** Level cap 10. Rarer cards need fewer copies per
+  level. The player presses a level-up button; nothing levels automatically.
+  Upgrades cost copies only (no currency yet).
+- **What a level does:** units gain HP and damage; spells gain damage only —
+  stun/root/slow durations never scale; gods gain HP, damage and attack speed.
+  Increments shrink per level, about +48 % at level 10 (gods' attack speed
+  +18 %).
+- **Packs.** Free for now, five scrolls each, with rarity weights **per pack**:
+  the basic Greek pack can never drop a god; the "cherished" pack has a small
+  chance. The last scroll in a pack has a guaranteed minimum rarity.
+- **Starter:** Zeus and seven cards at level 1.
+- **Shop** (nav rail): open packs; the reveal lists each scroll as NEW or +1
+  copy.
+- **Encyclopedia** (inventory button): every god and card of a pantheon, owned
+  and locked. Tapping one opens its **flashcard** — art, level, copies
+  progress, description, battle stats with a "current > next level" preview —
+  and the level-up button lives there. Long-term the flashcard should open from
+  every view that shows cards.
+- **Deck screen** (Heroes button): the god on the far left, then seven scrolls.
+  Edit shows the pool (locked scrolls greyed, to show what is still out of
+  reach); scrolls are placed by drag-and-drop or tap-then-tap. Placing a scroll
+  replaces a slot, so a deck is never incomplete.
+- **One deck per god.** Choosing another god brings that god's saved deck, or a
+  default (the deck in use, with any refused scroll swapped for the cheapest
+  owned one the god accepts). Unsaved changes on a god switch ask Discard or
+  Cancel — saving is only ever the main Save button.
+- **Deck rules: god against card only.** Scrolls carry tags; a god may refuse
+  some tags ("holy won't hire undead"). Neutral gods refuse nothing. No
+  card-against-card rules. A god that cannot field seven allowed scrolls is a
+  content bug and must not ship.
+- **Pantheons may be mixed** in one deck. The price is synergy, not a ban.
+  (Idea for later: neighbouring pantheons — e.g. the Asian ones — mixing
+  without penalty.)
+- **Synergy: one threshold per god, no tiers.** If the deck holds enough
+  scrolls of the god's synergy tag *from the god's own pantheon* (units and
+  spells both count), every scroll of that pantheon gets the god's bonus —
+  unit stats, spell damage or energy regeneration, depending on the god. A
+  foreign-pantheon scroll neither counts nor benefits. Zeus: four Olympus
+  scrolls → Greek units +10 % HP and damage. It is decided at match start and
+  never changes during a match.
+- **Synergy is shown in two places:** a small icon by the hand in the arena
+  (grey / glowing, tap for the bonus text) and a live count in the Deck screen.
+- Placeholder numbers throughout: copies per level, level multipliers, pack
+  weights, synergy size and thresholds, rarities of individual cards.
 ---
  
 ## 4. Roadmap (agreed order)
@@ -351,23 +416,33 @@ are mock data (`MatchConfig`).
 6. ~~**Deploy-zone expansion**~~ — implemented as per-structure protection
    zones that disappear when their structure dies (§3.7), not the originally
    planned "unlock the whole enemy half" version.
-7. Then: ranged/siege archetypes, and the items below.
+7. ~~**Scrolls (card collection)**~~ — profile and starter grant, levels in
+   matches, free packs and shop, Deck screen (one deck per god), Encyclopedia
+   with flashcard and manual level-up, god-against-card deck rules, and the
+   deck-threshold synergy with its HUD icon are implemented (§3.14). **Not
+   built:** currency and prices, account level, pack-opening presentation,
+   real tags on content, Olympus/Sea/Underworld cards, the attack-speed rework.
+8. Then: ranged/siege archetypes, and the items below.
 ---
  
 ## 5. Future vision (brief, not yet designed)
  
 - **Era structure:** world mythologies as content eras — Greek first, then Norse,
   Chinese, … Each era brings a god roster and themed unit pools.
-- **Factions (Greek era):** Olympus/Sky, Sea, Underworld — faction-unique units
-  beyond a common card pool; faction synergy bonus mechanism undecided
-  (stat boost vs. cost discount — research SWFA's approach).
+- **Domains (Greek pantheon):** Olympus/Sky, Sea, Underworld — domain cards
+  beyond the common pool. Domains are shared across pantheons. The synergy
+  mechanism is decided (§3.14): a stat-style boost unlocked by a deck
+  threshold, never a cost discount. The domain cards themselves are not in the
+  game yet.
 - **Sidekicks:** each playable god paired with a unique companion; spawn/obtain
   mechanics undecided.
 - **PvP networking:** authoritative model TBD (server vs. relay); all spawning is
   already ID-based to support it. Death counters, timer, and match state map to
   future server-owned state.
-- **Meta:** deck building, collection, per-match deck selection — enabled by the
-  card database design, no UI yet.
+- **Meta:** collection, packs, leveling and deck building exist (§3.14).
+  Still future: currency and pricing, account level (intended to drive
+  structure strength), battle pass, trading duplicate gods between players,
+  matchmaking by level.
 ---
  
 ## 6. Open questions
@@ -381,7 +456,8 @@ are mock data (`MatchConfig`).
 - Bloodlust-style refund ability (pay base cost, RNG-proc partial refund): trigger
   chance and amount undecided.
 - Does hero death feed the timeout scoring (kill counting)?
-- Faction synergy mechanism (see above).
+- ~~Faction synergy mechanism.~~ Resolved (§3.14): a boost unlocked by one deck
+  threshold per god.
 - Hero abilities beyond the basic projectile (cooldown skills? per-god kits?).
 - Sidekick lifecycle: permanent companion vs. summonable card.
 - Real matchmaking flow, search-cancel behaviour, and the source of opponent
@@ -434,3 +510,17 @@ are mock data (`MatchConfig`).
 - Per-unit deploy delay (`spawn_time`: siege giant slow, slinger squad fast)
   is agreed in principle but not implemented — the unit does not exist and
   cannot be targeted until the delay elapses.
+- Scrolls: which gods come from packs, achievements, quests or events (only
+  Zeus as the starter is fixed).
+- Scrolls: the tag vocabulary and which gods refuse what — no tags are
+  assigned to real content yet.
+- Scrolls: each god's synergy rule (tag, threshold, effect); only Zeus's is
+  sketched. Whether a god's passive ability should later add an in-match
+  condition on top of the deck threshold.
+- Scrolls: "continental" affinity between pantheons — an idea, not designed.
+- Scrolls: starter deck contents and per-card rarities are placeholders.
+- Attack speed currently only shortens the pause after a hit; a proper rework
+  (swing speed) is wanted and postponed.
+- The flashcard should open from every card view; on the Deck screen a tap
+  already means "select", so that screen needs a different gesture.
+- Thematic name for the level-up button; description texts for cards and gods.

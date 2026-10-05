@@ -18,3 +18,5 @@ unit_data = ExtResource("3_unitdata")
 formation_radius = 4.0
 rarity = 1
 obtain_source = 1
+domain = &"olympus"
+tags = Array[StringName]([&"olympus"])

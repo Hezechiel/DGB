@@ -39,18 +39,21 @@ same judgment call `architecture.md` §6 already documents for why
 
 A unit's actual identity — stats, art, attack type, sounds — lives in:
 
-- **`data/units/<id>.tres`** — a `UnitData` resource
+- **`data/units/<pantheon>/<id>.tres`** — a `UnitData` resource
   (`scripts/arena/unit_data.gd`): `id`, `display_name`, `archetype_scene`,
   `max_hp`, `damage`, `attack_cooldown`, `speed`, `target_filter`,
   `sprite_frames`, and (Sept 2026) `attack_type`, `attack_range`,
   `projectile_scene`, `damage_point_ratio`, `attack_sfx`, `death_sfx`.
 
-At boot, `CardDB` scans `data/units/*.tres` into an id-keyed dictionary,
+At boot, `CardDB` scans `data/units/` **recursively** (skipping `frames/`
+folders) into an id-keyed dictionary,
 same pattern as `data/heroes/`. A unit is never spawned on its own,
 though — it's always reached through a card: `CardData.unit_data` points
 at the `UnitData`, and `BattleManager.spawn_unit()` (called from
 `play_card()`) instantiates `unit_data.archetype_scene` and calls
-`configure(data, team)`, which copies every stat onto the node —
+`configure(data, team, stat_mods)`, which copies every stat onto the node
+— multiplied by `stat_mods`, the level and synergy multipliers `BattleManager`
+looks up for that team and card (never written back to the resource) —
 including, same as the hero footgun below, **overwriting**
 `$AnimatedSprite2D.sprite_frames` and resizing
 `$AttackRange/CollisionShape2D.shape.radius` from the data resource. A
@@ -80,7 +83,7 @@ chance to fix them up.
 
 ### 2.1 Sprite art & the frames resource
 
-`SpriteFrames` resources live at `data/units/frames/frames_<id>.tres`
+`SpriteFrames` resources live at `data/units/<pantheon>/frames/frames_<id>.tres`
 (e.g. `frames_greek_hoplite.tres`, `frames_greek_toxotes.tres`) — same
 `AtlasTexture`-region assembly as hero frames
 (`hero_authoring_guide.md` §2.1), easiest authored by duplicating an
@@ -165,7 +168,7 @@ higher (~0.8-1.0) for one that should feel committed and interruptible-by-
 circumstance (fleeing out of its own attack_range) but not by anything
 else, since nothing else can interrupt it here anyway.
 
-### 2.3 Create `data/units/<id>.tres`
+### 2.3 Create `data/units/<pantheon>/<id>.tres`
 
 Easiest path: duplicate an existing unit `.tres`
 (`greek_hoplite.tres` for melee, `greek_toxotes.tres` for ranged) rather
@@ -188,13 +191,23 @@ than building from scratch. `UnitData` fields
 ### 2.4 Wire it into a card
 
 Units are never spawned directly — always through a `CardData`
-(`data/cards/<id>.tres`, `scripts/arena/ui/card_data.gd`) whose
+(`data/cards/<pantheon>/<id>.tres`, `scripts/arena/ui/card_data.gd`) whose
 `unit_data` field points at the `UnitData` from §2.3. `unit_count > 1`
 summons a squad of that same `UnitData` (`architecture.md` §3) —
 `formation_radius` controls spacing, not per-unit variance. There is no
 "which archetype scene" decision at the card level at all — that's fully
 resolved by `UnitData.archetype_scene` from §2.3, the card only ever sees
 `UnitData`.
+
+Card files live in `data/cards/<pantheon>/` and are named after their id:
+`card_<pantheon>_<name>` (e.g. `card_greek_hoplite`). Besides the play fields,
+set the collection fields: `rarity` (0 Common … 3 Legendary),
+`obtain_source` (leave 0 for a test card that must never appear in packs or
+screens; 1 = drops from packs), `faction` (pantheon, defaults to `greek`),
+`domain` (empty = common pool), `tags` (only extra labels — pantheon and
+domain count automatically) and `description` (flashcard text). A new card
+appears in the Encyclopedia and the Deck pool automatically once
+`obtain_source` is not 0; it enters matches only through a player's deck.
 
 ### 2.5 AI behavior — nothing to configure per-unit
 
@@ -298,3 +311,6 @@ shared sound (e.g. `unit_death_02.wav`) is just another file in that
    sounds remain audible over them. No `neznamy sfx id` warning.
 9. Play a full match to completion with the new unit's card on at least
    one side without errors.
+10. Press **F11** in the main menu (debug build) and deploy the unit: the
+    `[spawn]` line shows its card level and multipliers. Level 1 with no
+    synergy must read `1.0` on all four.

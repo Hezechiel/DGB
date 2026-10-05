@@ -14,6 +14,7 @@ signal recenter_camera_requested
 @onready var match_info_bar: MatchInfoBar = $MatchInfoBar
 @onready var energy_bar: EnergyBar = $EnergyBar
 @onready var minimap: Minimap = $Minimap
+@onready var synergy_icon: SynergyIcon = $SynergyIcon
 
 const BUTTON_SIZE := 80.0
 const MARGIN := 8.0

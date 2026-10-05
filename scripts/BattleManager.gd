@@ -68,9 +68,11 @@ var arena_root: Node = null
 const LEVEL_CURVE: LevelCurve = preload("res://data/progression/level_curve.tres")
 
 # Match manifest: team -> {"hero_id": StringName, "hero_level": int,
-# "card_levels": Dictionary}. Nastavuje arena.gd raz na zaciatku zapasu
-# (neskor pride zo siete). Spawn spravy ostavaju {card_id, pos, team} —
-# level sa NIKDY neposiela per spawn, vzdy sa dohlada tu podla timu.
+# "card_levels": Dictionary, "synergy_have": int, "synergy_active": bool}.
+# Nastavuje arena.gd raz na zaciatku zapasu (neskor pride zo siete).
+# synergy_* sa dopocitaju tu z balicka (kluce card_levels). Spawn spravy
+# ostavaju {card_id, pos, team} — level ani synergy sa NIKDY neposiela per
+# spawn, vzdy sa dohlada tu podla timu.
 var _manifests: Dictionary = {}
 
 func set_team_manifest(team: String, hero_id: StringName, hero_level: int, card_levels: Dictionary) -> void:
@@ -79,6 +81,23 @@ func set_team_manifest(team: String, hero_id: StringName, hero_level: int, card_
 		"hero_level": maxi(1, hero_level),
 		"card_levels": card_levels.duplicate(),
 	}
+	# Synergy sa vyhodnoti RAZ tu — zavisi len od zlozenia balicka, pocas
+	# zapasu sa nemeni. Balicek = kluce card_levels (7 kariet z manifestu).
+	var hero_data: HeroData = CardDB.get_hero(hero_id) if CardDB.has_hero(hero_id) else null
+	var deck_cards: Array[CardData] = []
+	for card_id in card_levels.keys():
+		if CardDB.has_card(card_id):
+			deck_cards.append(CardDB.get_card(card_id))
+	var have := 0
+	var active := false
+	if hero_data != null:
+		have = DeckRules.count_synergy_cards(hero_data, deck_cards)
+		active = DeckRules.is_synergy_active(hero_data, deck_cards)
+	_manifests[team]["synergy_have"] = have
+	_manifests[team]["synergy_active"] = active
+	DebugLog.info("synergy", "team=%s hero=%s tag=%s %d/%d active=%s" % [team, hero_id,
+		hero_data.synergy_tag if hero_data != null else &"",
+		have, hero_data.synergy_count if hero_data != null else 0, active])
 
 func get_card_level(team: String, card_id: StringName) -> int:
 	# Chybajuci manifest/karta = level 1 (nikdy nezhodi zapas).
@@ -91,22 +110,59 @@ func get_hero_level(team: String) -> int:
 		return 1
 	return _manifests[team]["hero_level"]
 
+func is_synergy_active(team: String) -> bool:
+	return _manifests.has(team) and _manifests[team].get("synergy_active", false)
+
+# Pre HUD (dalsi krok): {"tag", "have", "need", "active", "bonuses"}.
+# Prazdny dictionary = tim nema manifest alebo boh nema synergy.
+func get_synergy_status(team: String) -> Dictionary:
+	if not _manifests.has(team):
+		return {}
+	var hero_id: StringName = _manifests[team]["hero_id"]
+	if not CardDB.has_hero(hero_id):
+		return {}
+	var hero_data := CardDB.get_hero(hero_id)
+	if hero_data.synergy_tag == &"" or hero_data.synergy_count <= 0:
+		return {}
+	return {
+		"tag": hero_data.synergy_tag,
+		"have": _manifests[team].get("synergy_have", 0),
+		"need": hero_data.synergy_count,
+		"active": is_synergy_active(team),
+		"bonuses": hero_data.synergy_bonuses.duplicate(),
+	}
+
+# HeroData boha timu z manifestu (null ak tim nema manifest / neznamy boh).
+func get_team_hero_data(team: String) -> HeroData:
+	if not _manifests.has(team):
+		return null
+	var hero_id: StringName = _manifests[team]["hero_id"]
+	return CardDB.get_hero(hero_id) if CardDB.has_hero(hero_id) else null
+
+# Nasobic jedneho synergy efektu pre danu kartu. 1.0 ked synergy nie je
+# aktivna, karta nie je z panteonu boha, alebo boh ten efekt nema.
+func _synergy_mult(team: String, card: CardData, key: StringName) -> float:
+	if not is_synergy_active(team):
+		return 1.0
+	var hero_data := CardDB.get_hero(_manifests[team]["hero_id"])
+	if not DeckRules.is_synergy_beneficiary(hero_data, card):
+		return 1.0
+	return float(hero_data.synergy_bonuses.get(key, 1.0))
+
+# Regeneracia energie timu zo synergy (nezavisi od konkretnej karty).
+func get_synergy_energy_regen(team: String) -> float:
+	if not is_synergy_active(team):
+		return 1.0
+	return float(CardDB.get_hero(_manifests[team]["hero_id"]).synergy_bonuses.get(&"energy_regen", 1.0))
+
 # Nasobice pre jednotku z karty: level (HP + damage) x synergy boha timu.
-# Synergy plati len ked karta MA domain a zhoduje sa s domain boha timu.
-# &"" domain = common pool = ziadna synergy.
+# Synergy plati len ked je prah balicka splneny (vyhodnoteny raz v
+# set_team_manifest) a karta je z panteonu boha — domain karty tu nehra rolu.
 func _unit_stat_mods(card: CardData, team: String) -> Dictionary:
 	var level_mult := LEVEL_CURVE.get_stat_multiplier(get_card_level(team, card.id))
 	var mods := {&"max_hp": level_mult, &"damage": level_mult, &"speed": 1.0, &"attack_speed": 1.0}
-	if card.domain == &"" or not _manifests.has(team):
-		return mods
-	var hero_id: StringName = _manifests[team]["hero_id"]
-	if not CardDB.has_hero(hero_id):
-		return mods
-	var hero_data := CardDB.get_hero(hero_id)
-	if hero_data.domain != card.domain:
-		return mods
 	for stat in mods.keys():
-		mods[stat] *= float(hero_data.synergy_bonuses.get(stat, 1.0))
+		mods[stat] *= _synergy_mult(team, card, stat)
 	return mods
 
 # Nasobice pre boha: level skaluje HP, damage a (mensim stropom) attack speed.
@@ -438,7 +494,7 @@ func spawn_unit(card_id: StringName, pos: Vector2, team: String) -> Array[Node]:
 		unit.global_position = snap_to_navigation(pos + _formation_offset(i, count, card.formation_radius))
 		arena_root.add_child.call_deferred(unit)
 		spawned.append(unit)
-	print("[spawn] %s team=%s L%d mods=%s" % [card_id, team, get_card_level(team, card_id), mods])
+	DebugLog.info("spawn", "%s team=%s L%d mods=%s" % [card_id, team, get_card_level(team, card_id), mods])
 	return spawned
 
 # Deterministicke rozmiestnenie squadu do kruhu — ZIADNY random, oba klienti
@@ -490,7 +546,8 @@ func cast_spell(card_id: StringName, pos: Vector2, team: String) -> void:
 		return
 
 	var zone := SPELL_ZONE_SCENE.instantiate()
-	zone.configure(card.spell_data, team, pos, LEVEL_CURVE.get_stat_multiplier(get_card_level(team, card_id)))
+	zone.configure(card.spell_data, team, pos,
+		LEVEL_CURVE.get_stat_multiplier(get_card_level(team, card_id)) * _synergy_mult(team, card, &"spell_damage"))
 	arena_root.add_child.call_deferred(zone)
 
 # --- Spawn (hrdinovia) ---
@@ -514,7 +571,7 @@ func spawn_hero(hero_id: StringName, team: String, controlled: bool) -> Node:
 	var hero := scene.instantiate()
 	var mods := _hero_stat_mods(team)
 	hero.configure(data, team, mods)
-	print("[spawn] %s team=%s L%d mods=%s" % [hero_id, team, get_hero_level(team), mods])
+	DebugLog.info("spawn", "%s team=%s L%d mods=%s" % [hero_id, team, get_hero_level(team), mods])
 	heroes[team] = hero
 	arena_root.add_child.call_deferred(hero)
 	return hero

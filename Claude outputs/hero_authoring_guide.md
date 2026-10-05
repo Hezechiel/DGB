@@ -360,3 +360,27 @@ still missing) / `hero_death_greek` / no spawn voice yet.
     this hero's ids.
 11. Play a full match to completion with the new hero on at least one
     side without errors.
+
+## 5. Gods as scrolls (Oct 2026)
+
+`HeroData` files live in `data/heroes/<pantheon>/`, frames in
+`data/heroes/<pantheon>/frames/`. `configure(data, team, stat_mods)` on both
+`player.gd` and `hero_dummy.gd` takes the god's level multipliers: `max_hp`
+and `projectile_damage` are multiplied, `recovery_time` is divided by the
+attack-speed multiplier. Synergy never buffs the god itself.
+
+Collection and rule fields on `HeroData`:
+
+| Field | Guidance |
+|---|---|
+| `rarity` | Leave at 4 (UNIQUE). |
+| `obtain_source` | 0 = never granted; 1 = drops from packs whose Unique weight is above 0. |
+| `faction` | Pantheon (`greek`, `norse`…). Decides who benefits from the god's synergy. |
+| `domain` | `olympus`, `sea`, `underworld`… Informational today. |
+| `forbidden_tags` | Tags this god refuses in its deck. Empty = neutral. Compared against a card's `tags` + pantheon + domain. **Check that at least 7 obtainable cards remain allowed** — the game logs an `OBSAH` error at launch otherwise. |
+| `synergy_tag` / `synergy_count` | The deck threshold: how many own-pantheon scrolls with this tag. Empty tag = no synergy. |
+| `synergy_bonuses` | Multipliers once the threshold is met: `max_hp`, `damage`, `speed`, `attack_speed` (units), `spell_damage`, `energy_regen`. |
+| `description` | Flashcard text. |
+
+The Deck screen and Encyclopedia show a god's first `iddle_left` frame (falls
+back to `idle_left`) as its picture — there is no separate scroll art for gods.

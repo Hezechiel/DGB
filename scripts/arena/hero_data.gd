@@ -51,10 +51,19 @@ enum AttackType { RANGED, MELEE }
 @export var faction: StringName = &"greek"
 # Domena napriec panteonmi (olympus/sky, sea, underworld).
 @export var domain: StringName
-# Synergy bonus pre jednotky ROVNAKEJ domain ako boh. Kluc = stat,
-# hodnota = nasobic (1.1 = +10 %). Povolene kluce: &"max_hp", &"damage",
-# &"speed", &"attack_speed". Prazdny dictionary = ziadny bonus.
-# Zatial sa NIKDE necita — aplikuje sa az v kroku "levels in matches".
+# --- Synergy: PODMIENKA (zlozenie balicka) -> BONUS pre vlastny panteon ---
+# Podmienka: balicek obsahuje aspon synergy_count kariet so znackou
+# synergy_tag, ktore su zaroven z panteonu boha. Rataju sa jednotky AJ
+# spelly. Jeden prah na boha, ziadne stupne. Prazdny tag alebo count <= 0
+# = boh nema synergy.
+@export var synergy_tag: StringName
+@export var synergy_count: int = 4
+# Bonus pre karty z panteonu boha, ked je podmienka splnena. Kluc = efekt,
+# hodnota = nasobic (1.1 = +10 %). Povolene kluce:
+#   &"max_hp", &"damage", &"speed", &"attack_speed"  -> jednotky
+#   &"spell_damage"                                  -> spelly
+#   &"energy_regen"                                  -> regeneracia energie timu
+# Chybajuci kluc = 1.0. Karty cudzieho panteonu bonus NEDOSTANU.
 @export var synergy_bonuses: Dictionary = {}
 # Znacky kariet, ktore tento boh ODMIETA v balicku. Prazdne = neutralny boh.
 # Porovnava sa s CardData.tags + faction + domain karty.

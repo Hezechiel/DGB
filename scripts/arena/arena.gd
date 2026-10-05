@@ -74,6 +74,14 @@ func _ready() -> void:
 		MatchConfig.local_hero_level, MatchConfig.local_card_levels)
 	BattleManager.set_team_manifest("enemy", MatchConfig.opponent_hero_id,
 		MatchConfig.opponent_hero_level, MatchConfig.opponent_card_levels)
+	# Synergy efekt na energiu — nekonecny modifikator na cely zapas.
+	# EnergySystem.reset_match_state() v _enter_tree() ho pri dalsom zapase zmaze.
+	for team in ["player", "enemy"]:
+		var regen := BattleManager.get_synergy_energy_regen(team)
+		if not is_equal_approx(regen, 1.0):
+			EnergySystem.add_modifier(team, EnergySystem.ModType.REGEN_MULT, regen,
+				EnergySystem.INFINITE_DURATION, &"synergy")
+	hud.synergy_icon.configure("player")
 
 	var player_hero := BattleManager.spawn_hero(MatchConfig.local_hero_id, "player", true)
 	player_hero.global_position = map_data.hero_spawn_player
@@ -154,8 +162,10 @@ func _play_end_sequence(winner: String) -> void:
 	get_tree().change_scene_to_file("res://scenes/menu/MatchEndScreen.tscn")
 
 func _input(event: InputEvent) -> void:
+	if not OS.is_debug_build():
+		return
 	if event is InputEventKey and event.pressed:
-		# --- DEBUG energia (docasne, kym nie je energy bar — krok 2) ---
+		# --- DEBUG energia (len debug build) ---
 		if event.keycode == KEY_U:
 			EnergySystem.add_modifier("player", EnergySystem.ModType.REGEN_MULT, 2.0, 5.0, &"debug_boost")
 			print("[energy] boost 2x na 5s")
@@ -169,12 +179,12 @@ func _input(event: InputEvent) -> void:
 				EnergySystem.resolve_cost("player", &"card_greek_hoplite")])
 		if event.keycode == KEY_P:
 			print("[energy] try_spend card_greek_hoplite -> ", EnergySystem.try_spend("player", &"card_greek_hoplite"))
-		# --- DEBUG smrt (docasne, na testovanie respawn/lock/telegraph) ---
+		# --- DEBUG smrt (len debug build, na testovanie respawn/lock/telegraph) ---
 		if event.keycode == KEY_H:
 			var dmg := roundi(player.max_hp / 3.0)
 			player.take_damage(dmg)
 			print("[debug] hurt player for %d (1/3 max_hp)" % dmg)
-		# --- DEBUG audio (docasne) — 10x sword_hit v jednom frame pri hracovi:
+		# --- DEBUG audio (len debug build) — 10x sword_hit v jednom frame pri hracovi:
 		# ma byt pocut max 3 (max_instances) a min_interval ich este preriedi ---
 		if event.keycode == KEY_J:
 			for _i in 10:

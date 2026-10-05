@@ -31,10 +31,15 @@ var _draft_cards: Array[StringName] = []   # vzdy presne PlayerProfile.DECK_SIZE
 var _selected: DeckTile = null             # tap-then-tap vyber
 var _discard_dialog: ConfirmationDialog
 var _pending_hero: StringName = &""        # boh cakajuci na Discard
+var _synergy_label: Label                  # riadok pod slotmi: synergy prah boha (live)
 
 func _ready() -> void:
 	visible = false
 	hint_label.text = HINT_TEXT
+	# Synergy riadok — vytvoreny v kode, hned pod radom slotov (ziadna zmena .tscn).
+	_synergy_label = Label.new()
+	_synergy_label.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	slot_row.add_sibling(_synergy_label)
 	edit_button.pressed.connect(_on_edit_pressed)
 	save_button.pressed.connect(_on_save_pressed)
 	cancel_button.pressed.connect(_on_cancel_pressed)
@@ -132,6 +137,8 @@ func _rebuild() -> void:
 	for id in _draft_cards:
 		slot_row.add_child(_make_tile(id, DeckTile.KIND_CARD, slot))
 		slot += 1
+	# Pred early-return: synergy riadok sa obnovuje v view aj edit mode.
+	_update_synergy_label()
 
 	if not _editing:
 		return
@@ -154,6 +161,24 @@ func _make_tile(id: StringName, kind: StringName, slot: int) -> DeckTile:
 	if slot >= 0:
 		tile.dropped.connect(_on_tile_dropped)
 	return tile
+
+# Synergy prah draft boha s live poctom (napr. "Olympus 2 / 4"). Rovnaky text
+# ako HUD tooltip (DeckRules.describe_synergy). Zlaty = splnene, sedy = nie.
+func _update_synergy_label() -> void:
+	var hero: HeroData = CardDB.get_hero(_draft_hero) if CardDB.has_hero(_draft_hero) else null
+	if hero == null or DeckRules.describe_synergy(hero) == "":
+		_synergy_label.visible = false
+		return
+	var cards: Array[CardData] = []
+	for id in _draft_cards:
+		if CardDB.has_card(id):
+			cards.append(CardDB.get_card(id))
+	var have := DeckRules.count_synergy_cards(hero, cards)
+	var active := DeckRules.is_synergy_active(hero, cards)
+	_synergy_label.text = "Synergy — %s %d / %d · %s" % [String(hero.synergy_tag).capitalize(),
+		have, hero.synergy_count, DeckRules.describe_synergy(hero)]
+	_synergy_label.modulate = Color(1.0, 0.85, 0.35) if active else Color(0.6, 0.6, 0.6)
+	_synergy_label.visible = true
 
 # Vlastnene najprv, potom zamknute; v ramci skupiny podla id.
 func _pool_hero_ids() -> Array[StringName]:

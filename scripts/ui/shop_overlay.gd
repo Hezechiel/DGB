@@ -63,7 +63,7 @@ func _open_pack(pack_id: StringName) -> void:
 		seen[id] = true
 
 	PlayerProfile.grant_cards(rolled)
-	print("[pack] %s -> %s" % [pack_id, rolled])
+	DebugLog.info("pack", "%s -> %s" % [pack_id, rolled])
 
 	for child in reveal_list.get_children():
 		child.queue_free()
