@@ -2,22 +2,22 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cakolhqo2lvgo"
-path="res://.godot/imported/settings_frame.png-3ad86e69a935d674bff282f7de97d21e.ctex"
+uid="uid://d0jysrdceldtn"
+path="res://.godot/imported/card_detail_blank.png-abcbc9bc2a6266039177198b77bd78ba.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/menu/settings/settings_frame.png"
-dest_files=["res://.godot/imported/settings_frame.png-3ad86e69a935d674bff282f7de97d21e.ctex"]
+source_file="res://assets/menu/deck/card_detail_blank.png"
+dest_files=["res://.godot/imported/card_detail_blank.png-abcbc9bc2a6266039177198b77bd78ba.ctex"]
 
 [params]
 
-compress/mode=1
+compress/mode=0
 compress/high_quality=false
-compress/lossy_quality=0.85
+compress/lossy_quality=0.7
 compress/uastc_level=0
 compress/rdo_quality_loss=0.0
 compress/hdr_compression=1

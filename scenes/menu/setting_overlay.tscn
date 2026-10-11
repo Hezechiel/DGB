@@ -1,100 +1,15 @@
 [gd_scene format=3 uid="uid://bbav7qxtv7i6x"]
 
+[ext_resource type="PackedScene" path="res://scenes/menu/framed_overlay.tscn" id="1_base"]
 [ext_resource type="Script" uid="uid://gahrs3cqde4y" path="res://scripts/ui/setting_overlay.gd" id="1_3t2qt"]
-[ext_resource type="Texture2D" uid="uid://cakolhqo2lvgo" path="res://assets/menu/settings/settings_frame.png" id="2_frame"]
 [ext_resource type="Script" uid="uid://b112ll4m8h56y" path="res://scripts/ui/audio_control.gd" id="4_04rkv"]
 [ext_resource type="FontFile" uid="uid://v1n7s30p30ib" path="res://assets/fonts/Marcellus-Regular.ttf" id="4_8twik"]
 [ext_resource type="Script" uid="uid://5dp3eu06t38m" path="res://scripts/ui/scrollable.gd" id="6_scroll"]
-[ext_resource type="Script" uid="uid://bnv0wf8044snq" path="res://scripts/ui/dim_with_hole.gd" id="7_dim"]
 
-[node name="SettingOverlay" type="Control" unique_id=470544241]
+[node name="SettingOverlay" instance=ExtResource("1_base")]
 process_mode = 2
-layout_mode = 3
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
 script = ExtResource("1_3t2qt")
-
-[node name="Dim" type="Control" parent="." unique_id=1873402516 node_paths=PackedStringArray("hole_source")]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-script = ExtResource("7_dim")
-hole_source = NodePath("../FrameFit/FrameRoot/DimHole")
-
-[node name="FrameFit" type="AspectRatioContainer" parent="." unique_id=731590214]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-ratio = 1.7768332
-
-[node name="FrameRoot" type="Control" parent="FrameFit" unique_id=1642087359]
-layout_mode = 2
-mouse_filter = 2
-
-[node name="DimHole" type="Control" parent="FrameFit/FrameRoot" unique_id=1873402517]
-layout_mode = 1
-anchor_left = 0.056
-anchor_top = 0.101
-anchor_right = 0.32700002
-anchor_bottom = 0.80600005
-offset_left = 5.013523
-offset_top = 7.459999
-offset_right = -2.0082703
-offset_bottom = -9.240021
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="FrameArt" type="TextureRect" parent="FrameFit/FrameRoot" unique_id=377215908]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-texture = ExtResource("2_frame")
-expand_mode = 1
-
-[node name="GodWindow" type="Control" parent="FrameFit/FrameRoot" unique_id=905127463]
-layout_mode = 1
-anchor_left = 0.1065
-anchor_top = 0.101
-anchor_right = 0.2961
-anchor_bottom = 0.7853
-offset_top = 62.46
-offset_bottom = 45.93799
-grow_horizontal = 2
-grow_vertical = 2
-mouse_filter = 2
-
-[node name="GodIdle" type="AnimatedSprite2D" parent="FrameFit/FrameRoot/GodWindow" unique_id=1288463071]
-process_mode = 3
-
-[node name="ContentArea" type="MarginContainer" parent="FrameFit/FrameRoot" unique_id=289841729]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.3272
-anchor_top = 0.1498
-anchor_right = 0.9205
-anchor_bottom = 0.8905
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/margin_left = 14
-theme_override_constants/margin_top = 10
-theme_override_constants/margin_right = 14
-theme_override_constants/margin_bottom = 10
+title_text = "Settings"
 
 [node name="ScrollContainer" type="ScrollContainer" parent="FrameFit/FrameRoot/ContentArea" unique_id=1012523393]
 layout_mode = 2
@@ -229,14 +144,3 @@ layout_mode = 2
 theme_override_fonts/font = ExtResource("4_8twik")
 theme_override_font_sizes/font_size = 18
 text = "Main Menu"
-
-[node name="CloseSettings" type="TextureButton" parent="FrameFit/FrameRoot" unique_id=159458134 groups=["ui_sfx_close"]]
-process_mode = 3
-layout_mode = 1
-anchors_preset = -1
-anchor_left = 0.915
-anchor_top = 0.053
-anchor_right = 0.966
-anchor_bottom = 0.149
-grow_horizontal = 2
-grow_vertical = 2
