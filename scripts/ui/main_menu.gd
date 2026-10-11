@@ -16,6 +16,7 @@ extends Control
 @onready var gift_button: TextureButton = $Background/TopBar/GiftButton
 @onready var coming_soon_toast: PanelContainer = $Background/ComingSoonToast
 @onready var coming_soon_label: Label = $Background/ComingSoonToast/ComingSoonLabel
+@onready var background: Panel = $Background
 
 @onready var setting_overlay: SettingsOverlay = $SettingOverlay
 @onready var credits_overlay: CreditsOverlay = $CreditsOverlay
@@ -25,6 +26,12 @@ extends Control
 
 const PREMATCH_FLOW_SCENE := "res://scenes/ui/PreMatchFlow.tscn"
 const COMING_SOON_DURATION := 1.5
+# Menu pozadia podla tieru — neskor sa vyber naviaze na player level
+const MENU_BACKGROUNDS: Array[String] = [
+	"res://assets/menu/background/greek/greek_tier1.png",
+	"res://assets/menu/background/greek/greek_tier2.png",
+	"res://assets/menu/background/greek/greek_tier3.png",
+]
 
 var _toast_token := 0
 
@@ -34,6 +41,7 @@ func _ready() -> void:
 	#if OS.has_feature("android") or OS.has_feature("ios"):
 		#$ExitButton.visible = false
 	version_label.text = "v%s" % ProjectSettings.get_setting("application/config/version", "0.0.0-dev")
+	_apply_menu_background()
 	nav_rail.visible = true
 	battle_button.pressed.connect(_on_battle_button_pressed)
 	# Node2D deti Control containera sa necentruju automaticky (HBoxContainer
@@ -55,6 +63,24 @@ func _ready() -> void:
 	rewards_button.pressed.connect(_show_coming_soon.bind("Rewards"))
 	#setting_overlay.visible = false
 	AudioManager.play_music(&"menu")
+
+# Zatial nahodny vyber. TODO: neskor podla player levelu (vyssi level = rozvinutejsie
+# pozadie) — vtedy sa meni len tato funkcia.
+func _pick_background_path() -> String:
+	return MENU_BACKGROUNDS.pick_random()
+
+# load() (nie preload) — v pamati je len jedna textura. StyleBox duplikujeme,
+# aby sme nemenili cached sub_resource z PackedScene (modulate_color ostane).
+func _apply_menu_background() -> void:
+	var path := _pick_background_path()
+	var tex := load(path) as Texture2D
+	if tex == null:
+		push_warning("Menu background failed to load: %s (keeping scene default)" % path)
+		return
+	var sb := background.get_theme_stylebox("panel").duplicate() as StyleBoxTexture
+	sb.texture = tex
+	background.add_theme_stylebox_override("panel", sb)
+	DebugLog.info("menu", "background: %s" % path)
 
 # Docasny "Coming soon" toast pre placeholder tlacidla (Mail/Gift teraz, dalsie
 # pribudnu v kroku 3 — nav rail). _toast_token zaruci ze rychle po sebe idúce

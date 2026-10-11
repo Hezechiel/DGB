@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://26kaj1qw10dd"]
 
 [ext_resource type="Script" uid="uid://cxqr40v74ph0n" path="res://scripts/ui/main_menu.gd" id="1_2nud1"]
-[ext_resource type="Texture2D" uid="uid://bfsg3fb2osnra" path="res://assets/menu/main_menu.webp" id="2_y6vun"]
+[ext_resource type="Texture2D" uid="uid://qitq2nln3fvj" path="res://assets/menu/background/greek/greek_tier1.png" id="2_y6vun"]
 [ext_resource type="Texture2D" uid="uid://duf2yfgdqsj2q" path="res://assets/menu/inventory_navrail.png" id="5_scuer"]
 [ext_resource type="Texture2D" uid="uid://cr3a562xn2b4" path="res://assets/menu/heroes_navrail.png" id="6_oq8re"]
 [ext_resource type="Texture2D" uid="uid://dsc8qortiv72a" path="res://assets/menu/heroes_navrail_pressed.png" id="7_ddky8"]
@@ -28,7 +28,6 @@
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_mgsx5"]
 texture = ExtResource("2_y6vun")
-modulate_color = Color(0.7380309, 0.73803085, 0.7380308, 1)
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_toast"]
 bg_color = Color(0, 0, 0, 0.75)
@@ -55,19 +54,20 @@ layout_mode = 1
 visible = false
 layout_mode = 1
 
-[node name="ShopOverlay" parent="." instance=ExtResource("20_shopoverlay")]
+[node name="ShopOverlay" parent="." unique_id=26192059 instance=ExtResource("20_shopoverlay")]
 visible = false
 layout_mode = 1
 
-[node name="DeckOverlay" parent="." instance=ExtResource("21_deckoverlay")]
+[node name="DeckOverlay" parent="." unique_id=943964384 instance=ExtResource("21_deckoverlay")]
 visible = false
 layout_mode = 1
 
-[node name="EncyclopediaOverlay" parent="." instance=ExtResource("22_encyclopediaoverlay")]
+[node name="EncyclopediaOverlay" parent="." unique_id=1791420784 instance=ExtResource("22_encyclopediaoverlay")]
 visible = false
 layout_mode = 1
 
 [node name="Background" type="Panel" parent="." unique_id=352699290]
+texture_filter = 2
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
