@@ -1,7 +1,7 @@
 [gd_scene format=3]
 
 [ext_resource type="Script" path="res://scripts/ui/encyclopedia_overlay.gd" id="1_encyclopedia"]
-[ext_resource type="PackedScene" path="res://scenes/menu/card_flashcard.tscn" id="2_flashcard"]
+[ext_resource type="PackedScene" path="res://scenes/menu/card_detail.tscn" id="2_card_detail"]
 
 [node name="EncyclopediaOverlay" type="Control"]
 layout_mode = 3
@@ -62,6 +62,6 @@ horizontal_scroll_mode = 0
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Flashcard" parent="." instance=ExtResource("2_flashcard")]
+[node name="CardDetail" parent="." instance=ExtResource("2_card_detail")]
 visible = false
 layout_mode = 1

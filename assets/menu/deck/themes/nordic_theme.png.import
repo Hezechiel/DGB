@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dk16fd82k42u8"
-path="res://.godot/imported/UI_note_large_landscape.png-a24a38e307b68e5e13c9f4b1f18b4305.ctex"
+uid="uid://imev260t3msj"
+path="res://.godot/imported/nordic_theme.png-a859d67154129f9e2736d6e09052d2d4.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/menu/UI_note_large_landscape.png"
-dest_files=["res://.godot/imported/UI_note_large_landscape.png-a24a38e307b68e5e13c9f4b1f18b4305.ctex"]
+source_file="res://assets/menu/deck/themes/nordic_theme.png"
+dest_files=["res://.godot/imported/nordic_theme.png-a859d67154129f9e2736d6e09052d2d4.ctex"]
 
 [params]
 

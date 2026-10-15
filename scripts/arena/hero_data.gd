@@ -70,3 +70,5 @@ enum AttackType { RANGED, MELEE }
 @export var forbidden_tags: Array[StringName] = []
 # Kratky popis pre flashcard (encyklopedia). Prazdny = nic sa nezobrazi.
 @export_multiline var description: String = ""
+# Velky obraz karty boha pre Card Detail / big god card art. null = idle snimka.
+@export var card_art: Texture2D

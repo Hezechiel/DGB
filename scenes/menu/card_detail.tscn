@@ -1,0 +1,365 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/card_detail.gd" id="1_card_detail"]
+[ext_resource type="Theme" path="res://assets/UI/dgb_theme.tres" id="2_theme"]
+[ext_resource type="Texture2D" uid="uid://d0jysrdceldtn" path="res://assets/menu/deck/card_detail_blank.png" id="3_frame"]
+[ext_resource type="PackedScene" path="res://scenes/menu/stat_tile.tscn" id="4_stat_tile"]
+[ext_resource type="Texture2D" uid="uid://bdqf53sqwahvg" path="res://assets/menu/close.png" id="5_close"]
+[ext_resource type="FontFile" path="res://assets/fonts/Oswald/static/Oswald-Bold.ttf" id="6_bold"]
+[ext_resource type="FontFile" path="res://assets/fonts/Oswald/static/Oswald-SemiBold.ttf" id="7_semibold"]
+[ext_resource type="FontFile" path="res://assets/fonts/Oswald/static/Oswald-Medium.ttf" id="8_medium"]
+[ext_resource type="FontFile" path="res://assets/fonts/Oswald/static/Oswald-Regular.ttf" id="9_regular"]
+
+[sub_resource type="ButtonGroup" id="ButtonGroup_tabs"]
+
+[node name="CardDetail" type="Control"]
+visible = false
+texture_filter = 2
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_theme")
+script = ExtResource("1_card_detail")
+
+[node name="Dim" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 0.7)
+
+[node name="FrameFit" type="AspectRatioContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+ratio = 1.772824
+stretch_mode = 2
+
+[node name="FrameRoot" type="Control" parent="FrameFit"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="FrameArt" type="TextureRect" parent="FrameFit/FrameRoot"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("3_frame")
+expand_mode = 1
+
+[node name="ThemeArt" type="TextureRect" parent="FrameFit/FrameRoot"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+
+[node name="CardArt" type="TextureRect" parent="FrameFit/FrameRoot"]
+layout_mode = 1
+anchor_left = 0.054
+anchor_top = 0.05
+anchor_right = 0.36
+anchor_bottom = 0.95
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="AltArtRow" type="HBoxContainer" parent="FrameFit/FrameRoot"]
+layout_mode = 1
+anchor_left = 0.09
+anchor_top = 0.8
+anchor_right = 0.33
+anchor_bottom = 0.93
+mouse_filter = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="Alt1" type="AspectRatioContainer" parent="FrameFit/FrameRoot/AltArtRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="Slot" type="PanelContainer" parent="FrameFit/FrameRoot/AltArtRow/Alt1"]
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"StatTile"
+
+[node name="Label" type="Label" parent="FrameFit/FrameRoot/AltArtRow/Alt1/Slot"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "UNK"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Alt2" type="AspectRatioContainer" parent="FrameFit/FrameRoot/AltArtRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="Slot" type="PanelContainer" parent="FrameFit/FrameRoot/AltArtRow/Alt2"]
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"StatTile"
+
+[node name="Label" type="Label" parent="FrameFit/FrameRoot/AltArtRow/Alt2/Slot"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "UNK"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="Alt3" type="AspectRatioContainer" parent="FrameFit/FrameRoot/AltArtRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="Slot" type="PanelContainer" parent="FrameFit/FrameRoot/AltArtRow/Alt3"]
+layout_mode = 2
+mouse_filter = 2
+theme_type_variation = &"StatTile"
+
+[node name="Label" type="Label" parent="FrameFit/FrameRoot/AltArtRow/Alt3/Slot"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 12
+text = "UNK"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="LevelBadge" type="PanelContainer" parent="FrameFit/FrameRoot"]
+layout_mode = 1
+anchor_left = 0.04
+anchor_top = 0.035
+anchor_right = 0.095
+anchor_bottom = 0.135
+mouse_filter = 2
+theme_type_variation = &"LevelBadge"
+
+[node name="LevelLabel" type="Label" parent="FrameFit/FrameRoot/LevelBadge"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("6_bold")
+theme_override_font_sizes/font_size = 28
+text = "1"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="InfoColumn" type="VBoxContainer" parent="FrameFit/FrameRoot"]
+layout_mode = 1
+anchor_left = 0.385
+anchor_top = 0.07
+anchor_right = 0.945
+anchor_bottom = 0.62
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="Header" type="HBoxContainer" parent="FrameFit/FrameRoot/InfoColumn"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="NameBlock" type="VBoxContainer" parent="FrameFit/FrameRoot/InfoColumn/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="NameLabel" type="Label" parent="FrameFit/FrameRoot/InfoColumn/Header/NameBlock"]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.82, 0.3, 1)
+theme_override_fonts/font = ExtResource("6_bold")
+theme_override_font_sizes/font_size = 32
+text_overrun_behavior = 3
+uppercase = true
+
+[node name="EpithetLabel" type="Label" parent="FrameFit/FrameRoot/InfoColumn/Header/NameBlock"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("8_medium")
+theme_override_font_sizes/font_size = 15
+text = "UNK"
+text_overrun_behavior = 3
+uppercase = true
+
+[node name="TypeTile" parent="FrameFit/FrameRoot/InfoColumn/Header" instance=ExtResource("4_stat_tile")]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+size_flags_horizontal = 1
+size_flags_vertical = 4
+
+[node name="RarityTile" parent="FrameFit/FrameRoot/InfoColumn/Header" instance=ExtResource("4_stat_tile")]
+custom_minimum_size = Vector2(90, 0)
+layout_mode = 2
+size_flags_horizontal = 1
+size_flags_vertical = 4
+
+[node name="DescriptionRow" type="HBoxContainer" parent="FrameFit/FrameRoot/InfoColumn"]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="DescriptionLabel" type="Label" parent="FrameFit/FrameRoot/InfoColumn/DescriptionRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 1
+size_flags_stretch_ratio = 2.0
+theme_override_fonts/font = ExtResource("9_regular")
+theme_override_font_sizes/font_size = 14
+autowrap_mode = 2
+clip_text = true
+text_overrun_behavior = 3
+
+[node name="Spacer" type="Control" parent="FrameFit/FrameRoot/InfoColumn/DescriptionRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="StatsGrid" type="GridContainer" parent="FrameFit/FrameRoot/InfoColumn"]
+layout_mode = 2
+size_flags_vertical = 8
+theme_override_constants/h_separation = 6
+theme_override_constants/v_separation = 6
+columns = 4
+
+[node name="TabsColumn" type="VBoxContainer" parent="FrameFit/FrameRoot"]
+layout_mode = 1
+anchor_left = 0.385
+anchor_top = 0.645
+anchor_right = 0.675
+anchor_bottom = 0.92
+theme_override_constants/separation = 4
+
+[node name="TabsRow" type="HBoxContainer" parent="FrameFit/FrameRoot/TabsColumn"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="SkillsTab" type="Button" parent="FrameFit/FrameRoot/TabsColumn/TabsRow"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"TabButton"
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("ButtonGroup_tabs")
+text = "SKILLS"
+
+[node name="DetailsTab" type="Button" parent="FrameFit/FrameRoot/TabsColumn/TabsRow"]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"TabButton"
+toggle_mode = true
+button_group = SubResource("ButtonGroup_tabs")
+text = "DETAILS"
+
+[node name="TabContent" type="PanelContainer" parent="FrameFit/FrameRoot/TabsColumn"]
+clip_contents = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_type_variation = &"DarkStrip"
+
+[node name="SkillsPane" type="VBoxContainer" parent="FrameFit/FrameRoot/TabsColumn/TabContent"]
+layout_mode = 2
+
+[node name="SkillRow" type="HBoxContainer" parent="FrameFit/FrameRoot/TabsColumn/TabContent/SkillsPane"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="IconSlot" type="ColorRect" parent="FrameFit/FrameRoot/TabsColumn/TabContent/SkillsPane/SkillRow"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+size_flags_vertical = 0
+mouse_filter = 2
+color = Color(0.2, 0.2, 0.25, 1)
+
+[node name="SkillText" type="VBoxContainer" parent="FrameFit/FrameRoot/TabsColumn/TabContent/SkillsPane/SkillRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="SkillName" type="Label" parent="FrameFit/FrameRoot/TabsColumn/TabContent/SkillsPane/SkillRow/SkillText"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("7_semibold")
+theme_override_font_sizes/font_size = 16
+text = "UNK"
+
+[node name="SkillDescription" type="Label" parent="FrameFit/FrameRoot/TabsColumn/TabContent/SkillsPane/SkillRow/SkillText"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("9_regular")
+theme_override_font_sizes/font_size = 13
+text = "UNK"
+autowrap_mode = 3
+
+[node name="DetailsScroll" type="ScrollContainer" parent="FrameFit/FrameRoot/TabsColumn/TabContent"]
+visible = false
+layout_mode = 2
+horizontal_scroll_mode = 0
+
+[node name="DetailsPane" type="VBoxContainer" parent="FrameFit/FrameRoot/TabsColumn/TabContent/DetailsScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="UpgradePanel" type="VBoxContainer" parent="FrameFit/FrameRoot"]
+layout_mode = 1
+anchor_left = 0.698
+anchor_top = 0.663
+anchor_right = 0.94
+anchor_bottom = 0.892
+grow_vertical = 2
+theme_override_constants/separation = 6
+alignment = 1
+
+[node name="UpgradeTitle" type="Label" parent="FrameFit/FrameRoot/UpgradePanel"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("6_bold")
+theme_override_font_sizes/font_size = 18
+text = "Upgrade"
+horizontal_alignment = 1
+uppercase = true
+
+[node name="LevelStepLabel" type="Label" parent="FrameFit/FrameRoot/UpgradePanel"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("7_semibold")
+theme_override_font_sizes/font_size = 17
+horizontal_alignment = 1
+
+[node name="CopiesBar" type="ProgressBar" parent="FrameFit/FrameRoot/UpgradePanel"]
+custom_minimum_size = Vector2(0, 14)
+layout_mode = 2
+show_percentage = false
+
+[node name="CopiesLabel" type="Label" parent="FrameFit/FrameRoot/UpgradePanel"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("8_medium")
+theme_override_font_sizes/font_size = 13
+horizontal_alignment = 1
+
+[node name="UpgradeButton" type="Button" parent="FrameFit/FrameRoot/UpgradePanel"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+theme_type_variation = &"GoldButton"
+text = "Upgrade"
+
+[node name="CloseButton" type="TextureButton" parent="FrameFit/FrameRoot" groups=["ui_sfx_close"]]
+layout_mode = 1
+anchor_left = 0.91
+anchor_top = 0.019
+anchor_right = 0.961
+anchor_bottom = 0.111
+texture_normal = ExtResource("5_close")
+ignore_texture_size = true
+stretch_mode = 5

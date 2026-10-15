@@ -1,0 +1,122 @@
+[gd_resource type="Theme" format=3]
+
+[ext_resource type="FontFile" path="res://assets/fonts/Oswald/static/Oswald-Regular.ttf" id="1_regular"]
+[ext_resource type="FontFile" path="res://assets/fonts/Oswald/static/Oswald-Bold.ttf" id="2_bold"]
+[ext_resource type="Texture2D" uid="uid://dwbbv8bcsprhg" path="res://assets/menu/deck/tab_inactive.png" id="3_tab_inactive"]
+[ext_resource type="Texture2D" uid="uid://c4plb8sa3irt3" path="res://assets/menu/deck/tab_active.png" id="4_tab_active"]
+[ext_resource type="Texture2D" uid="uid://crp1qdht2fvbw" path="res://assets/menu/deck/upgrade_card_button_active.png" id="5_gold_active"]
+[ext_resource type="Texture2D" uid="uid://bbdt71ojgknum" path="res://assets/menu/deck/upgrade_card_button_inactive.png" id="6_gold_inactive"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_stat_tile"]
+content_margin_left = 8.0
+content_margin_top = 4.0
+content_margin_right = 8.0
+content_margin_bottom = 4.0
+bg_color = Color(0.05, 0.07, 0.106, 0.92)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.16, 0.2, 0.27, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dark_strip"]
+content_margin_left = 8.0
+content_margin_top = 8.0
+content_margin_right = 8.0
+content_margin_bottom = 8.0
+bg_color = Color(0, 0, 0, 0.35)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_level_badge"]
+bg_color = Color(0.08, 0.2, 0.45, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(1, 0.82, 0.3, 1)
+corner_radius_top_left = 999
+corner_radius_top_right = 999
+corner_radius_bottom_right = 999
+corner_radius_bottom_left = 999
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_tab_inactive"]
+content_margin_top = 2.0
+content_margin_bottom = 2.0
+texture = ExtResource("3_tab_inactive")
+texture_margin_left = 18.0
+texture_margin_top = 8.0
+texture_margin_right = 18.0
+texture_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_tab_active"]
+content_margin_top = 2.0
+content_margin_bottom = 2.0
+texture = ExtResource("4_tab_active")
+texture_margin_left = 18.0
+texture_margin_top = 8.0
+texture_margin_right = 18.0
+texture_margin_bottom = 8.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_gold_active"]
+content_margin_top = 4.0
+content_margin_bottom = 4.0
+texture = ExtResource("5_gold_active")
+texture_margin_left = 14.0
+texture_margin_top = 10.0
+texture_margin_right = 14.0
+texture_margin_bottom = 10.0
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_gold_inactive"]
+content_margin_top = 4.0
+content_margin_bottom = 4.0
+texture = ExtResource("6_gold_inactive")
+texture_margin_left = 18.0
+texture_margin_top = 12.0
+texture_margin_right = 18.0
+texture_margin_bottom = 12.0
+region_rect = Rect2(1, 12, 346, 87)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_focus"]
+
+[resource]
+default_font = ExtResource("1_regular")
+default_font_size = 15
+DarkStrip/base_type = &"PanelContainer"
+DarkStrip/styles/panel = SubResource("StyleBoxFlat_dark_strip")
+GoldButton/base_type = &"Button"
+GoldButton/colors/font_color = Color(0.22, 0.12, 0.03, 1)
+GoldButton/colors/font_disabled_color = Color(0.35, 0.35, 0.38, 1)
+GoldButton/colors/font_hover_color = Color(0.22, 0.12, 0.03, 1)
+GoldButton/colors/font_pressed_color = Color(0.22, 0.12, 0.03, 1)
+GoldButton/font_sizes/font_size = 20
+GoldButton/fonts/font = ExtResource("2_bold")
+GoldButton/styles/disabled = SubResource("StyleBoxTexture_gold_inactive")
+GoldButton/styles/focus = SubResource("StyleBoxEmpty_focus")
+GoldButton/styles/hover = SubResource("StyleBoxTexture_gold_active")
+GoldButton/styles/normal = SubResource("StyleBoxTexture_gold_active")
+GoldButton/styles/pressed = SubResource("StyleBoxTexture_gold_active")
+Label/colors/font_color = Color(0.93, 0.9, 0.82, 1)
+LevelBadge/base_type = &"PanelContainer"
+LevelBadge/styles/panel = SubResource("StyleBoxFlat_level_badge")
+StatTile/base_type = &"PanelContainer"
+StatTile/styles/panel = SubResource("StyleBoxFlat_stat_tile")
+TabButton/base_type = &"Button"
+TabButton/colors/font_color = Color(0.55, 0.6, 0.68, 1)
+TabButton/colors/font_hover_color = Color(0.55, 0.6, 0.68, 1)
+TabButton/colors/font_hover_pressed_color = Color(1, 0.82, 0.3, 1)
+TabButton/colors/font_pressed_color = Color(1, 0.82, 0.3, 1)
+TabButton/font_sizes/font_size = 17
+TabButton/fonts/font = ExtResource("2_bold")
+TabButton/styles/disabled = SubResource("StyleBoxTexture_tab_inactive")
+TabButton/styles/focus = SubResource("StyleBoxEmpty_focus")
+TabButton/styles/hover = SubResource("StyleBoxTexture_tab_inactive")
+TabButton/styles/hover_pressed = SubResource("StyleBoxTexture_tab_active")
+TabButton/styles/normal = SubResource("StyleBoxTexture_tab_inactive")
+TabButton/styles/pressed = SubResource("StyleBoxTexture_tab_active")

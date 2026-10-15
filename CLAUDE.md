@@ -244,7 +244,7 @@ Combat units (`scripts/arena/unit.gd`) compute their `Hurtbox`/`AttackRange`/`Ag
 - **Battle** → `PreMatchFlow` (finding → pre-match panel → arena; fills `MatchConfig`)
 - **Shop** → `ShopOverlay` — pack list → `PackRoller.roll()` → `PlayerProfile.grant_cards()` → plain reveal list (placeholder UI, no currency)
 - **Heroes** → `DeckOverlay` (+ `DeckTile`) — 8 slots (god + 7 cards); Edit mode shows the god/card pool, drag&drop or tap-then-tap into slots; forbidden cards grey; per-god decks with a Discard/Cancel dialog on unsaved god switch; saves only through `PlayerProfile.set_deck()`. A line under the slots shows the draft god's synergy rule with a live `have / need` count (gold when met)
-- **Deck** → `EncyclopediaOverlay` — every god and card of a pantheon, owned and locked; tap opens `CardFlashcard` (art, level, copy progress, stats with "cur > next" preview; manual level up via `PlayerProfile.upgrade_card()`)
+- **Deck** → `EncyclopediaOverlay` — every god and card of a pantheon, owned and locked; tap opens `CardDetail` (`scenes/menu/card_detail.tscn` — frame art + faction scenery, level badge, `StatTile` grid with green "+N" next-level deltas, Skills/Details tabs, upgrade box; manual level up via `PlayerProfile.upgrade_card()`). Styled by `assets/UI/dgb_theme.tres`, which is set on the CardDetail root only, not project-wide
 - `DeckTile` changes nothing itself — it only reports taps/drops; logic stays in the overlays
 
 ### Not yet implemented

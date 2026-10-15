@@ -1,0 +1,37 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/stat_tile.gd" id="1_stat_tile"]
+[ext_resource type="FontFile" path="res://assets/fonts/Oswald/static/Oswald-Medium.ttf" id="2_medium"]
+[ext_resource type="FontFile" path="res://assets/fonts/Oswald/static/Oswald-SemiBold.ttf" id="3_semibold"]
+
+[node name="StatTile" type="PanelContainer"]
+size_flags_horizontal = 3
+theme_type_variation = &"StatTile"
+script = ExtResource("1_stat_tile")
+
+[node name="VBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 0
+
+[node name="NameLabel" type="Label" parent="VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.6, 0.65, 0.72, 1)
+theme_override_fonts/font = ExtResource("2_medium")
+theme_override_font_sizes/font_size = 13
+text_overrun_behavior = 3
+
+[node name="ValueRow" type="HBoxContainer" parent="VBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="ValueLabel" type="Label" parent="VBox/ValueRow"]
+layout_mode = 2
+theme_override_fonts/font = ExtResource("3_semibold")
+theme_override_font_sizes/font_size = 18
+
+[node name="DeltaLabel" type="Label" parent="VBox/ValueRow"]
+visible = false
+layout_mode = 2
+theme_override_colors/font_color = Color(0.45, 0.85, 0.35, 1)
+theme_override_fonts/font = ExtResource("3_semibold")
+theme_override_font_sizes/font_size = 16

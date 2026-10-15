@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://dieg62n05urgy" path="res://scripts/arena/hero_data.gd" id="1_herodata"]
 [ext_resource type="PackedScene" uid="uid://dyxn10n333b4k" path="res://scenes/arena/projectiles/projectile.tscn" id="2_bolt"]
 [ext_resource type="SpriteFrames" uid="uid://dkdrmn6cpj652" path="res://data/heroes/greek/frames/frames_poseidon.tres" id="3_v5v47"]
+[ext_resource type="Texture2D" uid="uid://ba16nhsch1p3o" path="res://assets/sprites/gods/greek/poseidon/poseidon_decal1.png" id="4_cardart"]
 
 [resource]
 script = ExtResource("1_herodata")
@@ -22,3 +23,4 @@ synergy_bonuses = {
 &"damage": 1.1,
 &"max_hp": 1.1
 }
+card_art = ExtResource("4_cardart")
