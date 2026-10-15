@@ -23,6 +23,7 @@ script = ExtResource("1_dummy")
 z_index = 1
 position = Vector2(0, -10)
 scale = Vector2(0.1, 0.1)
+texture_filter = 4
 sprite_frames = ExtResource("2_frames")
 animation = &"iddle_left"
 autoplay = "iddle_left"

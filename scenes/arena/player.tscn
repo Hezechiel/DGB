@@ -23,6 +23,7 @@ bolt_scene = ExtResource("2_dqkch")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1617835785]
 position = Vector2(0, -10)
 scale = Vector2(0.1, 0.1)
+texture_filter = 4
 sprite_frames = ExtResource("3_5o8y0")
 animation = &"attack_left"
 autoplay = "iddle_left"

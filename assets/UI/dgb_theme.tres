@@ -1,11 +1,55 @@
-[gd_resource type="Theme" format=3]
+[gd_resource type="Theme" format=3 uid="uid://beyrr0ak632mo"]
 
-[ext_resource type="FontFile" path="res://assets/fonts/Oswald/static/Oswald-Regular.ttf" id="1_regular"]
-[ext_resource type="FontFile" path="res://assets/fonts/Oswald/static/Oswald-Bold.ttf" id="2_bold"]
+[ext_resource type="FontFile" uid="uid://qnbpdkke6l58" path="res://assets/fonts/Oswald/static/Oswald-Regular.ttf" id="1_regular"]
+[ext_resource type="FontFile" uid="uid://cu44owi4ana21" path="res://assets/fonts/Oswald/static/Oswald-Bold.ttf" id="2_bold"]
 [ext_resource type="Texture2D" uid="uid://dwbbv8bcsprhg" path="res://assets/menu/deck/tab_inactive.png" id="3_tab_inactive"]
 [ext_resource type="Texture2D" uid="uid://c4plb8sa3irt3" path="res://assets/menu/deck/tab_active.png" id="4_tab_active"]
 [ext_resource type="Texture2D" uid="uid://crp1qdht2fvbw" path="res://assets/menu/deck/upgrade_card_button_active.png" id="5_gold_active"]
 [ext_resource type="Texture2D" uid="uid://bbdt71ojgknum" path="res://assets/menu/deck/upgrade_card_button_inactive.png" id="6_gold_inactive"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dark_strip"]
+content_margin_left = 8.0
+content_margin_top = 8.0
+content_margin_right = 8.0
+content_margin_bottom = 8.0
+bg_color = Color(0, 0, 0, 0.35)
+corner_radius_top_left = 4
+corner_radius_top_right = 4
+corner_radius_bottom_right = 4
+corner_radius_bottom_left = 4
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_gold_inactive"]
+content_margin_top = 4.0
+content_margin_bottom = 4.0
+texture = ExtResource("6_gold_inactive")
+texture_margin_left = 18.0
+texture_margin_top = 12.0
+texture_margin_right = 18.0
+texture_margin_bottom = 12.0
+region_rect = Rect2(1, 12, 346, 87)
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_focus"]
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_gold_active"]
+content_margin_top = 4.0
+content_margin_bottom = 4.0
+texture = ExtResource("5_gold_active")
+texture_margin_left = 14.0
+texture_margin_top = 10.0
+texture_margin_right = 14.0
+texture_margin_bottom = 10.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_level_badge"]
+bg_color = Color(0.08, 0.2, 0.45, 1)
+border_width_left = 3
+border_width_top = 3
+border_width_right = 3
+border_width_bottom = 3
+border_color = Color(1, 0.82, 0.3, 1)
+corner_radius_top_left = 999
+corner_radius_top_right = 999
+corner_radius_bottom_right = 999
+corner_radius_bottom_left = 999
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_stat_tile"]
 content_margin_left = 8.0
@@ -22,29 +66,6 @@ corner_radius_top_left = 5
 corner_radius_top_right = 5
 corner_radius_bottom_right = 5
 corner_radius_bottom_left = 5
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dark_strip"]
-content_margin_left = 8.0
-content_margin_top = 8.0
-content_margin_right = 8.0
-content_margin_bottom = 8.0
-bg_color = Color(0, 0, 0, 0.35)
-corner_radius_top_left = 4
-corner_radius_top_right = 4
-corner_radius_bottom_right = 4
-corner_radius_bottom_left = 4
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_level_badge"]
-bg_color = Color(0.08, 0.2, 0.45, 1)
-border_width_left = 3
-border_width_top = 3
-border_width_right = 3
-border_width_bottom = 3
-border_color = Color(1, 0.82, 0.3, 1)
-corner_radius_top_left = 999
-corner_radius_top_right = 999
-corner_radius_bottom_right = 999
-corner_radius_bottom_left = 999
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_tab_inactive"]
 content_margin_top = 2.0
@@ -63,27 +84,6 @@ texture_margin_left = 18.0
 texture_margin_top = 8.0
 texture_margin_right = 18.0
 texture_margin_bottom = 8.0
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_gold_active"]
-content_margin_top = 4.0
-content_margin_bottom = 4.0
-texture = ExtResource("5_gold_active")
-texture_margin_left = 14.0
-texture_margin_top = 10.0
-texture_margin_right = 14.0
-texture_margin_bottom = 10.0
-
-[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_gold_inactive"]
-content_margin_top = 4.0
-content_margin_bottom = 4.0
-texture = ExtResource("6_gold_inactive")
-texture_margin_left = 18.0
-texture_margin_top = 12.0
-texture_margin_right = 18.0
-texture_margin_bottom = 12.0
-region_rect = Rect2(1, 12, 346, 87)
-
-[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_focus"]
 
 [resource]
 default_font = ExtResource("1_regular")

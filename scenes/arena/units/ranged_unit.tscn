@@ -27,6 +27,7 @@ script = ExtResource("1_60vns")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1757698176]
 z_index = 2
 scale = Vector2(0.15, 0.15)
+texture_filter = 4
 sprite_frames = ExtResource("2_wv882")
 animation = &"spawn"
 

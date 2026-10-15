@@ -1,18 +1,18 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://ktbwuh08n1o1"]
 
-[ext_resource type="Script" path="res://scripts/ui/card_detail.gd" id="1_card_detail"]
-[ext_resource type="Theme" path="res://assets/UI/dgb_theme.tres" id="2_theme"]
+[ext_resource type="Script" uid="uid://b1gn8l7xd7w23" path="res://scripts/ui/card_detail.gd" id="1_card_detail"]
+[ext_resource type="Theme" uid="uid://beyrr0ak632mo" path="res://assets/UI/dgb_theme.tres" id="2_theme"]
 [ext_resource type="Texture2D" uid="uid://d0jysrdceldtn" path="res://assets/menu/deck/card_detail_blank.png" id="3_frame"]
 [ext_resource type="PackedScene" path="res://scenes/menu/stat_tile.tscn" id="4_stat_tile"]
 [ext_resource type="Texture2D" uid="uid://bdqf53sqwahvg" path="res://assets/menu/close.png" id="5_close"]
-[ext_resource type="FontFile" path="res://assets/fonts/Oswald/static/Oswald-Bold.ttf" id="6_bold"]
-[ext_resource type="FontFile" path="res://assets/fonts/Oswald/static/Oswald-SemiBold.ttf" id="7_semibold"]
-[ext_resource type="FontFile" path="res://assets/fonts/Oswald/static/Oswald-Medium.ttf" id="8_medium"]
-[ext_resource type="FontFile" path="res://assets/fonts/Oswald/static/Oswald-Regular.ttf" id="9_regular"]
+[ext_resource type="FontFile" uid="uid://cu44owi4ana21" path="res://assets/fonts/Oswald/static/Oswald-Bold.ttf" id="6_bold"]
+[ext_resource type="FontFile" uid="uid://dpxp0eu1dt6jk" path="res://assets/fonts/Oswald/static/Oswald-SemiBold.ttf" id="7_semibold"]
+[ext_resource type="FontFile" uid="uid://blk7xtmlwiebd" path="res://assets/fonts/Oswald/static/Oswald-Medium.ttf" id="8_medium"]
+[ext_resource type="FontFile" uid="uid://qnbpdkke6l58" path="res://assets/fonts/Oswald/static/Oswald-Regular.ttf" id="9_regular"]
 
 [sub_resource type="ButtonGroup" id="ButtonGroup_tabs"]
 
-[node name="CardDetail" type="Control"]
+[node name="CardDetail" type="Control" unique_id=3227447]
 visible = false
 texture_filter = 2
 layout_mode = 3
@@ -24,7 +24,7 @@ grow_vertical = 2
 theme = ExtResource("2_theme")
 script = ExtResource("1_card_detail")
 
-[node name="Dim" type="ColorRect" parent="."]
+[node name="Dim" type="ColorRect" parent="." unique_id=1520142418]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -34,7 +34,7 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0, 0, 0, 0.7)
 
-[node name="FrameFit" type="AspectRatioContainer" parent="."]
+[node name="FrameFit" type="AspectRatioContainer" parent="." unique_id=155280510]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -43,13 +43,12 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 ratio = 1.772824
-stretch_mode = 2
 
-[node name="FrameRoot" type="Control" parent="FrameFit"]
+[node name="FrameRoot" type="Control" parent="FrameFit" unique_id=1463927613]
 layout_mode = 2
 mouse_filter = 2
 
-[node name="FrameArt" type="TextureRect" parent="FrameFit/FrameRoot"]
+[node name="FrameArt" type="TextureRect" parent="FrameFit/FrameRoot" unique_id=14490981]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -60,18 +59,23 @@ mouse_filter = 2
 texture = ExtResource("3_frame")
 expand_mode = 1
 
-[node name="ThemeArt" type="TextureRect" parent="FrameFit/FrameRoot"]
+[node name="ThemeArt" type="TextureRect" parent="FrameFit/FrameRoot" unique_id=2037913892]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 385.6625
+offset_top = 44.0
+offset_right = -54.662476
+offset_bottom = -204.0
 grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 expand_mode = 1
 
-[node name="CardArt" type="TextureRect" parent="FrameFit/FrameRoot"]
+[node name="CardArt" type="TextureRect" parent="FrameFit/FrameRoot" unique_id=1220807483]
 layout_mode = 1
+anchors_preset = -1
 anchor_left = 0.054
 anchor_top = 0.05
 anchor_right = 0.36
@@ -80,8 +84,9 @@ mouse_filter = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="AltArtRow" type="HBoxContainer" parent="FrameFit/FrameRoot"]
+[node name="AltArtRow" type="HBoxContainer" parent="FrameFit/FrameRoot" unique_id=1198517966]
 layout_mode = 1
+anchors_preset = -1
 anchor_left = 0.09
 anchor_top = 0.8
 anchor_right = 0.33
@@ -90,59 +95,60 @@ mouse_filter = 2
 theme_override_constants/separation = 8
 alignment = 1
 
-[node name="Alt1" type="AspectRatioContainer" parent="FrameFit/FrameRoot/AltArtRow"]
+[node name="Alt1" type="AspectRatioContainer" parent="FrameFit/FrameRoot/AltArtRow" unique_id=1824687205]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
-[node name="Slot" type="PanelContainer" parent="FrameFit/FrameRoot/AltArtRow/Alt1"]
+[node name="Slot" type="PanelContainer" parent="FrameFit/FrameRoot/AltArtRow/Alt1" unique_id=825881347]
 layout_mode = 2
 mouse_filter = 2
 theme_type_variation = &"StatTile"
 
-[node name="Label" type="Label" parent="FrameFit/FrameRoot/AltArtRow/Alt1/Slot"]
+[node name="Label" type="Label" parent="FrameFit/FrameRoot/AltArtRow/Alt1/Slot" unique_id=973386814]
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "UNK"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Alt2" type="AspectRatioContainer" parent="FrameFit/FrameRoot/AltArtRow"]
+[node name="Alt2" type="AspectRatioContainer" parent="FrameFit/FrameRoot/AltArtRow" unique_id=1484189837]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
-[node name="Slot" type="PanelContainer" parent="FrameFit/FrameRoot/AltArtRow/Alt2"]
+[node name="Slot" type="PanelContainer" parent="FrameFit/FrameRoot/AltArtRow/Alt2" unique_id=1306655922]
 layout_mode = 2
 mouse_filter = 2
 theme_type_variation = &"StatTile"
 
-[node name="Label" type="Label" parent="FrameFit/FrameRoot/AltArtRow/Alt2/Slot"]
+[node name="Label" type="Label" parent="FrameFit/FrameRoot/AltArtRow/Alt2/Slot" unique_id=1882175663]
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "UNK"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Alt3" type="AspectRatioContainer" parent="FrameFit/FrameRoot/AltArtRow"]
+[node name="Alt3" type="AspectRatioContainer" parent="FrameFit/FrameRoot/AltArtRow" unique_id=1266633787]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
-[node name="Slot" type="PanelContainer" parent="FrameFit/FrameRoot/AltArtRow/Alt3"]
+[node name="Slot" type="PanelContainer" parent="FrameFit/FrameRoot/AltArtRow/Alt3" unique_id=1392413893]
 layout_mode = 2
 mouse_filter = 2
 theme_type_variation = &"StatTile"
 
-[node name="Label" type="Label" parent="FrameFit/FrameRoot/AltArtRow/Alt3/Slot"]
+[node name="Label" type="Label" parent="FrameFit/FrameRoot/AltArtRow/Alt3/Slot" unique_id=747215933]
 layout_mode = 2
 theme_override_font_sizes/font_size = 12
 text = "UNK"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="LevelBadge" type="PanelContainer" parent="FrameFit/FrameRoot"]
+[node name="LevelBadge" type="PanelContainer" parent="FrameFit/FrameRoot" unique_id=108820050]
 layout_mode = 1
+anchors_preset = -1
 anchor_left = 0.04
 anchor_top = 0.035
 anchor_right = 0.095
@@ -150,7 +156,7 @@ anchor_bottom = 0.135
 mouse_filter = 2
 theme_type_variation = &"LevelBadge"
 
-[node name="LevelLabel" type="Label" parent="FrameFit/FrameRoot/LevelBadge"]
+[node name="LevelLabel" type="Label" parent="FrameFit/FrameRoot/LevelBadge" unique_id=650180975]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
@@ -161,8 +167,9 @@ text = "1"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="InfoColumn" type="VBoxContainer" parent="FrameFit/FrameRoot"]
+[node name="InfoColumn" type="VBoxContainer" parent="FrameFit/FrameRoot" unique_id=1329582395]
 layout_mode = 1
+anchors_preset = -1
 anchor_left = 0.385
 anchor_top = 0.07
 anchor_right = 0.945
@@ -170,16 +177,16 @@ anchor_bottom = 0.62
 mouse_filter = 2
 theme_override_constants/separation = 8
 
-[node name="Header" type="HBoxContainer" parent="FrameFit/FrameRoot/InfoColumn"]
+[node name="Header" type="HBoxContainer" parent="FrameFit/FrameRoot/InfoColumn" unique_id=304248839]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="NameBlock" type="VBoxContainer" parent="FrameFit/FrameRoot/InfoColumn/Header"]
+[node name="NameBlock" type="VBoxContainer" parent="FrameFit/FrameRoot/InfoColumn/Header" unique_id=545099234]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 0
 
-[node name="NameLabel" type="Label" parent="FrameFit/FrameRoot/InfoColumn/Header/NameBlock"]
+[node name="NameLabel" type="Label" parent="FrameFit/FrameRoot/InfoColumn/Header/NameBlock" unique_id=1307952913]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.82, 0.3, 1)
 theme_override_fonts/font = ExtResource("6_bold")
@@ -187,7 +194,7 @@ theme_override_font_sizes/font_size = 32
 text_overrun_behavior = 3
 uppercase = true
 
-[node name="EpithetLabel" type="Label" parent="FrameFit/FrameRoot/InfoColumn/Header/NameBlock"]
+[node name="EpithetLabel" type="Label" parent="FrameFit/FrameRoot/InfoColumn/Header/NameBlock" unique_id=1548512594]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("8_medium")
 theme_override_font_sizes/font_size = 15
@@ -195,23 +202,23 @@ text = "UNK"
 text_overrun_behavior = 3
 uppercase = true
 
-[node name="TypeTile" parent="FrameFit/FrameRoot/InfoColumn/Header" instance=ExtResource("4_stat_tile")]
+[node name="TypeTile" parent="FrameFit/FrameRoot/InfoColumn/Header" unique_id=1159954012 instance=ExtResource("4_stat_tile")]
 custom_minimum_size = Vector2(90, 0)
 layout_mode = 2
 size_flags_horizontal = 1
 size_flags_vertical = 4
 
-[node name="RarityTile" parent="FrameFit/FrameRoot/InfoColumn/Header" instance=ExtResource("4_stat_tile")]
+[node name="RarityTile" parent="FrameFit/FrameRoot/InfoColumn/Header" unique_id=1029154381 instance=ExtResource("4_stat_tile")]
 custom_minimum_size = Vector2(90, 0)
 layout_mode = 2
 size_flags_horizontal = 1
 size_flags_vertical = 4
 
-[node name="DescriptionRow" type="HBoxContainer" parent="FrameFit/FrameRoot/InfoColumn"]
+[node name="DescriptionRow" type="HBoxContainer" parent="FrameFit/FrameRoot/InfoColumn" unique_id=537560979]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="DescriptionLabel" type="Label" parent="FrameFit/FrameRoot/InfoColumn/DescriptionRow"]
+[node name="DescriptionLabel" type="Label" parent="FrameFit/FrameRoot/InfoColumn/DescriptionRow" unique_id=1762916086]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 1
@@ -222,31 +229,32 @@ autowrap_mode = 2
 clip_text = true
 text_overrun_behavior = 3
 
-[node name="Spacer" type="Control" parent="FrameFit/FrameRoot/InfoColumn/DescriptionRow"]
+[node name="Spacer" type="Control" parent="FrameFit/FrameRoot/InfoColumn/DescriptionRow" unique_id=1656910608]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
-[node name="StatsGrid" type="GridContainer" parent="FrameFit/FrameRoot/InfoColumn"]
+[node name="StatsGrid" type="GridContainer" parent="FrameFit/FrameRoot/InfoColumn" unique_id=678239134]
 layout_mode = 2
 size_flags_vertical = 8
 theme_override_constants/h_separation = 6
 theme_override_constants/v_separation = 6
 columns = 4
 
-[node name="TabsColumn" type="VBoxContainer" parent="FrameFit/FrameRoot"]
+[node name="TabsColumn" type="VBoxContainer" parent="FrameFit/FrameRoot" unique_id=147210615]
 layout_mode = 1
+anchors_preset = -1
 anchor_left = 0.385
 anchor_top = 0.645
 anchor_right = 0.675
 anchor_bottom = 0.92
 theme_override_constants/separation = 4
 
-[node name="TabsRow" type="HBoxContainer" parent="FrameFit/FrameRoot/TabsColumn"]
+[node name="TabsRow" type="HBoxContainer" parent="FrameFit/FrameRoot/TabsColumn" unique_id=778088921]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="SkillsTab" type="Button" parent="FrameFit/FrameRoot/TabsColumn/TabsRow"]
+[node name="SkillsTab" type="Button" parent="FrameFit/FrameRoot/TabsColumn/TabsRow" unique_id=8295652]
 custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -256,7 +264,7 @@ button_pressed = true
 button_group = SubResource("ButtonGroup_tabs")
 text = "SKILLS"
 
-[node name="DetailsTab" type="Button" parent="FrameFit/FrameRoot/TabsColumn/TabsRow"]
+[node name="DetailsTab" type="Button" parent="FrameFit/FrameRoot/TabsColumn/TabsRow" unique_id=1744859232]
 custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 size_flags_horizontal = 3
@@ -265,56 +273,57 @@ toggle_mode = true
 button_group = SubResource("ButtonGroup_tabs")
 text = "DETAILS"
 
-[node name="TabContent" type="PanelContainer" parent="FrameFit/FrameRoot/TabsColumn"]
+[node name="TabContent" type="PanelContainer" parent="FrameFit/FrameRoot/TabsColumn" unique_id=772938860]
 clip_contents = true
 layout_mode = 2
 size_flags_vertical = 3
 theme_type_variation = &"DarkStrip"
 
-[node name="SkillsPane" type="VBoxContainer" parent="FrameFit/FrameRoot/TabsColumn/TabContent"]
+[node name="SkillsPane" type="VBoxContainer" parent="FrameFit/FrameRoot/TabsColumn/TabContent" unique_id=1709948902]
 layout_mode = 2
 
-[node name="SkillRow" type="HBoxContainer" parent="FrameFit/FrameRoot/TabsColumn/TabContent/SkillsPane"]
+[node name="SkillRow" type="HBoxContainer" parent="FrameFit/FrameRoot/TabsColumn/TabContent/SkillsPane" unique_id=997890204]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="IconSlot" type="ColorRect" parent="FrameFit/FrameRoot/TabsColumn/TabContent/SkillsPane/SkillRow"]
+[node name="IconSlot" type="ColorRect" parent="FrameFit/FrameRoot/TabsColumn/TabContent/SkillsPane/SkillRow" unique_id=1029716110]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 size_flags_vertical = 0
 mouse_filter = 2
 color = Color(0.2, 0.2, 0.25, 1)
 
-[node name="SkillText" type="VBoxContainer" parent="FrameFit/FrameRoot/TabsColumn/TabContent/SkillsPane/SkillRow"]
+[node name="SkillText" type="VBoxContainer" parent="FrameFit/FrameRoot/TabsColumn/TabContent/SkillsPane/SkillRow" unique_id=1989192073]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 0
 
-[node name="SkillName" type="Label" parent="FrameFit/FrameRoot/TabsColumn/TabContent/SkillsPane/SkillRow/SkillText"]
+[node name="SkillName" type="Label" parent="FrameFit/FrameRoot/TabsColumn/TabContent/SkillsPane/SkillRow/SkillText" unique_id=401776281]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("7_semibold")
 theme_override_font_sizes/font_size = 16
 text = "UNK"
 
-[node name="SkillDescription" type="Label" parent="FrameFit/FrameRoot/TabsColumn/TabContent/SkillsPane/SkillRow/SkillText"]
+[node name="SkillDescription" type="Label" parent="FrameFit/FrameRoot/TabsColumn/TabContent/SkillsPane/SkillRow/SkillText" unique_id=1956605329]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("9_regular")
 theme_override_font_sizes/font_size = 13
 text = "UNK"
 autowrap_mode = 3
 
-[node name="DetailsScroll" type="ScrollContainer" parent="FrameFit/FrameRoot/TabsColumn/TabContent"]
+[node name="DetailsScroll" type="ScrollContainer" parent="FrameFit/FrameRoot/TabsColumn/TabContent" unique_id=626833974]
 visible = false
 layout_mode = 2
 horizontal_scroll_mode = 0
 
-[node name="DetailsPane" type="VBoxContainer" parent="FrameFit/FrameRoot/TabsColumn/TabContent/DetailsScroll"]
+[node name="DetailsPane" type="VBoxContainer" parent="FrameFit/FrameRoot/TabsColumn/TabContent/DetailsScroll" unique_id=1168228929]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 0
 
-[node name="UpgradePanel" type="VBoxContainer" parent="FrameFit/FrameRoot"]
+[node name="UpgradePanel" type="VBoxContainer" parent="FrameFit/FrameRoot" unique_id=1494588083]
 layout_mode = 1
+anchors_preset = -1
 anchor_left = 0.698
 anchor_top = 0.663
 anchor_right = 0.94
@@ -323,7 +332,7 @@ grow_vertical = 2
 theme_override_constants/separation = 6
 alignment = 1
 
-[node name="UpgradeTitle" type="Label" parent="FrameFit/FrameRoot/UpgradePanel"]
+[node name="UpgradeTitle" type="Label" parent="FrameFit/FrameRoot/UpgradePanel" unique_id=322118692]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("6_bold")
 theme_override_font_sizes/font_size = 18
@@ -331,31 +340,32 @@ text = "Upgrade"
 horizontal_alignment = 1
 uppercase = true
 
-[node name="LevelStepLabel" type="Label" parent="FrameFit/FrameRoot/UpgradePanel"]
+[node name="LevelStepLabel" type="Label" parent="FrameFit/FrameRoot/UpgradePanel" unique_id=552997061]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("7_semibold")
 theme_override_font_sizes/font_size = 17
 horizontal_alignment = 1
 
-[node name="CopiesBar" type="ProgressBar" parent="FrameFit/FrameRoot/UpgradePanel"]
+[node name="CopiesBar" type="ProgressBar" parent="FrameFit/FrameRoot/UpgradePanel" unique_id=1645055995]
 custom_minimum_size = Vector2(0, 14)
 layout_mode = 2
 show_percentage = false
 
-[node name="CopiesLabel" type="Label" parent="FrameFit/FrameRoot/UpgradePanel"]
+[node name="CopiesLabel" type="Label" parent="FrameFit/FrameRoot/UpgradePanel" unique_id=1883386034]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("8_medium")
 theme_override_font_sizes/font_size = 13
 horizontal_alignment = 1
 
-[node name="UpgradeButton" type="Button" parent="FrameFit/FrameRoot/UpgradePanel"]
+[node name="UpgradeButton" type="Button" parent="FrameFit/FrameRoot/UpgradePanel" unique_id=1966719310]
 custom_minimum_size = Vector2(0, 40)
 layout_mode = 2
 theme_type_variation = &"GoldButton"
 text = "Upgrade"
 
-[node name="CloseButton" type="TextureButton" parent="FrameFit/FrameRoot" groups=["ui_sfx_close"]]
+[node name="CloseButton" type="TextureButton" parent="FrameFit/FrameRoot" unique_id=823136133 groups=["ui_sfx_close"]]
 layout_mode = 1
+anchors_preset = -1
 anchor_left = 0.91
 anchor_top = 0.019
 anchor_right = 0.961
