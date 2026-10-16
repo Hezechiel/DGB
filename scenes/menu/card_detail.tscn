@@ -13,7 +13,6 @@
 [sub_resource type="ButtonGroup" id="ButtonGroup_tabs"]
 
 [node name="CardDetail" type="Control" unique_id=3227447]
-visible = false
 texture_filter = 2
 layout_mode = 3
 anchors_preset = 15

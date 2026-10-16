@@ -29,11 +29,10 @@ grow_vertical = 2
 mouse_filter = 2
 
 [node name="PauseButton" type="TextureButton" parent="Root" unique_id=915885119]
-anchors_preset = 1
+layout_mode = 0
 anchor_left = 1.0
 anchor_right = 1.0
 offset_left = -100.0
-offset_top = 0.0
 offset_right = -5.0
 offset_bottom = 82.5
 texture_normal = ExtResource("2_6lywo")
@@ -42,7 +41,7 @@ ignore_texture_size = true
 stretch_mode = 5
 
 [node name="PlayerCharacter" type="TextureButton" parent="Root" unique_id=1146393216]
-anchors_preset = 4
+layout_mode = 0
 anchor_top = 0.5
 anchor_bottom = 0.5
 offset_left = 12.0
@@ -70,7 +69,7 @@ offset_bottom = -120.0
 grow_horizontal = 0
 grow_vertical = 0
 
-[node name="SynergyIcon" parent="." instance=ExtResource("11_synergyicon")]
+[node name="SynergyIcon" parent="." unique_id=1192338652 instance=ExtResource("11_synergyicon")]
 process_mode = 3
 anchors_preset = 3
 anchor_left = 1.0
@@ -84,12 +83,12 @@ offset_bottom = -120.0
 grow_horizontal = 0
 grow_vertical = 0
 
-[node name="Minimap" parent="." instance=ExtResource("10_minimap")]
+[node name="Minimap" parent="." unique_id=1361440524 instance=ExtResource("10_minimap")]
 process_mode = 3
 
 [node name="MatchInfoBar" parent="." unique_id=1546498085 instance=ExtResource("7_matchinfo")]
 
-[node name="DeathTelegraph" parent="." instance=ExtResource("9_deathtelegraph")]
+[node name="DeathTelegraph" parent="." unique_id=350963195 instance=ExtResource("9_deathtelegraph")]
 
 [node name="SettingOverlay" parent="." unique_id=200000011 instance=ExtResource("2_setov")]
 visible = false

@@ -13,3 +13,4 @@ max_hp = 150
 sprite_frames = ExtResource("3_frames")
 attack_sfx = &"sword_hit"
 death_sfx = &"unit_death"
+description = "The citizen-soldier of every Greek city, the Hoplite buys his own bronze armor and carries his great round shield with pride. Losing that shield is the ultimate disgrace, so he holds the front line until the battle is won."

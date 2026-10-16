@@ -18,3 +18,4 @@ attack_range = 26.0
 damage_point_ratio = 0.85
 attack_sfx = &"sword_hit"
 death_sfx = &"unit_death"
+description = "Poseidon sends this sea serpent to punish proud kingdoms, as he did to Troy and Ethiopia. It is a monster that devours whole armies."

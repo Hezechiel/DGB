@@ -32,3 +32,8 @@ enum AttackType { MELEE, RANGED }
 # zaciatku svihu — zruseny windup tak nikdy nevyda zvuk. &"" = ticho.
 @export var attack_sfx: StringName
 @export var death_sfx: StringName
+
+# Lore intro jednotky pre Card Detail / flashcard. Karta ho zobrazi, ked jej
+# vlastny CardData.description je prazdny (fallback). Prazdny = nic.
+# Unit lore intro; shown when the card's own description is empty.
+@export_multiline var description: String = ""

@@ -18,3 +18,4 @@ attack_range = 18.0
 damage_point_ratio = 0.6
 attack_sfx = &"sword_hit"
 death_sfx = &"unit_death"
+description = "Only the wealthiest men in the city can afford a warhorse, which makes the Hippeis an honored rank. They crash into exposed archers and skirmishers before those troops can loose a second volley."

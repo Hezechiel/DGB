@@ -206,6 +206,7 @@ fields (`scripts/arena/hero_data.gd`):
 | `attack_sfx` / `death_sfx` / `spawn_voice` | Sound ids — see §2.7. |
 | `projectile_scene` | Reuse `scenes/arena/projectiles/projectile.tscn` unless this hero has a bespoke bolt — a hero-specific special (Zeus's Chain Lightning, Poseidon's Tidal Slam per `heroes_greek.md`) is separate, unscoped design work, not part of this checklist. |
 | `sprite_frames` | Points at the `.tres` from §2.1. |
+| `description` | Lore intro for Card Detail. Text source: heroes_greek.md (Intros under each pair). |
 
 ### 2.4 Point a scene's runtime hero id at it
 

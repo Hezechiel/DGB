@@ -23,3 +23,4 @@ synergy_bonuses = {
 &"max_hp": 1.1
 }
 card_art = ExtResource("4_cardart")
+description = "Master of the skies, Zeus commands the thunder and leads his armies with divine might. His presence inspires all allied units, and his lightning strikes devastate enemies on the battlefield."

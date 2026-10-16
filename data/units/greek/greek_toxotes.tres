@@ -17,3 +17,4 @@ attack_range = 90.0
 projectile_scene = ExtResource("4_projectile")
 attack_sfx = &"arrow_shot"
 death_sfx = &"unit_death"
+description = "The finest archers come from Crete, and every Greek city pays good silver to hire them. From behind the shield wall, they rain arrows down on any enemy who dares to approach."

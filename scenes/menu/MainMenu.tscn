@@ -159,6 +159,7 @@ scale = Vector2(1.2, 1.2)
 sprite_frames = ExtResource("10_zeusframes")
 animation = &"iddle_left"
 autoplay = "iddle_left"
+frame_progress = 0.8844443
 flip_h = true
 
 [node name="BattleCard" type="TextureButton" parent="Background/MainContent" unique_id=956517196]

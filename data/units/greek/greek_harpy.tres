@@ -18,3 +18,4 @@ attack_range = 14.0
 damage_point_ratio = 0.5
 attack_sfx = &"sword_hit"
 death_sfx = &"unit_death"
+description = "The \"Snatchers\" are storm-wind spirits who once tormented King Phineus until heroes of the Argo drove them away. No wall or river can stop them in flight."

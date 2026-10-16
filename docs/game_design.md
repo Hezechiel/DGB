@@ -280,7 +280,7 @@ are mock data (`MatchConfig`).
   |---|---|---|---|---|
   | **Storm** | Longest (~1.0 s) | Persistent (~3 s), damage ticks | Damage + refreshed short slow | Soft CC (slow) |
   | **Stun** | Shortest (~0.4 s) | Single tick | No damage | Hard CC — no move, no attack |
-  | **Trapping Net** | Medium (~0.6 s) | Single tick | No damage | Root — cannot move, *can* still attack |
+  | **Ensnaring Net** | Medium (~0.6 s) | Single tick | No damage | Root — cannot move, *can* still attack |
 
 - Three distinct CC axes by design (damage-zone / hard-lock / immobilise-but-
   fight), not three strengths of the same axis — Clash Royale's Zap ≠ Freeze
@@ -496,9 +496,9 @@ are mock data (`MatchConfig`).
   phase is still a placeholder circle. Each spell currently has its own
   full sheet (`scroll_storm` / `scroll_stun` / `scroll_ensnaring_net`);
   undecided whether later spells keep that or share a generic set.
-- Naming drift on the net spell: `display_name = "Trapping Net"`, asset
-  `scroll_ensnaring_net`, id `spell_net`. Pick one before more references
-  accumulate.
+- ~~Naming drift on the net spell~~ Resolved (Oct 2026): **Ensnaring Net**
+  everywhere — spell id `spell_ensnaring_net`, card `card_greek_ensnaring_net`,
+  asset `scroll_ensnaring_net`. "Trapping Net" is retired.
 - ~~Should any spell be castable by the AI hero?~~ Yes — the AI plays spell
   cards from the same hand, currently aimed at the player's nearest living
   structure. Still open: whether AI spells should ever target *units or the

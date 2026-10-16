@@ -21,3 +21,4 @@ projectile_scene = ExtResource("4_projectile")
 damage_point_ratio = 0.7
 attack_sfx = &"arrow_shot"
 death_sfx = &"unit_death"
+description = "The fifty daughters of the old sea god Nereus calm the waters and rescue sailors from the deep. On the battlefield, their touch restores the wounded."

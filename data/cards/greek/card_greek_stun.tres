@@ -17,3 +17,4 @@ scroll_texture = SubResource("AtlasTexture_cardstun")
 spell_data = ExtResource("3_spelldata")
 rarity = 1
 obtain_source = 1
+description = "A single flash of divine power, bright as the gaze of Medusa, turns the enemy ranks to statues for one heartbeat. Before they can move again, the battle has already turned."

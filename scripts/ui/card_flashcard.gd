@@ -82,6 +82,9 @@ func _refresh() -> void:
 			picture.texture = card.scroll_texture
 			name_label.text = card.display_name
 			description = card.description
+			# fallback na lore intro jednotky / fall back to the unit's intro
+			if description == "" and card.unit_data != null:
+				description = card.unit_data.description
 			meta_label.text = "%s · %s · Cost %d" % [_card_type(card), _rarity_name(card.rarity), card.cost]
 			if card.unit_data != null:
 				_fill_unit_stats(card, level, show_next)

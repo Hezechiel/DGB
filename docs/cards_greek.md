@@ -88,7 +88,7 @@ strong *and* answerable — never as a card the opponent simply cannot respond t
 
 | Card | Faction | Type | Role | Cost tier | Notes |
 |------|---------|------|------|-----------|-------|
-| **Bronze Automaton** | Olympus | Melee | Armored wall | High | Talos, Hephaestus's work. High armor, modest damage — eats *many small hits* and folds to a few big ones, so it counters swarms rather than bruisers. Slow. Unmoved by slow/root (bronze, not flesh). Deliberately an **armor**-type tank against the Cyclops's **HP**-type |
+| **Talos** | Olympus | Melee | Armored wall | High | Hephaestus's bronze giant (renamed from "Bronze Automaton", Oct 2026, to avoid a clash with Hephaestus's Automaton sidekick; data file/id still `greek_bronze_automaton`). High armor, modest damage — eats *many small hits* and folds to a few big ones, so it counters swarms rather than bruisers. Slow. Unmoved by slow/root (bronze, not flesh). Deliberately an **armor**-type tank against the Cyclops's **HP**-type |
 | **Nereid** | Sea | Ranged | Area healer | Medium | Sea-nymph. Heal-over-time on friendly units in a radius — the area counterpart to the Priestess's single-target heal. Follows the existing HoT rule: re-applying takes the longer remaining duration, never stacks (`game_design.md` §3.9). No offense at all |
 | **Ketos** | Sea | Melee | Heavy finisher | High | The Sea's top end. Huge HP and damage, very slow — a turret-breaker you have to escort, and a wasted card if it dies mid-map. Unlike the Gastraphetes crew it hits everything, but it has to walk into range to do it |
 | **Spartoi** | Underworld | Melee | Squad (3–4) | Medium | Sown dragon's teeth. A *disciplined* squad against the Satyr rabble, but no formation bonus — that stays the Phalanx's identity. Arrives and dies as a group, which makes it Storm's natural prey |
@@ -119,7 +119,7 @@ never cross eras" rule holds — no card ID is ever reused between eras.
 |------|------|--------|-----------|-------|
 | **Storm** | Spell | Persistent AoE zone: damage ticks + slow while inside | Medium | Only damaging spell; area denial, not burst |
 | **Stun** | Spell | AoE hard CC — no move, no attack | Cheap | Shortest cast time; fastest reactive tool |
-| **Trapping Net** | Spell | AoE root — cannot move, can still attack | Cheap | Longer effect than Stun; anti-chase / anti-kite |
+| **Ensnaring Net** | Spell | AoE root — cannot move, can still attack | Cheap | Longer effect than Stun; anti-chase / anti-kite |
 
 - Castable **anywhere on the map**, unlike unit cards (own half only).
 - **No friendly fire** — opposing team only.
@@ -196,7 +196,7 @@ pantheons at the cost of synergy.
 - [x] Card rarity, leveling and collection — built (`game_design.md` §3.14);
       per-card rarities are still placeholders
 - [x] Spells take normal deck slots
-- [ ] Domain cards: Pegasus, Bronze Automaton (Olympus); Hippocampus Rider,
+- [ ] Domain cards: Pegasus, Talos (Olympus); Hippocampus Rider,
       Nereid, Ketos (Sea); Shades, Spartoi, Erinyes (Underworld) — unit data
       exists with placeholder sprites, no cards yet
 - [ ] Tag vocabulary (holy, undead, beast…) and which gods refuse what
@@ -231,3 +231,53 @@ odmeny, ktoré využívajú existujúci art pipeline (SVG master → PNG):
 
 Toto nahrádza pôvodnú predstavu "skin variant na sprite" ako primárnu
 kozmetickú odmenu v battle passe.
+
+---
+
+## 10. Card intros (Card Detail lore text)
+
+Short lore intros shown in Card Detail's description label (and the old
+flashcard). Tone: mythology-grounded, but written for the game — every god
+and creature is a warrior here, so nothing contradicts the battle theme.
+Pattern: rank / reputation / origin, then a line hinting at the card's role.
+
+**Where the text lives (Oct 2026):** unit intros are in
+`UnitData.description` (`data/units/greek/*.tres`) — a unit card falls back
+to it when its own `CardData.description` is empty, so the creatures without
+a card yet already carry their text. Spell intros are in
+`CardData.description` on the spell cards. God intros are in
+`HeroData.description` (see `heroes_greek.md`). Keep this table and the
+`.tres` files in sync by hand.
+
+### Units
+
+| Card | Intro |
+|------|-------|
+| **Hoplite** | The citizen-soldier of every Greek city, the Hoplite buys his own bronze armor and carries his great round shield with pride. Losing that shield is the ultimate disgrace, so he holds the front line until the battle is won. |
+| **Toxotes** | The finest archers come from Crete, and every Greek city pays good silver to hire them. From behind the shield wall, they rain arrows down on any enemy who dares to approach. |
+| **Peltast** | Named for the light crescent shield of Thracian warriors, Peltasts trade armor for speed. They once humbled a regiment of Sparta's elite by harassing it with javelins until it broke. |
+| **Sphendonetes** | The slingers of Rhodes are famous across the Greek world for outranging even the Persian archers. Their lead bullets are often carved with taunts for the enemies they strike. |
+| **Hippeus** | Only the wealthiest men in the city can afford a warhorse, which makes the Hippeis an honored rank. They crash into exposed archers and skirmishers before those troops can loose a second volley. |
+| **Phalanx** | Each man's shield guards the neighbor at his left, so the Phalanx fights as one living wall of bronze. As long as the line holds together, no enemy can break it. |
+| **Priestess** | Servants of the healing sanctuaries, the Priestesses carry the blessing of Asclepius into battle. Their prayers close wounds that would otherwise end a soldier's war. |
+| **Gastraphetes crew** | Engineers of Syracuse invented the belly-bow, a weapon so powerful that its crew braces it against their bodies to draw it. Its bolts were made to crack walls and gates. |
+| **Satyr** | Wild followers of Dionysus and Pan, Satyrs live for wine, music and mischief. They pour onto the battlefield in howling packs, too many and too unruly to ignore. |
+| **Centaur** | Half man and half horse, the Centaurs are fierce warriors, and the wise centaur Chiron trained heroes like Achilles and Heracles. They gallop into the heart of the fight and stay there. |
+| **Harpy** | The "Snatchers" are storm-wind spirits who once tormented King Phineus until heroes of the Argo drove them away. No wall or river can stop them in flight. |
+| **Cyclops** | The elder Cyclopes forged Zeus's thunderbolt, Poseidon's trident and Hades's helm. They tower over the battlefield and hurl boulders that shatter stone. |
+| **Pegasus** | The winged horse sprang from the blood of Medusa and later carried Zeus's thunderbolts across the sky. He swoops down on the enemy as swiftly as lightning. |
+| **Hippocampus rider** | The Hippocampi are horse-fish that draw Poseidon's chariot across the waves. Their riders charge out of the surf as if the tide itself were attacking. |
+| **Talos** | The bronze giant forged by Hephaestus once circled Crete three times a day and hurled boulders at any ship that came near. Tireless and unyielding, he now guards Olympus without question. |
+| **Nereid** | The fifty daughters of the old sea god Nereus calm the waters and rescue sailors from the deep. On the battlefield, their touch restores the wounded. |
+| **Ketos** | Poseidon sends this sea serpent to punish proud kingdoms, as he did to Troy and Ethiopia. It is a monster that devours whole armies. |
+| **Spartoi** | The "Sown Men" rose fully armed from dragon's teeth planted in the earth, and they were born for war. They answer Hades's call without fear or mercy. |
+| **Shades** | The restless souls of the dead wander the gray fields of Asphodel without memory or name. Hades sends them forward in endless numbers. |
+| **Erinyes** | Alecto, Megaera and Tisiphone are the Furies, who hunt down oath-breakers and kin-slayers. No enemy can outrun their vengeance. |
+
+### Spells
+
+| Card | Intro |
+|------|-------|
+| **Storm** | When Zeus's anger breaks over the battlefield, the sky itself goes to war. Lightning hammers the ground and freezing rain drags at every step, and no enemy who lingers inside escapes unscathed. |
+| **Stun** | A single flash of divine power, bright as the gaze of Medusa, turns the enemy ranks to statues for one heartbeat. Before they can move again, the battle has already turned. |
+| **Ensnaring Net** | Even Ares could not tear free of the golden net Hephaestus forged in his workshop. Enemies caught in its threads cannot take a single step, though they still fight back from where they stand. |

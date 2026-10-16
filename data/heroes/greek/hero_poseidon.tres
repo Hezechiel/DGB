@@ -24,3 +24,4 @@ synergy_bonuses = {
 &"max_hp": 1.1
 }
 card_art = ExtResource("4_cardart")
+description = "Lord of the seas and shaker of the earth, Poseidon wades into battle with his trident raised. Each strike unleashes the fury of the tide, hurling enemies back like driftwood before a storm."

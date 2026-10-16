@@ -1,18 +1,19 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://c2yedyaa5hgd4"]
 
-[ext_resource type="Script" path="res://scripts/ui/framed_overlay.gd" id="1_frame"]
+[ext_resource type="Script" uid="uid://bnf6wlsja7qk2" path="res://scripts/ui/framed_overlay.gd" id="1_frame"]
 [ext_resource type="Texture2D" uid="uid://cakolhqo2lvgo" path="res://assets/menu/settings/settings_frame_blank.png" id="2_frame"]
 [ext_resource type="FontFile" uid="uid://bweqmg7kjyyai" path="res://assets/fonts/CinzelDecorative-Black.ttf" id="3_title"]
 [ext_resource type="Script" uid="uid://bnv0wf8044snq" path="res://scripts/ui/dim_with_hole.gd" id="7_dim"]
+[ext_resource type="Texture2D" uid="uid://bdqf53sqwahvg" path="res://assets/menu/close.png" id="8_close"]
 
 [node name="FramedOverlay" type="Control" unique_id=470544241]
+texture_filter = 2
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-texture_filter = 2
 script = ExtResource("1_frame")
 
 [node name="Dim" type="Control" parent="." unique_id=1873402516 node_paths=PackedStringArray("hole_source")]
@@ -75,7 +76,6 @@ anchor_right = 0.784
 anchor_bottom = 0.123
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
 theme_override_colors/font_color = Color(1, 0.82, 0.3, 1)
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 3
@@ -118,9 +118,16 @@ theme_override_constants/margin_bottom = 10
 process_mode = 3
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.915
-anchor_top = 0.053
-anchor_right = 0.966
-anchor_bottom = 0.149
+anchor_left = 0.91300005
+anchor_top = 0.063
+anchor_right = 0.961
+anchor_bottom = 0.155
+offset_left = -0.2694702
+offset_top = -0.020000458
+offset_right = 2.6090088
+offset_bottom = -0.019989014
 grow_horizontal = 2
 grow_vertical = 2
+texture_normal = ExtResource("8_close")
+ignore_texture_size = true
+stretch_mode = 5

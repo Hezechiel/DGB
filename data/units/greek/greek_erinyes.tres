@@ -18,3 +18,4 @@ attack_range = 16.0
 damage_point_ratio = 0.4
 attack_sfx = &"sword_hit"
 death_sfx = &"unit_death"
+description = "Alecto, Megaera and Tisiphone are the Furies, who hunt down oath-breakers and kin-slayers. No enemy can outrun their vengeance."

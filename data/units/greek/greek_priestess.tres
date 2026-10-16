@@ -21,3 +21,4 @@ projectile_scene = ExtResource("4_projectile")
 damage_point_ratio = 0.7
 attack_sfx = &"arrow_shot"
 death_sfx = &"unit_death"
+description = "Servants of the healing sanctuaries, the Priestesses carry the blessing of Asclepius into battle. Their prayers close wounds that would otherwise end a soldier's war."

@@ -16,3 +16,4 @@ cost = 3
 scroll_texture = SubResource("AtlasTexture_cardnet")
 spell_data = ExtResource("3_e1nru")
 obtain_source = 1
+description = "Even Ares could not tear free of the golden net Hephaestus forged in his workshop. Enemies caught in its threads cannot take a single step, though they still fight back from where they stand."

@@ -53,7 +53,7 @@ data/
                            region of the scroll spritesheet), unit_data,
                            unit_count, formation_radius
   units/    UnitData     — id, archetype_scene, max_hp, damage, attack_cooldown,
-                           speed, target_filter, sprite_frames
+                           speed, target_filter, sprite_frames, description (lore intro; Card Detail falls back to it when CardData.description is empty)
     frames/ SpriteFrames — extracted animation sets, swappable per unit
   heroes/   HeroData     — id, stats, projectile_scene, sprite_frames
                            (no archetype_scene: control mode picks the scene)

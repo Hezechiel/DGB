@@ -18,3 +18,4 @@ attack_range = 20.0
 damage_point_ratio = 0.7
 attack_sfx = &"sword_hit"
 death_sfx = &"unit_death"
+description = "The Hippocampi are horse-fish that draw Poseidon's chariot across the waves. Their riders charge out of the surf as if the tide itself were attacking."

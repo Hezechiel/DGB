@@ -142,6 +142,9 @@ func _refresh() -> void:
 			card_art.texture = card.scroll_texture
 			name_label.text = card.display_name
 			description = card.description
+			# fallback na lore intro jednotky / fall back to the unit's intro
+			if description == "" and card.unit_data != null:
+				description = card.unit_data.description
 			faction = card.faction
 			type_tile.set_stat("Type", _card_type(card))
 			_set_rarity(card.rarity)

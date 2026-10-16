@@ -18,3 +18,4 @@ attack_range = 18.0
 damage_point_ratio = 0.7
 attack_sfx = &"sword_hit"
 death_sfx = &"unit_death"
+description = "Half man and half horse, the Centaurs are fierce warriors, and the wise centaur Chiron trained heroes like Achilles and Heracles. They gallop into the heart of the fight and stay there."

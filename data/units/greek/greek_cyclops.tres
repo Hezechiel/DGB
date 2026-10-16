@@ -18,3 +18,4 @@ attack_range = 22.0
 damage_point_ratio = 0.85
 attack_sfx = &"sword_hit"
 death_sfx = &"unit_death"
+description = "The elder Cyclopes forged Zeus's thunderbolt, Poseidon's trident and Hades's helm. They tower over the battlefield and hurl boulders that shatter stone."

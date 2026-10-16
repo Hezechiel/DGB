@@ -18,3 +18,4 @@ attack_range = 16.0
 damage_point_ratio = 0.6
 attack_sfx = &"sword_hit"
 death_sfx = &"unit_death"
+description = "The winged horse sprang from the blood of Medusa and later carried Zeus's thunderbolts across the sky. He swoops down on the enemy as swiftly as lightning."

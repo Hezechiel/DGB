@@ -187,6 +187,7 @@ than building from scratch. `UnitData` fields
 | `damage_point_ratio` | Optional, defaults to `0.7`. See §2.2's feel guidance. |
 | `attack_sfx` / `death_sfx` | `SoundData` ids, empty = silent. See §2.6. |
 | `sprite_frames` | Points at the `.tres` from §2.1. |
+| `description` | Lore intro for Card Detail / flashcard. Shown when the card's own CardData.description is empty. Text source: cards_greek.md §10. |
 
 ### 2.4 Wire it into a card
 

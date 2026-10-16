@@ -22,3 +22,4 @@ projectile_scene = ExtResource("2_yaidr")
 damage_point_ratio = 0.75
 attack_sfx = &"arrow_shot"
 death_sfx = &"unit_death"
+description = "Engineers of Syracuse invented the belly-bow, a weapon so powerful that its crew braces it against their bodies to draw it. Its bolts were made to crack walls and gates."

@@ -18,3 +18,4 @@ attack_range = 16.0
 damage_point_ratio = 0.7
 attack_sfx = &"sword_hit"
 death_sfx = &"unit_death"
+description = "The \"Sown Men\" rose fully armed from dragon's teeth planted in the earth, and they were born for war. They answer Hades's call without fear or mercy."

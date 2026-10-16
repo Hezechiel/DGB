@@ -18,3 +18,4 @@ attack_range = 14.0
 damage_point_ratio = 0.5
 attack_sfx = &"sword_hit"
 death_sfx = &"unit_death"
+description = "The restless souls of the dead wander the gray fields of Asphodel without memory or name. Hades sends them forward in endless numbers."

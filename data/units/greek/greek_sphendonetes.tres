@@ -21,3 +21,4 @@ projectile_scene = ExtResource("4_projectile")
 damage_point_ratio = 0.6
 attack_sfx = &"arrow_shot"
 death_sfx = &"unit_death"
+description = "The slingers of Rhodes are famous across the Greek world for outranging even the Persian archers. Their lead bullets are often carved with taunts for the enemies they strike."

@@ -14,6 +14,9 @@ const GOD_ANIM := &"iddle_left"
 const GOD_REF_FRAME_H := 400.0
 const TITLE_MAX_FONT := 26   # zakladna velkost na plate
 const TITLE_MIN_FONT := 14   # pod toto nezmensovat
+# rovnaky vzhlad/spravanie ako CardDetail.CloseButton — X uz nie je v arte
+# same look/behaviour as CardDetail.CloseButton — the X is no longer painted in the art
+const CLOSE_PRESSED_MODULATE := Color(0.75, 0.75, 0.75)
 
 @export var god_height_fill: float = 0.85   # podiel vysky okna
 @export var god_foot_nudge: float = 0.0     # posun chodidiel, podiel vysky okna (+ = dole)
@@ -34,6 +37,8 @@ func _ready() -> void:
 		frame_art.texture = frame_texture
 	set_title(title_text)
 	close_button.pressed.connect(_on_frame_close_pressed)
+	close_button.button_down.connect(func() -> void: close_button.self_modulate = CLOSE_PRESSED_MODULATE)
+	close_button.button_up.connect(func() -> void: close_button.self_modulate = Color.WHITE)
 	god_window.resized.connect(_layout_god)
 	# plate meni velkost s AspectRatioContainerom → titul sa znova zmesti
 	title_label.resized.connect(_fit_title)

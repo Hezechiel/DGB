@@ -21,3 +21,4 @@ projectile_scene = ExtResource("4_projectile")
 damage_point_ratio = 0.5
 attack_sfx = &"arrow_shot"
 death_sfx = &"unit_death"
+description = "Named for the light crescent shield of Thracian warriors, Peltasts trade armor for speed. They once humbled a regiment of Sparta's elite by harassing it with javelins until it broke."

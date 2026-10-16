@@ -18,3 +18,4 @@ attack_range = 14.0
 damage_point_ratio = 0.5
 attack_sfx = &"sword_hit"
 death_sfx = &"unit_death"
+description = "Wild followers of Dionysus and Pan, Satyrs live for wine, music and mischief. They pour onto the battlefield in howling packs, too many and too unruly to ignore."

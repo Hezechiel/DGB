@@ -17,3 +17,4 @@ scroll_texture = SubResource("AtlasTexture_cardstorm")
 spell_data = ExtResource("3_spelldata")
 rarity = 1
 obtain_source = 1
+description = "When Zeus's anger breaks over the battlefield, the sky itself goes to war. Lightning hammers the ground and freezing rain drags at every step, and no enemy who lingers inside escapes unscathed."

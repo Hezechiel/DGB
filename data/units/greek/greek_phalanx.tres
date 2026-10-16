@@ -18,3 +18,4 @@ attack_range = 22.0
 damage_point_ratio = 0.7
 attack_sfx = &"sword_hit"
 death_sfx = &"unit_death"
+description = "Each man's shield guards the neighbor at his left, so the Phalanx fights as one living wall of bronze. As long as the line holds together, no enemy can break it."
