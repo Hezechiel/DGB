@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="HeroData" format=3]
+
+[ext_resource type="Script" uid="uid://dieg62n05urgy" path="res://scripts/arena/hero_data.gd" id="1_herodata"]
+[ext_resource type="PackedScene" uid="uid://dyxn10n333b4k" path="res://scenes/arena/projectiles/projectile.tscn" id="2_bolt"]
+[ext_resource type="Resource" path="res://data/heroes/greek/skills/skill_hades_reaping.tres" id="5_skill"]
+
+[resource]
+script = ExtResource("1_herodata")
+id = &"hero_hades"
+display_name = "Hades"
+max_hp = 400
+projectile_scene = ExtResource("2_bolt")
+domain = &"underworld"
+description = "Lord of the Underworld, Hades claims every soul that falls on the battlefield. The more enemies perish around him, the greater his dark power grows, until his wrath becomes unstoppable."
+skill = ExtResource("5_skill")

@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" uid="uid://c6i02qlmehybc" path="res://scripts/arena/skill_data.gd" id="1_skilldata"]
+
+[resource]
+script = ExtResource("1_skilldata")
+id = &"skill_zeus_chain_lightning"
+display_name = "Chain Lightning"
+cooldown = 24.0
+cast_range = 120.0
+values = {
+&"damage_pct": 220.0,
+&"falloff_pct": 20.0,
+&"jump_range": 60.0,
+&"jumps": 5.0,
+&"stun": 0.4
+}
+description_template = "Hurls a thunderbolt at the target, dealing {damage_pct}% of Attack Power. The bolt arcs to the nearest enemy not yet hit, up to {jumps} times, losing {falloff_pct}% damage with each jump. Every target hit is stunned for {stun}s, interrupting its attack."

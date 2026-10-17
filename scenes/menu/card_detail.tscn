@@ -278,32 +278,37 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_type_variation = &"DarkStrip"
 
-[node name="SkillsPane" type="VBoxContainer" parent="FrameFit/FrameRoot/TabsColumn/TabContent" unique_id=1709948902]
+[node name="SkillsScroll" type="ScrollContainer" parent="FrameFit/FrameRoot/TabsColumn/TabContent"]
 layout_mode = 2
+horizontal_scroll_mode = 0
 
-[node name="SkillRow" type="HBoxContainer" parent="FrameFit/FrameRoot/TabsColumn/TabContent/SkillsPane" unique_id=997890204]
+[node name="SkillsPane" type="VBoxContainer" parent="FrameFit/FrameRoot/TabsColumn/TabContent/SkillsScroll" unique_id=1709948902]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="SkillRow" type="HBoxContainer" parent="FrameFit/FrameRoot/TabsColumn/TabContent/SkillsScroll/SkillsPane" unique_id=997890204]
 layout_mode = 2
 theme_override_constants/separation = 8
 
-[node name="IconSlot" type="ColorRect" parent="FrameFit/FrameRoot/TabsColumn/TabContent/SkillsPane/SkillRow" unique_id=1029716110]
+[node name="IconSlot" type="ColorRect" parent="FrameFit/FrameRoot/TabsColumn/TabContent/SkillsScroll/SkillsPane/SkillRow" unique_id=1029716110]
 custom_minimum_size = Vector2(40, 40)
 layout_mode = 2
 size_flags_vertical = 0
 mouse_filter = 2
 color = Color(0.2, 0.2, 0.25, 1)
 
-[node name="SkillText" type="VBoxContainer" parent="FrameFit/FrameRoot/TabsColumn/TabContent/SkillsPane/SkillRow" unique_id=1989192073]
+[node name="SkillText" type="VBoxContainer" parent="FrameFit/FrameRoot/TabsColumn/TabContent/SkillsScroll/SkillsPane/SkillRow" unique_id=1989192073]
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 0
 
-[node name="SkillName" type="Label" parent="FrameFit/FrameRoot/TabsColumn/TabContent/SkillsPane/SkillRow/SkillText" unique_id=401776281]
+[node name="SkillName" type="Label" parent="FrameFit/FrameRoot/TabsColumn/TabContent/SkillsScroll/SkillsPane/SkillRow/SkillText" unique_id=401776281]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("7_semibold")
 theme_override_font_sizes/font_size = 16
 text = "UNK"
 
-[node name="SkillDescription" type="Label" parent="FrameFit/FrameRoot/TabsColumn/TabContent/SkillsPane/SkillRow/SkillText" unique_id=1956605329]
+[node name="SkillDescription" type="Label" parent="FrameFit/FrameRoot/TabsColumn/TabContent/SkillsScroll/SkillsPane/SkillRow/SkillText" unique_id=1956605329]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("9_regular")
 theme_override_font_sizes/font_size = 13

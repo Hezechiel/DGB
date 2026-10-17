@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" uid="uid://c6i02qlmehybc" path="res://scripts/arena/skill_data.gd" id="1_skilldata"]
+
+[resource]
+script = ExtResource("1_skilldata")
+id = &"skill_ares_war_frenzy"
+display_name = "War Frenzy"
+cooldown = 25.0
+cast_range = 20.0
+values = {
+&"attack_speed_pct": 30.0,
+&"duration": 6.0,
+&"lifesteal_pct": 25.0
+}
+description_template = "Gives in to the frenzy of battle for {duration}s: +{attack_speed_pct}% Attack Speed, his attacks heal him for {lifesteal_pct}% of the damage dealt, and he cannot be slowed or rooted."

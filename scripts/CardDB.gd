@@ -114,8 +114,9 @@ func _scan_into(dir_path: String, target: Dictionary) -> void:
 	while file_name != "":
 		if dir.current_is_dir():
 			# rekurzia do podpriecinkov (napr. cards/greek/); "frames" drzi
-			# SpriteFrames bez `id` — tie CardDB nenacitava
-			if file_name != "frames" and not file_name.begins_with("."):
+			# SpriteFrames bez `id` a "skills" drzi SkillData boha (dosiahnute
+			# cez HeroData.skill, nie cez CardDB) — tie CardDB nenacitava
+			if file_name != "frames" and file_name != "skills" and not file_name.begins_with("."):
 				_scan_into(dir_path + file_name + "/", target)
 		else:
 			# export build listuje "*.tres.remap" namiesto "*.tres" — orezat

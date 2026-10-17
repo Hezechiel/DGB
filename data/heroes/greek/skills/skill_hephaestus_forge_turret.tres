@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" uid="uid://c6i02qlmehybc" path="res://scripts/arena/skill_data.gd" id="1_skilldata"]
+
+[resource]
+script = ExtResource("1_skilldata")
+id = &"skill_hephaestus_forge_turret"
+display_name = "Forge Turret"
+cooldown = 25.0
+cast_range = 40.0
+values = {
+&"turret_damage_pct": 60.0,
+&"turret_duration": 8.0,
+&"turret_fire_interval": 1.0,
+&"turret_hp_pct": 30.0
+}
+description_template = "Hammers a bronze turret into the ground for {turret_duration}s. It has {turret_hp_pct}% of Hephaestus's max HP and fires at the nearest enemy for {turret_damage_pct}% of his Attack Power every {turret_fire_interval}s."

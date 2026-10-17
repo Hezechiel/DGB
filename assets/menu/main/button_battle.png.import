@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bfsg3fb2osnra"
-path="res://.godot/imported/main_menu.webp-e801fc9dc96171e69d3caa21a2f1f614.ctex"
+uid="uid://cgy2syxxwb4ye"
+path="res://.godot/imported/button_battle.png-85004a913e50ee9bf7b801376e8ae083.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/menu/main_menu.webp"
-dest_files=["res://.godot/imported/main_menu.webp-e801fc9dc96171e69d3caa21a2f1f614.ctex"]
+source_file="res://assets/menu/main/button_battle.png"
+dest_files=["res://.godot/imported/button_battle.png-85004a913e50ee9bf7b801376e8ae083.ctex"]
 
 [params]
 

@@ -20,8 +20,8 @@
 [ext_resource type="Texture2D" uid="uid://bgxlwhck0h6kw" path="res://assets/menu/gifts_box_pressed.png" id="11_u2yxo"]
 [ext_resource type="Texture2D" uid="uid://cn18eu65x486q" path="res://assets/menu/exit_btn.png" id="12_h8wvk"]
 [ext_resource type="Texture2D" uid="uid://8jdti1d4oflf" path="res://assets/menu/exit_btn_pressed.png" id="13_5657p"]
-[ext_resource type="Texture2D" uid="uid://fenjtkrllway" path="res://assets/menu/newgame_btn.png" id="15_heq2t"]
-[ext_resource type="Texture2D" uid="uid://qwl5vpl4sc40" path="res://assets/menu/newgame_btn_pressed.png" id="16_pb5pf"]
+[ext_resource type="Texture2D" uid="uid://cgy2syxxwb4ye" path="res://assets/menu/main/button_battle.png" id="18_jfl25"]
+[ext_resource type="Texture2D" uid="uid://b5w05ns4ui8lm" path="res://assets/menu/main/button_battle_pressed.png" id="19_2aa1e"]
 [ext_resource type="PackedScene" path="res://scenes/menu/shop_overlay.tscn" id="20_shopoverlay"]
 [ext_resource type="PackedScene" path="res://scenes/menu/deck_overlay.tscn" id="21_deckoverlay"]
 [ext_resource type="PackedScene" path="res://scenes/menu/encyclopedia_overlay.tscn" id="22_encyclopediaoverlay"]
@@ -166,8 +166,8 @@ flip_h = true
 custom_minimum_size = Vector2(220, 280)
 layout_mode = 2
 size_flags_vertical = 4
-texture_normal = ExtResource("15_heq2t")
-texture_pressed = ExtResource("16_pb5pf")
+texture_normal = ExtResource("18_jfl25")
+texture_pressed = ExtResource("19_2aa1e")
 ignore_texture_size = true
 stretch_mode = 5
 

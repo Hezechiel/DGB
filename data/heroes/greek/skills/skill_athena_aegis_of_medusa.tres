@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" uid="uid://c6i02qlmehybc" path="res://scripts/arena/skill_data.gd" id="1_skilldata"]
+
+[resource]
+script = ExtResource("1_skilldata")
+id = &"skill_athena_aegis_of_medusa"
+display_name = "Aegis of Medusa"
+cooldown = 20.0
+cast_range = 60.0
+values = {
+&"god_stun": 0.5,
+&"shield_duration": 4.0,
+&"shield_hp_pct": 30.0,
+&"stun_radius": 60.0,
+&"unit_stun": 1.0
+}
+description_template = "Raises the Aegis, gaining a shield equal to {shield_hp_pct}% of her max HP for {shield_duration}s. When the shield breaks or fades, the Gorgon's head flashes: nearby enemy units are stunned for {unit_stun}s and the enemy god for {god_stun}s."

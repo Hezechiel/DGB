@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="HeroData" format=3]
+
+[ext_resource type="Script" uid="uid://dieg62n05urgy" path="res://scripts/arena/hero_data.gd" id="1_herodata"]
+[ext_resource type="PackedScene" uid="uid://dyxn10n333b4k" path="res://scenes/arena/projectiles/projectile.tscn" id="2_bolt"]
+[ext_resource type="Resource" path="res://data/heroes/greek/skills/skill_ares_war_frenzy.tres" id="5_skill"]
+
+[resource]
+script = ExtResource("1_herodata")
+id = &"hero_ares"
+display_name = "Ares"
+attack_range = 20.0
+projectile_scene = ExtResource("2_bolt")
+attack_type = 1
+domain = &"olympus"
+description = "God of war and bloodshed, Ares lives for the clash of steel. The longer the battle rages, the faster his blade falls, and every wound he deals feeds his savage hunger."
+skill = ExtResource("5_skill")

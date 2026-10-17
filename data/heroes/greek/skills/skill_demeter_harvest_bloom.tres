@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" uid="uid://c6i02qlmehybc" path="res://scripts/arena/skill_data.gd" id="1_skilldata"]
+
+[resource]
+script = ExtResource("1_skilldata")
+id = &"skill_demeter_harvest_bloom"
+display_name = "Harvest Bloom"
+cooldown = 24.0
+cast_range = 120.0
+values = {
+&"heal_pct_per_sec": 4.0,
+&"slow_pct": 25.0,
+&"zone_duration": 5.0,
+&"zone_radius": 80.0
+}
+description_template = "Makes a field of grain burst from the ground for {zone_duration}s. Allies inside heal {heal_pct_per_sec}% of their max HP every second, and enemies inside are slowed by {slow_pct}%."

@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" uid="uid://c6i02qlmehybc" path="res://scripts/arena/skill_data.gd" id="1_skilldata"]
+
+[resource]
+script = ExtResource("1_skilldata")
+id = &"skill_poseidon_tidal_wave"
+display_name = "Tidal Wave"
+cooldown = 22.0
+cast_range = 100.0
+values = {
+&"cone_angle": 90.0,
+&"damage_pct": 180.0,
+&"knockback": 60.0,
+&"slow_duration": 2.0,
+&"slow_pct": 30.0,
+&"wave_range": 100.0
+}
+description_template = "Strikes the ground with his trident and sends a wave forward, dealing {damage_pct}% of Attack Power to every enemy in front of him. Enemies hit are knocked back and slowed by {slow_pct}% for {slow_duration}s."

@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" uid="uid://c6i02qlmehybc" path="res://scripts/arena/skill_data.gd" id="1_skilldata"]
+
+[resource]
+script = ExtResource("1_skilldata")
+id = &"skill_apollo_solar_flare"
+display_name = "Solar Flare"
+cooldown = 22.0
+cast_range = 250.0
+values = {
+&"beam_length": 250.0,
+&"damage_pct": 200.0,
+&"mark_bonus_pct": 50.0,
+&"turret_damage_pct": 50.0
+}
+description_template = "Fires a beam of sunlight in a straight line, dealing {damage_pct}% of Attack Power to every enemy it passes through. Turrets take {turret_damage_pct}% of that. A target marked by Corvus takes {mark_bonus_pct}% more."

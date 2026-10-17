@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" uid="uid://c6i02qlmehybc" path="res://scripts/arena/skill_data.gd" id="1_skilldata"]
+
+[resource]
+script = ExtResource("1_skilldata")
+id = &"skill_dionysus_bacchic_frenzy"
+display_name = "Bacchic Frenzy"
+cooldown = 22.0
+cast_range = 90.0
+values = {
+&"damage_pct": 120.0,
+&"god_madness_duration": 1.0,
+&"madness_duration": 2.5,
+&"radius": 90.0
+}
+description_template = "Releases a wave of divine madness, dealing {damage_pct}% of Attack Power to nearby enemies. They stagger aimlessly and cannot attack for {madness_duration}s; the enemy god recovers after {god_madness_duration}s."

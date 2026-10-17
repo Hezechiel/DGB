@@ -47,7 +47,11 @@ const CLOSE_PRESSED_MODULATE := Color(0.75, 0.75, 0.75)
 @onready var stats_grid: GridContainer = $FrameFit/FrameRoot/InfoColumn/StatsGrid
 @onready var skills_tab: Button = $FrameFit/FrameRoot/TabsColumn/TabsRow/SkillsTab
 @onready var details_tab: Button = $FrameFit/FrameRoot/TabsColumn/TabsRow/DetailsTab
-@onready var skills_pane: Control = $FrameFit/FrameRoot/TabsColumn/TabContent/SkillsPane
+# ScrollContainer okolo SkillsPane — viditelnost tabu prepina tento uzol,
+# rovnako ako details_scroll. / Toggled by the tab, like details_scroll.
+@onready var skills_pane: Control = $FrameFit/FrameRoot/TabsColumn/TabContent/SkillsScroll
+@onready var skill_name_label: Label = $FrameFit/FrameRoot/TabsColumn/TabContent/SkillsScroll/SkillsPane/SkillRow/SkillText/SkillName
+@onready var skill_description_label: Label = $FrameFit/FrameRoot/TabsColumn/TabContent/SkillsScroll/SkillsPane/SkillRow/SkillText/SkillDescription
 @onready var details_scroll: ScrollContainer = $FrameFit/FrameRoot/TabsColumn/TabContent/DetailsScroll
 @onready var details_pane: VBoxContainer = $FrameFit/FrameRoot/TabsColumn/TabContent/DetailsScroll/DetailsPane
 @onready var upgrade_title: Label = $FrameFit/FrameRoot/UpgradePanel/UpgradeTitle
@@ -121,6 +125,9 @@ func _refresh() -> void:
 	rarity_tile.set_stat("Rarity", "?")
 	var description := ""
 	var faction: StringName = &""
+	# Skills tab: bez skillu pomlcka / no skill -> dash
+	skill_name_label.text = "—"
+	skill_description_label.text = ""
 
 	if is_hero:
 		var hero: HeroData = CardDB.get_hero(_id) if CardDB.has_hero(_id) else null
@@ -132,6 +139,7 @@ func _refresh() -> void:
 			type_tile.set_stat("Type", "God")
 			_set_rarity(hero.rarity)
 			_fill_hero_stats(hero, level, show_next)
+			_fill_skill(hero.skill)
 			_fill_details(hero.faction, hero.domain, [], hero.obtain_source)
 			var synergy := DeckRules.describe_synergy(hero)
 			if synergy != "":
@@ -161,6 +169,16 @@ func _refresh() -> void:
 	card_art.modulate = Color.WHITE if owned else NOT_OWNED_MODULATE
 	level_label.text = "%d" % level if owned else "—"
 	_refresh_upgrade(owned, at_max, level, copies, need)
+
+# --- Skills tab ---
+
+# Text ide zo SkillData.get_description() — cisla sa ladia len v .tres.
+# Text comes from the skill's template; numbers are tuned only in its .tres.
+func _fill_skill(skill: SkillData) -> void:
+	if skill == null:
+		return
+	skill_name_label.text = skill.display_name
+	skill_description_label.text = "Cooldown: %ss\n%s" % [SkillData.format_number(skill.cooldown), skill.get_description()]
 
 # --- Upgrade box ---
 

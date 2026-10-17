@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" uid="uid://c6i02qlmehybc" path="res://scripts/arena/skill_data.gd" id="1_skilldata"]
+
+[resource]
+script = ExtResource("1_skilldata")
+id = &"skill_aphrodite_cestus_of_desire"
+display_name = "Cestus of Desire"
+cooldown = 26.0
+cast_range = 100.0
+values = {
+&"charm_count": 2.0,
+&"charm_duration": 4.0,
+&"god_damage_reduction_pct": 25.0,
+&"radius": 100.0,
+&"smitten_duration": 3.0
+}
+description_template = "Unleashes the power of her enchanted girdle. Up to {charm_count} enemy units nearby are charmed for {charm_duration}s and fight for her. An enemy god caught in it is smitten and deals {god_damage_reduction_pct}% less damage for {smitten_duration}s."

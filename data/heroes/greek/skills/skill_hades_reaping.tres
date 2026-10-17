@@ -1,0 +1,19 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" uid="uid://c6i02qlmehybc" path="res://scripts/arena/skill_data.gd" id="1_skilldata"]
+
+[resource]
+script = ExtResource("1_skilldata")
+id = &"skill_hades_reaping"
+display_name = "Reaping"
+cooldown = 28.0
+cast_range = 50.0
+values = {
+&"damage_pct": 160.0,
+&"execute_hp_pct": 35.0,
+&"max_stacks": 5.0,
+&"radius": 50.0,
+&"soul_ap_pct": 8.0,
+&"soul_duration": 8.0
+}
+description_template = "Sweeps his bident around him. Enemy units below {execute_hp_pct}% HP within reach die instantly; every other enemy, including the enemy god, takes {damage_pct}% of Attack Power. Each soul reaped grants Hades +{soul_ap_pct}% Attack Power for {soul_duration}s, stacking up to {max_stacks} times."

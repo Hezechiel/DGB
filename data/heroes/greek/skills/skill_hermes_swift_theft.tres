@@ -1,0 +1,16 @@
+[gd_resource type="Resource" script_class="SkillData" format=3]
+
+[ext_resource type="Script" uid="uid://c6i02qlmehybc" path="res://scripts/arena/skill_data.gd" id="1_skilldata"]
+
+[resource]
+script = ExtResource("1_skilldata")
+id = &"skill_hermes_swift_theft"
+display_name = "Swift Theft"
+cooldown = 20.0
+cast_range = 150.0
+values = {
+&"damage_pct": 180.0,
+&"dash_range": 150.0,
+&"energy_steal": 1.0
+}
+description_template = "Dashes to the target on winged sandals, dealing {damage_pct}% of Attack Power and stealing {energy_steal} energy from the enemy team."

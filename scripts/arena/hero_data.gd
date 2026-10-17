@@ -72,3 +72,6 @@ enum AttackType { RANGED, MELEE }
 @export_multiline var description: String = ""
 # Velky obraz karty boha pre Card Detail / big god card art. null = idle snimka.
 @export var card_art: Texture2D
+# Aktivny skill boha (data/heroes/<pantheon>/skills/). null = boh skill nema.
+# God's active skill; all its tuning values live in the SkillData file.
+@export var skill: SkillData

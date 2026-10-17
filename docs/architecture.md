@@ -55,7 +55,13 @@ data/
   units/    UnitData     — id, archetype_scene, max_hp, damage, attack_cooldown,
                            speed, target_filter, sprite_frames, description (lore intro; Card Detail falls back to it when CardData.description is empty)
     frames/ SpriteFrames — extracted animation sets, swappable per unit
-  heroes/   HeroData     — id, stats, projectile_scene, sprite_frames
+  heroes/   HeroData     — id, stats, projectile_scene, sprite_frames,
+                           skill (SkillData)
+    skills/ SkillData    — (data/heroes/<pantheon>/skills/) id, display_name,
+                           cooldown, cast_range, values
+                           (tuning dict), description_template ({key}
+                           placeholders filled from values for Card Detail).
+                           Not scanned by CardDB — reached via HeroData.skill
                            (no archetype_scene: control mode picks the scene)
   spells/   SpellData    — id, display_name, spell_type (int: 0=STORM,
                            1=STUN, 2=NET), radius, cast_time,
