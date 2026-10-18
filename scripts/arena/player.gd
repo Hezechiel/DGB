@@ -28,6 +28,64 @@ func apply_slow(multiplier: float, duration: float) -> void:
 	slow_multiplier = multiplier
 	slow_left = maxf(slow_left, duration)
 
+# Knockback = kratky vynuteny pohyb (Tidal Wave) — ZAMERNA duplikacia s
+# unit.gd/hero_dummy.gd. Novy knockback NAHRADI beziaci (nie maxf). Ignoruje
+# root/slow, hybe aj stunnutym hrdinom; prekazky/struktury ho zastavia (mask 4).
+var knockback_left: float = 0.0
+var knockback_velocity: Vector2 = Vector2.ZERO
+
+func apply_knockback(direction: Vector2, distance: float, duration: float) -> void:
+	if is_dead or distance <= 0.0:
+		return
+	# povinne: zamknuty windup vypina _physics_process — bez cancelu by sa posun nikdy nespustil
+	_cancel_attack_windup()
+	duration = maxf(duration, 0.05)
+	knockback_velocity = direction.normalized() * (distance / duration)
+	knockback_left = duration
+	_nav_goal = Vector2.INF  # stara cesta po posune neplati
+
+# === SKILL BOHA === cooldown + try_cast — ZAMERNA duplikacia s hero_dummy.gd
+# (rovnako ako status efekty). Samotny efekt je v SkillEffects (jedno miesto).
+# Skill zacina na cooldowne (spawn aj revive). Cooldown tika v _process, nie
+# v _physics_process — ten je vypnuty pocas zamknuteho windupu a spawn klipu.
+var skill: SkillData = null
+var skill_cd_left: float = 0.0
+
+func _process(delta: float) -> void:
+	# netika pocas smrti, tika aj pocas stunu
+	if not is_dead and skill_cd_left > 0.0:
+		skill_cd_left = maxf(skill_cd_left - delta, 0.0)
+
+func _reset_skill_cooldown() -> void:
+	skill_cd_left = skill.cooldown if skill != null else 0.0
+
+func get_skill_cooldown_left() -> float:
+	return skill_cd_left
+
+# Ciel: primary_target ak je zivy kandidat v cast_range, inak najblizsi nepriatel.
+func _pick_skill_target() -> Node2D:
+	return SkillEffects.pick_cast_target(skill, global_position, "enemy", primary_target)
+
+func can_cast_skill() -> bool:
+	if not SkillEffects.is_implemented(skill):
+		return false
+	if skill_cd_left > 0.0 or is_dead or stun_left > 0.0 or BattleManager.is_match_over():
+		return false
+	return _pick_skill_target() != null
+
+# Instant cast (zatial bez windupu/animacie). Odmietnuty cast cooldown nespusti.
+func try_cast_skill() -> bool:
+	if not can_cast_skill():
+		return false
+	var target := _pick_skill_target()
+	_cancel_attack_windup()
+	last_direction = (target.global_position - global_position).normalized()
+	update_idle_animation()
+	var ok := SkillEffects.cast(skill, self, "player", target, projectile_damage)
+	if ok:
+		skill_cd_left = skill.cooldown
+	return ok
+
 const PLAYER_HURTBOX_LAYER := 8   # zodpoveda layer_4 "player_hurtbox"
 const ENEMY_HURTBOX_LAYER := 16   # zodpoveda layer_5 "enemy_hurtbox"
 var is_dead := false
@@ -94,11 +152,13 @@ func configure(data: HeroData, _new_team: String, stat_mods: Dictionary = {}) ->
 	bolt_scene = data.projectile_scene
 	attack_type = data.attack_type
 	can_move_while_attacking = data.can_move_while_attacking
+	skill = data.skill
 	if data.sprite_frames != null:
 		$AnimatedSprite2D.sprite_frames = data.sprite_frames
 
 func _ready() -> void:
 	health_points = max_hp
+	_reset_skill_cooldown()
 	health_bar.init(max_hp, "player")
 	add_to_group("team_player")
 	add_to_group("heroes")
@@ -120,6 +180,16 @@ func _physics_process(delta):
 	slow_left = maxf(slow_left - delta, 0.0)
 	if slow_left <= 0.0:
 		slow_multiplier = 1.0
+
+	# knockback ma prednost aj pred stunom — vynuteny pohyb, bez vstupu/utokov
+	if knockback_left > 0.0:
+		knockback_left = maxf(knockback_left - delta, 0.0)
+		velocity = knockback_velocity
+		move_and_slide()
+		update_idle_animation()
+		if knockback_left <= 0.0:
+			velocity = Vector2.ZERO
+		return
 
 	# stun = tvrde CC — ziadny pohyb ani strelba; cooldowny (invuln/fire)
 	# pocas stunu netikaju (zamerne, rovnako ako unit.gd attack_left)
@@ -445,6 +515,8 @@ func revive() -> void:
 	add_to_group("team_player")
 	BattleManager.register(self, "player")
 	invuln_left = 1.0
+	knockback_left = 0.0  # zvysok posunu zo smrti nesmie odtlacit hrdinu zo spawnu
+	_reset_skill_cooldown()
 	await play_spawn_animation()
 
 func fire_bolt(target: Node2D) -> void:

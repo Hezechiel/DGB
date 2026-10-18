@@ -63,10 +63,12 @@ mirrors SWFA: name, Cooldown Time, effect in % of Attack Power.
   `obtain_source = 0` (never in packs; F10 still grants them for testing), no
   synergy rule yet, and first-pass stats (melee range 20, Apollo 110, Hades
   400 HP, Athena/Hephaestus 650 HP, Hermes speed 90, Hephaestus 55).
-- **Not built yet:** no runtime skill system exists (casting, cooldown, AI). `hero_authoring_guide.md` §3
-  lists "no hero-specific abilities" as a known gap. Every skill below lists
-  under *Needs* the new mechanics it requires, so the cost is visible
-  before one is picked.
+- **Runtime (Oct 2026):** built for **Zeus and Poseidon** — cooldown,
+  HUD skill button, AI use, and the effects in `SkillEffects`
+  (`architecture.md` §5 "God skills"). Casts are instant for now (no skill
+  windup or animation). The other ten skills are data only until their
+  effect is written; each lists under *Needs* the new mechanics it requires,
+  so the cost is visible before one is picked.
 
 ---
 
@@ -77,7 +79,7 @@ mirrors SWFA: name, Cooldown Time, effect in % of Attack Power.
  
 | Unit | Type | Role | Special |
 |------|------|------|---------|
-| **Zeus** | Ranged | Burst DPS | **Chain Lightning** (skill) — bolt arcs through up to 5 enemies, micro-stun interrupts attacks |
+| **Zeus** | Ranged | Burst DPS | **Chain Lightning** (skill) — bolt hits the target and jumps to up to 5 more enemies, micro-stun interrupts attacks |
 | **Nike** | Melee | Support | **Victory Swipe** — dash attack in a line; ignores impassable terrain; brief speed buff to allies she passes through |
 
 **Intros** *(Card Detail lore — `HeroData.description` once the `.tres` exists)*
@@ -88,7 +90,7 @@ mirrors SWFA: name, Cooldown Time, effect in % of Attack Power.
 - Cooldown Time: 24s
 - Hurls a thunderbolt at the target, dealing 220% of Attack Power. The bolt then arcs to the nearest enemy not yet hit (units, the enemy god and turrets), up to 5 jumps, losing 20% damage per jump. Every target hit is stunned for 0.4s, which interrupts its attack: a god's swing is cancelled and a turret's shot timer restarts.
 - *Balance:* Strongest against clustered squads; against a lone god it is just one 220% hit plus a short interrupt. The 0.4s stun is an interrupt, not a lockdown. Bases are immune (they're not in the target registry, same as for spells). Jump range ~60 px, and the bolt never hits the same target twice.
-- *Needs:* Chain targeting (nearest-unhit search over `get_targets_in_radius()`); a turret "reset shot timer" call (`fire_left = fire_cooldown`). God-stun-cancels-swing already exists.
+- *Built (Oct 2026):* chain targeting (nearest not-yet-hit within `jump_range` of the last hit), `turret.interrupt_shot()`. "5 jumps" = the target **plus** 5 jumps, 6 targets max; the 20 % falloff is multiplicative per jump (220 → 176 → 141 % …). Units hit only pause their swing for the 0.4 s (existing stun behaviour); gods have it cancelled.
  
 ---
  
@@ -108,7 +110,7 @@ mirrors SWFA: name, Cooldown Time, effect in % of Attack Power.
 - Cooldown Time: 22s
 - Strikes the ground with his trident and sends a wave forward in a cone, dealing 180% of Attack Power to all enemies it hits, knocking them back and slowing them by 30% for 2s.
 - *Balance:* A peel and zoning tool: it shoves a push off a turret or breaks a squad's formation. Moderate damage, because the knockback is the value. Knockback distance ~60 px, stopped by obstacles. It doesn't move turrets (they take damage only). Cone ~90°, range ~100 px.
-- *Needs:* Knockback (a new status: a short forced move on units and gods; the windup cancel should fire for gods). The slow already exists.
+- *Built (Oct 2026):* knockback status on units and gods (0.2 s forced slide, stopped by obstacles, cancels the swing in progress). Damage is flat for every target in the cone; the push is radial, straight away from Poseidon.
  
 ---
  
@@ -351,9 +353,11 @@ These four cover most of the special-ability systems the rest of the roster reus
 - [ ] Sidekick death: respawn timer, or gone until hero respawns?
 - [ ] Do sidekick specials auto-cast (AI) or player-triggered? (Player-triggered adds depth but doubles input load on mobile.)
 - [ ] Pair-synergy specials (Apollo + Corvus model): expand or keep as a one-off?
-- [x] God skill timing — **decided (Oct 2026): skills start on cooldown** (not ready at spawn). Reset on respawn still open.
+- [x] God skill timing — **decided (Oct 2026): skills start on cooldown** (not ready at spawn), and the cooldown restarts in full on respawn. It keeps running while the god is stunned.
 - [x] God skill input — **decided: tap-to-fire.** The skill fires toward the god's current target if that target is within the skill's `cast_range`. Aiming specifics get settled during the skill balancing pass.
 - [x] AI — **decided: the AI god uses its skill too.** When/condition is part of the balancing pass.
-- [ ] Which new mechanics to build first: chain targeting, knockback, shield, charm, summon, maddened status. Zeus + Poseidon need only chain + knockback.
+- [ ] Which new mechanics to build next: shield, charm, summon, maddened status, dash, execute. Chain targeting and knockback are built (Zeus, Poseidon).
+- [ ] AI skill timing: today the AI casts the moment the skill is ready and anything is in range. Smarter use (wait for a cluster, save it to peel) is part of the balancing pass.
+- [ ] Skill presentation: cast animation, sounds, button art, a range indicator — none exist yet.
 - [ ] Skill numbers are first-pass placeholders, pending a balance pass alongside the unit stats.
  

@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" uid="uid://dtelfaraph01" path="res://scenes/arena/ui/DeathTelegraph.tscn" id="9_deathtelegraph"]
 [ext_resource type="PackedScene" uid="uid://di21bjc04etpp" path="res://scenes/arena/ui/Minimap.tscn" id="10_minimap"]
 [ext_resource type="PackedScene" uid="uid://cj3iid0e0h3wo" path="res://scenes/arena/ui/SynergyIcon.tscn" id="11_synergyicon"]
+[ext_resource type="PackedScene" path="res://scenes/arena/ui/SkillButton.tscn" id="12_skillbutton"]
 
 [node name="HUD" type="CanvasLayer" unique_id=200000001]
 process_mode = 2
@@ -80,6 +81,20 @@ offset_left = -452.0
 offset_top = -176.0
 offset_right = -396.0
 offset_bottom = -120.0
+grow_horizontal = 0
+grow_vertical = 0
+
+[node name="SkillButton" parent="." instance=ExtResource("12_skillbutton")]
+process_mode = 1
+anchors_preset = 3
+anchor_left = 1.0
+anchor_top = 1.0
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -88.0
+offset_top = -260.0
+offset_right = -12.0
+offset_bottom = -184.0
 grow_horizontal = 0
 grow_vertical = 0
 

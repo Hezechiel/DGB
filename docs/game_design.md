@@ -97,6 +97,12 @@ are mock data (`MatchConfig`).
   active deck. The enemy god is still a fixed placeholder (Poseidon).
 - Gods are scrolls too — they are collected and leveled like cards. A god's
   level raises HP, damage and attack speed.
+- **Every god has one active skill** on top of the auto-attack (SWFA-style):
+  a button with a cooldown, tap-to-fire at the current target within the
+  skill's range. Skills start on cooldown and restart on respawn; damage is
+  % of the god's Attack Power, so it scales with god level. The AI god uses
+  its skill too. Built so far: Zeus (Chain Lightning) and Poseidon (Tidal
+  Wave). Designs and shared rules: `heroes_greek.md`.
 ### 3.4 Death & respawn
 - Per-team respawn penalty: first death **3 s**, +1 s per subsequent death,
   capped at **10 s**. Counters are fully independent per team and persist for the
@@ -458,7 +464,9 @@ are mock data (`MatchConfig`).
 - Does hero death feed the timeout scoring (kill counting)?
 - ~~Faction synergy mechanism.~~ Resolved (§3.14): a boost unlocked by one deck
   threshold per god.
-- Hero abilities beyond the basic projectile (cooldown skills? per-god kits?).
+- ~~Hero abilities beyond the basic projectile.~~ Resolved (§3.3): one
+  active cooldown skill per god; open details (AI timing, presentation,
+  remaining gods) are tracked in `heroes_greek.md`.
 - Sidekick lifecycle: permanent companion vs. summonable card.
 - Real matchmaking flow, search-cancel behaviour, and the source of opponent
   name/faction (see pre-match placeholder in §2) are all undecided.

@@ -43,6 +43,10 @@ func _init() -> void:
 	_picture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_picture.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	_picture.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# Velky card art (~1150 px) sa tu zmensuje ~10x — Linear + mipmapy, inak
+	# by obraz zrnil (architecture.md §6 texture filtering). Mipmapy treba
+	# zapnut v Import docku samotneho PNG; bez nich je to len Linear.
+	_picture.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	box.add_child(_picture)
 
 	_name_label = Label.new()
@@ -100,8 +104,12 @@ func set_forbidden() -> void:
 	modulate = Color(0.45, 0.45, 0.45)
 	set_note("Forbidden")
 
-# Prvy frame idle animacie; obaja sucasni bohovia maju preklep "iddle_left".
+# Obraz boha na dlazdici: card_art (obal karty), inak prvy frame idle
+# animacie (obaja sucasni bohovia maju preklep "iddle_left").
+# God tile picture: card cover first, idle frame as fallback.
 func _hero_texture(hero: HeroData) -> Texture2D:
+	if hero.card_art != null:
+		return hero.card_art
 	var frames := hero.sprite_frames
 	if frames == null:
 		return null

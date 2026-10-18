@@ -1,4 +1,4 @@
-# Divine Gestures: Babylon — Unit Authoring Guide
+# Duel of Gods: Babylon — Unit Authoring Guide
 
 > Companion to `architecture.md`, `hero_authoring_guide.md`, and
 > `map_authoring_guide.md` (same project, sibling pipelines). Read
@@ -39,17 +39,25 @@ same judgment call `architecture.md` §6 already documents for why
 
 A unit's actual identity — stats, art, attack type, sounds — lives in:
 
-- **`data/units/<pantheon>/<id>.tres`** — a `UnitData` resource
-  (`scripts/arena/unit_data.gd`): `id`, `display_name`, `archetype_scene`,
+- **`data/cards/<pantheon>/units/<file>.tres`** — **one file that is both
+  the card and the unit** (Oct 2026 merge, same as `hero_zeus.tres` is both
+  card and avatar). It is a `UnitData` resource
+  (`scripts/arena/unit_data.gd`), which `extends CardData`
+  (`scripts/arena/ui/card_data.gd`). Card fields from the base: `id`,
+  `display_name`, `cost`, `scroll_texture`, `rarity`, `obtain_source`,
+  `faction`, `domain`, `tags`, `description`. Unit fields: `archetype_scene`,
   `max_hp`, `damage`, `attack_cooldown`, `speed`, `target_filter`,
-  `sprite_frames`, and (Sept 2026) `attack_type`, `attack_range`,
-  `projectile_scene`, `damage_point_ratio`, `attack_sfx`, `death_sfx`.
+  `sprite_frames`, `attack_type`, `attack_range`, `projectile_scene`,
+  `damage_point_ratio`, `attack_sfx`, `death_sfx`, and the squad fields
+  `unit_count` / `formation_radius`.
 
-At boot, `CardDB` scans `data/units/` **recursively** (skipping `frames/`
-folders) into an id-keyed dictionary,
-same pattern as `data/heroes/`. A unit is never spawned on its own,
-though — it's always reached through a card: `CardData.unit_data` points
-at the `UnitData`, and `BattleManager.spawn_unit()` (called from
+At boot, `CardDB` scans `data/cards/` **recursively** (skipping `frames/`
+and `skills/` folders) and files every `UnitData` and `SpellData` it finds
+as a card, keyed by `id` — routing is by type, not by folder. There is no
+separate unit dictionary any more (`CardDB.get_unit()` is gone): a unit is
+reached as `CardDB.get_card(id)`, and `card.unit_data` is a typed view that
+returns the same object as `UnitData` (or `null` for a spell).
+`BattleManager.spawn_unit()` (called from
 `play_card()`) instantiates `unit_data.archetype_scene` and calls
 `configure(data, team, stat_mods)`, which copies every stat onto the node
 — multiplied by `stat_mods`, the level and synergy multipliers `BattleManager`
@@ -57,8 +65,8 @@ looks up for that team and card (never written back to the resource) —
 including, same as the hero footgun below, **overwriting**
 `$AnimatedSprite2D.sprite_frames` and resizing
 `$AttackRange/CollisionShape2D.shape.radius` from the data resource. A
-`CardData` with `unit_count > 1` spawns a squad of the identical
-`UnitData` at deterministic ring offsets (`architecture.md` §3) — there is
+card with `unit_count > 1` spawns a squad of identical units at
+deterministic ring offsets (`architecture.md` §3) — there is
 no per-unit-in-squad variance.
 
 ### The footgun this causes (same shape as the hero one)
@@ -70,8 +78,8 @@ radius set directly in the Inspector. Exactly like `player.tscn`/
 design-time/editor-preview defaults and crash-prevention fallbacks —
 `configure()` always overwrites both from the spawned unit's `UnitData`.
 Editing a unit's look or reach in the Inspector on either scene does
-nothing for gameplay; the only place that matters is the `UnitData` .tres
-the card actually points at. The scene-level values must still always
+nothing for gameplay; the only place that matters is the unit card's own
+`.tres`. The scene-level values must still always
 point at *something* valid (a real `SpriteFrames`, a non-zero radius on a
 shape marked `resource_local_to_scene = true`) so the editor preview and
 `scene.instantiate()` itself don't break before `configure()` gets a
@@ -83,7 +91,7 @@ chance to fix them up.
 
 ### 2.1 Sprite art & the frames resource
 
-`SpriteFrames` resources live at `data/units/<pantheon>/frames/frames_<id>.tres`
+`SpriteFrames` resources live at `data/cards/<pantheon>/units/frames/frames_<id>.tres`
 (e.g. `frames_greek_hoplite.tres`, `frames_greek_toxotes.tres`) — same
 `AtlasTexture`-region assembly as hero frames
 (`hero_authoring_guide.md` §2.1), easiest authored by duplicating an
@@ -168,17 +176,17 @@ higher (~0.8-1.0) for one that should feel committed and interruptible-by-
 circumstance (fleeing out of its own attack_range) but not by anything
 else, since nothing else can interrupt it here anyway.
 
-### 2.3 Create `data/units/<pantheon>/<id>.tres`
+### 2.3 Create the unit card `data/cards/<pantheon>/units/<file>.tres`
 
-Easiest path: duplicate an existing unit `.tres`
+Easiest path: duplicate an existing unit card in the Godot FileSystem dock
 (`greek_hoplite.tres` for melee, `greek_toxotes.tres` for ranged) rather
-than building from scratch. `UnitData` fields
+than building from scratch — duplicating in the editor gives the copy its
+own uid. File names today are `greek_<name>.tres`; the **id** inside is
+what counts. The card fields are in §2.4; the unit fields
 (`scripts/arena/unit_data.gd`):
 
 | Field | Guidance |
 |---|---|
-| `id` | Must be globally unique and should actually match the unit's identity — `CardDB` push_errors on a duplicate, but does **not** catch a stale/misleading id like the `melee_test_a`/`melee_test_b` leftovers this project had before the Sept 2026 rename. Keep it in sync with `display_name` by hand. |
-| `display_name` | Player-facing name. |
 | `archetype_scene` | `melee_unit.tscn` or `ranged_unit.tscn` — this is what actually decides which scene spawns; it does NOT need to match `attack_type` by any enforced rule (nothing stops you pointing a MELEE `UnitData` at `ranged_unit.tscn`), so double-check these agree by hand. There is no validation guard for this mismatch today (see §3). |
 | `max_hp` / `damage` / `attack_cooldown` / `speed` / `target_filter` | Optional — omit to fall back to `UnitData`'s own `@export` defaults (`50` / `10` / `1.2` / `35.0` / `0` = `TargetFilter.ALL`). `damage` is used for both MELEE's direct hit and RANGED's projectile damage — one stat, dual use, same as heroes' single `projectile_damage` field covering both attack types. |
 | `attack_type` | `MELEE` (default) or `RANGED`. See §2.2. |
@@ -187,28 +195,37 @@ than building from scratch. `UnitData` fields
 | `damage_point_ratio` | Optional, defaults to `0.7`. See §2.2's feel guidance. |
 | `attack_sfx` / `death_sfx` | `SoundData` ids, empty = silent. See §2.6. |
 | `sprite_frames` | Points at the `.tres` from §2.1. |
-| `description` | Lore intro for Card Detail / flashcard. Shown when the card's own CardData.description is empty. Text source: cards_greek.md §10. |
+| `unit_count` / `formation_radius` | Squad size and spacing. `1` = a single unit. A single and a squad version of the same soldier are two card files (Hoplite and Phalanx). |
 
-### 2.4 Wire it into a card
+### 2.4 Card fields (same file)
 
-Units are never spawned directly — always through a `CardData`
-(`data/cards/<pantheon>/<id>.tres`, `scripts/arena/ui/card_data.gd`) whose
-`unit_data` field points at the `UnitData` from §2.3. `unit_count > 1`
-summons a squad of that same `UnitData` (`architecture.md` §3) —
-`formation_radius` controls spacing, not per-unit variance. There is no
-"which archetype scene" decision at the card level at all — that's fully
-resolved by `UnitData.archetype_scene` from §2.3, the card only ever sees
-`UnitData`.
+There is no second card file to wire up — the unit card from §2.3 already
+is the card. Its card fields come from the `CardData` base:
 
-Card files live in `data/cards/<pantheon>/` and are named after their id:
-`card_<pantheon>_<name>` (e.g. `card_greek_hoplite`). Besides the play fields,
-set the collection fields: `rarity` (0 Common … 3 Legendary),
+| Field | Guidance |
+|---|---|
+| `id` | `card_<pantheon>_<name>` (e.g. `card_greek_hoplite`). Globally unique — `CardDB` push_errors on a duplicate, but does **not** catch a stale/misleading id; keep it in sync with `display_name` by hand. Saves, decks and packs store this id, so never rename it on an existing card. |
+| `display_name` | Player-facing name. |
+| `cost` | Energy cost. |
+| `scroll_texture` | The card face (an `AtlasTexture` region of `decals_greek.png` today). |
+| `description` | Lore intro for Card Detail. Text source: `cards_greek.md` §10. |
+
+Then set the collection fields: `rarity` (0 Common … 3 Legendary),
 `obtain_source` (leave 0 for a test card that must never appear in packs or
 screens; 1 = drops from packs), `faction` (pantheon, defaults to `greek`),
 `domain` (empty = common pool), `tags` (only extra labels — pantheon and
-domain count automatically) and `description` (flashcard text). A new card
+domain count automatically). A new card
 appears in the Encyclopedia and the Deck pool automatically once
 `obtain_source` is not 0; it enters matches only through a player's deck.
+A creature that has no card yet (a god's sidekick, a future summon) is still
+an ordinary unit card with `obtain_source = 0`: spawnable by id, hidden from
+every screen and pack.
+
+**Hand-writing a card file** (outside the editor): reference new files by
+`path=` only, never invent a `uid` (`architecture.md` §6). Open and save it
+once in Godot so its references gain uids **before** you move any folder —
+a path-only reference is not rewritten on a move. A file that still has a
+`unit_data = …` line is the pre-merge format and `CardDB` rejects it.
 
 ### 2.5 AI behavior — nothing to configure per-unit
 
@@ -216,7 +233,7 @@ appears in the Encyclopedia and the Deck pool automatically once
 nearest enemy structure, chase an aggroed enemy, engage in range) is
 entirely generic and reads the same `UnitData` stats every unit gets —
 melee or ranged, any team. A new unit behaves identically to every other
-unit, AI-wise, the moment its `UnitData`/`CardData` exist; there's no
+unit, AI-wise, the moment its card file exists; there's no
 per-unit AI hook the way heroes have `HeroAI`'s HP-hysteresis.
 
 ### 2.6 Sounds (Sept 2026)

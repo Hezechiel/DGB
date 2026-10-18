@@ -132,6 +132,12 @@ func heal(amount: float) -> void:
 	_update_damage_visual()
 
 
+# Chain Lightning: restartne casovac vystrelu (fire_left = fire_cooldown).
+# Volane LEN zo SkillEffects — apply_stun() ostava nezmeneny (Stun spell).
+func interrupt_shot() -> void:
+	fire_left = fire_cooldown
+
+
 func apply_stun(duration: float) -> void:
 	is_stunned = true
 	stun_timer = max(stun_timer, duration) # dlhsi stun vyhrava

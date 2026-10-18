@@ -24,6 +24,10 @@ extends Control
 @onready var deck_overlay: DeckOverlay = $DeckOverlay
 @onready var encyclopedia_overlay: EncyclopediaOverlay = $EncyclopediaOverlay
 
+# Idle klip boha v showcase — obaja sucasni bohovia maju preklep "iddle_left",
+# "idle_left" je spravny nazov pre buducich. / Idle clip names, typo first.
+const SHOWCASE_ANIMS: Array[StringName] = [&"iddle_left", &"idle_left"]
+
 const PREMATCH_FLOW_SCENE := "res://scenes/ui/PreMatchFlow.tscn"
 const COMING_SOON_DURATION := 1.5
 # Menu pozadia podla tieru — neskor sa vyber naviaze na player level
@@ -34,6 +38,8 @@ const MENU_BACKGROUNDS: Array[String] = [
 ]
 
 var _toast_token := 0
+# Frames zo sceny (Zeus) — fallback, ked aktivny boh este nema idle animaciu.
+var _default_showcase_frames: SpriteFrames
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -50,6 +56,10 @@ func _ready() -> void:
 	# (window/stretch/aspect = "expand").
 	hero_showcase.resized.connect(_on_hero_showcase_resized)
 	_on_hero_showcase_resized()
+	_default_showcase_frames = zeus_idle.sprite_frames
+	_apply_showcase_god()
+	# Zmena balicka (Deck screen ulozi noveho aktivneho boha) -> prekresli showcase
+	PlayerProfile.profile_changed.connect(_apply_showcase_god)
 	settings_button.pressed.connect(_on_settings_button_pressed)
 	exit_button.pressed.connect(_on_exit_button_pressed)
 	mail_button.pressed.connect(_show_coming_soon.bind("Mail"))
@@ -95,6 +105,34 @@ func _show_coming_soon(feature_name: String) -> void:
 		if token == _toast_token:
 			coming_soon_toast.visible = false
 	)
+
+# Showcase ukazuje boha aktivneho balicka (PlayerProfile.get_deck_hero()).
+# Boh bez sprite_frames / bez idle klipu -> Zeus zo sceny. Shared SpriteFrames
+# sa len priradi uzlu, nikdy sa nemeni (architecture.md §6).
+func _apply_showcase_god() -> void:
+	var frames: SpriteFrames = null
+	var hero_id := PlayerProfile.get_deck_hero()
+	if CardDB.has_hero(hero_id):
+		frames = CardDB.get_hero(hero_id).sprite_frames
+	var anim := _find_idle_anim(frames)
+	if anim == &"":
+		frames = _default_showcase_frames
+		anim = _find_idle_anim(frames)
+	if anim == &"":
+		return  # ani fallback nema idle — nechaj scenu tak
+	if zeus_idle.sprite_frames == frames and zeus_idle.animation == anim and zeus_idle.is_playing():
+		return  # rovnaky boh — nerestartuj animaciu
+	zeus_idle.sprite_frames = frames
+	zeus_idle.play(anim)
+	DebugLog.info("menu", "showcase: %s (%s)" % [hero_id, anim])
+
+func _find_idle_anim(frames: SpriteFrames) -> StringName:
+	if frames == null:
+		return &""
+	for anim in SHOWCASE_ANIMS:
+		if frames.has_animation(anim) and frames.get_frame_count(anim) > 0:
+			return anim
+	return &""
 
 func _on_hero_showcase_resized() -> void:
 	zeus_idle.position = hero_showcase.size / 2

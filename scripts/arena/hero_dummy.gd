@@ -51,6 +51,64 @@ func apply_slow(multiplier: float, duration: float) -> void:
 	slow_multiplier = multiplier
 	slow_left = maxf(slow_left, duration)
 
+# Knockback = kratky vynuteny pohyb (Tidal Wave) — ZAMERNA duplikacia s
+# unit.gd/player.gd. Novy knockback NAHRADI beziaci (nie maxf). Ignoruje
+# root/slow, hybe aj stunnutym hrdinom; prekazky/struktury ho zastavia (mask 4).
+var knockback_left: float = 0.0
+var knockback_velocity: Vector2 = Vector2.ZERO
+
+func apply_knockback(direction: Vector2, distance: float, duration: float) -> void:
+	if is_dead or distance <= 0.0:
+		return
+	# povinne: zamknuty windup vypina _physics_process — bez cancelu by sa posun nikdy nespustil
+	_cancel_attack_windup()
+	duration = maxf(duration, 0.05)
+	knockback_velocity = direction.normalized() * (distance / duration)
+	knockback_left = duration
+	_nav_goal = Vector2.INF  # stara cesta po posune neplati
+
+# === SKILL BOHA === cooldown + try_cast — ZAMERNA duplikacia s player.gd
+# (rovnako ako status efekty). Samotny efekt je v SkillEffects (jedno miesto).
+# Skill zacina na cooldowne (spawn aj revive). Cooldown tika v _process, nie
+# v _physics_process — ten je vypnuty pocas zamknuteho windupu a spawn klipu.
+var skill: SkillData = null
+var skill_cd_left: float = 0.0
+
+func _process(delta: float) -> void:
+	# netika pocas smrti, tika aj pocas stunu
+	if not is_dead and skill_cd_left > 0.0:
+		skill_cd_left = maxf(skill_cd_left - delta, 0.0)
+
+func _reset_skill_cooldown() -> void:
+	skill_cd_left = skill.cooldown if skill != null else 0.0
+
+func get_skill_cooldown_left() -> float:
+	return skill_cd_left
+
+# AI ciel: najblizsi zivy nepriatel v cast_range.
+func _pick_skill_target() -> Node2D:
+	return SkillEffects.pick_cast_target(skill, global_position, SkillEffects.enemy_team_of(team))
+
+func can_cast_skill() -> bool:
+	if not SkillEffects.is_implemented(skill):
+		return false
+	if skill_cd_left > 0.0 or is_dead or stun_left > 0.0 or BattleManager.is_match_over():
+		return false
+	return _pick_skill_target() != null
+
+# Instant cast (zatial bez windupu/animacie). Odmietnuty cast cooldown nespusti.
+func try_cast_skill() -> bool:
+	if not can_cast_skill():
+		return false
+	var target := _pick_skill_target()
+	_cancel_attack_windup()
+	last_direction = (target.global_position - global_position).normalized()
+	update_idle_animation()
+	var ok := SkillEffects.cast(skill, self, team, target, projectile_damage)
+	if ok:
+		skill_cd_left = skill.cooldown
+	return ok
+
 # Pohybove ciele — refresh v intervale (unit.gd pattern), nie kazdy frame
 var structure_target: Node2D = null  # NORMAL stav
 var heal_target: Node2D = null       # LOW_HP stav
@@ -97,11 +155,13 @@ func configure(data: HeroData, new_team: String, stat_mods: Dictionary = {}) -> 
 	bolt_scene = data.projectile_scene
 	attack_type = data.attack_type
 	can_move_while_attacking = data.can_move_while_attacking
+	skill = data.skill
 	if data.sprite_frames != null:
 		$AnimatedSprite2D.sprite_frames = data.sprite_frames
 
 func _ready() -> void:
 	hp = max_hp
+	_reset_skill_cooldown()
 	health_bar.init(max_hp, team)
 	add_to_group("team_" + team)
 	add_to_group("heroes")
@@ -142,6 +202,16 @@ func _physics_process(delta: float) -> void:
 	slow_left = maxf(slow_left - delta, 0.0)
 	if slow_left <= 0.0:
 		slow_multiplier = 1.0
+
+	# knockback ma prednost aj pred stunom — vynuteny pohyb, bez AI/utokov
+	if knockback_left > 0.0:
+		knockback_left = maxf(knockback_left - delta, 0.0)
+		velocity = knockback_velocity
+		move_and_slide()
+		update_idle_animation()
+		if knockback_left <= 0.0:
+			velocity = Vector2.ZERO
+		return
 
 	# stun = tvrde CC — ziadny pohyb ani strelba; fire_left pocas stunu
 	# netika (zamerne, rovnako ako unit.gd attack_left)
@@ -214,6 +284,11 @@ func _physics_process(delta: float) -> void:
 			var d2 := global_position.distance_squared_to(nearest.global_position)
 			if d2 <= self_defense_range * self_defense_range:
 				_try_fire(nearest)
+
+	# skill: AI castne hned ako moze (NORMAL aj LOW_HP), prvy jednoduchy pass —
+	# ziadne cluster skore ani reaction delay
+	if can_cast_skill():
+		try_cast_skill()
 
 # Prekontroluje/refreshne march ciel v pravidelnom intervale (unit.gd pattern).
 # Ak je aktualny ciel stale ziva platna struktura, ponecha ho.
@@ -585,6 +660,8 @@ func revive() -> void:
 	structure_target = null
 	heal_target = null
 	_nav_goal = Vector2.INF
+	knockback_left = 0.0  # zvysok posunu zo smrti nesmie odtlacit hrdinu zo spawnu
+	_reset_skill_cooldown()
 	await play_spawn_animation()
 
 func _on_hurtbox_input_event(_viewport, event, _shape_idx) -> void:

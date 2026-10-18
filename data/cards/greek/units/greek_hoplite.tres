@@ -1,25 +1,21 @@
 [gd_resource type="Resource" script_class="UnitData" format=3 uid="uid://8171oetd4mas"]
 
-[ext_resource type="Script" uid="uid://udscr5h2n8k3q" path="res://scripts/arena/unit_data.gd" id="1_script"]
-[ext_resource type="Texture2D" uid="uid://ddvmhvblk13ik" path="res://assets/sprites/units/greek/decals_greek.png" id="2_res"]
+[ext_resource type="Script" uid="uid://1qytuvst77bw" path="res://scripts/arena/unit_data.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://dyx04h47moa7p" path="res://assets/sprites/units/greek/hoplite/01_Hoplite_card1.png" id="3_lytyc"]
 [ext_resource type="PackedScene" uid="uid://bakpvvohsixrh" path="res://scenes/arena/units/melee_unit.tscn" id="3_res"]
 [ext_resource type="SpriteFrames" uid="uid://bfbp61tx2uoi4" path="res://data/cards/greek/units/frames/frames_greek_hoplite.tres" id="4_res"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_scroll"]
-atlas = ExtResource("2_res")
-region = Rect2(0, 0, 335, 400)
-
 [resource]
 script = ExtResource("1_script")
-id = &"card_greek_hoplite"
-display_name = "Hoplite"
-cost = 2
-scroll_texture = SubResource("AtlasTexture_scroll")
 formation_radius = 8.0
-obtain_source = 1
 archetype_scene = ExtResource("3_res")
 max_hp = 150
 sprite_frames = ExtResource("4_res")
 attack_sfx = &"sword_hit"
 death_sfx = &"unit_death"
+id = &"card_greek_hoplite"
+display_name = "Hoplite"
+cost = 2
+scroll_texture = ExtResource("3_lytyc")
+obtain_source = 1
 description = "The citizen-soldier of every Greek city, the Hoplite buys his own bronze armor and carries his great round shield with pride. Losing that shield is the ultimate disgrace, so he holds the front line until the battle is won."

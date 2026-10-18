@@ -15,6 +15,7 @@ signal recenter_camera_requested
 @onready var energy_bar: EnergyBar = $EnergyBar
 @onready var minimap: Minimap = $Minimap
 @onready var synergy_icon: SynergyIcon = $SynergyIcon
+@onready var skill_button: SkillButton = $SkillButton
 
 const BUTTON_SIZE := 80.0
 const MARGIN := 8.0

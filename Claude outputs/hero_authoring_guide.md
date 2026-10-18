@@ -1,4 +1,4 @@
-# Divine Gestures: Babylon — Hero Authoring Guide
+# Duel of Gods: Babylon — Hero Authoring Guide
 
 > Companion to `architecture.md` and to `map_authoring_guide.md` (same
 > project, sibling pipeline). Read `architecture.md`'s data-layer section
@@ -25,11 +25,13 @@ and every hero — present and future — shares them:
 A hero's actual identity — stats, projectile, look, and sounds — lives
 entirely in a third kind of file:
 
-- **`data/heroes/<id>.tres`** — a `HeroData` resource (`id`,
-  `display_name`, combat stats, `projectile_scene`, `sprite_frames`,
-  sound ids).
+- **`data/heroes/<pantheon>/hero_<name>.tres`** — a `HeroData` resource
+  (`id`, `display_name`, combat stats, `projectile_scene`, `sprite_frames`,
+  sound ids, collection fields, `card_art`, and `skill` — a link to the
+  god's `SkillData` in `data/heroes/<pantheon>/skills/`, §2.8).
 
-At boot, `CardDB` scans `data/heroes/*.tres` into an id-keyed dictionary
+At boot, `CardDB` scans `data/heroes/` recursively (skipping `frames/` and
+`skills/`) and files every `HeroData` into an id-keyed dictionary
 — the exact same pattern `MapDB` uses for maps. At spawn time,
 `BattleManager.spawn_hero(hero_id, team, controlled)` (scripts/BattleManager.gd
 ~L390) resolves the `HeroData` via `CardDB.get_hero(hero_id)`, instances
@@ -55,7 +57,7 @@ always overwrites it from the spawned hero's `HeroData`. Two consequences:
 
 - Editing a hero's *look* in the Inspector on `player.tscn`/
   `hero_dummy.tscn` does nothing for gameplay. The only place that
-  matters is `sprite_frames` on the hero's own `data/heroes/<id>.tres`.
+  matters is `sprite_frames` on the hero's own `hero_<name>.tres`.
 - The scene-level value must still always point at a **fully existing**
   `SpriteFrames` resource — never at a not-yet-created one, and never
   left empty. If it's missing or the `animation`/`autoplay` name doesn't
@@ -76,7 +78,7 @@ Sprite sheets live at `assets/sprites/gods/<pantheon>/<name>/<name>_<clip>.png`
 (existing convention: `zeus_iddle.png`, `zeus_death.png`, `zeus_spawn.png`,
 `poseidon_idle.png`, ...) — one or more PNGs sliced into equal-size cells
 via `AtlasTexture` regions, assembled into a single `SpriteFrames` resource
-at `data/heroes/frames/frames_<name>.tres`. Easiest path: duplicate an
+at `data/heroes/<pantheon>/frames/frames_<name>.tres`. Easiest path: duplicate an
 existing frames `.tres` (`frames_zeus.tres` is the reference
 implementation) in the Godot editor rather than hand-writing the resource
 text — it keeps the `AtlasTexture` region math correct.
@@ -191,7 +193,7 @@ defaults:
 | `recovery_time` | `0.4` | Post-damage-point cooldown remainder (see above). Override only if this hero should feel noticeably faster/slower to re-engage than the roster default — not to compensate for a slow/fast attack animation, which is handled automatically. |
 | `damage_point_ratio` | `0.7` | The cancelable-vs-committed knob — see the cast-point section above. Lower for quick/kiting heroes (Artemis), higher for slow/heavy ones (Hephaestus). |
 
-### 2.3 Create `data/heroes/<id>.tres`
+### 2.3 Create `data/heroes/<pantheon>/hero_<name>.tres`
 
 Easiest path: duplicate an existing hero `.tres` (`hero_zeus.tres` is the
 reference implementation) rather than building from scratch. `HeroData`
@@ -207,6 +209,13 @@ fields (`scripts/arena/hero_data.gd`):
 | `projectile_scene` | Reuse `scenes/arena/projectiles/projectile.tscn` unless this hero has a bespoke bolt — a hero-specific special (Zeus's Chain Lightning, Poseidon's Tidal Slam per `heroes_greek.md`) is separate, unscoped design work, not part of this checklist. |
 | `sprite_frames` | Points at the `.tres` from §2.1. |
 | `description` | Lore intro for Card Detail. Text source: heroes_greek.md (Intros under each pair). |
+| `card_art` | The god's card cover (`assets/sprites/gods/<pantheon>/<god>/<god>_decal1.png`). Used by Card Detail and the Deck/Encyclopedia tiles. Empty = the first idle frame. Import with Mipmaps on. |
+| `skill` | The god's `SkillData` — see §2.8. Empty = Card Detail shows "—". |
+
+A god can be authored before its art exists: the ten Oct 2026 gods have no
+`sprite_frames` yet and `obtain_source = 0`, so they are hidden and never
+spawned. Fill `sprite_frames` (§2.1) before setting `obtain_source` to 1 or
+pointing a match at the god.
 
 ### 2.4 Point a scene's runtime hero id at it
 
@@ -277,6 +286,29 @@ still missing) / `hero_death_greek` / no spawn voice yet.
 
 ---
 
+### 2.8 The god's skill — `data/heroes/<pantheon>/skills/skill_<god>_<name>.tres` (Oct 2026)
+
+One active skill per god, a `SkillData` resource (`scripts/arena/skill_data.gd`)
+linked from `HeroData.skill`. The designs and shared rules (start on cooldown,
+tap-to-fire toward the current target within `cast_range`, the AI uses skills
+too) are in `heroes_greek.md`. **Data only today** — no casting code reads it;
+Card Detail's Skills tab is the only consumer.
+
+| Field | Guidance |
+|---|---|
+| `id` | `skill_<god>_<name>`, unique. |
+| `display_name` | Skill name shown in Card Detail. |
+| `cooldown` / `cast_range` | Seconds / world px. Also usable in the text as `{cooldown}` / `{cast_range}`. |
+| `values` | Dictionary of every tuning number, e.g. `{"damage_pct": 220, "radius": 60, "stun": 0.4}`. Keys ending in `_pct` are percentages (of Attack Power unless the template says otherwise). Runtime code will read them with `get_value(key)`. |
+| `description_template` | Player text with `{key}` placeholders for the `values` keys: `"Deals {damage_pct}% AP to enemies within {radius}"`. |
+
+**Balancing workflow:** change a number in `values` and the Card Detail text
+updates — never type a number into `description_template`. `get_description()`
+formats whole numbers without decimals (220.0 → "220") and keeps short
+decimals (0.4 → "0.4"). A placeholder with no matching key stays visible as
+`{key}` — check Card Detail after renaming a key. The `skills/` folder is
+skipped by the `CardDB` scan; a skill is reached only through its god.
+
 ## 3. Known gaps
 
 - **No hero-select/network flow.** `PLAYER_HERO_ID`/`ENEMY_HERO_ID` are
@@ -288,12 +320,11 @@ still missing) / `hero_death_greek` / no spawn voice yet.
 - **No sidekick support.** `heroes_greek.md` designs every god with a
   paired sidekick unit; `HeroData` has no sidekick field and nothing
   spawns one. Out of scope for this checklist.
-- **No hero-specific abilities.** Every hero attacks via the same generic
-  cast-point system (§2.2) — there is no cooldown-skill or
-  special-ability system yet (`game_design.md` §6 lists this as an open
-  question). Giving Zeus his Chain Lightning or Poseidon his Tidal Slam
-  is new systems work, not a data-resource checklist item (and so are
-  their sounds).
+- **God skills exist as data only.** Every god has a `SkillData` (§2.8),
+  but in a match every hero still attacks only through the generic
+  cast-point system (§2.2): no skill button, cooldown, effect or AI use
+  yet. That runtime is new systems work (its own Claude Code step), and
+  so are the skills' sounds.
 - **Only two hero scenes, ever (by design).** Unlike maps, don't create
   `scenes/arena/<Name>Hero.tscn` for a new hero — that's not how this
   pipeline works, and doing so would just get ignored by
@@ -365,7 +396,7 @@ still missing) / `hero_death_greek` / no spawn voice yet.
 ## 5. Gods as scrolls (Oct 2026)
 
 `HeroData` files live in `data/heroes/<pantheon>/`, frames in
-`data/heroes/<pantheon>/frames/`. `configure(data, team, stat_mods)` on both
+`data/heroes/<pantheon>/frames/`, skills in `data/heroes/<pantheon>/skills/`. `configure(data, team, stat_mods)` on both
 `player.gd` and `hero_dummy.gd` takes the god's level multipliers: `max_hp`
 and `projectile_damage` are multiplied, `recovery_time` is divided by the
 attack-speed multiplier. Synergy never buffs the god itself.
@@ -381,7 +412,9 @@ Collection and rule fields on `HeroData`:
 | `forbidden_tags` | Tags this god refuses in its deck. Empty = neutral. Compared against a card's `tags` + pantheon + domain. **Check that at least 7 obtainable cards remain allowed** — the game logs an `OBSAH` error at launch otherwise. |
 | `synergy_tag` / `synergy_count` | The deck threshold: how many own-pantheon scrolls with this tag. Empty tag = no synergy. |
 | `synergy_bonuses` | Multipliers once the threshold is met: `max_hp`, `damage`, `speed`, `attack_speed` (units), `spell_damage`, `energy_regen`. |
-| `description` | Flashcard text. |
+| `description` | Card Detail lore intro (same field as in §2.3). |
 
-The Deck screen and Encyclopedia show a god's first `iddle_left` frame (falls
-back to `idle_left`) as its picture — there is no separate scroll art for gods.
+The Deck screen, the Encyclopedia and Card Detail all show `card_art` when it
+is set, otherwise the god's first `iddle_left` frame (falls back to
+`idle_left`). Turn on **Mipmaps** in the cover PNG's Import dock — the tiles
+shrink it about 10×.

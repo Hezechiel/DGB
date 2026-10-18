@@ -105,6 +105,24 @@ func apply_slow(multiplier: float, duration: float) -> void:
 	slow_multiplier = multiplier
 	slow_left = maxf(slow_left, duration)
 
+# Knockback = kratky vynuteny pohyb (Tidal Wave) — ZAMERNA duplikacia s
+# player.gd/hero_dummy.gd. Novy knockback NAHRADI beziaci (nie maxf). Ignoruje
+# root/slow, hybe aj stunnutou unitou; prekazky/struktury ho zastavia (mask 4).
+var knockback_left: float = 0.0
+var knockback_velocity: Vector2 = Vector2.ZERO
+
+func apply_knockback(direction: Vector2, distance: float, duration: float) -> void:
+	if is_dying or distance <= 0.0:
+		return
+	# rozbehnuty windup zrus BEZ zasahu — _resolve_attack_hit() range nekontroluje,
+	# odtlacena melee unit by inak trafila z 60 px. attack_left (cooldown) ostava.
+	windup_left = 0.0
+	_swing_target = null
+	duration = maxf(duration, 0.05)
+	knockback_velocity = direction.normalized() * (distance / duration)
+	knockback_left = duration
+	_nav_goal = Vector2.INF  # stara cesta po posune neplati
+
 # UnitData pouzita pri configure() — zdielany resource, nikdy sa doň
 # nezapisuje runtime stav (hp a pod.)
 var unit_data: UnitData = null
@@ -198,6 +216,16 @@ func _physics_process(delta: float) -> void:
 	invuln_left = maxf(invuln_left - delta, 0.0)
 	if slow_left <= 0.0:
 		slow_multiplier = 1.0
+
+	# knockback ma prednost aj pred stunom — vynuteny pohyb, bez AI/utokov
+	if knockback_left > 0.0:
+		knockback_left = maxf(knockback_left - delta, 0.0)
+		velocity = knockback_velocity
+		move_and_slide()
+		update_idle_animation()
+		if knockback_left <= 0.0:
+			velocity = Vector2.ZERO
+		return
 
 	# stun = tvrde CC — ziadny pohyb, ziadne utoky; zvysok funkcie nebezi,
 	# takze pocas stunu netikaju ani attack cooldowny (zamerne)
