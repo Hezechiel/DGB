@@ -1,9 +1,9 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://cyg2fjjf86dwy"]
 
-[ext_resource type="Script" path="res://scripts/ui/encyclopedia_overlay.gd" id="1_encyclopedia"]
-[ext_resource type="PackedScene" path="res://scenes/menu/card_detail.tscn" id="2_card_detail"]
+[ext_resource type="Script" uid="uid://dt28cm03cgvtj" path="res://scripts/ui/encyclopedia_overlay.gd" id="1_encyclopedia"]
+[ext_resource type="PackedScene" uid="uid://ktbwuh08n1o1" path="res://scenes/menu/card_detail.tscn" id="2_card_detail"]
 
-[node name="EncyclopediaOverlay" type="Control"]
+[node name="EncyclopediaOverlay" type="Control" unique_id=2126735664]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -12,7 +12,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_encyclopedia")
 
-[node name="Panel" type="Panel" parent="."]
+[node name="Panel" type="Panel" parent="." unique_id=905752476]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -20,7 +20,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Margin" type="MarginContainer" parent="Panel"]
+[node name="Margin" type="MarginContainer" parent="Panel" unique_id=1068442528]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -32,36 +32,36 @@ theme_override_constants/margin_top = 16
 theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 16
 
-[node name="Content" type="VBoxContainer" parent="Panel/Margin"]
+[node name="Content" type="VBoxContainer" parent="Panel/Margin" unique_id=47282635]
 layout_mode = 2
 
-[node name="Header" type="HBoxContainer" parent="Panel/Margin/Content"]
+[node name="Header" type="HBoxContainer" parent="Panel/Margin/Content" unique_id=330432867]
 layout_mode = 2
 
-[node name="TitleLabel" type="Label" parent="Panel/Margin/Content/Header"]
+[node name="TitleLabel" type="Label" parent="Panel/Margin/Content/Header" unique_id=667009683]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Encyclopedia"
 
-[node name="OwnedLabel" type="Label" parent="Panel/Margin/Content/Header"]
+[node name="OwnedLabel" type="Label" parent="Panel/Margin/Content/Header" unique_id=203256007]
 layout_mode = 2
 
-[node name="CloseButton" type="Button" parent="Panel/Margin/Content/Header"]
+[node name="CloseButton" type="Button" parent="Panel/Margin/Content/Header" unique_id=503247028]
 layout_mode = 2
 text = "Close"
 
-[node name="FactionTabs" type="HBoxContainer" parent="Panel/Margin/Content"]
+[node name="FactionTabs" type="HBoxContainer" parent="Panel/Margin/Content" unique_id=1820195934]
 layout_mode = 2
 
-[node name="Scroll" type="ScrollContainer" parent="Panel/Margin/Content"]
+[node name="Scroll" type="ScrollContainer" parent="Panel/Margin/Content" unique_id=1256132533]
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="Sections" type="VBoxContainer" parent="Panel/Margin/Content/Scroll"]
+[node name="Sections" type="VBoxContainer" parent="Panel/Margin/Content/Scroll" unique_id=274913920]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="CardDetail" parent="." instance=ExtResource("2_card_detail")]
+[node name="CardDetail" parent="." unique_id=1039064948 instance=ExtResource("2_card_detail")]
 visible = false
 layout_mode = 1

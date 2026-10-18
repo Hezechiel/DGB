@@ -4,8 +4,8 @@
 [ext_resource type="PackedScene" uid="uid://dyxn10n333b4k" path="res://scenes/arena/projectiles/projectile.tscn" id="2_bolt"]
 [ext_resource type="SpriteFrames" uid="uid://dkdrmn6cpj652" path="res://data/heroes/greek/frames/frames_poseidon.tres" id="3_v5v47"]
 [ext_resource type="Texture2D" uid="uid://ba16nhsch1p3o" path="res://assets/sprites/gods/greek/poseidon/poseidon_decal1.png" id="4_cardart"]
-
 [ext_resource type="Resource" path="res://data/heroes/greek/skills/skill_poseidon_tidal_wave.tres" id="5_skill"]
+
 [resource]
 script = ExtResource("1_herodata")
 id = &"hero_poseidon"
@@ -24,6 +24,6 @@ synergy_bonuses = {
 &"damage": 1.1,
 &"max_hp": 1.1
 }
-card_art = ExtResource("4_cardart")
 description = "Lord of the seas and shaker of the earth, Poseidon wades into battle with his trident raised. Each strike unleashes the fury of the tide, hurling enemies back like driftwood before a storm."
+card_art = ExtResource("4_cardart")
 skill = ExtResource("5_skill")

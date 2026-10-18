@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="SkillData" format=3]
+[gd_resource type="Resource" script_class="SkillData" format=3 uid="uid://besqscgfmt75n"]
 
 [ext_resource type="Script" uid="uid://c6i02qlmehybc" path="res://scripts/arena/skill_data.gd" id="1_skilldata"]
 
@@ -6,7 +6,6 @@
 script = ExtResource("1_skilldata")
 id = &"skill_athena_aegis_of_medusa"
 display_name = "Aegis of Medusa"
-cooldown = 20.0
 cast_range = 60.0
 values = {
 &"god_stun": 0.5,

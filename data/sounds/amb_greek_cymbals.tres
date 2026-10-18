@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="SoundData" format=3]
+[gd_resource type="Resource" script_class="SoundData" format=3 uid="uid://ui7siryud08v"]
 
-[ext_resource type="Script" path="res://scripts/sound_data.gd" id="1_sound"]
-[ext_resource type="AudioStream" path="res://assets/audio/ambient/greek/amb_greek_cymbals.ogg" id="2_cym"]
+[ext_resource type="Script" uid="uid://b8xlminom23s1" path="res://scripts/sound_data.gd" id="1_sound"]
+[ext_resource type="AudioStream" uid="uid://dpnk81ci1ebm7" path="res://assets/audio/ambient/greek/amb_greek_cymbals.ogg" id="2_cym"]
 
 [resource]
 script = ExtResource("1_sound")
@@ -11,7 +11,6 @@ bus = "Environment"
 priority = 0
 volume_db = -12.0
 volume_jitter_db = 2.0
-pitch_jitter = 0.03
 max_instances = 1
 min_interval = 0.0
 positional = false

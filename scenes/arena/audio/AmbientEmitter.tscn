@@ -1,6 +1,6 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://d1o7npa5ip1sv"]
 
-[ext_resource type="Script" path="res://scripts/arena/ambient_emitter.gd" id="1_ambient"]
+[ext_resource type="Script" uid="uid://dbry68ulst751" path="res://scripts/arena/ambient_emitter.gd" id="1_ambient"]
 
-[node name="AmbientEmitter" type="Node2D"]
+[node name="AmbientEmitter" type="Node2D" unique_id=2024208453]
 script = ExtResource("1_ambient")

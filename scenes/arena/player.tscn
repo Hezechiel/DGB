@@ -21,9 +21,9 @@ script = ExtResource("1_g2els")
 bolt_scene = ExtResource("2_dqkch")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1617835785]
+texture_filter = 4
 position = Vector2(0, -10)
 scale = Vector2(0.1, 0.1)
-texture_filter = 4
 sprite_frames = ExtResource("3_5o8y0")
 animation = &"attack_left"
 autoplay = "iddle_left"
@@ -38,11 +38,11 @@ collision_mask = 0
 [node name="CollisionShape2" type="CollisionShape2D" parent="Hurtbox" unique_id=802050379]
 shape = SubResource("CircleShape2D_hurtbox")
 
-[node name="AttackRange" type="Area2D" parent="."]
+[node name="AttackRange" type="Area2D" parent="." unique_id=202136698]
 collision_layer = 0
 collision_mask = 0
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackRange"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="AttackRange" unique_id=1824772336]
 shape = SubResource("CircleShape2D_attackrange")
 
 [node name="HealthBar" parent="." unique_id=1966774128 instance=ExtResource("4_hbar")]
@@ -52,6 +52,6 @@ offset_right = -16.0
 offset_bottom = -30.0
 always_visible = true
 
-[node name="NavAgent" type="NavigationAgent2D" parent="."]
+[node name="NavAgent" type="NavigationAgent2D" parent="." unique_id=976533124]
 path_desired_distance = 4.0
 target_desired_distance = 8.0

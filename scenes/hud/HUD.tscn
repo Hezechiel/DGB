@@ -10,8 +10,8 @@
 [ext_resource type="PackedScene" uid="uid://cq6n7mpjrxhmw" path="res://scenes/arena/ui/MatchInfoBar.tscn" id="7_matchinfo"]
 [ext_resource type="PackedScene" uid="uid://c0hiu18mx0ygl" path="res://scenes/arena/ui/EnergyBar.tscn" id="8_energybar"]
 [ext_resource type="PackedScene" uid="uid://dtelfaraph01" path="res://scenes/arena/ui/DeathTelegraph.tscn" id="9_deathtelegraph"]
-[ext_resource type="PackedScene" path="res://scenes/arena/ui/Minimap.tscn" id="10_minimap"]
-[ext_resource type="PackedScene" path="res://scenes/arena/ui/SynergyIcon.tscn" id="11_synergyicon"]
+[ext_resource type="PackedScene" uid="uid://di21bjc04etpp" path="res://scenes/arena/ui/Minimap.tscn" id="10_minimap"]
+[ext_resource type="PackedScene" uid="uid://cj3iid0e0h3wo" path="res://scenes/arena/ui/SynergyIcon.tscn" id="11_synergyicon"]
 
 [node name="HUD" type="CanvasLayer" unique_id=200000001]
 process_mode = 2

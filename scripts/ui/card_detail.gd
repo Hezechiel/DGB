@@ -150,16 +150,13 @@ func _refresh() -> void:
 			card_art.texture = card.scroll_texture
 			name_label.text = card.display_name
 			description = card.description
-			# fallback na lore intro jednotky / fall back to the unit's intro
-			if description == "" and card.unit_data != null:
-				description = card.unit_data.description
 			faction = card.faction
 			type_tile.set_stat("Type", _card_type(card))
 			_set_rarity(card.rarity)
 			_fill_details(card.faction, card.domain, card.tags, card.obtain_source)
 			if card.unit_data != null:
 				_fill_unit_stats(card, level, show_next)
-				if card.unit_count > 1:
+				if card.unit_data.unit_count > 1:
 					_add_detail("Deploy Time: UNK")
 			elif card.spell_data != null:
 				_fill_spell_stats(card, level, show_next)
@@ -229,8 +226,8 @@ func _fill_unit_stats(card: CardData, level: int, show_next: bool) -> void:
 	var target := unit.target_filter
 	_add_stat("Target", TARGET_NAMES[target] if target >= 0 and target < TARGET_NAMES.size() else "?")
 	# squad: velkost oddielu namiesto Deploy Time (ten ide do Details)
-	if card.unit_count > 1:
-		_add_stat("Squad Size", "%d" % card.unit_count)
+	if unit.unit_count > 1:
+		_add_stat("Squad Size", "%d" % unit.unit_count)
 	else:
 		_add_stat("Deploy Time", "UNK")
 	_add_stat("Energy Cost", "%d" % card.cost)
@@ -314,7 +311,7 @@ func _clear(container: Node) -> void:
 func _card_type(card: CardData) -> String:
 	if card.spell_data != null:
 		return "Spell"
-	return "Squad" if card.unit_count > 1 else "Unit"
+	return "Squad" if card.unit_data.unit_count > 1 else "Unit"
 
 func _rarity_name(rarity: int) -> String:
 	return RARITY_NAMES[rarity] if rarity >= 0 and rarity < RARITY_NAMES.size() else "?"

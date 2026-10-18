@@ -21,9 +21,9 @@ script = ExtResource("1_dummy")
 
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1823778783]
 z_index = 1
+texture_filter = 4
 position = Vector2(0, -10)
 scale = Vector2(0.1, 0.1)
-texture_filter = 4
 sprite_frames = ExtResource("2_frames")
 animation = &"iddle_left"
 autoplay = "iddle_left"
@@ -56,6 +56,6 @@ always_visible = true
 scale = Vector2(0.4, 0.4)
 texture = ExtResource("4_ngm5m")
 
-[node name="NavAgent" type="NavigationAgent2D" parent="."]
+[node name="NavAgent" type="NavigationAgent2D" parent="." unique_id=62640232]
 path_desired_distance = 4.0
 target_desired_distance = 8.0

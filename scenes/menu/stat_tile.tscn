@@ -1,35 +1,35 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://c131fjr8tltp0"]
 
-[ext_resource type="Script" path="res://scripts/ui/stat_tile.gd" id="1_stat_tile"]
-[ext_resource type="FontFile" path="res://assets/fonts/Oswald/static/Oswald-Medium.ttf" id="2_medium"]
-[ext_resource type="FontFile" path="res://assets/fonts/Oswald/static/Oswald-SemiBold.ttf" id="3_semibold"]
+[ext_resource type="Script" uid="uid://c6mfwkbcp4r42" path="res://scripts/ui/stat_tile.gd" id="1_stat_tile"]
+[ext_resource type="FontFile" uid="uid://blk7xtmlwiebd" path="res://assets/fonts/Oswald/static/Oswald-Medium.ttf" id="2_medium"]
+[ext_resource type="FontFile" uid="uid://dpxp0eu1dt6jk" path="res://assets/fonts/Oswald/static/Oswald-SemiBold.ttf" id="3_semibold"]
 
-[node name="StatTile" type="PanelContainer"]
+[node name="StatTile" type="PanelContainer" unique_id=622353294]
 size_flags_horizontal = 3
 theme_type_variation = &"StatTile"
 script = ExtResource("1_stat_tile")
 
-[node name="VBox" type="VBoxContainer" parent="."]
+[node name="VBox" type="VBoxContainer" parent="." unique_id=447155525]
 layout_mode = 2
 theme_override_constants/separation = 0
 
-[node name="NameLabel" type="Label" parent="VBox"]
+[node name="NameLabel" type="Label" parent="VBox" unique_id=701794207]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.6, 0.65, 0.72, 1)
 theme_override_fonts/font = ExtResource("2_medium")
 theme_override_font_sizes/font_size = 13
 text_overrun_behavior = 3
 
-[node name="ValueRow" type="HBoxContainer" parent="VBox"]
+[node name="ValueRow" type="HBoxContainer" parent="VBox" unique_id=1922169959]
 layout_mode = 2
 theme_override_constants/separation = 6
 
-[node name="ValueLabel" type="Label" parent="VBox/ValueRow"]
+[node name="ValueLabel" type="Label" parent="VBox/ValueRow" unique_id=128222796]
 layout_mode = 2
 theme_override_fonts/font = ExtResource("3_semibold")
 theme_override_font_sizes/font_size = 18
 
-[node name="DeltaLabel" type="Label" parent="VBox/ValueRow"]
+[node name="DeltaLabel" type="Label" parent="VBox/ValueRow" unique_id=1358483761]
 visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.45, 0.85, 0.35, 1)

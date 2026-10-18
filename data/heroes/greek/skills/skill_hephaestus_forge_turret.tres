@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="SkillData" format=3]
+[gd_resource type="Resource" script_class="SkillData" format=3 uid="uid://dsaedwd4tmiyo"]
 
 [ext_resource type="Script" uid="uid://c6i02qlmehybc" path="res://scripts/arena/skill_data.gd" id="1_skilldata"]
 

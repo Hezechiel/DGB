@@ -1,6 +1,6 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://di21bjc04etpp"]
 
-[ext_resource type="Script" path="res://scripts/arena/ui/minimap.gd" id="1_minimap"]
+[ext_resource type="Script" uid="uid://bpbh0gecn24et" path="res://scripts/arena/ui/minimap.gd" id="1_minimap"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_minimap"]
 bg_color = Color(0.1, 0.1, 0.15, 0.6)
@@ -14,8 +14,7 @@ corner_radius_top_right = 4
 corner_radius_bottom_right = 4
 corner_radius_bottom_left = 4
 
-[node name="Minimap" type="Panel"]
-anchors_preset = 0
+[node name="Minimap" type="Panel" unique_id=1969939899]
 offset_left = 12.0
 offset_top = 12.0
 offset_right = 182.0

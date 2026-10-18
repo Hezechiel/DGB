@@ -208,13 +208,16 @@ Combat units (`scripts/arena/unit.gd`) compute their `Hurtbox`/`AttackRange`/`Ag
 - `_ready()` order: load the active map via `MapDB`/`MapData` into `MapRoot` (see "MapDB / MapData" above) → `BattleManager.set_team_manifest()` for both teams from `MatchConfig` → synergy `energy_regen` modifiers → `hud.synergy_icon.configure("player")` → spawn both heroes via `BattleManager.spawn_hero(MatchConfig.local_hero_id / opponent_hero_id, ...)` (no hardcoded hero constants) → `hud.minimap.configure_map()` → `EnemyCardAI` + `MatchAnnouncer` → `BattleManager.start_match_timer()`
 
 **Data layout & CardDB** — autoload `scripts/CardDB.gd`
-- Resources live in `data/<type>/<pantheon>/` (`data/cards/greek/`, `data/units/greek/`, `data/heroes/greek/`, `data/spells/greek/`); `CardDB` scans `data/cards|units|heroes|spells|packs/` **recursively** at startup, skipping `frames/` folders (SpriteFrames), and indexes every resource by its `id`
+- **One `.tres` per card or god** (Oct 2026). Layout: `data/cards/<pantheon>/units/` (unit cards + `frames/`), `data/cards/<pantheon>/spells/` (spell cards + `frames/`), `data/heroes/<pantheon>/` (gods + `frames/` + `skills/`)
+- `CardDB` scans `data/cards|heroes|packs/` **recursively** at startup (plus the legacy `data/units|spells/` roots if they exist), skipping `frames/` (SpriteFrames) and `skills/` (SkillData, reached via `HeroData.skill`), and routes each resource **by type, not folder**: `UnitData`/`SpellData` → cards, `HeroData` → gods, `PackData` → packs. A bare `CardData` file is rejected with an error (old pre-merge format). Indexed by `id`
 - Card ids are named, `card_greek_<name>` (e.g. `card_greek_hoplite`, `card_greek_storm`); gods are `hero_<name>`
 - `data/packs/` holds `PackData` (`greek_scroll_pack.tres`, `greek_cherished_pack.tres`); `data/progression/level_curve.tres` is the single `LevelCurve` used by both `PlayerProfile` and `BattleManager`
 - `get_pack_pool(faction)` builds the `PackRoller` drop pool (rarity → ids) from cards **and** gods with `obtain_source == 1`
 
+**Card types** — `CardData` (`scripts/arena/ui/card_data.gd`) is the shared base holding every card field below; it is never used on its own. `UnitData extends CardData` adds the unit stats plus `unit_count`/`formation_radius` (squad); `SpellData extends CardData` adds the spell parameters. A card file is therefore the card **and** its gameplay data, like `HeroData`. `card.unit_data` / `card.spell_data` are non-exported typed views returning the card itself (or `null` for the other kind), so `if card.unit_data != null` still works everywhere
+
 **Scrolls metadata on `CardData` / `HeroData`** — `scripts/arena/ui/card_data.gd`, `scripts/arena/hero_data.gd`
-- Shared: `rarity` (plain int: 0 COMMON, 1 RARE, 2 EPIC, 3 LEGENDARY, 4 UNIQUE = gods only), `obtain_source` (0 NONE — never granted, 1 PACK, 2 ACHIEVEMENT, 3 QUEST, 4 EVENT), `faction` (pantheon: `greek`, `norse`, …), `domain` (cross-pantheon: `olympus`, `sea`, …; `&""` = common pool), `description` (flashcard text)
+- Shared: `rarity` (plain int: 0 COMMON, 1 RARE, 2 EPIC, 3 LEGENDARY, 4 UNIQUE = gods only), `obtain_source` (0 NONE — never granted, 1 PACK, 2 ACHIEVEMENT, 3 QUEST, 4 EVENT), `faction` (pantheon: `greek`, `norse`, …), `domain` (cross-pantheon: `olympus`, `sea`, …; `&""` = common pool), `description` (Card Detail lore intro)
 - Cards only: `tags: Array[StringName]` (free tags; `faction` + `domain` count as tags automatically via `DeckRules.card_tags()`)
 - Gods only: `forbidden_tags` (deck rules — tags this god refuses), `synergy_tag` + `synergy_count` (deck threshold, default 4), `synergy_bonuses` (effect key → multiplier: `max_hp`/`damage`/`speed`/`attack_speed` for units, `spell_damage`, `energy_regen`)
 

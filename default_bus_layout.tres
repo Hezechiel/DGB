@@ -1,4 +1,4 @@
-[gd_resource type="AudioBusLayout" load_steps=2 format=3 uid="uid://dpdybay23h2h1"]
+[gd_resource type="AudioBusLayout" format=3 uid="uid://dpdybay23h2h1"]
 
 [sub_resource type="AudioEffectHardLimiter" id="AudioEffectHardLimiter_dgb01"]
 

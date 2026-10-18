@@ -1,13 +1,12 @@
-[gd_resource type="Resource" script_class="SoundData" format=3]
+[gd_resource type="Resource" script_class="SoundData" format=3 uid="uid://dilf52mxl21kv"]
 
-[ext_resource type="Script" path="res://scripts/sound_data.gd" id="1_sound"]
-[ext_resource type="AudioStream" path="res://assets/audio/sfx/combat/death/unit_death_01.wav" id="2_d01"]
+[ext_resource type="Script" uid="uid://b8xlminom23s1" path="res://scripts/sound_data.gd" id="1_sound"]
+[ext_resource type="AudioStream" uid="uid://b5p76x6o0iqpv" path="res://assets/audio/sfx/combat/death/unit_death_01.wav" id="2_d01"]
 
 [resource]
 script = ExtResource("1_sound")
 id = &"unit_death"
 streams = Array[AudioStream]([ExtResource("2_d01")])
-bus = "Combat"
 priority = 0
 volume_db = -4.0
 max_instances = 2

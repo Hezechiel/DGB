@@ -31,7 +31,7 @@
 | Autoload | Role |
 |---|---|
 | `BattleManager` | Match state owner: team registries, structures, spawn entry points, hero respawn, match timer, `match_ended`. |
-| `CardDB` | Startup scan of `data/cards/`, `data/units/`, `data/heroes/` into id-keyed dictionaries. Handles `.tres.remap` suffixes in Android exports. Duplicate-id guard. |
+| `CardDB` | Startup scan of `data/cards/`, `data/heroes/`, `data/packs/` (recursive; skips `frames/` and `skills/`) into id-keyed dictionaries. Routes each resource **by type**, not folder (`UnitData`/`SpellData` → cards, `HeroData`, `PackData`), so the folder layout can change without code changes. Handles `.tres.remap` suffixes in Android exports. Duplicate-id guard; a bare `CardData` file (old pre-merge format) is rejected. |
 | `EnergySystem` | Per-team energy: float pools, base regen, and a modifier list (temporary regen multipliers / cost reductions). **Zero scene/UI dependencies by design** — pure state+math so it ports to an authoritative server as-is; its only dependency is `CardDB` (cost lookup). Driven by the caller (`arena.gd` today): `reset_match_state()` / `start()` / `stop()`. Emits `energy_int_changed`. |
 | `HealingSystem` | Per-team pod cooldowns + active heal-over-time state. **Zero scene/UI dependencies by design**, same contract as `EnergySystem` — no scene/node/Area2D/Sprite2D references, pure state+math so it ports to an authoritative server as-is. Third autoload with its own `reset_match_state()` (same pattern as `EnergySystem`). Death safeguard lives in the hero scripts: `die()` calls `HealingSystem.cancel_heal(team)`, which clears the active HoT and emits `heal_ended` — the same signal path a normally-completed heal uses to clear the health bar's pending band. Emits `pod_ready`, `heal_instant`, `heal_tick`, `heal_started`, `heal_ended`. |
 | `MatchConfig` | Placeholder holder for pre-match display data (rank, map, both players' name/faction). Populated by `setup_placeholder_match()` today; matchmaking later. Display-only, never networked. |
@@ -49,12 +49,19 @@ scene of its own to parent spawned nodes under).
  
 ```
 data/
-  cards/    CardData     — id, display_name, cost, scroll_texture (AtlasTexture
-                           region of the scroll spritesheet), unit_data,
-                           unit_count, formation_radius
-  units/    UnitData     — id, archetype_scene, max_hp, damage, attack_cooldown,
-                           speed, target_filter, sprite_frames, description (lore intro; Card Detail falls back to it when CardData.description is empty)
-    frames/ SpriteFrames — extracted animation sets, swappable per unit
+  cards/<pantheon>/           one .tres per card (Oct 2026). Base class
+                              CardData — id, display_name, cost,
+                              scroll_texture, rarity, obtain_source,
+                              faction, domain, tags, description — is never
+                              used alone; every card file is one of:
+    units/    UnitData     — extends CardData + archetype_scene, max_hp,
+                             damage, attack_cooldown, speed, target_filter,
+                             sprite_frames, attack_type, attack_range,
+                             projectile_scene, damage_point_ratio, sfx,
+                             unit_count, formation_radius
+      frames/ SpriteFrames — extracted animation sets, swappable per unit
+    spells/   SpellData    — extends CardData + spell parameters (below)
+      frames/ SpriteFrames
   heroes/   HeroData     — id, stats, projectile_scene, sprite_frames,
                            skill (SkillData)
     skills/ SkillData    — (data/heroes/<pantheon>/skills/) id, display_name,
@@ -63,7 +70,7 @@ data/
                            placeholders filled from values for Card Detail).
                            Not scanned by CardDB — reached via HeroData.skill
                            (no archetype_scene: control mode picks the scene)
-  spells/   SpellData    — id, display_name, spell_type (int: 0=STORM,
+  (spells)  SpellData    — card fields + spell_type (int: 0=STORM,
                            1=STUN, 2=NET), radius, cast_time,
                            zone_duration, effect_duration, damage,
                            tick_interval, slow_multiplier, sprite_frames
@@ -74,14 +81,17 @@ data/
 ```
  
 Resolution chain for a played card:
-`card_id → CardDB.get_card() → CardData.unit_data → archetype_scene.instantiate()
-→ configure(data, team) → add to arena`.
+`card_id → CardDB.get_card() → (UnitData) archetype_scene.instantiate()
+→ configure(data, team) → add to arena`. `card.unit_data` / `card.spell_data`
+are non-exported typed views on `CardData` that return the card itself (or
+`null` for the other kind), so call sites read the same as before the merge.
  
 A card with `unit_count > 1` summons a squad: `BattleManager.spawn_unit()` returns
 `Array[Node]` and places each unit with a **deterministic** ring offset
 (`_formation_offset()`, no RNG) so both clients derive an identical formation from
-the same `{card_id, position, team}` message. Squad size lives on `CardData`, not
-`UnitData`: one unit archetype can back both a single-unit and a squad card.
+the same `{card_id, position, team}` message. Squad size (`unit_count`,
+`formation_radius`) lives on the unit card itself; a single and a squad version
+of the same soldier are two card files (as Hoplite and Phalanx already are).
 `BattleManager` also self-registers healing pods (`register_healing_pod()`,
 called from each pod's own `_ready()`, same pattern as turrets/bases) and
 exposes `get_nearest_ready_healing_pod(team, from_pos)` — strict own-side-first:
@@ -109,12 +119,9 @@ resets `_protection_zones` back to the empty dict alongside the other
 per-match registries. `is_card_target_valid()` (spell targeting) does **not**
 consult protection zones at all — only `deploy_bounds` — which is what keeps
 spells targetable anywhere on the map (`game_design.md` §3.11).
-`CardData` carries **either** `unit_data` **or** `spell_data`, never both —
-`CardDB._load_into()` guards this at load time and `push_error`s on a card
-with neither or both. Resolution chain for a played spell:
-`card_id → CardDB.get_card() → CardData.spell_data → BattleManager.cast_spell()`.
-`CardDB` scans `data/spells/` as a fourth resource directory, same pattern
-(and same `.tres.remap` handling) as cards/units/heroes.
+A card is a unit card **or** a spell card by its type (`UnitData` /
+`SpellData`), so "both or neither" can no longer happen. Resolution chain for a
+played spell: `card_id → CardDB.get_card() → (SpellData) → BattleManager.cast_spell()`.
 `SpellData` carries **two separate durations** — `zone_duration` (how long
 the area lives on the map) and `effect_duration` (how long stun/root/slow
 lasts on a unit that was hit). They are not interchangeable: Storm's zone

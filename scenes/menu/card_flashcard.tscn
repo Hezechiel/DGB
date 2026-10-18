@@ -1,8 +1,8 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://bg84wi5g6vdij"]
 
-[ext_resource type="Script" path="res://scripts/ui/card_flashcard.gd" id="1_flashcard"]
+[ext_resource type="Script" uid="uid://dadwbjqu1a478" path="res://scripts/ui/card_flashcard.gd" id="1_flashcard"]
 
-[node name="CardFlashcard" type="Control"]
+[node name="CardFlashcard" type="Control" unique_id=1171010357]
 visible = false
 layout_mode = 3
 anchors_preset = 15
@@ -12,7 +12,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_flashcard")
 
-[node name="Dim" type="ColorRect" parent="."]
+[node name="Dim" type="ColorRect" parent="." unique_id=1886203165]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -21,7 +21,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 0.6)
 
-[node name="Card" type="PanelContainer" parent="."]
+[node name="Card" type="PanelContainer" parent="." unique_id=764295257]
 custom_minimum_size = Vector2(900, 470)
 layout_mode = 1
 anchors_preset = 8
@@ -36,63 +36,63 @@ offset_bottom = 235.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Margin" type="MarginContainer" parent="Card"]
+[node name="Margin" type="MarginContainer" parent="Card" unique_id=254284916]
 layout_mode = 2
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 16
 theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 16
 
-[node name="Layout" type="HBoxContainer" parent="Card/Margin"]
+[node name="Layout" type="HBoxContainer" parent="Card/Margin" unique_id=1186351731]
 layout_mode = 2
 
-[node name="Left" type="VBoxContainer" parent="Card/Margin/Layout"]
+[node name="Left" type="VBoxContainer" parent="Card/Margin/Layout" unique_id=1787561251]
 custom_minimum_size = Vector2(220, 0)
 layout_mode = 2
 
-[node name="Picture" type="TextureRect" parent="Card/Margin/Layout/Left"]
+[node name="Picture" type="TextureRect" parent="Card/Margin/Layout/Left" unique_id=317360319]
 custom_minimum_size = Vector2(200, 240)
 layout_mode = 2
 expand_mode = 1
 stretch_mode = 5
 
-[node name="LevelLabel" type="Label" parent="Card/Margin/Layout/Left"]
+[node name="LevelLabel" type="Label" parent="Card/Margin/Layout/Left" unique_id=28520137]
 layout_mode = 2
 
-[node name="CopiesBar" type="ProgressBar" parent="Card/Margin/Layout/Left"]
+[node name="CopiesBar" type="ProgressBar" parent="Card/Margin/Layout/Left" unique_id=1701556791]
 layout_mode = 2
 show_percentage = false
 
-[node name="CopiesLabel" type="Label" parent="Card/Margin/Layout/Left"]
+[node name="CopiesLabel" type="Label" parent="Card/Margin/Layout/Left" unique_id=178246868]
 layout_mode = 2
 
-[node name="LevelUpButton" type="Button" parent="Card/Margin/Layout/Left"]
+[node name="LevelUpButton" type="Button" parent="Card/Margin/Layout/Left" unique_id=1045009958]
 custom_minimum_size = Vector2(0, 56)
 layout_mode = 2
 text = "Level up"
 
-[node name="Right" type="VBoxContainer" parent="Card/Margin/Layout"]
+[node name="Right" type="VBoxContainer" parent="Card/Margin/Layout" unique_id=1411885710]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Header" type="HBoxContainer" parent="Card/Margin/Layout/Right"]
+[node name="Header" type="HBoxContainer" parent="Card/Margin/Layout/Right" unique_id=1292422594]
 layout_mode = 2
 
-[node name="NameLabel" type="Label" parent="Card/Margin/Layout/Right/Header"]
+[node name="NameLabel" type="Label" parent="Card/Margin/Layout/Right/Header" unique_id=1903541017]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="CloseButton" type="Button" parent="Card/Margin/Layout/Right/Header"]
+[node name="CloseButton" type="Button" parent="Card/Margin/Layout/Right/Header" unique_id=171759085]
 layout_mode = 2
 text = "X"
 
-[node name="MetaLabel" type="Label" parent="Card/Margin/Layout/Right"]
+[node name="MetaLabel" type="Label" parent="Card/Margin/Layout/Right" unique_id=60637194]
 layout_mode = 2
 
-[node name="DescriptionLabel" type="Label" parent="Card/Margin/Layout/Right"]
+[node name="DescriptionLabel" type="Label" parent="Card/Margin/Layout/Right" unique_id=47813112]
 layout_mode = 2
 autowrap_mode = 3
 
-[node name="StatsGrid" type="GridContainer" parent="Card/Margin/Layout/Right"]
+[node name="StatsGrid" type="GridContainer" parent="Card/Margin/Layout/Right" unique_id=1282898193]
 layout_mode = 2
 columns = 3

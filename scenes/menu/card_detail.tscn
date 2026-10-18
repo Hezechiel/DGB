@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://b1gn8l7xd7w23" path="res://scripts/ui/card_detail.gd" id="1_card_detail"]
 [ext_resource type="Theme" uid="uid://beyrr0ak632mo" path="res://assets/UI/dgb_theme.tres" id="2_theme"]
 [ext_resource type="Texture2D" uid="uid://d0jysrdceldtn" path="res://assets/menu/deck/card_detail_blank.png" id="3_frame"]
-[ext_resource type="PackedScene" path="res://scenes/menu/stat_tile.tscn" id="4_stat_tile"]
+[ext_resource type="PackedScene" uid="uid://c131fjr8tltp0" path="res://scenes/menu/stat_tile.tscn" id="4_stat_tile"]
 [ext_resource type="Texture2D" uid="uid://bdqf53sqwahvg" path="res://assets/menu/close.png" id="5_close"]
 [ext_resource type="FontFile" uid="uid://cu44owi4ana21" path="res://assets/fonts/Oswald/static/Oswald-Bold.ttf" id="6_bold"]
 [ext_resource type="FontFile" uid="uid://dpxp0eu1dt6jk" path="res://assets/fonts/Oswald/static/Oswald-SemiBold.ttf" id="7_semibold"]
@@ -278,7 +278,7 @@ layout_mode = 2
 size_flags_vertical = 3
 theme_type_variation = &"DarkStrip"
 
-[node name="SkillsScroll" type="ScrollContainer" parent="FrameFit/FrameRoot/TabsColumn/TabContent"]
+[node name="SkillsScroll" type="ScrollContainer" parent="FrameFit/FrameRoot/TabsColumn/TabContent" unique_id=1760312962]
 layout_mode = 2
 horizontal_scroll_mode = 0
 

@@ -1,6 +1,8 @@
-extends Resource
+extends CardData
 class_name SpellData
 
+# Spell KARTA: kartove polia su v CardData, tu su parametre efektu.
+# Jeden .tres = cela karta.
 # Resources su ZDIELANE medzi vsetkymi instanciami efektov — runtime stav
 # sa NIKDY nezapisuje spat do resource, len do instancie uzlu.
 
@@ -9,8 +11,6 @@ class_name SpellData
 # v tomto projekte pasca (architecture.md: HeroAI.State poznamka o autoload
 # enumoch nepouzitelnych ako typy).
 
-@export var id: StringName
-@export var display_name: String
 @export var spell_type: int = 0   # mapuje sa na SpellType konvenciu vyssie
 @export var radius: float = 40.0
 # Predtym nez efekt dopadne — kruh je vidno ako varovanie, superov hrac

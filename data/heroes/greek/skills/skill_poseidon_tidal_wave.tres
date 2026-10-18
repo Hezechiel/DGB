@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="SkillData" format=3]
+[gd_resource type="Resource" script_class="SkillData" format=3 uid="uid://b3lga0e7ydt1h"]
 
 [ext_resource type="Script" uid="uid://c6i02qlmehybc" path="res://scripts/arena/skill_data.gd" id="1_skilldata"]
 
@@ -7,7 +7,6 @@ script = ExtResource("1_skilldata")
 id = &"skill_poseidon_tidal_wave"
 display_name = "Tidal Wave"
 cooldown = 22.0
-cast_range = 100.0
 values = {
 &"cone_angle": 90.0,
 &"damage_pct": 180.0,

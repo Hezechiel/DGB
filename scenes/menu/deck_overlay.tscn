@@ -1,8 +1,8 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://c37uvek0bx4yb"]
 
-[ext_resource type="Script" path="res://scripts/ui/deck_overlay.gd" id="1_deck"]
+[ext_resource type="Script" uid="uid://1xoj1o4il2co" path="res://scripts/ui/deck_overlay.gd" id="1_deck"]
 
-[node name="DeckOverlay" type="Control"]
+[node name="DeckOverlay" type="Control" unique_id=1286410919]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -11,7 +11,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_deck")
 
-[node name="DeckPanel" type="Panel" parent="."]
+[node name="DeckPanel" type="Panel" parent="." unique_id=1794656263]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -19,7 +19,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Margin" type="MarginContainer" parent="DeckPanel"]
+[node name="Margin" type="MarginContainer" parent="DeckPanel" unique_id=1828471242]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -31,48 +31,48 @@ theme_override_constants/margin_top = 16
 theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 16
 
-[node name="Content" type="VBoxContainer" parent="DeckPanel/Margin"]
+[node name="Content" type="VBoxContainer" parent="DeckPanel/Margin" unique_id=206201804]
 layout_mode = 2
 
-[node name="Header" type="HBoxContainer" parent="DeckPanel/Margin/Content"]
+[node name="Header" type="HBoxContainer" parent="DeckPanel/Margin/Content" unique_id=188354533]
 layout_mode = 2
 
-[node name="TitleLabel" type="Label" parent="DeckPanel/Margin/Content/Header"]
+[node name="TitleLabel" type="Label" parent="DeckPanel/Margin/Content/Header" unique_id=1731254637]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Deck"
 
-[node name="EditButton" type="Button" parent="DeckPanel/Margin/Content/Header"]
+[node name="EditButton" type="Button" parent="DeckPanel/Margin/Content/Header" unique_id=1749440665]
 layout_mode = 2
 text = "Edit"
 
-[node name="SaveButton" type="Button" parent="DeckPanel/Margin/Content/Header"]
+[node name="SaveButton" type="Button" parent="DeckPanel/Margin/Content/Header" unique_id=1079631661]
 visible = false
 layout_mode = 2
 text = "Save"
 
-[node name="CancelButton" type="Button" parent="DeckPanel/Margin/Content/Header"]
+[node name="CancelButton" type="Button" parent="DeckPanel/Margin/Content/Header" unique_id=32934741]
 visible = false
 layout_mode = 2
 text = "Cancel"
 
-[node name="CloseButton" type="Button" parent="DeckPanel/Margin/Content/Header"]
+[node name="CloseButton" type="Button" parent="DeckPanel/Margin/Content/Header" unique_id=495975622]
 layout_mode = 2
 text = "Close"
 
-[node name="SlotRow" type="HBoxContainer" parent="DeckPanel/Margin/Content"]
+[node name="SlotRow" type="HBoxContainer" parent="DeckPanel/Margin/Content" unique_id=2111951004]
 layout_mode = 2
 
-[node name="HintLabel" type="Label" parent="DeckPanel/Margin/Content"]
+[node name="HintLabel" type="Label" parent="DeckPanel/Margin/Content" unique_id=1758809641]
 visible = false
 layout_mode = 2
 
-[node name="PoolScroll" type="ScrollContainer" parent="DeckPanel/Margin/Content"]
+[node name="PoolScroll" type="ScrollContainer" parent="DeckPanel/Margin/Content" unique_id=378077463]
 visible = false
 layout_mode = 2
 size_flags_vertical = 3
 horizontal_scroll_mode = 0
 
-[node name="PoolGrid" type="GridContainer" parent="DeckPanel/Margin/Content/PoolScroll"]
+[node name="PoolGrid" type="GridContainer" parent="DeckPanel/Margin/Content/PoolScroll" unique_id=1909907340]
 layout_mode = 2
 columns = 8

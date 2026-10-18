@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://ckt2wxurepvuw" path="res://scripts/arena/obstacle.gd" id="1_obstacle"]
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_default"]
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_4blx7"]
 size = Vector2(16, 16)
 
 [node name="Obstacle" type="StaticBody2D" unique_id=565467435]
@@ -13,4 +13,4 @@ script = ExtResource("1_obstacle")
 [node name="Sprite2D" type="Sprite2D" parent="." unique_id=1070084372]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1998045526]
-shape = SubResource("RectangleShape2D_default")
+shape = SubResource("RectangleShape2D_4blx7")

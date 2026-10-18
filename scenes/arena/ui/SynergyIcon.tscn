@@ -1,32 +1,30 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://cj3iid0e0h3wo"]
 
-[ext_resource type="Script" path="res://scripts/arena/ui/synergy_icon.gd" id="1_synergy"]
+[ext_resource type="Script" uid="uid://bd301375ton15" path="res://scripts/arena/ui/synergy_icon.gd" id="1_synergy"]
 
-[node name="SynergyIcon" type="Button"]
+[node name="SynergyIcon" type="Button" unique_id=521490699]
 custom_minimum_size = Vector2(56, 56)
 offset_right = 56.0
 offset_bottom = 56.0
 focus_mode = 0
 script = ExtResource("1_synergy")
 
-[node name="CountLabel" type="Label" parent="."]
+[node name="CountLabel" type="Label" parent="." unique_id=2111259002]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="Tooltip" type="PanelContainer" parent="."]
+[node name="Tooltip" type="PanelContainer" parent="." unique_id=1687027140]
 visible = false
 layout_mode = 0
 mouse_filter = 2
 
-[node name="TooltipLabel" type="Label" parent="Tooltip"]
+[node name="TooltipLabel" type="Label" parent="Tooltip" unique_id=382519632]
 custom_minimum_size = Vector2(280, 0)
 layout_mode = 2
-mouse_filter = 2
 autowrap_mode = 3

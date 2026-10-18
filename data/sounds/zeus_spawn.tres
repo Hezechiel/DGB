@@ -1,8 +1,8 @@
-[gd_resource type="Resource" script_class="SoundData" format=3]
+[gd_resource type="Resource" script_class="SoundData" format=3 uid="uid://d0hmq21b50erq"]
 
-[ext_resource type="Script" path="res://scripts/sound_data.gd" id="1_sound"]
-[ext_resource type="AudioStream" path="res://assets/audio/voice/heroes/zeus/zeus_spawn_01.ogg" id="2_z01"]
-[ext_resource type="AudioStream" path="res://assets/audio/voice/heroes/zeus/zeus_spawn_02.ogg" id="3_z02"]
+[ext_resource type="Script" uid="uid://b8xlminom23s1" path="res://scripts/sound_data.gd" id="1_sound"]
+[ext_resource type="AudioStream" uid="uid://bfbs4favag5ws" path="res://assets/audio/voice/heroes/zeus/zeus_spawn_01.ogg" id="2_z01"]
+[ext_resource type="AudioStream" uid="uid://d4do0m8ihr8ut" path="res://assets/audio/voice/heroes/zeus/zeus_spawn_02.ogg" id="3_z02"]
 
 [resource]
 script = ExtResource("1_sound")
@@ -10,7 +10,6 @@ id = &"zeus_spawn"
 streams = Array[AudioStream]([ExtResource("2_z01"), ExtResource("3_z02")])
 bus = "Voice"
 priority = 3
-volume_db = 0.0
 volume_jitter_db = 0.0
 pitch_jitter = 0.0
 max_instances = 1

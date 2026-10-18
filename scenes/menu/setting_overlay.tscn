@@ -1,31 +1,31 @@
 [gd_scene format=3 uid="uid://bbav7qxtv7i6x"]
 
-[ext_resource type="PackedScene" path="res://scenes/menu/framed_overlay.tscn" id="1_base"]
 [ext_resource type="Script" uid="uid://gahrs3cqde4y" path="res://scripts/ui/setting_overlay.gd" id="1_3t2qt"]
+[ext_resource type="PackedScene" uid="uid://c2yedyaa5hgd4" path="res://scenes/menu/framed_overlay.tscn" id="1_base"]
 [ext_resource type="Script" uid="uid://b112ll4m8h56y" path="res://scripts/ui/audio_control.gd" id="4_04rkv"]
 [ext_resource type="FontFile" uid="uid://v1n7s30p30ib" path="res://assets/fonts/Marcellus-Regular.ttf" id="4_8twik"]
 [ext_resource type="Script" uid="uid://5dp3eu06t38m" path="res://scripts/ui/scrollable.gd" id="6_scroll"]
 
-[node name="SettingOverlay" instance=ExtResource("1_base")]
+[node name="SettingOverlay" unique_id=686412543 instance=ExtResource("1_base")]
 process_mode = 2
 script = ExtResource("1_3t2qt")
 title_text = "Settings"
 
-[node name="ScrollContainer" type="ScrollContainer" parent="FrameFit/FrameRoot/ContentArea" unique_id=1012523393]
+[node name="ScrollContainer" type="ScrollContainer" parent="FrameFit/FrameRoot/ContentArea" parent_id_path=PackedInt32Array(289841729) index="0" unique_id=1012523393]
 layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 0
 horizontal_scroll_mode = 0
 script = ExtResource("6_scroll")
 
-[node name="SettingsContent" type="VBoxContainer" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer" unique_id=1401393195]
+[node name="SettingsContent" type="VBoxContainer" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer" index="0" unique_id=1401393195]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 mouse_filter = 2
 theme_override_constants/separation = 8
 
-[node name="AudioLabel" type="Label" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer/SettingsContent" unique_id=1821686478]
+[node name="AudioLabel" type="Label" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer/SettingsContent" index="0" unique_id=1821686478]
 layout_mode = 2
 theme_override_colors/font_color = Color(0.95, 0.78, 0.38, 1)
 theme_override_constants/shadow_offset_x = -5
@@ -34,11 +34,11 @@ theme_override_fonts/font = ExtResource("4_8twik")
 theme_override_font_sizes/font_size = 20
 text = "Audio"
 
-[node name="MusicRow" type="HBoxContainer" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer/SettingsContent" unique_id=1530648201]
+[node name="MusicRow" type="HBoxContainer" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer/SettingsContent" index="1" unique_id=1530648201]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="MusicLabel" type="Label" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer/SettingsContent/MusicRow" unique_id=1101284461]
+[node name="MusicLabel" type="Label" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer/SettingsContent/MusicRow" index="0" unique_id=1101284461]
 custom_minimum_size = Vector2(110, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.93, 0.9, 0.82, 1)
@@ -48,7 +48,7 @@ theme_override_fonts/font = ExtResource("4_8twik")
 theme_override_font_sizes/font_size = 20
 text = "Music"
 
-[node name="AudioControl" type="HSlider" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer/SettingsContent/MusicRow" unique_id=1180824782]
+[node name="AudioControl" type="HSlider" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer/SettingsContent/MusicRow" index="1" unique_id=1180824782]
 process_mode = 3
 layout_mode = 2
 size_flags_horizontal = 3
@@ -59,11 +59,11 @@ value = 1.0
 script = ExtResource("4_04rkv")
 audio_bus_name = "Music"
 
-[node name="SfxRow" type="HBoxContainer" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer/SettingsContent" unique_id=1530648202]
+[node name="SfxRow" type="HBoxContainer" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer/SettingsContent" index="2" unique_id=1530648202]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="SfxLabel" type="Label" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer/SettingsContent/SfxRow" unique_id=1101284462]
+[node name="SfxLabel" type="Label" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer/SettingsContent/SfxRow" index="0" unique_id=1101284462]
 custom_minimum_size = Vector2(110, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.93, 0.9, 0.82, 1)
@@ -73,7 +73,7 @@ theme_override_fonts/font = ExtResource("4_8twik")
 theme_override_font_sizes/font_size = 20
 text = "Effects"
 
-[node name="SfxControl" type="HSlider" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer/SettingsContent/SfxRow" unique_id=1101284463]
+[node name="SfxControl" type="HSlider" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer/SettingsContent/SfxRow" index="1" unique_id=1101284463]
 process_mode = 3
 layout_mode = 2
 size_flags_horizontal = 3
@@ -84,11 +84,11 @@ value = 1.0
 script = ExtResource("4_04rkv")
 audio_bus_name = "SFX"
 
-[node name="VoiceRow" type="HBoxContainer" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer/SettingsContent" unique_id=1530648203]
+[node name="VoiceRow" type="HBoxContainer" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer/SettingsContent" index="3" unique_id=1530648203]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="VoiceLabel" type="Label" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer/SettingsContent/VoiceRow" unique_id=1101284464]
+[node name="VoiceLabel" type="Label" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer/SettingsContent/VoiceRow" index="0" unique_id=1101284464]
 custom_minimum_size = Vector2(110, 0)
 layout_mode = 2
 theme_override_colors/font_color = Color(0.93, 0.9, 0.82, 1)
@@ -98,7 +98,7 @@ theme_override_fonts/font = ExtResource("4_8twik")
 theme_override_font_sizes/font_size = 20
 text = "Voice"
 
-[node name="VoiceControl" type="HSlider" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer/SettingsContent/VoiceRow" unique_id=1101284465]
+[node name="VoiceControl" type="HSlider" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer/SettingsContent/VoiceRow" index="1" unique_id=1101284465]
 process_mode = 3
 layout_mode = 2
 size_flags_horizontal = 3
@@ -109,11 +109,11 @@ value = 1.0
 script = ExtResource("4_04rkv")
 audio_bus_name = "Voice"
 
-[node name="LockCameraRow" type="HBoxContainer" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer/SettingsContent" unique_id=1948037809]
+[node name="LockCameraRow" type="HBoxContainer" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer/SettingsContent" index="4" unique_id=1948037809]
 layout_mode = 2
 theme_override_constants/separation = 10
 
-[node name="LockCameraLabel" type="Label" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer/SettingsContent/LockCameraRow" unique_id=1069704568]
+[node name="LockCameraLabel" type="Label" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer/SettingsContent/LockCameraRow" index="0" unique_id=1069704568]
 layout_mode = 2
 tooltip_text = "Camera follows hero and cannot be dragged freely"
 mouse_filter = 0
@@ -125,20 +125,20 @@ theme_override_fonts/font = ExtResource("4_8twik")
 theme_override_font_sizes/font_size = 20
 text = "Lock Camera"
 
-[node name="LockCameraToggle" type="CheckButton" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer/SettingsContent/LockCameraRow" unique_id=937926906]
+[node name="LockCameraToggle" type="CheckButton" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer/SettingsContent/LockCameraRow" index="1" unique_id=937926906]
 layout_mode = 2
 size_flags_horizontal = 0
 
-[node name="ButtonRow" type="HBoxContainer" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer/SettingsContent" unique_id=1530648204]
+[node name="ButtonRow" type="HBoxContainer" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer/SettingsContent" index="5" unique_id=1530648204]
 layout_mode = 2
 theme_override_constants/separation = 12
 
-[node name="CreditsButton" type="Button" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer/SettingsContent/ButtonRow" unique_id=1683136338]
+[node name="CreditsButton" type="Button" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer/SettingsContent/ButtonRow" index="0" unique_id=1683136338]
 layout_mode = 2
 theme_override_font_sizes/font_size = 18
 text = "Credits"
 
-[node name="ExitButton" type="Button" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer/SettingsContent/ButtonRow" unique_id=1265412764]
+[node name="ExitButton" type="Button" parent="FrameFit/FrameRoot/ContentArea/ScrollContainer/SettingsContent/ButtonRow" index="1" unique_id=1265412764]
 process_mode = 3
 layout_mode = 2
 theme_override_fonts/font = ExtResource("4_8twik")

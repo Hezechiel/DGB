@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="SkillData" format=3]
+[gd_resource type="Resource" script_class="SkillData" format=3 uid="uid://doyijias5wy17"]
 
 [ext_resource type="Script" uid="uid://c6i02qlmehybc" path="res://scripts/arena/skill_data.gd" id="1_skilldata"]
 
@@ -7,7 +7,6 @@ script = ExtResource("1_skilldata")
 id = &"skill_aphrodite_cestus_of_desire"
 display_name = "Cestus of Desire"
 cooldown = 26.0
-cast_range = 100.0
 values = {
 &"charm_count": 2.0,
 &"charm_duration": 4.0,

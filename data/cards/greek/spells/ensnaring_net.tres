@@ -1,0 +1,23 @@
+[gd_resource type="Resource" script_class="SpellData" format=3 uid="uid://bykfawog5c784"]
+
+[ext_resource type="Script" uid="uid://spdata8h2n4kq" path="res://scripts/arena/spell_data.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://blhyekjwlu8ps" path="res://assets/sprites/scrolls/decals_spells.png" id="2_res"]
+[ext_resource type="SpriteFrames" uid="uid://mhkojxx4l0p7" path="res://data/cards/greek/spells/frames/frames_ensnaring_net.tres" id="3_res"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cardnet"]
+atlas = ExtResource("2_res")
+region = Rect2(670, 0, 335, 400)
+
+[resource]
+script = ExtResource("1_script")
+id = &"card_greek_ensnaring_net"
+display_name = "Ensnaring net"
+cost = 3
+scroll_texture = SubResource("AtlasTexture_cardnet")
+obtain_source = 1
+spell_type = 2
+radius = 36.0
+cast_time = 0.6
+effect_duration = 2.2
+sprite_frames = ExtResource("3_res")
+description = "Even Ares could not tear free of the golden net Hephaestus forged in his workshop. Enemies caught in its threads cannot take a single step, though they still fight back from where they stand."

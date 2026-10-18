@@ -1,12 +1,12 @@
-[gd_resource type="Resource" script_class="SoundData" format=3]
+[gd_resource type="Resource" script_class="SoundData" format=3 uid="uid://bvijftg076nvx"]
 
-[ext_resource type="Script" path="res://scripts/sound_data.gd" id="1_sound"]
-[ext_resource type="AudioStream" path="res://assets/audio/ambient/greek/amb_greek_harp_01.ogg" id="2_h01"]
-[ext_resource type="AudioStream" path="res://assets/audio/ambient/greek/amb_greek_harp_02.ogg" id="3_h02"]
-[ext_resource type="AudioStream" path="res://assets/audio/ambient/greek/amb_greek_harp_03.ogg" id="4_h03"]
-[ext_resource type="AudioStream" path="res://assets/audio/ambient/greek/amb_greek_harp_04.ogg" id="5_h04"]
-[ext_resource type="AudioStream" path="res://assets/audio/ambient/greek/amb_greek_harp_05.ogg" id="6_h05"]
-[ext_resource type="AudioStream" path="res://assets/audio/ambient/greek/amb_greek_harp_06.ogg" id="7_h06"]
+[ext_resource type="Script" uid="uid://b8xlminom23s1" path="res://scripts/sound_data.gd" id="1_sound"]
+[ext_resource type="AudioStream" uid="uid://d2tkueaxvpo34" path="res://assets/audio/ambient/greek/amb_greek_harp_01.ogg" id="2_h01"]
+[ext_resource type="AudioStream" uid="uid://brkiqx25rlf88" path="res://assets/audio/ambient/greek/amb_greek_harp_02.ogg" id="3_h02"]
+[ext_resource type="AudioStream" uid="uid://c6qrifbnvi3q6" path="res://assets/audio/ambient/greek/amb_greek_harp_03.ogg" id="4_h03"]
+[ext_resource type="AudioStream" uid="uid://735wt3e6ily" path="res://assets/audio/ambient/greek/amb_greek_harp_04.ogg" id="5_h04"]
+[ext_resource type="AudioStream" uid="uid://xhlilceicjje" path="res://assets/audio/ambient/greek/amb_greek_harp_05.ogg" id="6_h05"]
+[ext_resource type="AudioStream" uid="uid://bij6u31yu46x5" path="res://assets/audio/ambient/greek/amb_greek_harp_06.ogg" id="7_h06"]
 
 [resource]
 script = ExtResource("1_sound")

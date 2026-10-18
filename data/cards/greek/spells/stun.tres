@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="SpellData" format=3 uid="uid://bxpubi5rrva84"]
+
+[ext_resource type="Script" uid="uid://spdata8h2n4kq" path="res://scripts/arena/spell_data.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://blhyekjwlu8ps" path="res://assets/sprites/scrolls/decals_spells.png" id="2_res"]
+[ext_resource type="SpriteFrames" uid="uid://chd00x1jyvjag" path="res://data/cards/greek/spells/frames/frames_stun.tres" id="3_res"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cardstun"]
+atlas = ExtResource("2_res")
+region = Rect2(335, 0, 335, 400)
+
+[resource]
+script = ExtResource("1_script")
+id = &"card_greek_stun"
+display_name = "Stun"
+cost = 3
+scroll_texture = SubResource("AtlasTexture_cardstun")
+rarity = 1
+obtain_source = 1
+spell_type = 1
+radius = 24.0
+cast_time = 0.4
+effect_duration = 1.2
+sprite_frames = ExtResource("3_res")
+description = "A single flash of divine power, bright as the gaze of Medusa, turns the enemy ranks to statues for one heartbeat. Before they can move again, the battle has already turned."

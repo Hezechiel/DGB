@@ -481,7 +481,7 @@ func spawn_unit(card_id: StringName, pos: Vector2, team: String) -> Array[Node]:
 		return []
 
 	var spawned: Array[Node] = []
-	var count: int = maxi(1, card.unit_count)
+	var count: int = maxi(1, unit_data.unit_count)
 	var mods := _unit_stat_mods(card, team)
 	for i in range(count):
 		var unit := unit_data.archetype_scene.instantiate()
@@ -491,7 +491,7 @@ func spawn_unit(card_id: StringName, pos: Vector2, team: String) -> Array[Node]:
 		# — kazdeho clena preto prisunieme zvlast. Deterministicke: rovnaky
 		# navmesh + rovnaka {card_id, pos, team} sprava dava rovnake pozicie
 		# na oboch klientoch. Bez navmeshu je snap_to_navigation() no-op.
-		unit.global_position = snap_to_navigation(pos + _formation_offset(i, count, card.formation_radius))
+		unit.global_position = snap_to_navigation(pos + _formation_offset(i, count, unit_data.formation_radius))
 		arena_root.add_child.call_deferred(unit)
 		spawned.append(unit)
 	DebugLog.info("spawn", "%s team=%s L%d mods=%s" % [card_id, team, get_card_level(team, card_id), mods])

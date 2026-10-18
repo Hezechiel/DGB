@@ -2,9 +2,14 @@
 
 [ext_resource type="PackedScene" uid="uid://c3yqfhj3ir5qj" path="res://scenes/arena/obstacles/Obstacle.tscn" id="1_base"]
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_u5gvw"]
+size = Vector2(32, 16)
+
 [node name="Wall" unique_id=909947073 instance=ExtResource("1_base")]
 collision_size = Vector2(32, 16)
 
 [node name="Sprite2D" parent="." index="0" unique_id=1070084372]
-position = Vector2(-9.536743e-07, 1.9073486e-06)
 scale = Vector2(0.22222221, 0.20253168)
+
+[node name="CollisionShape2D" parent="." index="1" unique_id=1998045526]
+shape = SubResource("RectangleShape2D_u5gvw")

@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="SoundData" format=3]
+[gd_resource type="Resource" script_class="SoundData" format=3 uid="uid://irh86bd1mcoi"]
 
-[ext_resource type="Script" path="res://scripts/sound_data.gd" id="1_sound"]
-[ext_resource type="AudioStream" path="res://assets/audio/music/stingers/stinger_victory.ogg" id="2_vic"]
+[ext_resource type="Script" uid="uid://b8xlminom23s1" path="res://scripts/sound_data.gd" id="1_sound"]
+[ext_resource type="AudioStream" uid="uid://d3e1grhdxtjve" path="res://assets/audio/music/stingers/stinger_victory.ogg" id="2_vic"]
 
 [resource]
 script = ExtResource("1_sound")
@@ -9,7 +9,6 @@ id = &"stinger_victory"
 streams = Array[AudioStream]([ExtResource("2_vic")])
 bus = "Music"
 priority = 3
-volume_db = 0.0
 volume_jitter_db = 0.0
 pitch_jitter = 0.0
 max_instances = 1

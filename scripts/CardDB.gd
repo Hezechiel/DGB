@@ -1,31 +1,37 @@
 extends Node
 
-# CardDB — registruje vsetky CardData, UnitData, HeroData, SpellData a
-# PackData resources podla ich `id` polia. Skenuje data/cards/, data/units/,
-# data/heroes/, data/spells/ a data/packs/ REKURZIVNE (napr. cards/greek/)
-# pri starte (autoload _ready()); priecinky "frames" preskakuje. Z kariet a
-# bohov s obtain_source == 1 sklada drop pool pre PackRoller.
+# CardDB — registruje karty (UnitData / SpellData, obe su CardData),
+# HeroData a PackData resources podla ich `id` polia. Skenuje SCAN_ROOTS REKURZIVNE pri
+# starte (autoload _ready()); priecinky "frames" a "skills" preskakuje.
+# Resource sa zaradi podla TYPU, nie podla priecinka — rozlozenie suborov
+# (napr. cards/greek/units/, Oct 2026) sa tak moze menit bez zmeny kodu.
+# Chybajuci koren sa ticho preskoci. Z kariet a bohov s obtain_source == 1
+# sklada drop pool pre PackRoller.
+# Resources are routed by type, not folder, so the layout can change freely.
 # Buduci network handler a drag-to-deploy citaju len z tychto dictionaries —
 # ziadne priame load()/preload() ciest po tomto bode.
 
-const CARDS_PATH := "res://data/cards/"
-const UNITS_PATH := "res://data/units/"
-const HEROES_PATH := "res://data/heroes/"
-const SPELLS_PATH := "res://data/spells/"
-const PACKS_PATH := "res://data/packs/"
+# units/ a spells/ su stare korene (pred presunom pod cards/<pantheon>/) —
+# ak uz neexistuju, preskocia sa. / Legacy roots, skipped once gone.
+const SCAN_ROOTS := [
+	"res://data/cards/",
+	"res://data/heroes/",
+	"res://data/packs/",
+	"res://data/units/",
+	"res://data/spells/",
+]
+# Podpriecinky bez CardDB obsahu: SpriteFrames (bez `id`) a SkillData boha
+# (dosiahnute cez HeroData.skill). / Folders CardDB never loads.
+const SKIP_DIRS := ["frames", "skills"]
 
-var _cards: Dictionary = {} # StringName -> CardData
-var _units: Dictionary = {} # StringName -> UnitData
+var _cards: Dictionary = {} # StringName -> CardData (UnitData / SpellData)
 var _heroes: Dictionary = {} # StringName -> HeroData
-var _spells: Dictionary = {} # StringName -> SpellData
 var _packs: Dictionary = {} # StringName -> PackData
 
 func _ready() -> void:
-	_scan_into(CARDS_PATH, _cards)
-	_scan_into(UNITS_PATH, _units)
-	_scan_into(HEROES_PATH, _heroes)
-	_scan_into(SPELLS_PATH, _spells)
-	_scan_into(PACKS_PATH, _packs)
+	for root in SCAN_ROOTS:
+		if DirAccess.dir_exists_absolute(root):
+			_scan_dir(root)
 
 func get_card(id: StringName) -> CardData:
 	if not _cards.has(id):
@@ -33,23 +39,11 @@ func get_card(id: StringName) -> CardData:
 		return null
 	return _cards[id]
 
-func get_unit(id: StringName) -> UnitData:
-	if not _units.has(id):
-		push_error("CardDB: unknown unit id '%s'" % id)
-		return null
-	return _units[id]
-
 func get_hero(id: StringName) -> HeroData:
 	if not _heroes.has(id):
 		push_error("CardDB: unknown hero id '%s'" % id)
 		return null
 	return _heroes[id]
-
-func get_spell(id: StringName) -> SpellData:
-	if not _spells.has(id):
-		push_error("CardDB: unknown spell id '%s'" % id)
-		return null
-	return _spells[id]
 
 func get_pack(id: StringName) -> PackData:
 	if not _packs.has(id):
@@ -103,7 +97,7 @@ func has_card(id: StringName) -> bool:
 func has_hero(id: StringName) -> bool:
 	return _heroes.has(id)
 
-func _scan_into(dir_path: String, target: Dictionary) -> void:
+func _scan_dir(dir_path: String) -> void:
 	var dir := DirAccess.open(dir_path)
 	if dir == null:
 		push_error("CardDB: cannot open directory " + dir_path)
@@ -113,34 +107,39 @@ func _scan_into(dir_path: String, target: Dictionary) -> void:
 	var file_name := dir.get_next()
 	while file_name != "":
 		if dir.current_is_dir():
-			# rekurzia do podpriecinkov (napr. cards/greek/); "frames" drzi
-			# SpriteFrames bez `id` a "skills" drzi SkillData boha (dosiahnute
-			# cez HeroData.skill, nie cez CardDB) — tie CardDB nenacitava
-			if file_name != "frames" and file_name != "skills" and not file_name.begins_with("."):
-				_scan_into(dir_path + file_name + "/", target)
+			# rekurzia do podpriecinkov (napr. cards/greek/units/)
+			if file_name not in SKIP_DIRS and not file_name.begins_with("."):
+				_scan_dir(dir_path + file_name + "/")
 		else:
 			# export build listuje "*.tres.remap" namiesto "*.tres" — orezat
 			# priponu skor nez sa zavola load()
 			if file_name.ends_with(".remap"):
 				file_name = file_name.substr(0, file_name.length() - len(".remap"))
 			if file_name.ends_with(".tres"):
-				_load_into(dir_path + file_name, target)
+				_load_resource(dir_path + file_name)
 		file_name = dir.get_next()
 	dir.list_dir_end()
 
-func _load_into(path: String, target: Dictionary) -> void:
+# Zaradi resource do slovnika podla typu. / Routes a resource by its type.
+func _load_resource(path: String) -> void:
 	var res := load(path)
 	if res == null or not ("id" in res):
 		push_error("CardDB: failed to load resource at " + path)
 		return
-	# Karta musi mat PRAVE JEDEN payload — unit alebo spell. Guard len pre
-	# CardData; UnitData/HeroData/SpellData tuto vazbu nemaju.
-	if res is CardData:
-		var has_unit: bool = res.unit_data != null
-		var has_spell: bool = res.spell_data != null
-		if has_unit == has_spell:
-			push_error("CardDB: card at %s musi mat prave jedno z unit_data/spell_data" % path)
-			return
+	var target: Dictionary
+	if res is UnitData or res is SpellData:
+		target = _cards
+	elif res is CardData:
+		# holy CardData je len zaklad — stara karta pred zlucenim (Oct 2026)
+		push_error("CardDB: %s je holy CardData (stary format karty) — zmaz ho" % path)
+		return
+	elif res is HeroData:
+		target = _heroes
+	elif res is PackData:
+		target = _packs
+	else:
+		push_error("CardDB: neznamy typ resource v %s" % path)
+		return
 	var res_id: StringName = res.id
 	if target.has(res_id):
 		push_error("CardDB: duplicate id '%s' (path %s)" % [res_id, path])

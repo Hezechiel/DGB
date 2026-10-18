@@ -82,9 +82,6 @@ func _refresh() -> void:
 			picture.texture = card.scroll_texture
 			name_label.text = card.display_name
 			description = card.description
-			# fallback na lore intro jednotky / fall back to the unit's intro
-			if description == "" and card.unit_data != null:
-				description = card.unit_data.description
 			meta_label.text = "%s · %s · Cost %d" % [_card_type(card), _rarity_name(card.rarity), card.cost]
 			if card.unit_data != null:
 				_fill_unit_stats(card, level, show_next)
@@ -126,8 +123,8 @@ func _fill_unit_stats(card: CardData, level: int, show_next: bool) -> void:
 	_add_stat("Attack", "Melee" if unit.attack_type == UnitData.AttackType.MELEE else "Ranged")
 	var target := unit.target_filter
 	_add_stat("Target", TARGET_NAMES[target] if target >= 0 and target < TARGET_NAMES.size() else "?")
-	if card.unit_count > 1:
-		_add_stat("Squad size", "%d" % card.unit_count)
+	if unit.unit_count > 1:
+		_add_stat("Squad size", "%d" % unit.unit_count)
 
 func _fill_spell_stats(spell: SpellData, level: int, show_next: bool) -> void:
 	if spell.damage > 0:
@@ -174,7 +171,7 @@ func _add_stat(stat_name: String, value: String) -> void:
 func _card_type(card: CardData) -> String:
 	if card.spell_data != null:
 		return "Spell"
-	return "Squad" if card.unit_count > 1 else "Unit"
+	return "Squad" if card.unit_data.unit_count > 1 else "Unit"
 
 func _rarity_name(rarity: int) -> String:
 	return RARITY_NAMES[rarity] if rarity >= 0 and rarity < RARITY_NAMES.size() else "?"

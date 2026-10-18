@@ -23,8 +23,9 @@
 [ext_resource type="Texture2D" uid="uid://cgy2syxxwb4ye" path="res://assets/menu/main/button_battle.png" id="18_jfl25"]
 [ext_resource type="Texture2D" uid="uid://b5w05ns4ui8lm" path="res://assets/menu/main/button_battle_pressed.png" id="19_2aa1e"]
 [ext_resource type="PackedScene" path="res://scenes/menu/shop_overlay.tscn" id="20_shopoverlay"]
-[ext_resource type="PackedScene" path="res://scenes/menu/deck_overlay.tscn" id="21_deckoverlay"]
-[ext_resource type="PackedScene" path="res://scenes/menu/encyclopedia_overlay.tscn" id="22_encyclopediaoverlay"]
+[ext_resource type="PackedScene" uid="uid://c37uvek0bx4yb" path="res://scenes/menu/deck_overlay.tscn" id="21_deckoverlay"]
+[ext_resource type="PackedScene" uid="uid://cyg2fjjf86dwy" path="res://scenes/menu/encyclopedia_overlay.tscn" id="22_encyclopediaoverlay"]
+[ext_resource type="PackedScene" path="res://scenes/menu/effects/battle_button_sparks.tscn" id="23_battlesparks"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_mgsx5"]
 texture = ExtResource("2_y6vun")
@@ -170,6 +171,9 @@ texture_normal = ExtResource("18_jfl25")
 texture_pressed = ExtResource("19_2aa1e")
 ignore_texture_size = true
 stretch_mode = 5
+
+[node name="BattleButtonSparks" parent="Background/MainContent/BattleCard" instance=ExtResource("23_battlesparks")]
+position = Vector2(110, 140)
 
 [node name="TopBar" type="HBoxContainer" parent="Background" unique_id=500653719]
 layout_mode = 1

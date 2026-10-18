@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="SkillData" format=3]
+[gd_resource type="Resource" script_class="SkillData" format=3 uid="uid://4t6770x8ap7j"]
 
 [ext_resource type="Script" uid="uid://c6i02qlmehybc" path="res://scripts/arena/skill_data.gd" id="1_skilldata"]
 
@@ -6,7 +6,6 @@
 script = ExtResource("1_skilldata")
 id = &"skill_hermes_swift_theft"
 display_name = "Swift Theft"
-cooldown = 20.0
 cast_range = 150.0
 values = {
 &"damage_pct": 180.0,

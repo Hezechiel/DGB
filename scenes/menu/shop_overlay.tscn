@@ -1,8 +1,8 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://dpi30qnnldve4"]
 
-[ext_resource type="Script" path="res://scripts/ui/shop_overlay.gd" id="1_shop"]
+[ext_resource type="Script" uid="uid://d3goswuqbh0hc" path="res://scripts/ui/shop_overlay.gd" id="1_shop"]
 
-[node name="ShopOverlay" type="Control"]
+[node name="ShopOverlay" type="Control" unique_id=804787400]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -11,7 +11,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_shop")
 
-[node name="ShopPanel" type="Panel" parent="."]
+[node name="ShopPanel" type="Panel" parent="." unique_id=1038227744]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -19,7 +19,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Margin" type="MarginContainer" parent="ShopPanel"]
+[node name="Margin" type="MarginContainer" parent="ShopPanel" unique_id=104474361]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -31,39 +31,39 @@ theme_override_constants/margin_top = 24
 theme_override_constants/margin_right = 24
 theme_override_constants/margin_bottom = 24
 
-[node name="Content" type="VBoxContainer" parent="ShopPanel/Margin"]
+[node name="Content" type="VBoxContainer" parent="ShopPanel/Margin" unique_id=2074062206]
 layout_mode = 2
 
-[node name="Header" type="HBoxContainer" parent="ShopPanel/Margin/Content"]
+[node name="Header" type="HBoxContainer" parent="ShopPanel/Margin/Content" unique_id=923824510]
 layout_mode = 2
 
-[node name="TitleLabel" type="Label" parent="ShopPanel/Margin/Content/Header"]
+[node name="TitleLabel" type="Label" parent="ShopPanel/Margin/Content/Header" unique_id=1129813305]
 layout_mode = 2
 size_flags_horizontal = 3
 text = "Shop"
 
-[node name="CloseButton" type="Button" parent="ShopPanel/Margin/Content/Header"]
+[node name="CloseButton" type="Button" parent="ShopPanel/Margin/Content/Header" unique_id=1279897576]
 layout_mode = 2
 text = "Close"
 
-[node name="PackList" type="VBoxContainer" parent="ShopPanel/Margin/Content"]
+[node name="PackList" type="VBoxContainer" parent="ShopPanel/Margin/Content" unique_id=184915722]
 layout_mode = 2
 
-[node name="RevealBox" type="VBoxContainer" parent="ShopPanel/Margin/Content"]
+[node name="RevealBox" type="VBoxContainer" parent="ShopPanel/Margin/Content" unique_id=455828252]
 visible = false
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="RevealTitle" type="Label" parent="ShopPanel/Margin/Content/RevealBox"]
+[node name="RevealTitle" type="Label" parent="ShopPanel/Margin/Content/RevealBox" unique_id=122753025]
 layout_mode = 2
 
-[node name="RevealScroll" type="ScrollContainer" parent="ShopPanel/Margin/Content/RevealBox"]
+[node name="RevealScroll" type="ScrollContainer" parent="ShopPanel/Margin/Content/RevealBox" unique_id=1837988263]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="RevealList" type="HBoxContainer" parent="ShopPanel/Margin/Content/RevealBox/RevealScroll"]
+[node name="RevealList" type="HBoxContainer" parent="ShopPanel/Margin/Content/RevealBox/RevealScroll" unique_id=1799258503]
 layout_mode = 2
 
-[node name="RevealOkButton" type="Button" parent="ShopPanel/Margin/Content/RevealBox"]
+[node name="RevealOkButton" type="Button" parent="ShopPanel/Margin/Content/RevealBox" unique_id=374618066]
 layout_mode = 2
 text = "OK"

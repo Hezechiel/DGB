@@ -1,11 +1,16 @@
-extends Resource
+extends CardData
 class_name UnitData
 
+# Unit KARTA: kartove polia (id, nazov, cena, rarita, tagy, popis...) su v
+# CardData, tu su herne staty jednotky. Jeden .tres = cela karta.
 # Resources su ZDIELANE medzi vsetkymi spawnutymi instanciami — runtime stav
 # (hp a pod.) sa NIKDY nezapisuje spat do resource, len do instancie uzlu.
 
-@export var id: StringName
-@export var display_name: String
+# Kolko jednotiek karta sumonuje (squad). 1 = jedna jednotka.
+@export var unit_count: int = 1
+# Polomer formacie pri unit_count > 1 (world units).
+@export var formation_radius: float = 12.0
+
 @export var archetype_scene: PackedScene      # melee_unit.tscn atd.
 @export var max_hp: int = 50
 @export var damage: int = 10
@@ -32,8 +37,3 @@ enum AttackType { MELEE, RANGED }
 # zaciatku svihu — zruseny windup tak nikdy nevyda zvuk. &"" = ticho.
 @export var attack_sfx: StringName
 @export var death_sfx: StringName
-
-# Lore intro jednotky pre Card Detail / flashcard. Karta ho zobrazi, ked jej
-# vlastny CardData.description je prazdny (fallback). Prazdny = nic.
-# Unit lore intro; shown when the card's own description is empty.
-@export_multiline var description: String = ""

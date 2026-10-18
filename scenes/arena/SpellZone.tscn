@@ -1,10 +1,10 @@
 [gd_scene format=3 uid="uid://baimgjqlbku85"]
 
-[ext_resource type="Script" uid="uid://spellzonescr01" path="res://scripts/arena/spell_zone.gd" id="1_zone"]
+[ext_resource type="Script" uid="uid://baimgjqlbky85" path="res://scripts/arena/spell_zone.gd" id="1_zone"]
 
-[node name="SpellZone" type="Node2D"]
+[node name="SpellZone" type="Node2D" unique_id=1733338040]
 script = ExtResource("1_zone")
 
-[node name="CastAnim" type="AnimatedSprite2D" parent="."]
+[node name="CastAnim" type="AnimatedSprite2D" parent="." unique_id=960321466]
 
-[node name="ZoneAnim" type="AnimatedSprite2D" parent="."]
+[node name="ZoneAnim" type="AnimatedSprite2D" parent="." unique_id=1543295891]
