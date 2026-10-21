@@ -3,19 +3,21 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cgy2syxxwb4ye"
-path="res://.godot/imported/button_battle.png-85004a913e50ee9bf7b801376e8ae083.ctex"
+path.s3tc="res://.godot/imported/button_battle.png-85004a913e50ee9bf7b801376e8ae083.s3tc.ctex"
+path.etc2="res://.godot/imported/button_battle.png-85004a913e50ee9bf7b801376e8ae083.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
 source_file="res://assets/menu/main/button_battle.png"
-dest_files=["res://.godot/imported/button_battle.png-85004a913e50ee9bf7b801376e8ae083.ctex"]
+dest_files=["res://.godot/imported/button_battle.png-85004a913e50ee9bf7b801376e8ae083.s3tc.ctex", "res://.godot/imported/button_battle.png-85004a913e50ee9bf7b801376e8ae083.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

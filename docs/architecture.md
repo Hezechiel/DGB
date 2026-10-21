@@ -1305,9 +1305,14 @@ draw-order pitfall in §6):
 - `MainContent` (`HBoxContainer`, fills the space between the nav rail and
   the screen edge) — `HeroShowcase` (`Control`, `size_flags_horizontal = 3`
   to take remaining width) containing a single `AnimatedSprite2D` child
-  (`ZeusIdle`) that plays a hero's existing `SpriteFrames` idle animation
-  directly (currently `frames_zeus.tres`'s `"iddle_left"`, `autoplay =
-  true`) — reuses match art as-is, no separate menu-only asset; and
+  (`ZeusIdle` — name kept, it shows any god) that plays the **active deck
+  god's** idle animation (`PlayerProfile.get_deck_hero()` →
+  `HeroData.sprite_frames`, `iddle_left` then `idle_left`), set by
+  `main_menu.gd::_apply_showcase_god()` in `_ready()` and again on
+  `PlayerProfile.profile_changed` (saving a deck switches it live). A god
+  without frames or an idle clip falls back to the scene's own
+  `frames_zeus.tres`. Reuses match art as-is, no menu-only asset; one shared
+  scale (1.2) for every god; and
   `BattleCard` (`Button`, `custom_minimum_size` fixed, `size_flags_vertical
   = 4` to center within the row), the sole entry point into
   `PreMatchFlow.tscn` (§4).

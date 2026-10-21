@@ -1,16 +1,18 @@
 extends Control
 
 @onready var nav_rail: VBoxContainer = $Background/NavRail
-@onready var main_content: HBoxContainer = $Background/MainContent
-@onready var hero_showcase: Control = $Background/MainContent/HeroShowcase
-@onready var zeus_idle: AnimatedSprite2D = $Background/MainContent/HeroShowcase/ZeusIdle
-@onready var battle_button: TextureButton = $Background/MainContent/BattleCard
+@onready var main_content: Control = $Background/MainContent
+@onready var home_view: HBoxContainer = $Background/MainContent/HomeView
+@onready var hero_showcase: Control = $Background/MainContent/HomeView/HeroShowcase
+@onready var zeus_idle: AnimatedSprite2D = $Background/MainContent/HomeView/HeroShowcase/ZeusIdle
+@onready var battle_button: TextureButton = $Background/MainContent/HomeView/BattleCard
 @onready var settings_button: TextureButton = $Background/TopBar/SettingsButton
-@onready var exit_button: TextureButton = $Background/NavRail/ExitButton
+@onready var battles_button: TextureButton = $Background/NavRail/BattlesButton
 @onready var deck_button: TextureButton = $Background/NavRail/DeckButton
-@onready var heroes_button: TextureButton = $Background/NavRail/HeroesButton
+@onready var pantheon_button: TextureButton = $Background/NavRail/PantheonButton
 @onready var shop_button: TextureButton = $Background/NavRail/ShopButton
 @onready var rewards_button: TextureButton = $Background/NavRail/RewardsButton
+@onready var exit_button: TextureButton = $Background/NavRail/ExitButton
 @onready var version_label: Label = $Background/FooterBar/VersionLabel
 @onready var mail_button: TextureButton = $Background/TopBar/MailButton
 @onready var gift_button: TextureButton = $Background/TopBar/GiftButton
@@ -20,9 +22,13 @@ extends Control
 
 @onready var setting_overlay: SettingsOverlay = $SettingOverlay
 @onready var credits_overlay: CreditsOverlay = $CreditsOverlay
-@onready var shop_overlay: ShopOverlay = $ShopOverlay
-@onready var deck_overlay: DeckOverlay = $DeckOverlay
-@onready var encyclopedia_overlay: EncyclopediaOverlay = $EncyclopediaOverlay
+@onready var card_detail: CardDetail = $CardDetail
+@onready var shop_overlay: ShopOverlay = $Background/MainContent/ShopOverlay
+@onready var deck_overlay: DeckOverlay = $Background/MainContent/DeckOverlay
+@onready var pantheon_overlay: PantheonOverlay = $Background/MainContent/PantheonOverlay
+
+# NavRail taby — kazdy prepina stranku v MainContent (rail, TopBar a FooterBar ostavaju).
+enum Tab { HOME, DECK, PANTHEON, SHOP }
 
 # Idle klip boha v showcase — obaja sucasni bohovia maju preklep "iddle_left",
 # "idle_left" je spravny nazov pre buducich. / Idle clip names, typo first.
@@ -40,6 +46,11 @@ const MENU_BACKGROUNDS: Array[String] = [
 var _toast_token := 0
 # Frames zo sceny (Zeus) — fallback, ked aktivny boh este nema idle animaciu.
 var _default_showcase_frames: SpriteFrames
+
+var _current_tab: int = -1
+var _pending_tab: int = -1          # tab cakajuci na Discard v Deck tabe
+var _tab_pages: Dictionary = {}     # Tab -> Control
+var _tab_buttons: Dictionary = {}   # Tab -> TextureButton
 
 # Called when the node enters the scene tree for the first time.
 func _ready() -> void:
@@ -64,13 +75,30 @@ func _ready() -> void:
 	exit_button.pressed.connect(_on_exit_button_pressed)
 	mail_button.pressed.connect(_show_coming_soon.bind("Mail"))
 	gift_button.pressed.connect(_show_coming_soon.bind("Gift"))
-	deck_button.pressed.connect(_on_deck_button_pressed)
-	encyclopedia_overlay.closed.connect(_on_encyclopedia_overlay_closed)
-	heroes_button.pressed.connect(_on_heroes_button_pressed)
-	deck_overlay.closed.connect(_on_deck_overlay_closed)
-	shop_button.pressed.connect(_on_shop_button_pressed)
-	shop_overlay.closed.connect(_on_shop_overlay_closed)
 	rewards_button.pressed.connect(_show_coming_soon.bind("Rewards"))
+	_tab_pages = {
+		Tab.HOME: home_view,
+		Tab.DECK: deck_overlay,
+		Tab.PANTHEON: pantheon_overlay,
+		Tab.SHOP: shop_overlay,
+	}
+	_tab_buttons = {
+		Tab.HOME: battles_button,
+		Tab.DECK: deck_button,
+		Tab.PANTHEON: pantheon_button,
+		Tab.SHOP: shop_button,
+	}
+	# ButtonGroup: vzdy presne jeden stlaceny — texture_pressed ukazuje aktivny tab.
+	var group := ButtonGroup.new()
+	for tab in _tab_buttons:
+		var button: TextureButton = _tab_buttons[tab]
+		button.toggle_mode = true
+		button.button_group = group
+		button.pressed.connect(_request_tab.bind(tab))
+	deck_overlay.leave_confirmed.connect(_on_deck_leave_confirmed)
+	pantheon_overlay.card_detail_requested.connect(_on_card_detail_requested)
+	card_detail.closed.connect(_on_card_detail_closed)
+	_switch_tab(Tab.HOME)
 	#setting_overlay.visible = false
 	AudioManager.play_music(&"menu")
 
@@ -92,8 +120,8 @@ func _apply_menu_background() -> void:
 	background.add_theme_stylebox_override("panel", sb)
 	DebugLog.info("menu", "background: %s" % path)
 
-# Docasny "Coming soon" toast pre placeholder tlacidla (Mail/Gift teraz, dalsie
-# pribudnu v kroku 3 — nav rail). _toast_token zaruci ze rychle po sebe idúce
+# Docasny "Coming soon" toast pre placeholder tlacidla (Mail/Gift/Rewards —
+# Rewards nie je tab, vybrany tab sa nemeni). _toast_token zaruci ze rychle po sebe idúce
 # tapnutia (napr. Mail hned po Gift) predlzia zobrazenie namiesto toho aby ho
 # predcasne schovali — kazdy show() zrusi platnost predchadzajuceho timeoutu.
 func _show_coming_soon(feature_name: String) -> void:
@@ -140,11 +168,62 @@ func _on_hero_showcase_resized() -> void:
 func _on_battle_button_pressed() -> void:
 	get_tree().change_scene_to_file(PREMATCH_FLOW_SCENE)
 
+# --- Taby ---
+
+func _request_tab(tab: int) -> void:
+	if tab == _current_tab:
+		return
+	if _current_tab == Tab.DECK and deck_overlay.has_unsaved_changes():
+		_pending_tab = tab
+		# ButtonGroup uz stlacil novy button — vrat vyber na Deck
+		_tab_buttons[Tab.DECK].button_pressed = true
+		deck_overlay.confirm_leave()
+		return
+	_switch_tab(tab)
+
+# Discard v Deck tabe — Deck sa uz sam deaktivoval. Cancel netreba riesit:
+# Deck button je uz znovu vybrany a stary _pending_tab sa prepise pri dalsom
+# _request_tab(), takze je neskodny.
+func _on_deck_leave_confirmed() -> void:
+	if _pending_tab >= 0:
+		_switch_tab(_pending_tab)
+		_pending_tab = -1
+
+func _switch_tab(tab: int) -> void:
+	if _current_tab >= 0:
+		var old_page: Control = _tab_pages[_current_tab]
+		if old_page.has_method("deactivate"):
+			old_page.deactivate()
+		else:
+			old_page.visible = false
+	var page: Control = _tab_pages[tab]
+	if page.has_method("activate"):
+		page.activate()
+	else:
+		page.visible = true
+	# set button_pressed emituje len toggled, nie pressed — ziadna rekurzia
+	_tab_buttons[tab].button_pressed = true
+	_current_tab = tab
+	DebugLog.info("menu", "tab: %s" % Tab.keys()[tab])
+
+# Rail + obsah sa skryju pod fullscreen overlay (Settings/Credits/CardDetail).
+# Stranka aktivneho tabu ostava nedotknuta, takze po zatvoreni je tab rovnaky.
+func _set_menu_chrome_visible(v: bool) -> void:
+	nav_rail.visible = v
+	main_content.visible = v
+
+func _on_card_detail_requested(id: StringName, kind: StringName) -> void:
+	_set_menu_chrome_visible(false)
+	card_detail.move_to_front()
+	card_detail.open_for(id, kind)
+
+func _on_card_detail_closed() -> void:
+	_set_menu_chrome_visible(true)
+
 func _on_settings_button_pressed() -> void:
 	# overlay version
 	#get_tree().paused = true
-	nav_rail.visible = false
-	main_content.visible = false
+	_set_menu_chrome_visible(false)
 	# Background je posledne dieta MainMenu (kreslene navrchu) — bez tohto
 	# by overlay ostal skryty za nim aj pri visible = true.
 	setting_overlay.move_to_front()
@@ -152,51 +231,18 @@ func _on_settings_button_pressed() -> void:
 
 func _on_credits_button_pressed() -> void:
 	# overlay version
-	nav_rail.visible = false
-	main_content.visible = false
+	_set_menu_chrome_visible(false)
 	credits_overlay.move_to_front()
 	credits_overlay.open()
 
 func _on_setting_overlay_close_requested() -> void:
 	#print("Close_request signal received by main menu")
 	setting_overlay.close()
-	nav_rail.visible = true
-	main_content.visible = true
+	_set_menu_chrome_visible(true)
 	#get_tree().paused = false
 
 func _on_credits_overlay_closed() -> void:
-	nav_rail.visible = true
-	main_content.visible = true
-
-func _on_shop_button_pressed() -> void:
-	nav_rail.visible = false
-	main_content.visible = false
-	shop_overlay.move_to_front()
-	shop_overlay.open()
-
-func _on_shop_overlay_closed() -> void:
-	nav_rail.visible = true
-	main_content.visible = true
-
-func _on_heroes_button_pressed() -> void:
-	nav_rail.visible = false
-	main_content.visible = false
-	deck_overlay.move_to_front()
-	deck_overlay.open()
-
-func _on_deck_overlay_closed() -> void:
-	nav_rail.visible = true
-	main_content.visible = true
-
-func _on_deck_button_pressed() -> void:
-	nav_rail.visible = false
-	main_content.visible = false
-	encyclopedia_overlay.move_to_front()
-	encyclopedia_overlay.open()
-
-func _on_encyclopedia_overlay_closed() -> void:
-	nav_rail.visible = true
-	main_content.visible = true
+	_set_menu_chrome_visible(true)
 
 func _on_exit_button_pressed() -> void:
 	get_tree().quit()

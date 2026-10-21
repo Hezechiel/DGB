@@ -1,27 +1,25 @@
 extends Control
-class_name EncyclopediaOverlay
+class_name PantheonOverlay
 
-# EncyclopediaOverlay — vsetci bohovia a karty jedneho panteonu, vlastnene
+# PantheonOverlay — vsetci bohovia a karty jedneho panteonu, vlastnene
 # aj zamknute. Tap na dlazdicu otvori CardDetail (detail + level up).
 # Nic nemeni sama — level up ide cez CardDetail -> PlayerProfile.upgrade_card().
-# Rovnaky overlay pattern ako DeckOverlay (open()/close(), signal closed).
+# MainMenu tab page (activate()/deactivate()), rovnako ako DeckOverlay.
+# CardDetail otvara MainMenu (overlay cez celu obrazovku) cez card_detail_requested.
 
-signal closed
+signal card_detail_requested(id: StringName, kind: StringName)
 
 @onready var owned_label: Label = $Panel/Margin/Content/Header/OwnedLabel
-@onready var close_button: Button = $Panel/Margin/Content/Header/CloseButton
 @onready var faction_tabs: HBoxContainer = $Panel/Margin/Content/FactionTabs
 @onready var sections: VBoxContainer = $Panel/Margin/Content/Scroll/Sections
-@onready var card_detail: CardDetail = $CardDetail
 
 var _faction: StringName = &""
 
 func _ready() -> void:
 	visible = false
-	close_button.pressed.connect(close)
 	PlayerProfile.profile_changed.connect(_on_profile_changed)
 
-func open() -> void:
+func activate() -> void:
 	for child in faction_tabs.get_children():
 		child.queue_free()
 	var factions := _collect_factions()
@@ -38,11 +36,8 @@ func open() -> void:
 	_rebuild()
 	visible = true
 
-func close() -> void:
-	if card_detail.visible:
-		card_detail.close()
+func deactivate() -> void:
 	visible = false
-	closed.emit()
 
 func _on_profile_changed() -> void:
 	# level up za CardDetailom -> dlazdica pod nim sa obnovi
@@ -144,4 +139,4 @@ func _by_cost_then_id(a: StringName, b: StringName) -> bool:
 	return a < b
 
 func _on_tile_tapped(tile: DeckTile) -> void:
-	card_detail.open_for(tile.item_id, tile.kind)
+	card_detail_requested.emit(tile.item_id, tile.kind)

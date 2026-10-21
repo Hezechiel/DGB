@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://c37uvek0bx4yb"]
 
 [ext_resource type="Script" uid="uid://1xoj1o4il2co" path="res://scripts/ui/deck_overlay.gd" id="1_deck"]
+[ext_resource type="Texture2D" uid="uid://c30imutueoe3n" path="res://assets/menu/deck/frame_ninepatchrect.png" id="2_xhi7c"]
 
 [node name="DeckOverlay" type="Control" unique_id=1286410919]
 layout_mode = 3
@@ -56,10 +57,6 @@ visible = false
 layout_mode = 2
 text = "Cancel"
 
-[node name="CloseButton" type="Button" parent="DeckPanel/Margin/Content/Header" unique_id=495975622]
-layout_mode = 2
-text = "Close"
-
 [node name="SlotRow" type="HBoxContainer" parent="DeckPanel/Margin/Content" unique_id=2111951004]
 layout_mode = 2
 
@@ -76,3 +73,17 @@ horizontal_scroll_mode = 0
 [node name="PoolGrid" type="GridContainer" parent="DeckPanel/Margin/Content/PoolScroll" unique_id=1909907340]
 layout_mode = 2
 columns = 8
+
+[node name="Node2D" type="Node2D" parent="DeckPanel/Margin/Content" unique_id=1004676020]
+
+[node name="NinePatchRect" type="NinePatchRect" parent="DeckPanel/Margin/Content/Node2D" unique_id=2107819376]
+offset_left = 24.0
+offset_top = 39.0
+offset_right = 460.0
+offset_bottom = 342.0
+texture = ExtResource("2_xhi7c")
+region_rect = Rect2(0, 0, 1000, 250)
+patch_margin_left = 120
+patch_margin_top = 80
+patch_margin_right = 120
+patch_margin_bottom = 80

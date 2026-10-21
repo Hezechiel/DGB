@@ -9,9 +9,9 @@ class_name DeckOverlay
 # ineho boha na slot 0 nacita jeho balicek (alebo predvoleny); ak su v
 # drafte neulozene zmeny kariet, opyta sa Discard / Cancel. Karty, ktore
 # draft boh odmieta (DeckRules), su v poole sede a "Forbidden".
-# Rovnaky overlay pattern ako ShopOverlay (open()/close(), signal closed).
+# MainMenu tab page (activate()/deactivate()), rovnako ako ShopOverlay.
 
-signal closed
+signal leave_confirmed   # hrac potvrdil Discard pri odchode z tabu
 
 const HINT_TEXT := "Drag a scroll onto a slot, or tap a scroll and then a slot."
 const NO_DECK_TEXT := "This god cannot field a full deck."
@@ -19,7 +19,6 @@ const NO_DECK_TEXT := "This god cannot field a full deck."
 @onready var edit_button: Button = $DeckPanel/Margin/Content/Header/EditButton
 @onready var save_button: Button = $DeckPanel/Margin/Content/Header/SaveButton
 @onready var cancel_button: Button = $DeckPanel/Margin/Content/Header/CancelButton
-@onready var close_button: Button = $DeckPanel/Margin/Content/Header/CloseButton
 @onready var slot_row: HBoxContainer = $DeckPanel/Margin/Content/SlotRow
 @onready var hint_label: Label = $DeckPanel/Margin/Content/HintLabel
 @onready var pool_scroll: ScrollContainer = $DeckPanel/Margin/Content/PoolScroll
@@ -31,6 +30,7 @@ var _draft_cards: Array[StringName] = []   # vzdy presne PlayerProfile.DECK_SIZE
 var _selected: DeckTile = null             # tap-then-tap vyber
 var _discard_dialog: ConfirmationDialog
 var _pending_hero: StringName = &""        # boh cakajuci na Discard
+var _pending_leave: bool = false           # dialog je otvoreny kvoli odchodu z tabu (nie kvoli vymene boha)
 var _synergy_label: Label                  # riadok pod slotmi: synergy prah boha (live)
 
 func _ready() -> void:
@@ -43,7 +43,6 @@ func _ready() -> void:
 	edit_button.pressed.connect(_on_edit_pressed)
 	save_button.pressed.connect(_on_save_pressed)
 	cancel_button.pressed.connect(_on_cancel_pressed)
-	close_button.pressed.connect(close)
 
 	# Ziadna Save moznost v dialogu — ukladat sa da len hlavnym Save.
 	_discard_dialog = ConfirmationDialog.new()
@@ -51,19 +50,29 @@ func _ready() -> void:
 	_discard_dialog.ok_button_text = "Discard"
 	_discard_dialog.cancel_button_text = "Cancel"
 	_discard_dialog.confirmed.connect(_on_discard_confirmed)
+	_discard_dialog.canceled.connect(_on_discard_canceled)
 	add_child(_discard_dialog)
 
-func open() -> void:
+func activate() -> void:
 	_load_draft()
 	_set_editing(false)
 	visible = true
 
-func close() -> void:
+func deactivate() -> void:
 	if _editing:
 		_load_draft()
 		_set_editing(false)
 	visible = false
-	closed.emit()
+
+# Neulozene zmeny pri odchode z tabu: karty ALEBO iny draft boh ako aktivny.
+func has_unsaved_changes() -> bool:
+	return _editing and (_has_unsaved_card_changes() or _draft_hero != PlayerProfile.get_deck_hero())
+
+# MainMenu vola pri pokuse prepnut tab, ked has_unsaved_changes() == true.
+func confirm_leave() -> void:
+	_pending_hero = &""
+	_pending_leave = true
+	_discard_dialog.popup_centered()
 
 func _load_draft() -> void:
 	_draft_hero = PlayerProfile.get_deck_hero()
@@ -91,16 +100,26 @@ func _request_hero_switch(id: StringName) -> void:
 		return
 	if _has_unsaved_card_changes():
 		_pending_hero = id
+		_pending_leave = false
 		_discard_dialog.popup_centered()
 		return
 	_switch_hero(id, deck)
 
 func _on_discard_confirmed() -> void:
+	if _pending_leave:
+		_pending_leave = false
+		deactivate()
+		leave_confirmed.emit()
+		return
 	if _pending_hero == &"":
 		return
 	var id := _pending_hero
 	_pending_hero = &""
 	_switch_hero(id, PlayerProfile.get_deck_for(id))
+
+func _on_discard_canceled() -> void:
+	_pending_leave = false
+	_pending_hero = &""
 
 func _switch_hero(id: StringName, deck: Array[StringName]) -> void:
 	_draft_hero = id

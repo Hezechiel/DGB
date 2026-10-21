@@ -42,10 +42,6 @@ layout_mode = 2
 size_flags_horizontal = 3
 text = "Shop"
 
-[node name="CloseButton" type="Button" parent="ShopPanel/Margin/Content/Header" unique_id=1279897576]
-layout_mode = 2
-text = "Close"
-
 [node name="PackList" type="VBoxContainer" parent="ShopPanel/Margin/Content" unique_id=184915722]
 layout_mode = 2
 

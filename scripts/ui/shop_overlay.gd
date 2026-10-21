@@ -2,15 +2,12 @@ extends Control
 class_name ShopOverlay
 
 # ShopOverlay — zoznam balickov -> otvorenie -> reveal ako jednoduchy zoznam.
-# Rovnaky overlay pattern ako CreditsOverlay (open()/close(), signal closed).
+# MainMenu tab page (activate()/deactivate()).
 # Losovanie robi cisty PackRoller; zbierku meni LEN PlayerProfile.grant_cards().
 # Ziadna mena, ziadne animacie — placeholder UI s default temou.
 
-signal closed
-
 const RARITY_NAMES := ["Common", "Rare", "Epic", "Legendary", "Unique"]
 
-@onready var close_button: Button = $ShopPanel/Margin/Content/Header/CloseButton
 @onready var pack_list: VBoxContainer = $ShopPanel/Margin/Content/PackList
 @onready var reveal_box: VBoxContainer = $ShopPanel/Margin/Content/RevealBox
 @onready var reveal_title: Label = $ShopPanel/Margin/Content/RevealBox/RevealTitle
@@ -19,10 +16,9 @@ const RARITY_NAMES := ["Common", "Rare", "Epic", "Legendary", "Unique"]
 
 func _ready() -> void:
 	visible = false
-	close_button.pressed.connect(close)
 	reveal_ok_button.pressed.connect(_show_pack_list)
 
-func open() -> void:
+func activate() -> void:
 	for child in pack_list.get_children():
 		child.queue_free()
 	for pack_id in CardDB.list_pack_ids():
@@ -38,9 +34,9 @@ func open() -> void:
 	_show_pack_list()
 	visible = true
 
-func close() -> void:
+func deactivate() -> void:
+	_show_pack_list()
 	visible = false
-	closed.emit()
 
 func _show_pack_list() -> void:
 	pack_list.visible = true

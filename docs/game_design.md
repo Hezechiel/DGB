@@ -23,7 +23,7 @@ stand-in for the networking phase, not a designed difficulty.
  
 ## 2. Core Loop (one match)
  
-Pressing **Arena** from the main menu opens a placeholder matchmaking sequence —
+Pressing the **Battle** card in the main menu opens a placeholder matchmaking sequence —
 a "searching for battle" screen, then a versus screen showing both players'
 name/faction — before the match loads. Both screens are cosmetic ~1s
 placeholders until real networking exists; rank, map, and opponent identity
