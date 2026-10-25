@@ -1,89 +1,340 @@
 [gd_scene format=3 uid="uid://c37uvek0bx4yb"]
 
 [ext_resource type="Script" uid="uid://1xoj1o4il2co" path="res://scripts/ui/deck_overlay.gd" id="1_deck"]
-[ext_resource type="Texture2D" uid="uid://c30imutueoe3n" path="res://assets/menu/deck/frame_ninepatchrect.png" id="2_xhi7c"]
+[ext_resource type="Script" uid="uid://buxrontoseaaw" path="res://scripts/ui/fit_card_grid.gd" id="5_grid"]
+[ext_resource type="Texture2D" uid="uid://c4plb8sa3irt3" path="res://assets/menu/deck/tab_active.png" id="6_tab_active"]
+[ext_resource type="Texture2D" uid="uid://dwbbv8bcsprhg" path="res://assets/menu/deck/tab_inactive.png" id="7_tab_inactive"]
+[ext_resource type="Script" uid="uid://c7kuqvyubxbjm" path="res://scripts/ui/scaled_nine_patch.gd" id="8_ninepatch"]
+[ext_resource type="Texture2D" uid="uid://c30imutueoe3n" path="res://assets/menu/deck/frame_ninepatchrect.png" id="9_frame"]
 
-[node name="DeckOverlay" type="Control" unique_id=1286410919]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_panel"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+
+[node name="DeckOverlay" type="Control" unique_id=795425564]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 script = ExtResource("1_deck")
 
-[node name="DeckPanel" type="Panel" parent="." unique_id=1794656263]
+[node name="Layout" type="VBoxContainer" parent="." unique_id=423946139]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
 
-[node name="Margin" type="MarginContainer" parent="DeckPanel" unique_id=1828471242]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 16
-
-[node name="Content" type="VBoxContainer" parent="DeckPanel/Margin" unique_id=206201804]
-layout_mode = 2
-
-[node name="Header" type="HBoxContainer" parent="DeckPanel/Margin/Content" unique_id=188354533]
-layout_mode = 2
-
-[node name="TitleLabel" type="Label" parent="DeckPanel/Margin/Content/Header" unique_id=1731254637]
+[node name="GodShowcase" type="Control" parent="Layout" unique_id=947876999]
+unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Deck"
+size_flags_vertical = 3
+mouse_filter = 2
 
-[node name="EditButton" type="Button" parent="DeckPanel/Margin/Content/Header" unique_id=1749440665]
+[node name="GodArt" type="TextureRect" parent="Layout/GodShowcase" unique_id=1497871144]
+unique_name_in_owner = true
+texture_filter = 4
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="GodSprite" type="AnimatedSprite2D" parent="Layout/GodShowcase" unique_id=203694312]
+unique_name_in_owner = true
+
+[node name="DeckPanel" type="PanelContainer" parent="Layout" unique_id=1863673106]
+unique_name_in_owner = true
 layout_mode = 2
-text = "Edit"
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxEmpty_panel")
 
-[node name="SaveButton" type="Button" parent="DeckPanel/Margin/Content/Header" unique_id=1079631661]
+[node name="Frame" type="Control" parent="Layout/DeckPanel" unique_id=1720394851]
+texture_filter = 2
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("8_ninepatch")
+texture = ExtResource("9_frame")
+patch_margin_left = 52
+patch_margin_top = 46
+patch_margin_right = 52
+patch_margin_bottom = 46
+patch_scale = 0.7
+fill_color = Color(0.05, 0.07, 0.12, 0.86)
+fill_inset = 3.0
+
+[node name="Margin" type="MarginContainer" parent="Layout/DeckPanel" unique_id=1250797845]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="DeckBox" type="VBoxContainer" parent="Layout/DeckPanel/Margin" unique_id=302142728]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="Header" type="HBoxContainer" parent="Layout/DeckPanel/Margin/DeckBox" unique_id=885310972]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="PantheonLogo" type="TextureRect" parent="Layout/DeckPanel/Margin/DeckBox/Header" unique_id=1351527726]
+unique_name_in_owner = true
+texture_filter = 4
+custom_minimum_size = Vector2(46, 38)
+layout_mode = 2
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Titles" type="VBoxContainer" parent="Layout/DeckPanel/Margin/DeckBox/Header" unique_id=224551738]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_constants/separation = -2
+alignment = 1
+
+[node name="GodNameLabel" type="Label" parent="Layout/DeckPanel/Margin/DeckBox/Header/Titles" unique_id=1189709946]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.05, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 22
+text = "ZEUS"
+
+[node name="SynergyLabel" type="Label" parent="Layout/DeckPanel/Margin/DeckBox/Header/Titles" unique_id=561060838]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 0
+theme_override_font_sizes/font_size = 11
+text_overrun_behavior = 3
+
+[node name="CostBox" type="VBoxContainer" parent="Layout/DeckPanel/Margin/DeckBox/Header" unique_id=998017869]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = -4
+alignment = 1
+
+[node name="CostTitle" type="Label" parent="Layout/DeckPanel/Margin/DeckBox/Header/CostBox" unique_id=250013383]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.95, 0.85, 0.6, 1)
+theme_override_font_sizes/font_size = 11
+text = "Average Energy Cost"
+horizontal_alignment = 2
+
+[node name="AvgCostLabel" type="Label" parent="Layout/DeckPanel/Margin/DeckBox/Header/CostBox" unique_id=616819858]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.3, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.05, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 22
+text = "0.0"
+horizontal_alignment = 2
+
+[node name="SlotGrid" type="Container" parent="Layout/DeckPanel/Margin/DeckBox" unique_id=294804716]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+script = ExtResource("5_grid")
+columns = 8
+
+[node name="CollectionPanel" type="PanelContainer" parent="Layout" unique_id=1283364967]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_styles/panel = SubResource("StyleBoxEmpty_panel")
+
+[node name="Frame" type="Control" parent="Layout/CollectionPanel" unique_id=1587263049]
+texture_filter = 2
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("8_ninepatch")
+texture = ExtResource("9_frame")
+patch_margin_left = 52
+patch_margin_top = 46
+patch_margin_right = 52
+patch_margin_bottom = 46
+patch_scale = 0.7
+fill_color = Color(0.05, 0.07, 0.12, 0.86)
+fill_inset = 3.0
+
+[node name="Margin" type="MarginContainer" parent="Layout/CollectionPanel" unique_id=1011648019]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="CollectionBox" type="VBoxContainer" parent="Layout/CollectionPanel/Margin" unique_id=226938843]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="CollectionHeader" type="HBoxContainer" parent="Layout/CollectionPanel/Margin/CollectionBox" unique_id=1875651415]
+custom_minimum_size = Vector2(0, 34)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="CollectionLabel" type="Label" parent="Layout/CollectionPanel/Margin/CollectionBox/CollectionHeader" unique_id=1314302567]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(130, 0)
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.85, 0.45, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.05, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 14
+text = "CARD COLLECTION"
+vertical_alignment = 1
+
+[node name="AllTab" type="TextureButton" parent="Layout/CollectionPanel/Margin/CollectionBox/CollectionHeader" unique_id=1351976312]
+unique_name_in_owner = true
+texture_filter = 4
+custom_minimum_size = Vector2(100, 26)
+layout_mode = 2
+texture_normal = ExtResource("7_tab_inactive")
+texture_pressed = ExtResource("6_tab_active")
+texture_hover = ExtResource("7_tab_inactive")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Label" type="Label" parent="Layout/CollectionPanel/Margin/CollectionBox/CollectionHeader/AllTab" unique_id=232847736]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 13
+text = "ALL"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="UnitsTab" type="TextureButton" parent="Layout/CollectionPanel/Margin/CollectionBox/CollectionHeader" unique_id=365862673]
+unique_name_in_owner = true
+texture_filter = 4
+custom_minimum_size = Vector2(100, 26)
+layout_mode = 2
+texture_normal = ExtResource("7_tab_inactive")
+texture_pressed = ExtResource("6_tab_active")
+texture_hover = ExtResource("7_tab_inactive")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Label" type="Label" parent="Layout/CollectionPanel/Margin/CollectionBox/CollectionHeader/UnitsTab" unique_id=579402028]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 13
+text = "UNITS"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="SpellsTab" type="TextureButton" parent="Layout/CollectionPanel/Margin/CollectionBox/CollectionHeader" unique_id=1454258844]
+unique_name_in_owner = true
+texture_filter = 4
+custom_minimum_size = Vector2(100, 26)
+layout_mode = 2
+texture_normal = ExtResource("7_tab_inactive")
+texture_pressed = ExtResource("6_tab_active")
+texture_hover = ExtResource("7_tab_inactive")
+ignore_texture_size = true
+stretch_mode = 0
+
+[node name="Label" type="Label" parent="Layout/CollectionPanel/Margin/CollectionBox/CollectionHeader/SpellsTab" unique_id=1447402586]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 13
+text = "SPELLS"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HintLabel" type="Label" parent="Layout/CollectionPanel/Margin/CollectionBox/CollectionHeader" unique_id=1339319143]
+unique_name_in_owner = true
 visible = false
 layout_mode = 2
-text = "Save"
+size_flags_horizontal = 3
+theme_override_colors/font_color = Color(0.75, 0.78, 0.85, 1)
+theme_override_font_sizes/font_size = 11
+horizontal_alignment = 2
+vertical_alignment = 1
+text_overrun_behavior = 3
 
-[node name="CancelButton" type="Button" parent="DeckPanel/Margin/Content/Header" unique_id=32934741]
-visible = false
+[node name="BarSpacer" type="Control" parent="Layout/CollectionPanel/Margin/CollectionBox/CollectionHeader" unique_id=1946027318]
 layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="CancelButton" type="Button" parent="Layout/CollectionPanel/Margin/CollectionBox/CollectionHeader" unique_id=1031247021]
+unique_name_in_owner = true
+visible = false
+custom_minimum_size = Vector2(96, 30)
+layout_mode = 2
+size_flags_vertical = 4
 text = "Cancel"
 
-[node name="SlotRow" type="HBoxContainer" parent="DeckPanel/Margin/Content" unique_id=2111951004]
-layout_mode = 2
-
-[node name="HintLabel" type="Label" parent="DeckPanel/Margin/Content" unique_id=1758809641]
+[node name="SaveButton" type="Button" parent="Layout/CollectionPanel/Margin/CollectionBox/CollectionHeader" unique_id=284570285]
+unique_name_in_owner = true
 visible = false
+custom_minimum_size = Vector2(96, 30)
 layout_mode = 2
+size_flags_vertical = 4
+text = "Save"
 
-[node name="PoolScroll" type="ScrollContainer" parent="DeckPanel/Margin/Content" unique_id=378077463]
+[node name="EditButton" type="Button" parent="Layout/CollectionPanel/Margin/CollectionBox/CollectionHeader" unique_id=180521324]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(96, 30)
+layout_mode = 2
+size_flags_vertical = 4
+tooltip_text = "Edit deck"
+text = "Edit"
+
+[node name="PoolScroll" type="ScrollContainer" parent="Layout/CollectionPanel/Margin/CollectionBox" unique_id=1357440634]
+unique_name_in_owner = true
 visible = false
 layout_mode = 2
 size_flags_vertical = 3
-horizontal_scroll_mode = 0
+vertical_scroll_mode = 0
 
-[node name="PoolGrid" type="GridContainer" parent="DeckPanel/Margin/Content/PoolScroll" unique_id=1909907340]
+[node name="PoolGrid" type="GridContainer" parent="Layout/CollectionPanel/Margin/CollectionBox/PoolScroll" unique_id=951864842]
+unique_name_in_owner = true
 layout_mode = 2
-columns = 8
-
-[node name="Node2D" type="Node2D" parent="DeckPanel/Margin/Content" unique_id=1004676020]
-
-[node name="NinePatchRect" type="NinePatchRect" parent="DeckPanel/Margin/Content/Node2D" unique_id=2107819376]
-offset_left = 24.0
-offset_top = 39.0
-offset_right = 460.0
-offset_bottom = 342.0
-texture = ExtResource("2_xhi7c")
-region_rect = Rect2(0, 0, 1000, 250)
-patch_margin_left = 120
-patch_margin_top = 80
-patch_margin_right = 120
-patch_margin_bottom = 80
+size_flags_vertical = 0
+mouse_filter = 2
+theme_override_constants/h_separation = 8
+theme_override_constants/v_separation = 6
+columns = 1

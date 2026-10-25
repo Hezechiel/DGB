@@ -1015,6 +1015,18 @@ gods; animation and windup are untouched (rework postponed).
   `SettingOverlay`/`CreditsOverlay` vs. `Background` (§8) — worth checking
   first whenever a Control-based overlay "doesn't show" despite `visible`
   being true and no texture/logic bug found.
+- **A later sibling that overlaps a button also takes its taps.** A Control
+  drawn later gets GUI input first, and a container's own
+  `mouse_filter = IGNORE` does not pass that on to its children — a full-rect
+  `Panel` inside it still stops the tap. `MainMenu`'s `MainContent` used to
+  start at x 130 while `NavRail` reaches x 158: harmless with only the
+  showcase, but full-size tab pages would have eaten the right edge of every
+  rail button. Keep a page area clear of the rail's rect
+  (`offset_left = 166`) rather than juggling `mouse_filter` on every page.
+- **Setting `button_pressed` from code emits `toggled`, not `pressed`.** The
+  main-menu tabs connect `pressed`, so `_switch_tab()` and the Deck leave
+  guard can re-select a button in a `ButtonGroup` without re-entering
+  `_request_tab()`. Connecting `toggled` instead would recurse.
 - **A `Node2D` child of a `Control` container is not auto-arranged by it.**
   Containers (`HBoxContainer`, `CenterContainer`, …) only lay out `Control`
   children; a `Node2D` (e.g. an `AnimatedSprite2D`) parented under one keeps
@@ -1183,6 +1195,20 @@ gods; animation and windup are untouched (rework postponed).
   corners eat most of the height. Tune `texture_margin_*` in the Theme editor,
   not in art; crop transparent padding with `region_rect` (the inactive gold
   button) instead of re-exporting.
+- **When 9-slice corners must shrink, use `ScaledNinePatch`, not a
+  `StyleBoxTexture`.** `scripts/ui/scaled_nine_patch.gd` (`@tool`) scales the
+  whole texture first (`patch_scale`, or auto-fit) and only then stretches the
+  middle bands, so ornate corners keep their shape on small panels; it can
+  also draw a fill under the frame (`fill_color`, `fill_inset`). The Deck
+  panels use it (52×46 px corners at 0.7). Trade-off: it lives as a node in
+  the scene, not in `dgb_theme.tres` — move to the theme only if Godot's
+  stylebox gains corner scaling or a third screen needs the same frame.
+- **Column-major order in a `GridContainer` needs index remapping and a
+  filler.** `GridContainer` always fills row by row. For a fixed number of
+  rows scrolling horizontally (the Deck collection), set `columns =
+  ceil(n / rows)`, add children in cell order `(i % rows) * cols + i / rows`,
+  and fill an empty last cell with a mouse-ignoring `Control`, or the top row
+  shifts.
 - **Tab panes that hold long text sit in a `ScrollContainer`.** Card Detail's
   Skills and Details panes each live in their own `ScrollContainer`
   (`horizontal_scroll_mode = 0` so labels wrap, the inner pane
@@ -1293,29 +1319,40 @@ draw-order pitfall in §6):
   and only that function changes then. The scene's own stylebox texture
   (tier 1) is the editor preview and the fallback when a load fails.
   `texture_filter = Linear` on `Background` (§6 filtering).
-- `NavRail` (`VBoxContainer`, left edge, anchored full-height) —
-  `DeckButton` (inventory icon) → `EncyclopediaOverlay`; `HeroesButton` →
-  `DeckOverlay` (the button will be renamed); `ShopButton` → `ShopOverlay`;
-  `RewardsButton` → `_show_coming_soon()`; a `Control` spacer; `ExitButton`.
-  All are `TextureButton`s.
+- `NavRail` (`VBoxContainer`, left edge, anchored full-height, x 8–158) —
+  `BattlesButton`, `DeckButton`, `PantheonButton`, `ShopButton`,
+  `RewardsButton`, a `Control` spacer, `ExitButton`. All are `TextureButton`s;
+  the five rail buttons share one atlas (`main menu_rail buttons.png` /
+  `_pressed.png`, `AtlasTexture` regions). **The rail never hides for tabs**,
+  only under the fullscreen overlays (Settings, Credits, Card Detail).
+  Battles / Deck / Pantheon / Shop are **tabs** (Oct 2026): `main_menu.gd`
+  sets `toggle_mode = true` and one shared `ButtonGroup` on them in `_ready()`,
+  so exactly one is pressed and its `texture_pressed` marks the active tab (no
+  extra art). `RewardsButton` is not a tab: it shows the coming-soon toast and
+  the selected tab does not change.
 - `TopBar` (`HBoxContainer`, top edge) — `CurrencyGroup` (a `ColorRect` +
   static `"0"` `Label`, placeholder), `MailButton`/`GiftButton` (same
   flat-color placeholder pattern as the nav rail), `SettingsButton`
   (`TextureButton`, opens `SettingOverlay`).
-- `MainContent` (`HBoxContainer`, fills the space between the nav rail and
-  the screen edge) — `HeroShowcase` (`Control`, `size_flags_horizontal = 3`
-  to take remaining width) containing a single `AnimatedSprite2D` child
-  (`ZeusIdle` — name kept, it shows any god) that plays the **active deck
-  god's** idle animation (`PlayerProfile.get_deck_hero()` →
-  `HeroData.sprite_frames`, `iddle_left` then `idle_left`), set by
-  `main_menu.gd::_apply_showcase_god()` in `_ready()` and again on
-  `PlayerProfile.profile_changed` (saving a deck switches it live). A god
-  without frames or an idle clip falls back to the scene's own
-  `frames_zeus.tres`. Reuses match art as-is, no menu-only asset; one shared
-  scale (1.2) for every god; and
-  `BattleCard` (`Button`, `custom_minimum_size` fixed, `size_flags_vertical
-  = 4` to center within the row), the sole entry point into
-  `PreMatchFlow.tscn` (§4).
+- `MainContent` (`Control`, Oct 2026 — was an `HBoxContainer`) — the page
+  area between the rail and the right edge, below `TopBar` and above
+  `FooterBar` (`offset_left = 166`, `offset_top = 50`, `offset_bottom = -30`),
+  so the TopBar (currency, mail, gift, settings) and the footer are never
+  covered by a tab. Its children are full-rect **tab pages**, exactly one
+  visible at a time:
+  - `HomeView` (`HBoxContainer`, separation 20) — the Battles tab, active when
+    the menu opens. `HeroShowcase` (`Control`, `size_flags_horizontal = 3`)
+    holds a single `AnimatedSprite2D` (`ZeusIdle` — name kept, it shows any
+    god) playing the **active deck god's** idle animation
+    (`PlayerProfile.get_deck_hero()` → `HeroData.sprite_frames`, `iddle_left`
+    then `idle_left`), set by `main_menu.gd::_apply_showcase_god()` in
+    `_ready()` and again on `PlayerProfile.profile_changed`. A god without
+    frames or an idle clip falls back to the scene's own `frames_zeus.tres`;
+    one shared scale (1.2) for every god. `BattleCard` (`TextureButton` with
+    `BattleButtonSparks`, `size_flags_vertical = 4`) is the sole entry point
+    into `PreMatchFlow.tscn` (§4).
+  - `DeckOverlay`, `PantheonOverlay`, `ShopOverlay` — the other three tabs
+    (see "Tab pages" below).
 - `ComingSoonToast` (`PanelContainer`, hidden by default) — generic "<X> —
   coming soon" toast for any unimplemented nav-rail/top-bar button, shown
   via `main_menu.gd::_show_coming_soon(feature_name: String)`. Debounced
@@ -1329,43 +1366,147 @@ draw-order pitfall in §6):
   at `_ready()`, backed by a real `config/version` project setting — never
   hardcoded in two places), `•`, `ServerStatusLabel` (static placeholder
   text, no real server/backend yet).
-- `SettingOverlay` / `CreditsOverlay` — fullscreen overlay scene instances
-  built on the framed-overlay base (below), siblings of `Background` but
-  declared *before* it in the tree (see the draw-order pitfall in §6). Both
-  start `visible = false`; `main_menu.gd` calls `move_to_front()` on whichever
-  one it opens, and hides `NavRail` and `MainContent` while it is open.
-  Settings holds a `CreditsButton` that closes Settings and emits
-  `credits_requested`, which `main_menu.gd` answers by opening Credits — the
-  two are never open at once. These two are still wired with `[connection]`
-  entries in `MainMenu.tscn`. Known gap: in a match the HUD does not listen
-  to `credits_requested`, so the Credits button there closes the pause screen
-  without resuming — hide it in the arena or wire it.
-- `ShopOverlay`, `DeckOverlay`, `EncyclopediaOverlay` — three more fullscreen
-  overlay instances following the same pattern (`open()` / `close()`, a
-  `closed` signal, `move_to_front()` at open, nav rail and main content hidden
-  while open). Unlike the two older overlays they are connected **in code** in
-  `main_menu.gd::_ready()`, not with `[connection]` entries. Plain default-theme
-  controls, no art yet (except Card Detail, below).
+- `SettingOverlay` / `CreditsOverlay` / `CardDetail` — the **fullscreen
+  overlays**, siblings of `Background` declared *before* it in the tree (see
+  the draw-order pitfall in §6). All start `visible = false`; `main_menu.gd`
+  calls `move_to_front()` on the one it opens and hides the menu chrome via
+  `_set_menu_chrome_visible(false)` (`NavRail` + `MainContent` together). Only
+  `MainContent` is hidden, not the page inside it, so closing an overlay
+  returns to the same tab in the same state. Settings holds a `CreditsButton`
+  that closes Settings and emits `credits_requested`, which `main_menu.gd`
+  answers by opening Credits — the two are never open at once. Settings and
+  Credits are still wired with `[connection]` entries in `MainMenu.tscn`;
+  `CardDetail` is connected in code and opened by both the Pantheon and the
+  Deck tab's `card_detail_requested`. Known gap: in a match the HUD does not
+  listen to `credits_requested`, so the Credits button there closes the pause
+  screen without resuming — hide it in the arena or wire it.
+- **Tab pages** — `DeckOverlay`, `PantheonOverlay`, `ShopOverlay` (Oct 2026:
+  no longer overlays, despite the names; a rename to `*View` is planned and
+  should be done in the editor). Instanced under `Background/MainContent`,
+  full rect, **no Close button**. Contract: `activate()` (rebuild +
+  `visible = true`) and `deactivate()` (reset transient state +
+  `visible = false`); no `closed` signal. `main_menu.gd` owns the switching:
+  `enum Tab { HOME, DECK, PANTHEON, SHOP }`, `_tab_pages` / `_tab_buttons`
+  dictionaries, `_request_tab(tab)` (button `pressed`) → `_switch_tab(tab)`
+  (deactivate the old page, activate the new one; `HomeView` has no methods,
+  so plain `visible`). Logs `[menu] tab: …`.
   - `shop_overlay.gd` — lists `CardDB.list_pack_ids()`; opening a pack rolls
     with `PackRoller`, grants through `PlayerProfile.grant_cards()` (one call
-    per pack) and shows a list reveal (NEW / +1 copy).
-  - `deck_overlay.gd` + `deck_tile.gd` (`DeckTile`, built in code) — 8 slots
-    (god + 7) and, in edit mode, the pool. Works on a draft; one `_place()`
-    function serves both Godot's Control drag-and-drop and tap-then-tap. Only
-    Save writes (`PlayerProfile.set_deck()`, which also makes that god active).
-    Switching god loads `get_deck_for(god)`; unsaved card edits raise a
-    Discard / Cancel dialog. Cards the draft god refuses are greyed
-    ("Forbidden"). A live synergy line sits under the slots.
-  - `encyclopedia_overlay.gd` — a tab per pantheon found in the data; sections
-    Gods / Units / Spells of `DeckTile`s (locked ones tappable). Gods are
-    listed regardless of `obtain_source`; cards with `obtain_source = 0` are
-    hidden. A god tile shows `HeroData.card_art`, falling back to the first
-    idle frame (`DeckTile._hero_texture()`). Hosts `card_detail.tscn` (`CardDetail`, below) as its `CardDetail`
-    node and calls `open_for(tile.item_id, tile.kind)`. The overlay rebuilds on
-    `PlayerProfile.profile_changed`.
+    per pack) and shows a list reveal (NEW / +1 copy). `deactivate()` returns
+    to the pack list. Plain default-theme controls, no art yet.
+  - `pantheon_overlay.gd` (formerly `encyclopedia_overlay.gd`) — a faction tab
+    per pantheon found in the data; sections Gods / Units / Spells of
+    `DeckTile`s (locked ones tappable). Gods are listed regardless of
+    `obtain_source`; cards with `obtain_source = 0` are hidden. A god tile
+    shows `HeroData.card_art`, falling back to the first idle frame
+    (`DeckTile._hero_texture()`). A tap emits
+    `card_detail_requested(id, kind)`; `main_menu.gd` opens the `CardDetail`
+    overlay at the menu root (not a child of this page, so it always covers
+    the full screen). The page rebuilds on `PlayerProfile.profile_changed`
+    while its own `visible` is true — still true under Card Detail, so tile
+    notes refresh after a level up. `activate()` rebuilds the faction tabs and
+    resets to the first one. Plain default-theme controls.
+  - **Deck tab** — see "Deck screen" below.
 - Debug keys in the main menu (debug builds only): **F9** reset profile,
   **F10** +1 copy of everything obtainable (and every god), **F11** toggle
   `DebugLog`.
+
+### Deck screen (Oct 2026)
+
+`scenes/menu/deck_overlay.tscn` + `scripts/ui/deck_overlay.gd`
+(`class_name DeckOverlay`), tiles `scripts/ui/deck_card_tile.gd`
+(`DeckCardTile`, built in code). Layout from the deck-building art, all
+stacked in one `VBoxContainer`, scaled to `MainContent` (no fixed card
+pixels):
+
+```
+DeckOverlay
+└── Layout (VBoxContainer)
+    ├── GodShowcase      god idle animation (GodSprite) or card_art (GodArt) — view mode only
+    ├── DeckPanel        Frame + Margin/DeckBox/{Header, SlotGrid}
+    └── CollectionPanel  Frame + Margin/CollectionBox/{CollectionHeader (the bar), PoolScroll/PoolGrid}
+```
+
+- **Two modes, instant switch** (`_set_editing()`; a slide animation is a
+  possible later step):
+  - *View* (default on `activate()`, after Save and after Cancel): avatar on
+    top, `DeckPanel` across the full width — header (pantheon logo
+    `assets/menu/logos/logo_<faction>.png` via `DeckCardTile.logo_for()`, god
+    name, synergy line with live `have / need`, average energy cost) and the
+    8 deck tiles (god + 7) in **one row** (`SlotGrid`, a `FitCardGrid` with
+    `columns = 8`). Under it the short framed bar shows only **Edit**. A tap
+    on a deck tile opens Card Detail; `draggable = false`, so a hold does
+    nothing.
+  - *Edit* (only via the Edit button — no auto-Edit on tap): avatar hidden,
+    `DeckPanel` moves up, the bar shows `CARD COLLECTION`, the filter tabs
+    ALL / UNITS / SPELLS, the hint, Cancel and Save, and the collection
+    appears below it.
+  - Heights are stretch ratios, not pixels (the grids deliberately report no
+    minimum size): view `DeckPanel : GodShowcase = view_deck_ratio : 1`
+    (export, 1.2), edit `CollectionPanel : DeckPanel =
+    edit_collection_ratio : 1` (export, 1.3); in view mode
+    `CollectionPanel` drops `EXPAND` so it collapses to the bar.
+- **Collection** — `PoolGrid` (`GridContainer`) inside a horizontal-only
+  `PoolScroll`, **two rows** (`POOL_ROWS`), filled **column by column** so the
+  sort order (gods first under ALL, then owned → cost → id, locked last)
+  reads left to right in pairs. **It lists only what is not in the draft**:
+  `_pool_card_ids()` skips `_draft_cards` and `_pool_hero_ids()` skips
+  `_draft_hero` (Clash Royale model; there is no "IN DECK" state in the
+  collection any more). Every draft change rebuilds it
+  (`_refresh_draft_view()` → `_rebuild_pool()`), so a card replaced in the
+  deck reappears in its sorted place; the horizontal scroll is saved before
+  and restored after the rebuild (filter change and entering Edit still
+  reset it to 0). A `GridContainer` fills row-major, so
+  `_rebuild_pool()` places entry `i` at cell `(i % rows) * cols + i / rows`
+  and puts a mouse-ignoring filler `Control` in the empty bottom cell when
+  the count is odd. Tile height = (scroll height − scrollbar space − row gap)
+  / 2, width from `CARD_ASPECT` (0.82) via `DeckCardTile.width_for_height()`.
+- **Frames** — the two panels are framed by
+  `assets/menu/deck/frame_ninepatchrect.png` (152×127, transparent centre)
+  through a `Frame` node (`ScaledNinePatch`, first child of each
+  `PanelContainer`, panel stylebox `StyleBoxEmpty`), patch margins 52/46,
+  `patch_scale = 0.7`, plus `fill_color` / `fill_inset` for the dark panel
+  fill under the frame (inset in source px, scaled like the patches). Cards
+  have **their own painted frame** in the art: `DeckCardTile` draws the art
+  whole (`KEEP_ASPECT_CENTERED`, no crop) and only overlays the cost badge
+  (top-left), the pantheon logo, `Lv. N`, the status (LOCKED / FORBIDDEN)
+  and, in the collection, the copies progress bar. The **logo** sits in the
+  bottom-right corner, large (`LOGO_SIZE` 0.5 of card width) and partly past
+  the card edge (`LOGO_OVERHANG` 0.25), cropped at the card's outer edge by a
+  `clip_contents` `_logo_clip` the size of the card (so it never covers the
+  progress bar). `Lv. N` is drawn **over** the logo with an outline of
+  `LEVEL_OUTLINE_RATIO` (0.45) × font size. A dedicated painted corner asset
+  can replace the code crop later if needed.
+- **Input (both modes):** **tap** on any tile (deck slot or collection;
+  owned, locked or forbidden) emits `card_detail_requested(id, kind)`, which
+  `main_menu.gd` answers with the same fullscreen `CardDetail` overlay the
+  Pantheon tab uses; closing it returns to the same mode and draft. There is
+  **no tap-to-select / tap-then-tap** any more. **Edit mode only:** a swipe
+  scrolls the collection; **holding** an owned, allowed card for
+  `hold_to_drag_time` s (export, 1.0) charges the gold glow (the glow exists
+  only as this hold feedback, appearing after `HOLD_FEEDBACK_DELAY` 0.15 s),
+  then the card lifts — the source tile goes fully transparent so its cell
+  stays empty, and a full-size preview (art + cost badge) follows the finger
+  via `force_drag()`. Releasing over a valid slot places it (`_can_drop_data()`:
+  gods only on slot 0, cards only on 1–7, never onto itself); releasing
+  anywhere else is Godot's normal drop-cancel — nothing changes and
+  `NOTIFICATION_DRAG_END` makes the tile visible again. Slot-to-slot drags
+  swap. `_place()` is the only draft mutation (swaps, never a duplicate or
+  empty slot). Saves only through `PlayerProfile.set_deck()`. Per-god
+  decks: dropping another god on slot 0 loads that god's deck, with a
+  Discard / Cancel dialog if cards were changed. Cards the draft god refuses
+  are greyed ("Forbidden").
+- **Leave guard:** `has_unsaved_changes()` (Edit mode and card edits or a
+  draft god other than the active one). When true, `main_menu.gd`'s
+  `_request_tab()` re-selects the Deck rail button and calls
+  `confirm_leave()`, which reuses the same Discard / Cancel dialog
+  (`_pending_leave` tells the two uses apart). Discard → `deactivate()` +
+  `leave_confirmed` → the pending tab opens; Cancel → stays in Edit.
+  `deactivate()` itself silently drops an unsaved draft.
+- Not built: the Deck picker (Deck 1 / 2 / …) from the art, a "Use" button in
+  Card Detail, auto-scroll while dragging near the collection edge,
+  fly-back / landing animations, Edit-button art (plain `Button` like Save / Cancel), the
+  mode-switch animation. The Pantheon tab still uses the older `DeckTile`.
 
 ### Framed overlays (Oct 2026)
 

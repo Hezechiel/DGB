@@ -349,6 +349,20 @@ are mock data (`MatchConfig`).
   hardcoded) — needed since future maps (§5) will vary in size. Starting
   values are placeholders pending a feel pass, same status as the numeric
   gameplay values elsewhere in this doc (§3.1, §3.9, §3.11).
+### 3.13 Main menu / hub
+- The hub is one screen with a **nav rail on the left that never hides** and a
+  content area beside it. **Battles** (home: the active god and the Battle
+  card), **Deck**, **Pantheon** and **Shop** are tabs; the pressed rail
+  button shows which one is open. The top bar (currency, mail, gifts,
+  settings) and the footer stay visible on every tab.
+- **Rewards** is still a "coming soon" toast, as are Mail and Gifts.
+- Tabs have no close buttons. Only true overlays cover the whole menu and hide
+  the rail: Settings, Credits and a card's detail view. Closing one returns to
+  the tab you were on.
+- Leaving the Deck tab while editing with unsaved changes asks Discard or
+  Cancel, the same question as switching gods.
+- The hub background is picked at random from three tiers for now; by design
+  the tier will follow account level.
 ### 3.14 Scrolls — collection, packs, decks, synergy
 - **Collection.** A card or god is unlocked by owning one copy; duplicates
   stack as copies. Everything is stored in a local profile (cheatable — fine
@@ -366,17 +380,34 @@ are mock data (`MatchConfig`).
   the basic Greek pack can never drop a god; the "cherished" pack has a small
   chance. The last scroll in a pack has a guaranteed minimum rarity.
 - **Starter:** Zeus and seven cards at level 1.
-- **Shop** (nav rail): open packs; the reveal lists each scroll as NEW or +1
+- **Shop** (rail tab): open packs; the reveal lists each scroll as NEW or +1
   copy.
-- **Encyclopedia** (inventory button): every god and card of a pantheon, owned
-  and locked. Tapping one opens its **flashcard** — art, level, copies
-  progress, description, battle stats with a "current > next level" preview —
-  and the level-up button lives there. Long-term the flashcard should open from
-  every view that shows cards.
-- **Deck screen** (Heroes button): the god on the far left, then seven scrolls.
-  Edit shows the pool (locked scrolls greyed, to show what is still out of
-  reach); scrolls are placed by drag-and-drop or tap-then-tap. Placing a scroll
-  replaces a slot, so a deck is never incomplete.
+- **Pantheon** (rail tab): every god and card of a pantheon, owned and locked.
+  Tapping one opens its **card detail** — art, level, copies progress,
+  description, battle stats with a "current > next level" preview, skill text
+  for gods — and the level-up button lives there. Long-term the card detail
+  should open from every view that shows cards.
+- **Deck screen** (rail tab): two modes. **View** shows the god's avatar on
+  top and the deck below it — the god plus seven scrolls in one row, with the
+  synergy count and average energy cost — and a short bar with an **Edit**
+  button. **Edit** hides the avatar, moves the deck up and opens the **card
+  collection** in two scrolling rows with ALL / UNITS / SPELLS filters. The
+  collection shows only scrolls (and gods) that are **not** in the deck;
+  locked scrolls are greyed, to show what is still out of reach.
+- **Deck gestures.** A **tap** on any card — in the deck or the collection,
+  in either mode, owned or locked — opens its card detail, the same as in
+  the Pantheon tab. The **only** way to change the deck is **hold and drag**
+  (in Edit): hold a card for about one second while a glow charges, then the
+  card lifts out of the collection — its spot stays empty and the card
+  follows the finger, the same feel as dragging a scroll from the hand in
+  the arena. Dropping it on a deck slot replaces that slot (a god only on the
+  god slot); dropping it anywhere else cancels with no change. The replaced
+  scroll returns to the collection in its sorted place. There is no
+  tap-to-select. Placing a scroll always replaces one, so a deck is never
+  incomplete. Save or Cancel returns to View.
+- The deck has exactly seven scroll slots — there is no slot-unlock
+  mechanic. Cards show their own painted frame, with the pantheon emblem
+  large in the bottom-right corner under the level.
 - **One deck per god.** Choosing another god brings that god's saved deck, or a
   default (the deck in use, with any refused scroll swapped for the cheapest
   owned one the god accepts). Unsaved changes on a god switch ask Discard or
@@ -423,8 +454,8 @@ are mock data (`MatchConfig`).
    zones that disappear when their structure dies (§3.7), not the originally
    planned "unlock the whole enemy half" version.
 7. ~~**Scrolls (card collection)**~~ — profile and starter grant, levels in
-   matches, free packs and shop, Deck screen (one deck per god), Encyclopedia
-   with flashcard and manual level-up, god-against-card deck rules, and the
+   matches, free packs and shop, Deck screen (one deck per god), Pantheon screen
+   with card detail and manual level-up, god-against-card deck rules, and the
    deck-threshold synergy with its HUD icon are implemented (§3.14). **Not
    built:** currency and prices, account level, pack-opening presentation,
    real tags on content, Olympus/Sea/Underworld cards, the attack-speed rework.
@@ -529,6 +560,7 @@ are mock data (`MatchConfig`).
 - Scrolls: starter deck contents and per-card rarities are placeholders.
 - Attack speed currently only shortens the pause after a hit; a proper rework
   (swing speed) is wanted and postponed.
-- The flashcard should open from every card view; on the Deck screen a tap
-  already means "select", so that screen needs a different gesture.
+- ~~The card detail should open from every card view.~~ Resolved (Oct 2026):
+  tap opens it in the Pantheon tab and in both Deck modes; deck changes are
+  hold-and-drag only. Still open: a "Use" shortcut from the card detail.
 - Thematic name for the level-up button; description texts for cards and gods.

@@ -37,6 +37,7 @@ const FACTION_THEME_ART := {
 const NOT_OWNED_MODULATE := Color(0.45, 0.45, 0.45)
 const CLOSE_PRESSED_MODULATE := Color(0.75, 0.75, 0.75)
 
+@onready var frame_root: Control = $FrameFit/FrameRoot
 @onready var theme_art: TextureRect = $FrameFit/FrameRoot/ThemeArt
 @onready var card_art: TextureRect = $FrameFit/FrameRoot/CardArt
 @onready var level_label: Label = $FrameFit/FrameRoot/LevelBadge/LevelLabel
@@ -63,6 +64,7 @@ const CLOSE_PRESSED_MODULATE := Color(0.75, 0.75, 0.75)
 
 var _id: StringName = &""
 var _kind: StringName = DeckTile.KIND_CARD
+var _press_outside: bool = false   # tap mimo panelu sa zacal mimo neho
 
 func _ready() -> void:
 	visible = false
@@ -86,7 +88,26 @@ func open_for(id: StringName, kind: StringName) -> void:
 
 func close() -> void:
 	visible = false
+	_press_outside = false
 	closed.emit()
+
+# Tap mimo panelu (na stmavene pozadie) = rovnako ako X. Dim / FrameFit /
+# FrameRoot su MOUSE_FILTER_IGNORE, takze klik mimo ovladacich prvkov padne
+# sem na root. Zatvara sa az na pustenie a len ked aj stlacenie bolo mimo
+# panelu (tah zvnutra panelu von nezatvori). Len mouse eventy — dotyk ich
+# emuluje. / Tap outside the panel closes like the X button.
+func _gui_input(event: InputEvent) -> void:
+	if not (event is InputEventMouseButton) or event.button_index != MOUSE_BUTTON_LEFT:
+		return
+	var outside := not frame_root.get_global_rect().has_point(event.global_position)
+	if event.pressed:
+		_press_outside = outside
+	elif _press_outside and outside:
+		_press_outside = false
+		accept_event()
+		close()
+	else:
+		_press_outside = false
 
 func _on_profile_changed() -> void:
 	if visible:

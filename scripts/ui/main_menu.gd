@@ -97,6 +97,7 @@ func _ready() -> void:
 		button.pressed.connect(_request_tab.bind(tab))
 	deck_overlay.leave_confirmed.connect(_on_deck_leave_confirmed)
 	pantheon_overlay.card_detail_requested.connect(_on_card_detail_requested)
+	deck_overlay.card_detail_requested.connect(_on_card_detail_requested)
 	card_detail.closed.connect(_on_card_detail_closed)
 	_switch_tab(Tab.HOME)
 	#setting_overlay.visible = false
