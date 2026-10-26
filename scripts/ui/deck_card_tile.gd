@@ -17,8 +17,9 @@ class_name DeckCardTile
 #              jej miesto ostane prazdne a plna kopia karty ide za prstom.
 #              Pustenie mimo platneho slotu = zrusene, karta sa vrati.
 # Ziadny tap-then-tap vyber — glow je len feedback drzania. Sama NIC nemeni —
-# len hlasi cez signaly; logiku drzi DeckOverlay. Pantheon tab dalej pouziva
-# povodny DeckTile (KIND_* konstanty su zdielane odtial).
+# len hlasi cez signaly; logiku drzi DeckOverlay. Pantheon tab (encyklopedia)
+# pouziva tiez DeckCardTile (nedragovatelny, s progres barom); KIND_* konstanty
+# su stale v DeckTile.
 
 signal tapped(tile: DeckCardTile)
 # Emitovany na CIELOVEJ karte, ked na nu nieco pustia.
@@ -198,6 +199,14 @@ static func width_for_height(height: float, card_aspect: float, with_progress: b
 	if with_progress:
 		card_h = height * (1.0 - BAR_RATIO) - BAR_GAP
 	return maxf(1.0, card_h * card_aspect)
+
+# Vyska dlazdice pre danu sirku — inverzia width_for_height (WrapCardGrid
+# v encyklopedii ma sirku danu stlpcami).
+static func height_for_width(width: float, card_aspect: float, with_progress: bool) -> float:
+	var card_h := width / card_aspect
+	if with_progress:
+		return maxf(1.0, (card_h + BAR_GAP) / (1.0 - BAR_RATIO))
+	return maxf(1.0, card_h)
 
 func setup(id: StringName, tile_kind: StringName, slot: int) -> void:
 	item_id = id

@@ -1,58 +1,257 @@
 [gd_scene format=3 uid="uid://cyg2fjjf86dwy"]
 
 [ext_resource type="Script" uid="uid://dt28cm03cgvtj" path="res://scripts/ui/pantheon_overlay.gd" id="1_vm7ul"]
+[ext_resource type="Script" uid="uid://c7kuqvyubxbjm" path="res://scripts/ui/scaled_nine_patch.gd" id="2_ninepatch"]
+[ext_resource type="Texture2D" uid="uid://c30imutueoe3n" path="res://assets/menu/deck/frame_ninepatchrect.png" id="3_frame"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_panel"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
 
 [node name="PantheonOverlay" type="Control" unique_id=2126735664]
+clip_contents = true
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 script = ExtResource("1_vm7ul")
 
-[node name="Panel" type="Panel" parent="." unique_id=905752476]
+[node name="Layout" type="VBoxContainer" parent="." unique_id=1583920417]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
 
-[node name="Margin" type="MarginContainer" parent="Panel" unique_id=1068442528]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/margin_left = 16
-theme_override_constants/margin_top = 16
-theme_override_constants/margin_right = 16
-theme_override_constants/margin_bottom = 16
-
-[node name="Content" type="VBoxContainer" parent="Panel/Margin" unique_id=47282635]
+[node name="HeaderPanel" type="PanelContainer" parent="Layout" unique_id=736201958]
+custom_minimum_size = Vector2(0, 58)
 layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_panel")
 
-[node name="Header" type="HBoxContainer" parent="Panel/Margin/Content" unique_id=330432867]
+[node name="Frame" type="Control" parent="Layout/HeaderPanel" unique_id=1290437715]
+texture_filter = 2
 layout_mode = 2
+mouse_filter = 2
+script = ExtResource("2_ninepatch")
+texture = ExtResource("3_frame")
+patch_margin_left = 52
+patch_margin_top = 46
+patch_margin_right = 52
+patch_margin_bottom = 46
+patch_scale = 0.6
+fill_color = Color(0.05, 0.07, 0.12, 0.86)
+fill_inset = 3.0
 
-[node name="TitleLabel" type="Label" parent="Panel/Margin/Content/Header" unique_id=667009683]
+[node name="Margin" type="MarginContainer" parent="Layout/HeaderPanel" unique_id=410862273]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 8
+
+[node name="HeaderBox" type="HBoxContainer" parent="Layout/HeaderPanel/Margin" unique_id=1874506329]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 10
+
+[node name="HeaderEmblem" type="TextureRect" parent="Layout/HeaderPanel/Margin/HeaderBox" unique_id=958173604]
+unique_name_in_owner = true
+texture_filter = 4
+custom_minimum_size = Vector2(44, 44)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="Titles" type="VBoxContainer" parent="Layout/HeaderPanel/Margin/HeaderBox" unique_id=1462750981]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Pantheons"
+mouse_filter = 2
+theme_override_constants/separation = -2
+alignment = 1
 
-[node name="OwnedLabel" type="Label" parent="Panel/Margin/Content/Header" unique_id=203256007]
+[node name="TitleLabel" type="Label" parent="Layout/HeaderPanel/Margin/HeaderBox/Titles" unique_id=327609185]
 layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.05, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 22
+text = "PANTHEON ENCYCLOPEDIA"
+text_overrun_behavior = 3
 
-[node name="FactionTabs" type="HBoxContainer" parent="Panel/Margin/Content" unique_id=1820195934]
+[node name="SubtitleLabel" type="Label" parent="Layout/HeaderPanel/Margin/HeaderBox/Titles" unique_id=1705239846]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 11
+text = "Discover the gods, heroes and mythical forces of the realms."
+text_overrun_behavior = 3
 
-[node name="Scroll" type="ScrollContainer" parent="Panel/Margin/Content" unique_id=1256132533]
+[node name="TotalOwnedLabel" type="Label" parent="Layout/HeaderPanel/Margin/HeaderBox" unique_id=618924307]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.05, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 16
+text = "0 / 0"
+horizontal_alignment = 2
+vertical_alignment = 1
+
+[node name="PantheonPanel" type="PanelContainer" parent="Layout" unique_id=1119384652]
+custom_minimum_size = Vector2(0, 44)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_panel")
+
+[node name="Frame" type="Control" parent="Layout/PantheonPanel" unique_id=842637190]
+texture_filter = 2
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("2_ninepatch")
+texture = ExtResource("3_frame")
+patch_margin_left = 52
+patch_margin_top = 46
+patch_margin_right = 52
+patch_margin_bottom = 46
+patch_scale = 0.4
+fill_color = Color(0.05, 0.07, 0.12, 0.86)
+fill_inset = 3.0
+
+[node name="Margin" type="MarginContainer" parent="Layout/PantheonPanel" unique_id=1937025418]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 6
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 6
+
+[node name="PantheonBar" type="HBoxContainer" parent="Layout/PantheonPanel/Margin" unique_id=275841963]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="AllChipHolder" type="Control" parent="Layout/PantheonPanel/Margin/PantheonBar" unique_id=1648205371]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 30)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+
+[node name="PantheonScroll" type="ScrollContainer" parent="Layout/PantheonPanel/Margin/PantheonBar" unique_id=503917264]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+scroll_deadzone = 8
+horizontal_scroll_mode = 3
+vertical_scroll_mode = 0
+
+[node name="PantheonChips" type="HBoxContainer" parent="Layout/PantheonPanel/Margin/PantheonBar/PantheonScroll" unique_id=1360475829]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="MainPanel" type="PanelContainer" parent="Layout" unique_id=1779320546]
 layout_mode = 2
 size_flags_vertical = 3
-horizontal_scroll_mode = 0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_panel")
 
-[node name="Sections" type="VBoxContainer" parent="Panel/Margin/Content/Scroll" unique_id=274913920]
+[node name="Frame" type="Control" parent="Layout/MainPanel" unique_id=96734018]
+texture_filter = 2
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("2_ninepatch")
+texture = ExtResource("3_frame")
+patch_margin_left = 52
+patch_margin_top = 46
+patch_margin_right = 52
+patch_margin_bottom = 46
+patch_scale = 0.7
+fill_color = Color(0.05, 0.07, 0.12, 0.86)
+fill_inset = 3.0
+
+[node name="Margin" type="MarginContainer" parent="Layout/MainPanel" unique_id=1504287639]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 12
+
+[node name="MainBox" type="VBoxContainer" parent="Layout/MainPanel/Margin" unique_id=2047618359]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="FilterBar" type="HBoxContainer" parent="Layout/MainPanel/Margin/MainBox" unique_id=713590284]
+custom_minimum_size = Vector2(0, 30)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="TypeLabel" type="Label" parent="Layout/MainPanel/Margin/MainBox/FilterBar" unique_id=1186042795]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.05, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 12
+text = "CARD TYPE"
+vertical_alignment = 1
+
+[node name="TypeChips" type="HBoxContainer" parent="Layout/MainPanel/Margin/MainBox/FilterBar" unique_id=389274615]
+unique_name_in_owner = true
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="BarSpacer" type="Control" parent="Layout/MainPanel/Margin/MainBox/FilterBar" unique_id=1923048576]
 layout_mode = 2
 size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="OwnedChipHolder" type="Control" parent="Layout/MainPanel/Margin/MainBox/FilterBar" unique_id=651839027]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 30)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+
+[node name="SectionsScroll" type="ScrollContainer" parent="Layout/MainPanel/Margin/MainBox" unique_id=1237960481]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+scroll_deadzone = 8
+horizontal_scroll_mode = 0
+
+[node name="Sections" type="VBoxContainer" parent="Layout/MainPanel/Margin/MainBox/SectionsScroll" unique_id=874102536]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="EmptyLabel" type="Label" parent="Layout/MainPanel/Margin/MainBox" unique_id=1540372968]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_colors/font_color = Color(0.85, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 14
+text = "No cards match these filters."
+horizontal_alignment = 1
+vertical_alignment = 1
+text_overrun_behavior = 3
