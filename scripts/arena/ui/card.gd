@@ -3,7 +3,7 @@ class_name Card
 
 # Rub sviktu — zdielany pre vsetky karty. Ak neskor pridu rubu podla frakcie
 # alebo rarity, presunie sa toto do CardData.
-const SCROLL_BACK: Texture2D = preload("res://assets/sprites/scrolls/scrolls_back.png")
+const SCROLL_BACK: Texture2D = preload("res://assets/sprites/scrolls/back_greek.png")
 
 @onready var scroll_icon: TextureRect = $VBoxContainer/MarginContainer/ScrollIcon
 @onready var energy_badge: Control = $VBoxContainer/MarginContainer/EnergyBadge

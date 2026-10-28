@@ -5,6 +5,7 @@
       "Bash(rm -f scripts/arena/enemies/enemy.gd.uid)",
       "Bash(git rm *)",
       "PowerShell($c = Get-Command godot -ErrorAction SilentlyContinue; if \\($c\\) { $c.Source } else { \"no godot in PATH\" })"
-    ]
+    ],
+	"deny": ["Read(./android/build/**)", "Read(./.godot/**)"]
   }
 }
