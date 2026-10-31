@@ -1,14 +1,10 @@
 [gd_resource type="Resource" script_class="UnitData" format=3 uid="uid://bnsej5oyk5fgo"]
 
 [ext_resource type="Script" uid="uid://1qytuvst77bw" path="res://scripts/arena/unit_data.gd" id="1_script"]
-[ext_resource type="Texture2D" uid="uid://ddvmhvblk13ik" path="res://assets/sprites/units/greek/decals_greek.png" id="2_res"]
 [ext_resource type="PackedScene" uid="uid://bpptc7ql6bx40" path="res://scenes/arena/units/ranged_unit.tscn" id="3_res"]
 [ext_resource type="SpriteFrames" uid="uid://tyc30c2ujk56" path="res://data/cards/greek/units/frames/frames_greek_gastraphetes.tres" id="4_res"]
+[ext_resource type="Texture2D" uid="uid://c6wx2lqkasnk2" path="res://assets/sprites/units/greek/gastraphetes/08_Gastraphetes_card1.png" id="4_vj5iq"]
 [ext_resource type="PackedScene" uid="uid://dyxn10n333b4k" path="res://scenes/arena/projectiles/projectile.tscn" id="5_res"]
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_scroll"]
-atlas = ExtResource("2_res")
-region = Rect2(335, 400, 335, 400)
 
 [resource]
 script = ExtResource("1_script")
@@ -29,7 +25,7 @@ death_sfx = &"unit_death"
 id = &"card_greek_gastraphetes"
 display_name = "Gastraphetes"
 cost = 5
-scroll_texture = SubResource("AtlasTexture_scroll")
+scroll_texture = ExtResource("4_vj5iq")
 rarity = 1
 obtain_source = 1
 description = "Engineers of Syracuse invented the belly-bow, a weapon so powerful that its crew braces it against their bodies to draw it. Its bolts were made to crack walls and gates."

@@ -555,7 +555,7 @@ and the line starting `- [ ] Decide whether spells count against the deck's card
 - [x] Card rarity, leveling and collection — built (`game_design.md` §3.14);
       per-card rarities are still placeholders
 - [x] Spells take normal deck slots
-- [ ] Domain cards: Pegasus, Bronze Automaton (Olympus); Hippocampus Rider,
+- [ ] Domain cards: Pegasus, Talos (Olympus); Hippocampus Rider,
       Nereid, Ketos (Sea); Shades, Spartoi, Erinyes (Underworld) — unit data
       exists with placeholder sprites, no cards yet
 - [ ] Tag vocabulary (holy, undead, beast…) and which gods refuse what

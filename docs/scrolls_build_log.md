@@ -17,7 +17,7 @@ Status of the Scrolls (card collection) implementation steps. Design decisions l
 - Spawn messages stay `{card_id, position, team}`. Levels come from a per-team manifest (`BattleManager.set_team_manifest()`), set once by `arena.gd` from `MatchConfig`, which `PreMatchFlow` fills from `PlayerProfile`. The AI mirrors the player's levels.
 - Units: level scales HP and damage; synergy (when the card's `domain` equals the god's) can also scale move speed and attack speed. Spells: damage only. Gods: HP, damage, attack speed.
 - Attack speed is the simple version (shorter cooldown / recovery after the hit); the rework is postponed.
-- No card has a `domain` set yet, so Zeus's synergy affects nothing until an Olympus card (Pegasus, Bronze Automaton) exists.
+- No card has a `domain` set yet, so Zeus's synergy affects nothing until an Olympus card (Pegasus, Talos) exists.
 - Synergy is always on for matching domains; the god passive-condition gate is not built.
 
 ## Testing notes

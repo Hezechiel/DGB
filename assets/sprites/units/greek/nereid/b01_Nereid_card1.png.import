@@ -2,20 +2,22 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dfkdawd1hebgd"
-path="res://.godot/imported/hoplite.png-9c8987ae2a49ade59d62cc55895c5cd4.ctex"
+uid="uid://b3ycx38y66mmt"
+path.s3tc="res://.godot/imported/b01_Nereid_card1.png-ceafcefba2a3899050c72e8ca9b810ef.s3tc.ctex"
+path.etc2="res://.godot/imported/b01_Nereid_card1.png-ceafcefba2a3899050c72e8ca9b810ef.etc2.ctex"
 metadata={
-"vram_texture": false
+"imported_formats": ["s3tc_bptc", "etc2_astc"],
+"vram_texture": true
 }
 
 [deps]
 
-source_file="res://assets/sprites/units/greek/hoplite.png"
-dest_files=["res://.godot/imported/hoplite.png-9c8987ae2a49ade59d62cc55895c5cd4.ctex"]
+source_file="res://assets/sprites/units/greek/nereid/b01_Nereid_card1.png"
+dest_files=["res://.godot/imported/b01_Nereid_card1.png-ceafcefba2a3899050c72e8ca9b810ef.s3tc.ctex", "res://.godot/imported/b01_Nereid_card1.png-ceafcefba2a3899050c72e8ca9b810ef.etc2.ctex"]
 
 [params]
 
-compress/mode=0
+compress/mode=2
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0

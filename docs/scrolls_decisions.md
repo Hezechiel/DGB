@@ -88,7 +88,7 @@ Companion to `DGB_Scrolls_Card_Collection_Design.docx`. Records Bakula's answers
 5. Attack-speed rework (postponed).
 6. Sidekick: escort, card, or separate unlock (cards_greek.md Open Question 2, second half).
 7. Priestess scroll art is missing from `decals_greek.png` (her card uses the Hoplite cell as a placeholder).
-8. No card has a `domain` yet, so no unit currently receives a synergy bonus; the first Olympus cards (Pegasus, Bronze Automaton) will.
+8. No card has a `domain` yet, so no unit currently receives a synergy bonus; the first Olympus cards (Pegasus, Talos) will.
 
 ## Greek unit roster — first stat pass (2026-10-03)
 
@@ -109,7 +109,7 @@ Companion to `DGB_Scrolls_Card_Collection_Design.docx`. Records Bakula's answers
 | Harpy | Common | Melee | 110 | 14 | 0.9 | 60 | 14 | 3 × 1 (suggested) |
 | Cyclops | Common | Melee | 650 | 45 | 2.4 | 22 | 22 | 6 × 1 (suggested) |
 | Pegasus | Olympus | Melee | 240 | 18 | 1.1 | 70 | 16 | 4 × 1 (suggested) |
-| Bronze Automaton | Olympus | Melee | 520 | 28 | 1.8 | 26 | 18 | 5 × 1 (suggested) |
+| Talos | Olympus | Melee | 520 | 28 | 1.8 | 26 | 18 | 5 × 1 (suggested) |
 | Hippocampus Rider | Sea | Melee | 300 | 24 | 1.4 | 50 | 20 | 4 × 1 (suggested) |
 | Nereid | Sea | Ranged | 110 | 8 | 1.5 | 36 | 85 | 3 × 1 (suggested) |
 | Ketos | Sea | Melee | 800 | 55 | 2.6 | 20 | 26 | 7 × 1 (suggested) |
