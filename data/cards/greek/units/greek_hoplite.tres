@@ -18,5 +18,4 @@ display_name = "Hoplite"
 cost = 2
 scroll_texture = ExtResource("3_lytyc")
 obtain_source = 1
-rarity = 0
 description = "The citizen-soldier of every Greek city, the Hoplite buys his own bronze armor and carries his great round shield with pride. Losing that shield is the ultimate disgrace, so he holds the front line until the battle is won."

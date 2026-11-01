@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" uid="uid://dieg62n05urgy" path="res://scripts/arena/hero_data.gd" id="1_herodata"]
 [ext_resource type="PackedScene" uid="uid://dyxn10n333b4k" path="res://scenes/arena/projectiles/projectile.tscn" id="2_bolt"]
+[ext_resource type="SpriteFrames" path="res://data/heroes/greek/frames/frames_placeholder.tres" id="3_frames"]
+[ext_resource type="Texture2D" uid="uid://bkcer3j5iq8fd" path="res://assets/sprites/gods/card.png" id="4_cardart"]
 [ext_resource type="Resource" path="res://data/heroes/greek/skills/skill_aphrodite_cestus_of_desire.tres" id="5_skill"]
 
 [resource]
@@ -9,6 +11,8 @@ script = ExtResource("1_herodata")
 id = &"hero_aphrodite"
 display_name = "Aphrodite"
 projectile_scene = ExtResource("2_bolt")
+sprite_frames = ExtResource("3_frames")
 domain = &"olympus"
 description = "Goddess of love and beauty, Aphrodite was also worshipped armed among the warriors of Sparta. Her gaze bends the will of her enemies and turns foes into allies who fight at her command."
+card_art = ExtResource("4_cardart")
 skill = ExtResource("5_skill")

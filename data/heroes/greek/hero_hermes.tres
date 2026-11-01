@@ -2,6 +2,8 @@
 
 [ext_resource type="Script" uid="uid://dieg62n05urgy" path="res://scripts/arena/hero_data.gd" id="1_herodata"]
 [ext_resource type="PackedScene" uid="uid://dyxn10n333b4k" path="res://scenes/arena/projectiles/projectile.tscn" id="2_bolt"]
+[ext_resource type="SpriteFrames" path="res://data/heroes/greek/frames/frames_placeholder.tres" id="3_frames"]
+[ext_resource type="Texture2D" uid="uid://bkcer3j5iq8fd" path="res://assets/sprites/gods/card.png" id="4_cardart"]
 [ext_resource type="Resource" path="res://data/heroes/greek/skills/skill_hermes_swift_theft.tres" id="5_skill"]
 
 [resource]
@@ -11,7 +13,9 @@ display_name = "Hermes"
 speed = 90.0
 attack_range = 20.0
 projectile_scene = ExtResource("2_bolt")
+sprite_frames = ExtResource("3_frames")
 attack_type = 1
 domain = &"olympus"
 description = "Swift messenger of the gods and patron of thieves, Hermes strikes before the enemy sees him coming. With every blow he steals a little of their divine power for his own cause."
+card_art = ExtResource("4_cardart")
 skill = ExtResource("5_skill")
