@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cma7biftwo4y6"
-path="res://.godot/imported/golden_soldier_animations.png-08b4492b131497358e7a5ae5bddb4a08.ctex"
+uid="uid://cinwsvcob1juf"
+path="res://.godot/imported/card.png-0ed8d166669517cfe010c55192c47c4a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/units/melee/golden_soldier_animations.png"
-dest_files=["res://.godot/imported/golden_soldier_animations.png-08b4492b131497358e7a5ae5bddb4a08.ctex"]
+source_file="res://assets/sprites/units/beast/card.png"
+dest_files=["res://.godot/imported/card.png-0ed8d166669517cfe010c55192c47c4a.ctex"]
 
 [params]
 

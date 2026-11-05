@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ct6ex1qjbbraw"
-path="res://.godot/imported/black_soldiers_animation.png-a4be8da319d08d24d084b42508a12def.ctex"
+uid="uid://b64wmvcvok1g3"
+path="res://.godot/imported/walk.png-9db7d5569ea0b6590cfb2d7e4611ce8a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://assets/sprites/units/melee/black_soldiers_animation.png"
-dest_files=["res://.godot/imported/black_soldiers_animation.png-a4be8da319d08d24d084b42508a12def.ctex"]
+source_file="res://assets/sprites/units/siege/walk.png"
+dest_files=["res://.godot/imported/walk.png-9db7d5569ea0b6590cfb2d7e4611ce8a.ctex"]
 
 [params]
 
@@ -23,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=false
+mipmaps/generate=true
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""
