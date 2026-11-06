@@ -15,6 +15,7 @@ projectile_scene = ExtResource("2_bolt")
 sprite_frames = ExtResource("3_frames")
 attack_type = 1
 domain = &"olympus"
+obtain_source = 1
 description = "God of wine and revelry, Dionysus once marched his wild army to the very edge of the world. His frenzy spreads through enemy ranks and leaves them stumbling, lost in the chaos."
 card_art = ExtResource("4_cardart")
 skill = ExtResource("5_skill")

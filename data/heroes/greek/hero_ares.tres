@@ -15,6 +15,7 @@ projectile_scene = ExtResource("2_bolt")
 sprite_frames = ExtResource("3_frames")
 attack_type = 1
 domain = &"olympus"
+obtain_source = 1
 description = "God of war and bloodshed, Ares lives for the clash of steel. The longer the battle rages, the faster his blade falls, and every wound he deals feeds his savage hunger."
 card_art = ExtResource("1_ec3rc")
 skill = ExtResource("5_skill")

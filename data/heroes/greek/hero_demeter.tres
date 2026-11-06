@@ -12,6 +12,7 @@ id = &"hero_demeter"
 display_name = "Demeter"
 projectile_scene = ExtResource("2_bolt")
 sprite_frames = ExtResource("3_frames")
+obtain_source = 1
 description = "Goddess of the harvest and the fertile earth, Demeter brings life wherever she walks. Fields bloom beneath her allies' feet and heal every wound they carry into battle."
 card_art = ExtResource("4_cardart")
 skill = ExtResource("5_skill")

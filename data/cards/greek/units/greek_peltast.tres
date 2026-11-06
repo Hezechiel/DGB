@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://1qytuvst77bw" path="res://scripts/arena/unit_data.gd" id="1_script"]
 [ext_resource type="PackedScene" uid="uid://bpptc7ql6bx40" path="res://scenes/arena/units/ranged_unit.tscn" id="3_res"]
 [ext_resource type="Texture2D" uid="uid://cwgnpqdi3ykl4" path="res://assets/sprites/units/greek/peltast/03_Peltast_card1.png" id="4_on6sm"]
-[ext_resource type="SpriteFrames" path="res://data/cards/greek/units/frames/frames_greek_peltast.tres" id="4_res"]
+[ext_resource type="SpriteFrames" path="res://data/cards/greek/units/frames/frames_ranged_placeholder.tres" id="4_res"]
 [ext_resource type="PackedScene" uid="uid://dyxn10n333b4k" path="res://scenes/arena/projectiles/projectile.tscn" id="5_res"]
 
 [resource]

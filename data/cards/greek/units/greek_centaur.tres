@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://1qytuvst77bw" path="res://scripts/arena/unit_data.gd" id="1_script"]
 [ext_resource type="PackedScene" uid="uid://bakpvvohsixrh" path="res://scenes/arena/units/melee_unit.tscn" id="2_res"]
 [ext_resource type="Texture2D" uid="uid://rm31l2nv51py" path="res://assets/sprites/units/greek/centaur/a02_Centaur_card1.png" id="3_g3gs2"]
-[ext_resource type="SpriteFrames" path="res://data/cards/greek/units/frames/frames_melee_placeholder.tres" id="3_res"]
+[ext_resource type="SpriteFrames" path="res://data/cards/greek/units/frames/frames_cavalry_placeholder.tres" id="4_g3gs2"]
 
 [resource]
 script = ExtResource("1_script")
@@ -11,14 +11,14 @@ archetype_scene = ExtResource("2_res")
 max_hp = 300
 damage = 18
 speed = 50.0
-sprite_frames = ExtResource("3_res")
+sprite_frames = ExtResource("4_g3gs2")
 attack_range = 18.0
 attack_sfx = &"sword_hit"
 death_sfx = &"unit_death"
 id = &"card_greek_centaur"
 display_name = "Centaur"
-scroll_texture = ExtResource("3_g3gs2")
 cost = 4
+scroll_texture = ExtResource("3_g3gs2")
 rarity = 1
 obtain_source = 1
 description = "Half man and half horse, the Centaurs are fierce warriors, and the wise centaur Chiron trained heroes like Achilles and Heracles. They gallop into the heart of the fight and stay there."

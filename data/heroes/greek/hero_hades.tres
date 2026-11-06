@@ -14,6 +14,7 @@ max_hp = 400
 projectile_scene = ExtResource("2_bolt")
 sprite_frames = ExtResource("3_frames")
 domain = &"underworld"
+obtain_source = 1
 description = "Lord of the Underworld, Hades claims every soul that falls on the battlefield. The more enemies perish around him, the greater his dark power grows, until his wrath becomes unstoppable."
 card_art = ExtResource("1_btbjq")
 skill = ExtResource("5_skill")

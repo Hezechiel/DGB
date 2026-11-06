@@ -18,6 +18,7 @@ projectile_scene = ExtResource("2_bolt")
 sprite_frames = ExtResource("3_frames")
 attack_type = 1
 domain = &"olympus"
+obtain_source = 1
 description = "Smith of the gods and master of the divine forge, Hephaestus shaped the weapons of Olympus. Slow but unbreakable, he raises fire-forged machines that guard the battlefield in his place."
 card_art = ExtResource("4_cardart")
 skill = ExtResource("5_skill")

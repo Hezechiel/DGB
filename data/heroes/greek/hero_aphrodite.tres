@@ -13,6 +13,7 @@ display_name = "Aphrodite"
 projectile_scene = ExtResource("2_bolt")
 sprite_frames = ExtResource("3_frames")
 domain = &"olympus"
+obtain_source = 1
 description = "Goddess of love and beauty, Aphrodite was also worshipped armed among the warriors of Sparta. Her gaze bends the will of her enemies and turns foes into allies who fight at her command."
 card_art = ExtResource("4_cardart")
 skill = ExtResource("5_skill")

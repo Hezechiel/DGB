@@ -19,7 +19,7 @@ radius = 11.0
 resource_local_to_scene = true
 radius = 40.0
 
-[node name="MeleeUnit" type="CharacterBody2D" unique_id=1300361392]
+[node name="RangedUnit" type="CharacterBody2D" unique_id=1300361392]
 collision_layer = 2
 collision_mask = 4
 script = ExtResource("1_60vns")
@@ -27,9 +27,9 @@ script = ExtResource("1_60vns")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="." unique_id=1757698176]
 z_index = 2
 texture_filter = 4
-scale = Vector2(0.15, 0.15)
+scale = Vector2(0.1, 0.1)
 sprite_frames = ExtResource("2_wv882")
-animation = &"spawn"
+animation = &"idle"
 
 [node name="CollisionBody" type="CollisionShape2D" parent="." unique_id=1126771666]
 shape = SubResource("RectangleShape2D_body")

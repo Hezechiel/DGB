@@ -14,6 +14,7 @@ damage_point_ratio = 0.4
 projectile_scene = ExtResource("2_bolt")
 sprite_frames = ExtResource("3_frames")
 domain = &"olympus"
+obtain_source = 1
 description = "Goddess of the hunt and the wild, Artemis never lets her prey out of sight. Swift and elusive, she slips away from danger and answers with an arrow that always finds the heart."
 card_art = ExtResource("4_cardart")
 skill = ExtResource("5_skill")

@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://1qytuvst77bw" path="res://scripts/arena/unit_data.gd" id="1_script"]
 [ext_resource type="PackedScene" uid="uid://bpptc7ql6bx40" path="res://scenes/arena/units/ranged_unit.tscn" id="3_res"]
 [ext_resource type="Texture2D" uid="uid://b4plkhd1ar4vh" path="res://assets/sprites/units/greek/toxotes/02_Toxotes_card1.png" id="4_mt6um"]
-[ext_resource type="SpriteFrames" uid="uid://bjbp66qu0yma6" path="res://data/cards/greek/units/frames/frames_greek_toxotes.tres" id="4_res"]
+[ext_resource type="SpriteFrames" uid="uid://4at3anjlj8g2" path="res://data/cards/greek/units/frames/frames_ranged_placeholder.tres" id="4_res"]
 [ext_resource type="PackedScene" uid="uid://dyxn10n333b4k" path="res://scenes/arena/projectiles/projectile.tscn" id="5_res"]
 
 [resource]
@@ -22,5 +22,4 @@ display_name = "Toxotes"
 cost = 2
 scroll_texture = ExtResource("4_mt6um")
 obtain_source = 1
-rarity = 0
 description = "The finest archers come from Crete, and every Greek city pays good silver to hire them. From behind the shield wall, they rain arrows down on any enemy who dares to approach."

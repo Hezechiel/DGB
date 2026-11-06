@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://1qytuvst77bw" path="res://scripts/arena/unit_data.gd" id="1_script"]
 [ext_resource type="PackedScene" uid="uid://bpptc7ql6bx40" path="res://scenes/arena/units/ranged_unit.tscn" id="2_res"]
-[ext_resource type="SpriteFrames" uid="uid://dix6tkvlmk8ei" path="res://data/cards/greek/units/frames/frames_greek_nereid.tres" id="3_res"]
+[ext_resource type="SpriteFrames" path="res://data/cards/greek/units/frames/frames_ranged_placeholder.tres" id="3_res"]
 [ext_resource type="Texture2D" uid="uid://b3ycx38y66mmt" path="res://assets/sprites/units/greek/nereid/b01_Nereid_card1.png" id="4_o1csy"]
 [ext_resource type="PackedScene" uid="uid://dyxn10n333b4k" path="res://scenes/arena/projectiles/projectile.tscn" id="4_res"]
 
