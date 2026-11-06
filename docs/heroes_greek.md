@@ -58,10 +58,12 @@ mirrors SWFA: name, Cooldown Time, effect in % of Attack Power.
   with `{key}` placeholders. Card Detail's Skills tab renders the template
   with the current values, so retuning a number never needs a text rewrite.
   All 12 gods have a `HeroData` + `SkillData` file. The 10 new gods
-  (everyone except Zeus and Poseidon) are placeholders: no sprite art
-  (`sprite_frames` empty, so in a match they borrow the scene's default look),
-  `obtain_source = 0` (never in packs; F10 still grants them for testing), no
-  synergy rule yet, and first-pass stats (melee range 20, Apollo 110, Hades
+  (everyone except Zeus and Poseidon) are placeholders: grey-silhouette
+  sprites from the shared `frames_placeholder.tres` and the shared
+  `assets/sprites/gods/card.png` card art (Ares and Hades keep their own
+  `*_decal1.png`; `data_layer.md` "Placeholder art"), `obtain_source = 1`
+  (Nov 2026 — PACK, so they can be collected and tested; a placeholder, not
+  the final source), no synergy rule yet, and first-pass stats (melee range 20, Apollo 110, Hades
   400 HP, Athena/Hephaestus 650 HP, Hermes speed 90, Hephaestus 55).
 - **Runtime (Oct 2026):** built for **Zeus and Poseidon** — cooldown,
   HUD skill button, AI use, and the effects in `SkillEffects`

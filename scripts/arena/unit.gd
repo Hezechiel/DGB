@@ -1,7 +1,7 @@
 extends CharacterBody2D
 
-# Fyzicke vrstvy hurtboxov (project.godot [layer_names]) — melee_unit.tscn je
-# zdielany archetyp pre oba timy, takze spravnu vrstvu podla teamu treba
+# Fyzicke vrstvy hurtboxov (project.godot [layer_names]) — unit_base.tscn (a z nej
+# zdedene *_unit.tscn archetypy) je zdielany pre oba timy, takze spravnu vrstvu podla teamu treba
 # dopocitat v runtime, nie ju bakovat v scene
 const PLAYER_HURTBOX_LAYER := 8   # zodpoveda layer_4 "player_hurtbox"
 const ENEMY_HURTBOX_LAYER := 16   # zodpoveda layer_5 "enemy_hurtbox"
@@ -16,6 +16,18 @@ const ENEMY_HURTBOX_LAYER := 16   # zodpoveda layer_5 "enemy_hurtbox"
 # STRUCTURES_ONLY = utoci len na turrety a bazy (napr. baranidlo / battering ram)
 enum TargetFilter { ALL, UNITS_ONLY, STRUCTURES_ONLY }
 @export var target_filter: TargetFilter = TargetFilter.ALL
+
+# Archetyp jednotky — nastavuje sa na KORENI archetypovej sceny
+# (scenes/arena/units/*_unit.tscn), NIE v UnitData; configure() ho nemeni.
+# Urcuje default spravanie cielenia:
+#   MELEE / RANGED = zakladne jednotky, utocia na vsetko (first contact wins)
+#   SIEGE          = vzdy STRUCTURES_ONLY (prebije data.target_filter)
+#   CAVALRY        = zatial ako MELEE
+#                    TODO: priorita ranged jednotiek v specialnom radiuse (dalsi krok)
+#   BEAST          = aggro len na hrdinov; v dosahu preferuje hrdinu/strukturu,
+#                    jednotku napadne len ako fallback
+enum Archetype { MELEE, RANGED, SIEGE, CAVALRY, BEAST }
+@export var archetype: Archetype = Archetype.MELEE
 
 # Stavovy automat pohybu
 enum MarchState { MARCHING, CHASING, ENGAGING }
@@ -148,6 +160,9 @@ func configure(data: UnitData, new_team: String, stat_mods: Dictionary = {}) -> 
 	attack_cooldown = data.attack_cooldown / maxf(float(stat_mods.get(&"attack_speed", 1.0)), 0.01)
 	speed = data.speed * float(stat_mods.get(&"speed", 1.0))
 	target_filter = data.target_filter as TargetFilter
+	# SIEGE archetyp = vzdy len struktury, bez ohladu na kartu
+	if archetype == Archetype.SIEGE:
+		target_filter = TargetFilter.STRUCTURES_ONLY
 	attack_type = data.attack_type
 	attack_range = data.attack_range
 	projectile_scene = data.projectile_scene
@@ -160,7 +175,7 @@ func _ready() -> void:
 	hp = max_hp
 	health_bar.init(max_hp, team)
 
-	# melee_unit.tscn je zdielany archetyp pre oba timy — spravne fyzicke
+	# unit_base.tscn (vsetky *_unit.tscn archetypy) je zdielana pre oba timy — spravne fyzicke
 	# vrstvy podla teamu treba dopocitat tu, nie spoliehat sa na staticke
 	# hodnoty zo sceny
 	$Hurtbox.collision_layer = PLAYER_HURTBOX_LAYER if team == "player" else ENEMY_HURTBOX_LAYER
@@ -373,6 +388,13 @@ func _process_engaging(delta: float) -> void:
 # ako HeroData.damage_point_ratio v player.gd/hero_dummy.gd, ale bez await
 # (tento subor pouziva synchronny countdown timer, nie coroutine)
 func _start_attack_windup() -> void:
+	# BEAST: pred KAZDYM novym svihom skus vymenit ciel za lepsi (hrdina /
+	# struktura). Nikdy nie pocas windupu — rozbehnuty uder sa nerusi.
+	if archetype == Archetype.BEAST and hurtbox_in_range != null:
+		var best := _find_best_attack_target()
+		if best != null and _target_priority(best) > _target_priority(hurtbox_in_range):
+			DebugLog.info(&"target", "%s: beast retarget -> %s" % [name, best.get_parent().name])
+			hurtbox_in_range = best
 	if hurtbox_in_range == null:
 		return
 	var target := hurtbox_in_range.get_parent() as Node2D
@@ -540,14 +562,40 @@ func _on_attack_range_area_exited(area: Area2D) -> void:
 	if area == hurtbox_in_range or not is_instance_valid(hurtbox_in_range):
 		hurtbox_in_range = null
 
+# Priorita ciela v AttackRange (vyssie = lepsie). Rozlisuje len BEAST —
+# ostatne archetypy davaju 0 vsetkemu = povodne first-contact-wins spravanie.
+func _target_priority(area: Area2D) -> int:
+	if archetype != Archetype.BEAST:
+		return 0
+	var enemy_team := "player" if team == "enemy" else "enemy"
+	if area.is_in_group(enemy_team + "_turret_hurtbox") or area.is_in_group(enemy_team + "_base_hurtbox"):
+		return 1
+	var owner_node := area.get_parent()
+	if owner_node != null and owner_node.is_in_group("heroes"):
+		return 1
+	return 0
+
+# Najlepsi platny ciel prave v AttackRange (najvyssia priorita, pri zhode
+# prvy najdeny). null = nic platne.
+func _find_best_attack_target() -> Area2D:
+	var best: Area2D = null
+	var best_prio := -1
+	for area in attack_range_area.get_overlapping_areas():
+		if not _is_valid_attack_target(area):
+			continue
+		var prio := _target_priority(area)
+		if prio > best_prio:
+			best = area
+			best_prio = prio
+	return best
+
 # Preskenuje aktualne prekryvy AttackRange ked hurtbox_in_range zostane null
 # (napr. predchadzajuci ciel prave zomrel) — first-contact-wins v entered
 # handleri inak necha uz prekryvajuce sa arey navzdy nepovsimnute
 func _reacquire_attack_target() -> void:
-	for area in attack_range_area.get_overlapping_areas():
-		if _is_valid_attack_target(area):
-			hurtbox_in_range = area
-			return
+	var best := _find_best_attack_target()
+	if best != null:
+		hurtbox_in_range = best
 
 # AggroRange ignoruje struktury uplne (bez ohladu na target_filter) — len
 # nepriatelske unit hurtboxy spustaju chase. STRUCTURES_ONLY jednotky (baranidlo,
@@ -557,6 +605,11 @@ func _is_valid_aggro_target(area: Area2D) -> bool:
 		return false
 	if not _is_hurtbox_owner_alive(area):
 		return false
+	# BEAST nenahana jednotky — chase len na nepriatelskeho hrdinu
+	if archetype == Archetype.BEAST:
+		var owner_node := area.get_parent()
+		if owner_node == null or not owner_node.is_in_group("heroes"):
+			return false
 	var enemy_team := "player" if team == "enemy" else "enemy"
 	return area.is_in_group(enemy_team + "_hurtbox")
 

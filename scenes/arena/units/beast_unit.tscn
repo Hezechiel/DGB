@@ -1,0 +1,20 @@
+[gd_scene format=3 uid="uid://86unbhy2uj6x"]
+
+[ext_resource type="PackedScene" uid="uid://dxwl6kh82d5s0" path="res://scenes/arena/units/unit_base.tscn" id="1_base"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_8bkr0"]
+resource_local_to_scene = true
+radius = 16.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_sbpie"]
+resource_local_to_scene = true
+radius = 40.0
+
+[node name="BeastUnit" unique_id=67078682 instance=ExtResource("1_base")]
+archetype = 4
+
+[node name="CollisionShape2D" parent="AttackRange" parent_id_path=PackedInt32Array(591149409) index="0" unique_id=676643881]
+shape = SubResource("CircleShape2D_8bkr0")
+
+[node name="CollisionShape2D" parent="AggroRange" parent_id_path=PackedInt32Array(1944486650) index="0" unique_id=1431858333]
+shape = SubResource("CircleShape2D_sbpie")

@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://1qytuvst77bw" path="res://scripts/arena/unit_data.gd" id="1_script"]
 [ext_resource type="Texture2D" uid="uid://d2805k18hnomk" path="res://assets/sprites/units/greek/hippeus/05_Hippeus_card1.png" id="3_k1nwt"]
-[ext_resource type="PackedScene" uid="uid://bakpvvohsixrh" path="res://scenes/arena/units/melee_unit.tscn" id="3_res"]
+[ext_resource type="PackedScene" path="res://scenes/arena/units/cavalry_unit.tscn" id="3_res"]
 [ext_resource type="SpriteFrames" path="res://data/cards/greek/units/frames/frames_cavalry_placeholder.tres" id="4_res"]
 
 [resource]

@@ -108,6 +108,28 @@ strong *and* answerable — never as a card the opponent simply cannot respond t
 - Rarity, per-faction card counts, and whether uniques cost more than the
   equivalent common card are all undecided (§6, §8).
 
+## 4b. Unit archetypes (Nov 2026)
+
+Every unit card runs on one of five archetype scenes. The archetype is the
+unit's **default** behavior; per-unit specials from the tables above come on
+top of it later. Technical details: `arch/combat_movement.md` "Combat unit".
+
+| Archetype | Default behavior | Units |
+|-----------|------------------|-------|
+| **Melee** | Basic unit — attacks anything, chases units in aggro | Hoplite, Phalanx, Satyr, Spartoi, Shades |
+| **Ranged** | Basic unit — attacks anything, chases units in aggro | Toxotes, Peltast, Sphendonetes, Priestess, Nereid |
+| **Siege** | Structures only, never chases | Gastraphetes |
+| **Cavalry** | Planned: prefers enemy ranged units inside a special radius. Behaves like melee until that is built | Hippeus, Hippocampus Rider, Pegasus, Centaur |
+| **Beast** | Chases only the enemy hero; prefers hero or structures in reach, fights units only as a fallback | Cyclops, Ketos, Talos, Harpy, Erinyes |
+
+- **Erinyes conflict:** her design (§4a) is hero-only and *ignores* structures,
+  stricter than the beast default (hero **or** structures). She uses the beast
+  default for now; the hero-only rule is a per-unit special for later.
+- The cavalry sprite placeholder is a horse archer, but every mounted unit is
+  melee — art mismatch only, behavior follows `UnitData.attack_type`.
+- Archetype and attack type are independent: a cavalry or beast card can be
+  melee or ranged.
+
 ## 4.1 Common pool — spells (cross-era template)
 
 Spells are the one common-pool category that repeats across every era. The
@@ -191,14 +213,16 @@ pantheons at the cost of synergy.
 - [x] Open Question 1 (synergy type) — resolved, §2
 - [ ] Open Question 2 — deck size resolved (god + 7); sidekick still open
 - [x] First stat pass on all 20 Greek units (values in
-      `scrolls_decisions.md`); cards exist for the eight human units.
+      `scrolls_decisions.md`); all 20 have cards and are obtainable (Nov 2026).
       Balance pass still to do.
 - [x] Card rarity, leveling and collection — built (`game_design.md` §3.14);
       per-card rarities are still placeholders
 - [x] Spells take normal deck slots
-- [ ] Domain cards: Pegasus, Talos (Olympus); Hippocampus Rider,
-      Nereid, Ketos (Sea); Shades, Spartoi, Erinyes (Underworld) — unit data
-      exists with placeholder sprites, no cards yet
+- [x] Domain cards: Pegasus, Talos (Olympus); Hippocampus Rider,
+      Nereid, Ketos (Sea); Shades, Spartoi, Erinyes (Underworld) — cards exist
+      with per-type placeholder sprites, no specials yet
+- [x] Unit archetypes: melee, ranged, siege, beast built (§4b); cavalry exists
+      as a scene, its ranged-priority radius is not built yet
 - [ ] Tag vocabulary (holy, undead, beast…) and which gods refuse what
 - [ ] Synergy rule for every god beyond Zeus and Poseidon
 - [ ] Mechanics the unit data cannot express yet: healing (Priestess, Nereid),

@@ -156,7 +156,7 @@
   `arena._enter_tree()` alongside the other three, or the low-HP hysteresis
   flag leaks across matches.
 - `hero_dummy.tscn`'s `TargetMarker` node existed unused in the scene since
-  its creation — `melee_unit.tscn` hides its own copy in the scene file,
+  its creation — `unit_base.tscn` (formerly `melee_unit.tscn`) hides its own copy in the scene file,
   but the hero scene didn't, so it was invisibly always-on until wired up
   in `hero_dummy.gd` (`set_targeted()` + hidden in `_ready()`/`die()`).
   Worth double-checking for other copy-pasted scene subtrees with the same
@@ -348,8 +348,26 @@
 - **Every mover archetype scene must carry `NavAgent`.** `player.gd`,
   `hero_dummy.gd` and `unit.gd` resolve it with `@onready var nav_agent =
   $NavAgent`; a scene sharing one of those scripts without the node crashes
-  on spawn. Two unit scenes share `unit.gd` — both need it, and so will any
-  future sibling archetype scene.
+  on spawn. All five unit archetype scenes inherit `unit_base.tscn`, which
+  carries the node once — a new archetype must inherit it too, never be a
+  standalone copy.
+- **Re-saving an inherited unit scene in the editor writes its own copies of
+  the `resource_local_to_scene` shapes.** After a Ctrl+S, each archetype scene
+  (`melee_unit.tscn` … `beast_unit.tscn`) carries its own `CircleShape2D`
+  sub_resources for `AttackRange` and `AggroRange`. Harmless today, because
+  `configure()` sets the attack radius from `UnitData` and every copy repeats
+  the base values (16 / 40). The catch: changing a default radius in
+  `unit_base.tscn` will **not** reach the five archetypes — edit them too.
+- **The unit archetype lives on the scene, not on the card.** You can't see a
+  unit's archetype in its `.tres` except through the `archetype_scene` path,
+  and one card cannot override its archetype's default. The SIEGE archetype
+  also silently overrides the card's `target_filter`. A per-unit exception
+  (e.g. Erinyes hero-only) needs a new field, not a scene edit.
+- **Placeholder `SpriteFrames` are shared by many cards.** `frames_<type>_placeholder.tres`
+  (units) and `frames_placeholder.tres` (gods) are referenced by several
+  `.tres` files at once — editing one to give a single unit or god its real art
+  changes every card using it. Real art = a new `frames_<pantheon>_<id>.tres`,
+  then repoint that one card (`data_layer.md` "Placeholder art").
 - **Never set `NavigationAgent2D.target_position` every frame.** Each
   assignment triggers a new path query. `_nav_direction_to()` only re-sends
   it when the goal moved more than 16 px (`NAV_REPATH_DIST_SQ`); a chase of a
@@ -412,7 +430,7 @@
   | Art | Real scale | Setting | Where it's set |
   |---|---|---|---|
   | **Painted UI** (frames, backgrounds, buttons) | ~1–1.3× | **Linear** (`texture_filter = 2`) | once on the **scene root**, children inherit — `MainMenu`'s `Background`, `framed_overlay.tscn`, `card_detail.tscn` |
-  | **Minified battlefield sprites** (hero + unit sheets, 250–420 px frames at node scale 0.1–0.15) | ~0.6–0.9× on device, ~0.3× in a desktop window | import **mipmaps** (`mipmaps/generate=true`) + **Linear Mipmap** (`texture_filter = 4`) | on the **`AnimatedSprite2D` only** in `player.tscn`, `hero_dummy.tscn`, `melee_unit.tscn`, `ranged_unit.tscn` — not the root, so health bars and target markers keep their own look |
+  | **Minified battlefield sprites** (hero + unit sheets, 250–420 px frames at node scale 0.1–0.15) | ~0.6–0.9× on device, ~0.3× in a desktop window | import **mipmaps** (`mipmaps/generate=true`) + **Linear Mipmap** (`texture_filter = 4`) | on the **`AnimatedSprite2D` only** in `player.tscn`, `hero_dummy.tscn`, `unit_base.tscn` (inherited by all unit archetypes) — not the root, so health bars and target markers keep their own look |
   | **Enlarged pixel-style art** (map tiles, turrets, bases, projectile) | 3–6× | **Nearest** — the project default (`default_texture_filter = 0`), set nowhere | nothing to do; never change the project default |
 
   Why: Nearest at an uneven scale (e.g. 1.15×) duplicates rows unevenly and
@@ -421,8 +439,9 @@
   copies) cover that; Linear on enlarged pixel art just blurs it.
   Rules for new content: a new UI scene sets Linear on its root; a new
   hero/unit sprite sheet gets mipmaps in its `.import` (the archetype scenes'
-  sprite node already has Linear Mipmap); a new archetype scene copies
-  `texture_filter = 4` onto its `AnimatedSprite2D`. Author painted UI at
+  sprite node already has Linear Mipmap); a new unit archetype inherits
+  `unit_base.tscn` and gets `texture_filter = 4` for free (a new *hero* scene
+  copies it onto its `AnimatedSprite2D`). Author painted UI at
   roughly **2× its logical on-screen size** — never shrink it to the viewport
   size. Costs and caveats: mipmaps add ~33 % texture memory per sheet and
   soften slightly; at small mip levels they blend across frame borders of a

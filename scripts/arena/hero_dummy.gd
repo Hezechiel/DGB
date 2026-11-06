@@ -183,7 +183,7 @@ func _ready() -> void:
 	HealingSystem.heal_tick.connect(_on_heal_tick)
 	HealingSystem.heal_ended.connect(_on_heal_ended)
 
-	# melee_unit.tscn skryva marker priamo v scene (visible = false);
+	# unit_base.tscn (*_unit.tscn archetypy) skryva marker priamo v scene (visible = false);
 	# hero_dummy.tscn to nema, tak ho skryjeme tu
 	target_marker.visible = false
 

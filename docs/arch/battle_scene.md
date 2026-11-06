@@ -43,22 +43,31 @@
   that nothing reads (a leftover — safe to delete once the migration is
   done); no physical outer boundary, only the logical `MapData.bounds`
   rectangle (camera clamp + deploy check).
-- `scenes/arena/units/melee_unit.tscn` and `scenes/arena/units/ranged_unit.tscn`
-  (Sept 2026) — two sibling archetype scenes (CharacterBody2D + Hurtbox +
-  AttackRange + AggroRange + AnimatedSprite2D + HealthBar + TargetMarker +
-  `NavAgent`), **both attaching the same `unit.gd` script** — they differ only
-  in scale and their own scene-baked `AnimatedSprite2D`/`AttackRange` defaults
-  (editor-preview/crash-prevention values only, same footgun as
-  `player.tscn`/`hero_dummy.tscn`, see `hero_authoring_guide.md` §1 —
-  `configure()` always overwrites both from `UnitData` at spawn). Melee vs.
-  ranged combat *behavior* is a data branch inside `unit.gd`
-  (`UnitData.attack_type`), not a script fork — see `combat_movement.md` and
-  `unit_authoring_guide.md`. Siege archetypes, if they diverge in movement/
-  targeting rather than just attack resolution, would be a genuine new
-  sibling script; a third *attack type* would not. **Both scenes must carry
-  the `NavAgent` child** — `unit.gd` resolves it with `@onready`, so a scene
-  missing it crashes on spawn (`conventions_pitfalls.md`). `ranged_unit.tscn`'s root node is still
-  named `MeleeUnit` (duplication leftover, harmless, rename when convenient).
+- **Unit archetype scenes (Nov 2026)** — `scenes/arena/units/unit_base.tscn`
+  holds the one node tree (CharacterBody2D + Hurtbox + AttackRange +
+  AggroRange + AnimatedSprite2D + HealthBar + TargetMarker + `NavAgent`,
+  script `unit.gd`). Five **inherited** scenes sit on top of it and differ only
+  in the root's `archetype` export (plus a sprite offset):
+
+  | Scene | `archetype` | Root | Default behavior |
+  |---|---|---|---|
+  | `melee_unit.tscn` | `MELEE` (0) | `MeleeUnit` | basic unit, attacks everything |
+  | `ranged_unit.tscn` | `RANGED` (1) | `RangedUnit` | basic unit, attacks everything (sprite offset 0,0) |
+  | `siege_unit.tscn` | `SIEGE` (2) | `SiegeUnit` | structures only, never chases (sprite offset 0,0) |
+  | `cavalry_unit.tscn` | `CAVALRY` (3) | `CavalryUnit` | same as melee for now (ranged-priority radius planned) |
+  | `beast_unit.tscn` | `BEAST` (4) | `BeastUnit` | chases heroes only; prefers hero/structure, units as fallback |
+
+  `melee_unit.tscn` and `ranged_unit.tscn` kept their original UIDs when they
+  became inherited scenes, so older card references still resolve. A card
+  picks its archetype through `UnitData.archetype_scene`; the archetype is
+  **not** a `UnitData` field and `configure()` never changes it. The scene-baked
+  `AnimatedSprite2D`/`AttackRange` values are editor-preview/crash-prevention
+  defaults only — `configure()` overwrites sprite frames and attack range from
+  `UnitData` at spawn. Melee vs. ranged *attack resolution* is still a data
+  branch (`UnitData.attack_type`), so a cavalry or beast card can be either.
+  The targeting rules themselves live in `combat_movement.md` ("Combat unit").
+  Node changes go into `unit_base.tscn` only; `NavAgent` lives there once and
+  all five inherit it (`conventions_pitfalls.md`).
 - `scenes/arena/player.tscn` — locally-controlled hero. Carries a `NavAgent`
   (`NavigationAgent2D`) child (`combat_movement.md` Navigation).
 - `scenes/arena/hero_dummy.tscn` (`hero_dummy.gd`) — AI-controlled enemy hero

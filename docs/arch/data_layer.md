@@ -61,8 +61,10 @@ collection fields `rarity` (int 0–3), `obtain_source` (int), `faction`
 other kind — so call sites such as `if card.unit_data != null` read the same as
 before the merge, and `card.unit_data.unit_count` reaches the squad fields. Card
 ids did not change in the merge, so saves, decks, packs and the AI were
-unaffected. Creatures without a card yet are ordinary `UnitData` cards with
-`obtain_source = 0` (hidden from the encyclopedia, deck pool and packs).
+unaffected. A test or unfinished card can be hidden with `obtain_source = 0`
+(hidden from the encyclopedia, deck pool and packs). As of Nov 2026 all 20
+Greek units and all 12 Greek gods are `obtain_source = 1` (PACK) for roster
+testing.
 
 **God skills (`SkillData`, `scripts/arena/skill_data.gd`).** One active skill
 per god, a file in `data/heroes/<pantheon>/skills/`, linked from
@@ -78,6 +80,43 @@ the Card Detail text (`menu_ui.md`) and the runtime effect (`combat_movement.md`
 retune changes gameplay and text together. A runtime-only tuning number can
 be read with a code default (`get_value(&"knockback_time", 0.2)`) and added to
 `values` later without breaking anything — but then it is not in the text.
+
+**Placeholder art (Nov 2026).** Gods and units without real art point at
+shared placeholder files, so mechanics can be built before the sprites exist.
+All placeholder sheets are 1200×300 (one row of four 300×300 frames). Every
+placeholder `SpriteFrames` uses the same animation set and timing: `attack`
+4 frames @ 4 fps (1.0 s, same cast-point length as the old 5 @ 5), `death`
+4 @ 6 (≈0.67 s, same as the old 2 @ 3), `idle` / `spawn` / `walk` 4 @ 5.
+
+| Placeholder | Sheets | Used by |
+|---|---|---|
+| `data/heroes/greek/frames/frames_placeholder.tres` (+ `card_art` = `assets/sprites/gods/card.png`) | `assets/sprites/gods/` (Zeus's grid: `iddle_left`, `walk_left`, …) | Aphrodite, Apollo, Ares, Artemis, Athena, Demeter, Dionysus, Hades, Hephaestus, Hermes (Ares/Hades keep their own `*_decal1.png` card art) |
+| `data/cards/greek/units/frames/frames_melee_placeholder.tres` | `assets/sprites/units/melee/` | Phalanx, Satyr, Spartoi, Shades; Hoplite takes only `attack`/`death` from it (own idle/walk/spawn in `frames_greek_hoplite.tres`) |
+| `frames_ranged_placeholder.tres` | `assets/sprites/units/ranged/` | Toxotes, Peltast, Sphendonetes, Priestess, Nereid |
+| `frames_cavalry_placeholder.tres` | `assets/sprites/units/cavalry/` | Hippeus, Hippocampus Rider, Pegasus, Centaur |
+| `frames_beast_placeholder.tres` | `assets/sprites/units/beast/` | Cyclops, Ketos, Talos, Harpy, Erinyes |
+
+- Gastraphetes keeps its real art (`frames_greek_gastraphetes.tres`). The
+  `assets/sprites/units/siege/` sheets exist, but there is no siege
+  placeholder `SpriteFrames` yet because no unit needs one.
+- Each type folder also has a `card.png`. No unit uses it — all 20 units have
+  their own `scroll_texture`.
+- The old per-unit `frames_greek_<id>.tres` files, the 13 identical
+  `*_sheet.png` stitched sheets, `golden_soldier_animations.png`,
+  `black_soldiers_animation.png` and `gold_archer_animation.png` are no
+  longer referenced by any card; they are kept on disk for now.
+- Giving a unit or god real art: make its own `SpriteFrames`, then repoint
+  only that card's `sprite_frames` ext_resource. Never edit a shared
+  placeholder for one card (`conventions_pitfalls.md`).
+
+**Unit archetype scenes (Nov 2026).** `UnitData.archetype_scene` is one of
+five inherited scenes — `melee_unit`, `ranged_unit`, `siege_unit`,
+`cavalry_unit`, `beast_unit` (all on top of `unit_base.tscn`). The scene's root
+`archetype` export gives the default targeting (`combat_movement.md` "Combat
+unit"); a `SIEGE` archetype overrides the card's `target_filter` with
+`STRUCTURES_ONLY`. Current assignment: Gastraphetes → siege; Hippeus,
+Hippocampus Rider, Pegasus, Centaur → cavalry; Cyclops, Ketos, Talos, Harpy,
+Erinyes → beast; the remaining human units keep melee/ranged.
 
 Resolution chain for a played card:
 `card_id → CardDB.get_card() → (UnitData) archetype_scene.instantiate()

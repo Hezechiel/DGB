@@ -81,7 +81,7 @@ Companion to `DGB_Scrolls_Card_Collection_Design.docx`. Records Bakula's answers
 
 ## Still open
 
-1. Which gods are pack / achievement / quest / event. Zeus is the starter; Poseidon is tagged PACK as a placeholder so the cherished-pack path is testable.
+1. Which gods are pack / achievement / quest / event. Zeus is the starter. Since Nov 2026 all 12 Greek gods are tagged PACK as a placeholder, so the whole roster can be collected and tested.
 2. Starter deck confirmation (see placeholder above).
 3. Card rarities for the Greek roster (placeholders: Hippeus, Phalanx, Priestess, Gastraphetes, Storm, Stun = Rare; the rest Common).
 4. God passive-ability conditions that unlock the synergy bonus.

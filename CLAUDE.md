@@ -83,7 +83,7 @@ LightningBolt: `collision_layer=32` (bit 6), `collision_mask=24` (bits 4+5 — h
 
 Turret hurtboxes: PlayerTurret layer=8 (player_hurtbox), EnemyTurret layer=16 (enemy_hurtbox).
 
-Combat units (`scripts/arena/unit.gd`) compute their `Hurtbox`/`AttackRange`/`AggroRange` layers/masks at runtime from `team`, since `melee_unit.tscn`/`ranged_unit.tscn` are shared archetypes for both sides — see `docs/arch/combat_movement.md`.
+Combat units (`scripts/arena/unit.gd`) compute their `Hurtbox`/`AttackRange`/`AggroRange` layers/masks at runtime from `team`, since the unit archetype scenes (`unit_base.tscn` + inherited `melee_unit`/`ranged_unit`/`siege_unit`/`cavalry_unit`/`beast_unit`) are shared by both sides — see `docs/arch/combat_movement.md`.
 
 ---
 

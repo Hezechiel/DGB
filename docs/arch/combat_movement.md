@@ -26,8 +26,9 @@
     accepted, they just slide past corners). Baked **at edit time, static**:
     nothing on the map changes topology mid-match (structure wrecks never
     `queue_free()`), so there's no runtime rebaking.
-  - *Mover side.* `player.tscn`, `hero_dummy.tscn`, `melee_unit.tscn` and
-    `ranged_unit.tscn` each carry a `NavAgent` (`NavigationAgent2D`) child —
+  - *Mover side.* `player.tscn`, `hero_dummy.tscn` and `unit_base.tscn`
+    (inherited by all five unit archetype scenes) each carry a `NavAgent`
+    (`NavigationAgent2D`) child —
     `path_desired_distance = 4`, `target_desired_distance = 8`, avoidance
     **off**. Each of the three scripts has its **own verbatim copy** of
     `_nav_direction_to(goal) -> Vector2` (same deliberate duplication as the
@@ -254,10 +255,17 @@ Player's `_physics_process` attack logic, in priority order:
 
 ### Combat unit (from CLAUDE.md)
 
-`scenes/arena/units/melee_unit.tscn`, `scenes/arena/units/ranged_unit.tscn` / `scripts/arena/unit.gd`
+`scenes/arena/units/unit_base.tscn` + five inherited archetype scenes (`melee_unit`, `ranged_unit`, `siege_unit`, `cavalry_unit`, `beast_unit`) / `scripts/arena/unit.gd`
+- **Archetype (Nov 2026):** `enum Archetype { MELEE, RANGED, SIEGE, CAVALRY, BEAST }`, `@export var archetype` set on the **root of the archetype scene**, never in `UnitData` and never touched by `configure()`. It is the unit's default targeting profile:
+  - `MELEE` / `RANGED` — basic units: attack everything, first contact wins (the pre-archetype behavior, unchanged).
+  - `SIEGE` — `configure()` forces `target_filter = STRUCTURES_ONLY`, overriding the card. With that filter the unit ignores units and heroes in attack range and never aggros (existing `STRUCTURES_ONLY` rules).
+  - `CAVALRY` — behaves as `MELEE` for now. Planned: prefer enemy ranged units inside a special radius (TODO in `unit.gd`, no node or logic yet).
+  - `BEAST` — `_is_valid_aggro_target()` accepts only enemy **heroes** (`"heroes"` group), so it never chases units. In attack range, `_target_priority()` ranks heroes and structures (`<team>_turret_hurtbox` / `<team>_base_hurtbox`) at 1, units at 0. Before **every new swing** (`_start_attack_windup()`, never during a windup) it swaps to a higher-priority target if one is in range (`DebugLog` tag `target`, "beast retarget"). Units are a fallback only. Hero and structure are equal priority — a beast hitting a turret does not turn to a hero who walks up.
+- **Target picking:** `_find_best_attack_target()` scans `AttackRange` overlaps and returns the highest `_target_priority()`, the first one found on a tie; `_reacquire_attack_target()` uses it. Every non-BEAST target scores 0, so for melee/ranged/siege/cavalry it returns the first valid area — identical to the old behavior. `_on_attack_range_area_entered` is still first-contact-wins.
+- **Known trade-off:** the state priority (`ENGAGING` > `CHASING`) is unchanged, so a beast chasing a hero stops to fight any unit that enters its attack range.
 - `team` export drives which hurtbox/attack-range/aggro-range physics layers and groups it joins at `_ready()`, since the scenes carry no team-specific static layer values
 - Configured entirely from `UnitData` via `configure(data, team, stat_mods := {})` — `stat_mods` (`max_hp`/`damage`/`speed`/`attack_speed` multipliers, level × synergy) come from `BattleManager._unit_stat_mods()`; fields: `max_hp`, `damage`, `attack_cooldown`, `speed`, `attack_type` (MELEE/RANGED), `attack_range`, `projectile_scene`, `damage_point_ratio`, `target_filter` (`ALL` / `UNITS_ONLY` / `STRUCTURES_ONLY` — e.g. a battering-ram unit ignores units and only closes on turrets/bases)
-- `MarchState`: `MARCHING` (seeks `structure_target`), `CHASING` (spotted an enemy unit in the wider `AggroRange`, pursues indefinitely — no leash yet), `ENGAGING` (enemy hurtbox in `AttackRange`)
+- `MarchState`: `MARCHING` (seeks `structure_target`), `CHASING` (spotted an enemy unit in the wider `AggroRange`, pursues indefinitely — no leash yet; BEAST only chases heroes, SIEGE never chases), `ENGAGING` (enemy hurtbox in `AttackRange`)
 - Seek + separation steering (`compute_separation()`) shared between marching and chasing
 - Status effects: re-applying takes the longer of current/new duration (never shortens an active effect)
 - Spawn invulnerability window on every deploy (`invuln_time`, not just first spawn — units get no "safe first spawn" the way heroes do since every deployment can land mid-fight)

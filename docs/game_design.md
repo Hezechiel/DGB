@@ -70,15 +70,24 @@ are mock data (`MatchConfig`).
 - **The deck is 1 god + 7 scrolls** (SWFA shape), units and spells mixed, no
   duplicates. It comes from the player's profile, not from the hand scene. With
   3 slots and a preview, three cards are always out of sight in the cycle.
-- Eleven named Greek cards exist: eight units (Hoplite, Toxotes, Peltast,
-  Sphendonetes, Hippeus, Phalanx, Priestess, Gastraphetes) and three spells
-  (Storm, Stun, Ensnaring Net). Costs, squad sizes and rarities are
-  placeholders; five of the eight units still use placeholder sprites, and
-  Priestess has no scroll art yet. A shared scroll-back art shows while a card
-  is being dragged.
+- All 20 Greek units (`cards_greek.md` §3–§4a) and three spells (Storm, Stun,
+  Ensnaring Net) exist as obtainable cards. Costs, squad sizes and rarities
+  are placeholders. Every unit except Gastraphetes (and Hoplite's
+  idle/walk/spawn) uses a grey per-type placeholder sprite until its art
+  exists. A shared scroll-back art shows while a card is being dragged.
 ### 3.2 Units
-- Behavior archetypes are scenes (**melee** exists; ranged, siege, special planned);
-  individual units are `UnitData` resources feeding an archetype: stats + animations.
+- Behavior archetypes are scenes; individual units are `UnitData` resources
+  feeding an archetype: stats + animations. Five archetypes exist (Nov 2026):
+  - **Melee** and **Ranged** — basic units, attack anything.
+  - **Siege** — attacks structures only and never chases (Gastraphetes).
+  - **Cavalry** — will prefer enemy ranged units inside a special radius;
+    until that is built it behaves like melee (Hippeus, Hippocampus Rider,
+    Pegasus, Centaur).
+  - **Beast** — chases only the enemy hero and prefers hero or structures in
+    reach; it fights units only when nothing better is in range (Cyclops,
+    Ketos, Talos, Harpy, Erinyes).
+  Per-unit specials (auras, healing, flying, charge, Erinyes' hero-only rule…)
+  come on top of the archetype later.
 - Targeting rules per unit: `ALL`, `UNITS_ONLY` (ignores structures),
   `STRUCTURES_ONLY` (siege/battering-ram style).
 - Marching: units head for the **nearest living enemy structure** (no fixed
@@ -378,7 +387,8 @@ are mock data (`MatchConfig`).
   +18 %).
 - **Packs.** Free for now, five scrolls each, with rarity weights **per pack**:
   the basic Greek pack can never drop a god; the "cherished" pack has a small
-  chance. The last scroll in a pack has a guaranteed minimum rarity.
+  chance. The last scroll in a pack has a guaranteed minimum rarity. For roster
+  testing all 12 Greek gods are currently pack-obtainable (placeholder).
 - **Starter:** Zeus and seven cards at level 1.
 - **Shop** (rail tab): open packs; the reveal lists each scroll as NEW or +1
   copy.
@@ -458,8 +468,11 @@ are mock data (`MatchConfig`).
    with card detail and manual level-up, god-against-card deck rules, and the
    deck-threshold synergy with its HUD icon are implemented (§3.14). **Not
    built:** currency and prices, account level, pack-opening presentation,
-   real tags on content, Olympus/Sea/Underworld cards, the attack-speed rework.
-8. Then: ranged/siege archetypes, and the items below.
+   real tags on content, the attack-speed rework. Olympus/Sea/Underworld unit
+   cards now exist (placeholder art, no specials).
+8. ~~Unit archetypes~~ — melee, ranged, siege, cavalry, beast scenes with
+   default targeting (§3.2). **Next:** cavalry's ranged-priority radius,
+   per-unit specials, and the items below.
 ---
  
 ## 5. Future vision (brief, not yet designed)
@@ -550,7 +563,7 @@ are mock data (`MatchConfig`).
   is agreed in principle but not implemented — the unit does not exist and
   cannot be targeted until the delay elapses.
 - Scrolls: which gods come from packs, achievements, quests or events (only
-  Zeus as the starter is fixed).
+  Zeus as the starter is fixed; all gods are PACK for now as a test placeholder).
 - Scrolls: the tag vocabulary and which gods refuse what — no tags are
   assigned to real content yet.
 - Scrolls: each god's synergy rule (tag, threshold, effect); only Zeus's is
