@@ -21,7 +21,7 @@
 [ext_resource type="PackedScene" uid="uid://cyg2fjjf86dwy" path="res://scenes/menu/pantheon_overlay.tscn" id="22_encyclopediaoverlay"]
 [ext_resource type="PackedScene" path="res://scenes/menu/effects/battle_button_sparks.tscn" id="23_battlesparks"]
 [ext_resource type="PackedScene" uid="uid://ktbwuh08n1o1" path="res://scenes/menu/card_detail.tscn" id="24_carddetail"]
-[ext_resource type="PackedScene" path="res://scenes/menu/currency_counter.tscn" id="25_currencycounter"]
+[ext_resource type="PackedScene" uid="uid://b0n1h2gbg7xrx" path="res://scenes/menu/currency_counter.tscn" id="25_currencycounter"]
 [ext_resource type="Texture2D" uid="uid://bnm6pd76srp5f" path="res://assets/menu/coin.png" id="26_coin"]
 [ext_resource type="Texture2D" uid="uid://bmf716td7choi" path="res://assets/menu/crystal.png" id="27_crystal"]
 

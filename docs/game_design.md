@@ -380,23 +380,46 @@ are mock data (`MatchConfig`).
   have their own tier, **Unique**.
 - **Leveling is manual.** Level cap 10. Rarer cards need fewer copies per
   level. The player presses a level-up button; nothing levels automatically.
-  Upgrades cost copies only (no currency yet).
+  Upgrades cost copies only, currency later.
 - **What a level does:** units gain HP and damage; spells gain damage only —
   stun/root/slow durations never scale; gods gain HP, damage and attack speed.
   Increments shrink per level, about +48 % at level 10 (gods' attack speed
   +18 %).
-- **Packs.** Free for now, five scrolls each, with rarity weights **per pack**:
-  the basic Greek pack can never drop a god; the "cherished" pack has a small
-  chance. The last scroll in a pack has a guaranteed minimum rarity. For roster
-  testing all 12 Greek gods are currently pack-obtainable (placeholder).
+- **Currencies.** **Gold** (soft) and **Crystals** (premium), shown top-right
+  in the hub. Earned later through gameplay, events and rewards, and crystals
+  also by purchase — none of these is built yet; for testing, the Shop's daily
+  reward gives both without limit. The server will own
+  balances; for now they live in the local profile. New players start with
+  500 gold and 50 crystals (placeholder).
+- **Packs.** Three Greek packs with rarity weights **per pack**: a 3-scroll
+  common pack for 500 gold (no guarantee, no gods), the 5-scroll basic pack for
+  1,200 crystals (last scroll Rare or better, no gods) and the 5-scroll
+  "cherished" pack for 2,500 crystals (last scroll Epic or better, small god
+  chance). Prices are placeholders. For roster testing all 12 Greek gods are
+  currently pack-obtainable (placeholder).
 - **Starter:** Zeus and seven cards at level 1.
-- **Shop** (rail tab): open packs; the reveal lists each scroll as NEW or +1
-  copy.
+- **Shop** (rail tab), three sections:
+  - **Daily free reward** — gives 100–300 gold **and** 100–300 crystals.
+    **Tester faucet for now: no timer, no limit**, so testers can afford the
+    shop on phones. The intended design is a timed reward with a next-reward
+    track at 2h/6h/12h/24h (track not built).
+  - **Card offers** — five different cards (any pantheon, owned or locked, never
+    gods), weighted toward lower rarities. Price by rarity: Common 3 copies for
+    300 gold, Rare 2 copies for 300 crystals, Epic 1 copy for 600 crystals,
+    Legendary 1 copy for 1,500 crystals (placeholders, tuned in one data file).
+    A bought offer turns grey ("SOLD") until the next refresh. **Refresh is
+    free and unlimited for testing**; the design is a timer plus a paid
+    "refresh now". The offer set is not kept across app restarts yet.
+  - **Card packs** — chest per pack; button colour shows the currency (bright
+    blue free, orange gold, dark blue crystals).
+  Prices turn red when you can't afford them and a tap then says "Not enough
+  gold/crystals". The pack reveal lists each scroll as NEW or +1 copy; tapping
+  an offer card or a revealed card opens its card detail.
 - **Pantheon** (rail tab): every god and card of a pantheon, owned and locked.
   Tapping one opens its **card detail** — art, level, copies progress,
   description, battle stats with a "current > next level" preview, skill text
-  for gods — and the level-up button lives there. Long-term the card detail
-  should open from every view that shows cards.
+    for gods — and the level-up button lives there. The card detail opens from
+  the Pantheon, Deck and Shop tabs; still missing in the match HUD.
 - **Deck screen** (rail tab): two modes. **View** shows the god's avatar on
   top and the deck below it — the god plus seven scrolls in one row, with the
   synergy count and average energy cost — and a short bar with an **Edit**
@@ -464,10 +487,14 @@ are mock data (`MatchConfig`).
    zones that disappear when their structure dies (§3.7), not the originally
    planned "unlock the whole enemy half" version.
 7. ~~**Scrolls (card collection)**~~ — profile and starter grant, levels in
-   matches, free packs and shop, Deck screen (one deck per god), Pantheon screen
+   matches, packs and shop, gold/crystal wallet with pack prices, card
+   offers, daily reward (tester faucet),
+   Deck screen (one deck per god), Pantheon screen
    with card detail and manual level-up, god-against-card deck rules, and the
    deck-threshold synergy with its HUD icon are implemented (§3.14). **Not
-   built:** currency and prices, account level, pack-opening presentation,
+   built:** currency income (match/event rewards, purchases; the daily reward
+   is an unlimited tester faucet), offer refresh timer/cost and saved offers,
+   account level, pack-opening presentation,
    real tags on content, the attack-speed rework. Olympus/Sea/Underworld unit
    cards now exist (placeholder art, no specials).
 8. ~~Unit archetypes~~ — melee, ranged, siege, cavalry, beast scenes with
@@ -490,7 +517,9 @@ are mock data (`MatchConfig`).
   already ID-based to support it. Death counters, timer, and match state map to
   future server-owned state.
 - **Meta:** collection, packs, leveling and deck building exist (§3.14).
-  Still future: currency and pricing, account level (intended to drive
+  Gold and crystals exist and pay for packs and card offers. Still future:
+  real currency income
+  and final pricing, account level (intended to drive
   structure strength), battle pass, trading duplicate gods between players,
   matchmaking by level.
 ---
@@ -571,6 +600,13 @@ are mock data (`MatchConfig`).
   condition on top of the deck threshold.
 - Scrolls: "continental" affinity between pantheons — an idea, not designed.
 - Scrolls: starter deck contents and per-card rarities are placeholders.
+- Economy: where gold and crystals come from (match win/loss rewards, events,
+  quests, daily reward amounts and cooldown, the 2h/6h/12h/24h track), the
+  starting balances, final pack and offer prices, whether offers should lean
+  toward the player's deck or owned cards, the refresh timer and cost, and
+  whether the offer set persists. Whether crystals can convert to gold.
+- **Before any public build:** the daily reward and the offer refresh are
+  unlimited tester faucets and must get limits.
 - Attack speed currently only shortens the pause after a hit; a proper rework
   (swing speed) is wanted and postponed.
 - ~~The card detail should open from every card view.~~ Resolved (Oct 2026):

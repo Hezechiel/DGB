@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="CardOfferChart" format=3]
+
+[ext_resource type="Script" path="res://scripts/card_offer_chart.gd" id="1_offers"]
+
+[resource]
+script = ExtResource("1_offers")
+offer_count = 5
+rarity_weights = PackedFloat32Array(50, 30, 15, 5)
+currencies = Array[StringName]([&"gold", &"crystals", &"crystals", &"crystals"])
+prices = PackedInt32Array(300, 300, 600, 1500)
+copies = PackedInt32Array(3, 2, 1, 1)

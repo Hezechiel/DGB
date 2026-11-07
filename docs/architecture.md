@@ -34,11 +34,15 @@
   `{card_id, position, team}`. A per-team **match manifest** (god, god level,
   card levels) is set once at match start; `BattleManager` looks multipliers up
   by team at its three entry points.
-- **The collection changes through one API.** Owned cards, copies, levels and
-  decks are mutated only by `PlayerProfile`'s `grant_cards()`, `upgrade_card()`,
-  `set_deck()`, `reset_profile()` — the calls a server will later own. Rules
-  and math around them (`LevelCurve`, `PackRoller`, `DeckRules`) are pure
-  static code with no nodes and no autoload calls.
+- **The collection changes through one API.** Owned cards, copies, levels,
+  decks, the wallet and card offers are mutated only by `PlayerProfile`
+  (`grant_cards()`, `upgrade_card()`, `set_deck()`, `reset_profile()`,
+  `grant_currency()`, `try_spend_currency()`, `apply_wallet_snapshot()`,
+  `claim_daily_reward()`, `refresh_card_offers()`, `buy_card_offer()`) — the
+  calls a server will later own. Prices and reward ranges are data
+  (`data/economy/`), looked up inside `PlayerProfile`, never passed in by UI.
+  Rules and math around them (`LevelCurve`, `PackRoller`, `OfferRoller`,
+  `DeckRules`) are pure static code with no nodes and no autoload calls.
 - **UI looks live in one Theme, painted art stays text-free.** Panel and button
   styles belong in `assets/UI/dgb_theme.tres` (`menu_ui.md`), not in per-node overrides.
   Plain boxes are drawn by Godot (`StyleBoxFlat`); only pieces with real painted

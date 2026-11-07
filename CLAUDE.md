@@ -34,9 +34,10 @@ Quick keyboard test shortcuts in arena (`arena.gd _input()`) — **debug builds 
 - **J** — plays `sword_hit` 10× in one frame at the player (audio `max_instances`/`min_interval` throttling test)
 
 Profile debug keys in the main menu (`main_menu.gd _unhandled_key_input()`) — also **debug builds only**, and only through `PlayerProfile`'s public mutation API:
-- **F9** — `PlayerProfile.reset_profile()` (back to the starter god + 7 starter cards at level 1)
+- **F9** — `PlayerProfile.reset_profile()` (back to the starter god + 7 starter cards at level 1, wallet 500 gold / 50 crystals)
 - **F10** — `PlayerProfile.grant_cards()` with +1 copy of every obtainable card (`obtain_source != 0`) and every god
-- **F11** — toggles `DebugLog.enabled` (the `[pack]` / `[profile]` / `[synergy]` / `[spawn]` diagnostics, off by default — see "Pure helpers" below)
+- **F11** — toggles `DebugLog.enabled` (the `[pack]` / `[profile]` / `[wallet]` / `[synergy]` / `[spawn]` diagnostics, off by default — see "Pure helpers" below)
+- **F12** — `PlayerProfile.grant_currency()` +1,000 gold and +500 crystals
 
 ---
 
@@ -123,8 +124,8 @@ System-by-system documentation lives in `docs/architecture.md` (principles, auto
 - **Groups:** `"team_player"`, `"team_enemy"`, `"heroes"`, `"turrets"` — add heroes to both `"team_*"` and `"heroes"` for attack priority logic
 - **Self-subscribing UI:** small, independent UI reactions to a `BattleManager` signal (respawn counters, card-lock, death telegraph) connect to it directly in their own `_ready()` rather than being wired/relayed through `arena.gd` or another consumer — keeps each piece a drop-in addition/removal with zero coupling to sibling UI
 - **Screen-reading `canvas_item` shaders:** declare `SCREEN_TEXTURE` yourself (`hint_screen_texture`) and keep the shader in the same canvas as its content — details in `docs/arch/conventions_pitfalls.md`
-- **No scenes/nodes/positions in "pure logic" autoloads** — `EnergySystem`, `HealingSystem`, `HeroAI` and `PlayerProfile` all deliberately hold zero scene-tree references, kept as pure state + math so they stay server-authoritative-ready for future multiplayer and easy to unit-reason about. Systems that need scene/position awareness (movement, spawning) stay in the node scripts that call into these autoloads, not inside them. The static helpers (`LevelCurve`, `PackRoller`, `DeckRules`, `DebugLog`) go one step further: no nodes **and** no autoload calls — everything comes in as arguments
+- **No scenes/nodes/positions in "pure logic" autoloads** — `EnergySystem`, `HealingSystem`, `HeroAI` and `PlayerProfile` all deliberately hold zero scene-tree references, kept as pure state + math so they stay server-authoritative-ready for future multiplayer and easy to unit-reason about. Systems that need scene/position awareness (movement, spawning) stay in the node scripts that call into these autoloads, not inside them. The static helpers (`LevelCurve`, `PackRoller`, `OfferRoller`, `DeckRules`, `DebugLog`) go one step further: no nodes **and** no autoload calls — everything comes in as arguments
 - **Spawn messages stay `{card_id, position, team}`** — levels and synergy are looked up from the per-team match manifest in `BattleManager`, never passed per spawn (keeps the future network message minimal and cheat-resistant)
-- **The player collection changes only through `PlayerProfile`'s mutation API** (`grant_cards`, `set_deck`, `upgrade_card`, `reset_profile`) — no UI or debug tool edits profile data directly; these become server calls later
+- **The player collection and wallet change only through `PlayerProfile`'s mutation API** (`grant_cards`, `set_deck`, `upgrade_card`, `reset_profile`, `grant_currency`, `try_spend_currency`, `apply_wallet_snapshot`, `claim_daily_reward`, `refresh_card_offers`, `buy_card_offer`) — no UI or debug tool edits profile data directly; these become server calls later. Wallet changes emit only `wallet_changed`, offer changes only `offers_changed`, never `profile_changed`. UI never passes a price — prices and reward ranges live in `data/economy/*.tres`
 - **Match-state UI gets a `configure()` from `arena.gd`** (`hud.minimap.configure_map()`, `hud.synergy_icon.configure()`); signal-driven pieces still self-subscribe
 - **Diagnostics go through `DebugLog.info(tag, text)`**, not bare `print()` — off by default so the console stays clean. Plain `print` is reserved for direct answers to a debug key press. `push_warning` / `push_error` are for real problems and are never routed through `DebugLog`

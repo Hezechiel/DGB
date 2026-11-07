@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="DailyRewardData" format=3]
+
+[ext_resource type="Script" path="res://scripts/daily_reward_data.gd" id="1_daily"]
+
+[resource]
+script = ExtResource("1_daily")
+gold_min = 100
+gold_max = 300
+crystals_min = 100
+crystals_max = 300

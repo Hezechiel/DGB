@@ -5,8 +5,9 @@ class_name ShopOverlay
 # -> otvorenie balicka -> reveal. Ramovane panely rovnako ako Pantheon/Deck.
 # MainMenu tab page (activate()/deactivate()).
 # Losovanie robi cisty PackRoller; zbierku meni LEN PlayerProfile (mutacne API).
-# Balicky stoja menu (PlayerProfile penazenka); denna odmena, ponuka kariet a
-# casovace su zatial stuby.
+# Balicky stoja menu (PlayerProfile penazenka); denna odmena je zatial TESTER
+# faucet (bez limitu); ponuka kariet sa kupuje cez PlayerProfile (refresh zatial
+# zadarmo); casovace su stuby.
 # Art: chybajuci subor -> farebny placeholder rovnakej velkosti (nic sa nehybe).
 
 # Tap na kartu (ponuka aj reveal) -> MainMenu otvori CardDetail
@@ -55,8 +56,7 @@ const BOLD_FONT := preload("res://assets/fonts/Oswald/static/Oswald-Bold.ttf")
 const GOLD := Color(1.0, 0.8, 0.35)
 const SUBTLE := Color(0.85, 0.85, 0.9)
 const CARD_ASPECT := 0.82          # rovnako ako pantheon_overlay.gd
-const OFFER_COUNT := 5
-const OFFER_FACTION := &"greek"
+const SOLD_TINT := Color(0.45, 0.45, 0.45)   # kupena ponuka
 const CHEST_SLOT := Vector2(96, 96)
 const POUCH_SLOT := Vector2(72, 72)
 const NEXT_REWARD_HOURS := [2, 6, 12, 24]
@@ -65,6 +65,9 @@ const TAP_MAX_DISTANCE := 10.0     # rovnako ako DeckCardTile / Pantheon
 @onready var layout: VBoxContainer = %Layout
 @onready var pouch_holder: Control = %PouchHolder
 @onready var claim_button: Button = %ClaimButton
+@onready var daily_kind: Label = %DailyKind
+@onready var gold_range: Label = %GoldRange
+@onready var crystal_range: Label = %CrystalRange
 @onready var next_slots: HBoxContainer = %NextSlots
 @onready var refresh_button: Button = %RefreshButton
 @onready var offers_row: HBoxContainer = %OffersRow
@@ -77,6 +80,7 @@ const TAP_MAX_DISTANCE := 10.0     # rovnako ako DeckCardTile / Pantheon
 var _offer_tiles: Array[DeckCardTile] = []
 var _reveal_press: Dictionary = {}  # reveal entry -> pozicia stlacenia
 var _buy_buttons: Dictionary = {}   # Button -> PackData
+var _offer_buttons: Dictionary = {} # Button -> {currency, price} (len nekupene ponuky)
 var _message_label: Label
 var _message_tween: Tween
 
@@ -86,25 +90,26 @@ func _ready() -> void:
 	PlayerProfile.profile_changed.connect(_on_profile_changed)
 	# zmena zostatku -> len prefarbi ceny, ziadna prestavba
 	PlayerProfile.wallet_changed.connect(func(_currency: StringName, _amount: int): _refresh_price_colors())
+	# refresh / kupa -> prestavba LEN radu ponuky
+	PlayerProfile.offers_changed.connect(_rebuild_offers)
 
-	# TODO(economy): denna odmena — claim + casovac, zatial stub
-	claim_button.disabled = true
+	# TESTER faucet — bez limitu; TODO(economy): cooldown + next-reward track
 	_style_shop_button(claim_button, &"free")
+	claim_button.pressed.connect(_on_claim_pressed)
 	_fill_holder(pouch_holder, _art_or_placeholder(POUCH_PATH, POUCH_SLOT))
+	_fill_daily_texts()
 
 	# TODO(economy): dalsia odmena — progres a odomykanie, zatial len "?" sloty
 	for hours in NEXT_REWARD_HOURS:
 		next_slots.add_child(_build_next_slot(hours))
 
-	# TODO(economy): rotacia ponuky + refresh, zatial stub
-	refresh_button.disabled = true
-	_style_shop_button(refresh_button, &"gold")
+	# TESTER: refresh zadarmo bez limitu; TODO(economy): cena + casovac
+	_style_shop_button(refresh_button, &"free")
+	refresh_button.text = "REFRESH"
+	refresh_button.pressed.connect(_on_refresh_pressed)
 
 func activate() -> void:
-	_free_children(offers_row)
-	_offer_tiles.clear()
-	for id in _offer_ids():
-		offers_row.add_child(_build_offer_tile(id))
+	_rebuild_offers()
 
 	_free_children(packs_row)
 	_buy_buttons.clear()
@@ -122,18 +127,58 @@ func _show_pack_view() -> void:
 	layout.visible = true
 	reveal_panel.visible = false
 
-# --- Data ---
+# --- Denna odmena ---
 
-# Stub ponuka: prvych OFFER_COUNT kariet panteonu (zoradene -> deterministicke).
-func _offer_ids() -> Array[StringName]:
-	var ids: Array[StringName] = []
-	for id in CardDB.list_card_ids():
-		if ids.size() >= OFFER_COUNT:
-			break
-		var card := CardDB.get_card(id)
-		if card != null and card.faction == OFFER_FACTION:
-			ids.append(id)
-	return ids
+# Texty z PlayerProfile.DAILY_REWARD (len citanie).
+func _fill_daily_texts() -> void:
+	var reward := PlayerProfile.DAILY_REWARD
+	daily_kind.text = "FREE GOLD & CRYSTALS"
+	gold_range.text = _range_text(reward.gold_min, reward.gold_max)
+	crystal_range.text = _range_text(reward.crystals_min, reward.crystals_max)
+
+func _range_text(lo: int, hi: int) -> String:
+	return "%s – %s" % [CurrencyCounter.format_amount(lo), CurrencyCounter.format_amount(hi)]
+
+# Zostatky v top bare a farby cien sa obnovia samy cez wallet_changed.
+func _on_claim_pressed() -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+	var got := PlayerProfile.claim_daily_reward(rng)
+	_show_shop_message("+%s gold   +%s crystals" % [
+		CurrencyCounter.format_amount(got[PlayerProfile.CURRENCY_GOLD]),
+		CurrencyCounter.format_amount(got[PlayerProfile.CURRENCY_CRYSTALS])])
+
+# --- Ponuka kariet ---
+
+# Prestavi LEN offers_row (+ _offer_tiles/_offer_buttons) — Layout/RevealPanel nechava.
+func _rebuild_offers() -> void:
+	_free_children(offers_row)
+	_offer_tiles.clear()
+	_offer_buttons.clear()
+	var offers := PlayerProfile.get_card_offers()
+	for i in offers.size():
+		offers_row.add_child(_build_offer_tile(offers[i], i))
+
+func _on_refresh_pressed() -> void:
+	var rng := RandomNumberGenerator.new()
+	rng.randomize()
+	PlayerProfile.refresh_card_offers(rng)
+
+# Ceny/kopie pozna len PlayerProfile — shop iba zobrazuje a posiela index.
+func _on_offer_buy_pressed(index: int) -> void:
+	var offers := PlayerProfile.get_card_offers()
+	if index < 0 or index >= offers.size() or offers[index]["bought"]:
+		return
+	var id: StringName = offers[index]["id"]
+	var p := PlayerProfile.get_offer_price(id)
+	if p.is_empty():
+		return
+	if PlayerProfile.buy_card_offer(index):
+		_show_shop_message("+%d %s" % [p["copies"], CardDB.get_card(id).display_name])
+	else:
+		_show_shop_message("Not enough %s" % p["currency"])
+
+# --- Data ---
 
 func _sorted_packs() -> Array[PackData]:
 	var packs: Array[PackData] = []
@@ -172,7 +217,10 @@ func _build_next_slot(hours: int) -> Control:
 		child.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	return panel
 
-func _build_offer_tile(id: StringName) -> Control:
+func _build_offer_tile(offer: Dictionary, index: int) -> Control:
+	var id: StringName = offer["id"]
+	var bought: bool = offer["bought"]
+	var p := PlayerProfile.get_offer_price(id)
 	var box := VBoxContainer.new()
 	box.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	box.add_theme_constant_override("separation", 3)
@@ -192,18 +240,33 @@ func _build_offer_tile(id: StringName) -> Control:
 	aspect.add_child(tile)
 	_offer_tiles.append(tile)
 
-	# TODO(economy): cena ponuky — zatial disabled stub
+	var currency: StringName = p.get("currency", &"gold")
+	var amount: int = p.get("price", 0)
+	var copies_label := _make_label("×%d" % p.get("copies", 1), 13, GOLD, 3)
+	copies_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	box.add_child(copies_label)
+
 	var price := Button.new()
-	price.text = "—"
-	price.disabled = true
 	price.custom_minimum_size = Vector2(0, 30)
-	_style_shop_button(price, &"gold")
-	_set_price_icon(price, &"gold")
+	_style_shop_button(price, currency)
+	if bought:
+		price.text = "SOLD"
+		price.icon = null
+		price.disabled = true
+	else:
+		price.text = CurrencyCounter.format_amount(amount)
+		_set_price_icon(price, currency)
+		price.pressed.connect(_on_offer_buy_pressed.bind(index))
+		_offer_buttons[price] = {"currency": currency, "price": amount}
+		_apply_price_color(price, PlayerProfile.can_afford(currency, amount))
 	box.add_child(price)
 
 	var panel := _make_framed_tile(box, 0.35, 6)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	if bought:
+		# cela dlazdica sivo; karta ostava tapnutelna (CardDetail)
+		panel.modulate = SOLD_TINT
 	return panel
 
 func _on_offer_tile_tapped(tile: DeckCardTile) -> void:
@@ -395,10 +458,17 @@ func _refresh_price_colors() -> void:
 	for button in _buy_buttons:
 		if is_instance_valid(button):
 			_refresh_buy_button(button, _buy_buttons[button])
+	for button in _offer_buttons:
+		if is_instance_valid(button):
+			var info: Dictionary = _offer_buttons[button]
+			_apply_price_color(button, PlayerProfile.can_afford(info["currency"], info["price"]))
 
 # Cervena cena = nestaci zostatok. Tlacidlo ostava tapnutelne (ukaze "Not enough").
 func _refresh_buy_button(button: Button, pack: PackData) -> void:
 	var affordable := pack.price <= 0 or PlayerProfile.can_afford(pack.currency, pack.price)
+	_apply_price_color(button, affordable)
+
+func _apply_price_color(button: Button, affordable: bool) -> void:
 	var color := PRICE_COLOR if affordable else UNAFFORDABLE
 	for key in ["font_color", "font_hover_color", "font_pressed_color"]:
 		button.add_theme_color_override(key, color)

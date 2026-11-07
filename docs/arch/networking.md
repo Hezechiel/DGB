@@ -73,10 +73,31 @@ No transport exists. The prepared seams:
   card_levels}` once before the match and a server validates it against the
   player's inventory. Spawn messages do not change.
 - **`PlayerProfile`'s mutation API is the server boundary** for the meta game:
-  `grant_cards()`, `upgrade_card()`, `set_deck()` become requests; `PackRoller`
-  and `DeckRules` run server-side unchanged because they take all inputs as
-  arguments. The local JSON save is a stand-in and is cheatable by design.
-  Card Detail's Upgrade button already goes through `upgrade_card()` only.
+  `grant_cards()`, `upgrade_card()`, `set_deck()`, `grant_currency()`,
+  `try_spend_currency()`, `claim_daily_reward()`, `refresh_card_offers()` and
+  `buy_card_offer()` become requests; `OfferRoller` runs server-side unchanged
+  like `PackRoller`; `PackRoller` and `DeckRules` run
+  server-side unchanged because they take all inputs as arguments. The local
+  JSON save is a stand-in and is cheatable by design. Card Detail's Upgrade
+  button already goes through `upgrade_card()` only.
+- **The server owns the wallet.** `apply_wallet_snapshot()` is the one place a
+  server-sent balance enters: at startup (`_sync_wallet_at_start()`, today fed
+  from the local save) and after any purchase response. Today a pack purchase is
+  local and three steps (`try_spend_currency` → `PackRoller.roll` →
+  `grant_cards`); with a server it becomes **one** request
+  `purchase_pack(pack_id)`: the server checks the price, deducts, rolls, grants
+  and returns the rolled ids plus the new wallet snapshot. The client never
+  sends a price.
+- **Daily reward is rolled by the server.** `claim_daily_reward(rng)` becomes a
+  `claim_daily` request: the server checks the cooldown/limit (none exists
+  today), rolls the amounts from its `DailyRewardData` and returns them plus the
+  wallet snapshot. A client-rolled reward is a reward a cheat client picks.
+- **The server owns the card offers.** Today `_offers` lives in memory per
+  session. With a server, the offer set and its bought flags are server state
+  returned at startup; `buy_card_offer(index)` becomes `buy_offer(index)` (the
+  server looks up the price in its `CardOfferChart`, deducts, grants the copies
+  and returns wallet + offer state) and `refresh_card_offers()` becomes a
+  request that will cost currency and respect a timer.
 - **Synergy is derived, not transmitted.** Both sides compute it from the same
   manifest and the same card database, so it needs no message — but it makes
   `tags`, `domain`, `faction` and the gods' synergy fields part of the database

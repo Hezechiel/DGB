@@ -5,7 +5,8 @@ extends Node
 # je aktivny (ide do zapasu). Uklada sa do user://profile.json.
 #
 # JEDINE mutacne API: grant_cards(), set_deck(), upgrade_card(), reset_profile() a penazenka
-# grant_currency(), try_spend_currency(), apply_wallet_snapshot(). Neskor sa
+# grant_currency(), try_spend_currency(), claim_daily_reward(), apply_wallet_snapshot()
+# a ponuka kariet refresh_card_offers(), buy_card_offer(). Neskor sa
 # z nich stanu server volania — nikto iny NESMIE menit zbierku ani zostatky priamo.
 # Lokalny save je cheatovatelny; pre testovanie je to v poriadku.
 # Ziadne sceny/nody — rovnaky kontrakt ako EnergySystem.
@@ -14,6 +15,8 @@ signal profile_changed
 # Zmena zostatku — LEN tento signal, nie profile_changed (Pantheon/Shop sa na
 # profile_changed prestavuju, zmena zostatku ich nesmie spustit).
 signal wallet_changed(currency: StringName, amount: int)
+# Zmena ponuky kariet v Shope (refresh / kupa).
+signal offers_changed
 
 const SAVE_PATH := "user://profile.json"
 const SAVE_VERSION := 3
@@ -21,6 +24,10 @@ const DECK_SIZE := 7
 # Ladiace cisla progresie (kopie na level, nasobice). Rovnaky resource ako
 # BattleManager.LEVEL_CURVE — cisto data, ziadna scena.
 const LEVEL_CURVE: LevelCurve = preload("res://data/progression/level_curve.tres")
+# Rozsahy dennej odmeny (zatial tester faucet) — cisto data.
+const DAILY_REWARD: DailyRewardData = preload("res://data/economy/daily_reward.tres")
+# Ponuka kariet: pocet, vahy rarit, ceny — cisto data.
+const CARD_OFFER_CHART: CardOfferChart = preload("res://data/economy/card_offers.tres")
 
 # Starter grant — prvy start (alebo poskodeny/nekompatibilny save).
 const STARTER_HERO: StringName = &"hero_zeus"
@@ -45,6 +52,9 @@ var _decks: Dictionary = {}
 var _active_hero: StringName = &""
 # currency -> int (nikdy zaporne)
 var _wallet: Dictionary = {}
+# Ponuka kariet — LEN v pamati (session). Restart = nova ponuka. TODO(server): server drzi
+# sadu aj kupene a vracia ju pri starte.
+var _offers: Array = []   # [{ "id": StringName, "bought": bool }]
 
 func _ready() -> void:
 	load_profile()
@@ -137,6 +147,26 @@ func get_currency(currency: StringName) -> int:
 func can_afford(currency: StringName, amount: int) -> bool:
 	return get_currency(currency) >= amount
 
+# Ponuka kariet (hlboka kopia). Prazdna -> prvy hod (lenivo, bez offers_changed).
+func get_card_offers() -> Array:
+	if _offers.is_empty():
+		var rng := RandomNumberGenerator.new()
+		rng.randomize()
+		_roll_offers(rng)
+	return _offers.duplicate(true)
+
+# {currency, price, copies} z CARD_OFFER_CHART podla rarity karty. Nie karta -> {}.
+func get_offer_price(card_id: StringName) -> Dictionary:
+	if not CardDB.has_card(card_id):
+		push_warning("PlayerProfile: get_offer_price neznama karta '%s'" % card_id)
+		return {}
+	var rarity := CardDB.get_card(card_id).rarity
+	return {
+		"currency": CARD_OFFER_CHART.currency_for(rarity),
+		"price": CARD_OFFER_CHART.price_for(rarity),
+		"copies": CARD_OFFER_CHART.copies_for(rarity),
+	}
+
 # --- Mutacne API ---
 
 func grant_cards(ids: Array[StringName]) -> void:
@@ -206,6 +236,47 @@ func try_spend_currency(currency: StringName, amount: int, reason: String) -> bo
 	_wallet[currency] = get_currency(currency) - amount
 	save_profile()
 	_emit_wallet(currency, -amount, reason)
+	return true
+
+# Denna odmena: hodi nahodne sumy a pripise ich. Vrati {gold: int, crystals: int}.
+# SERVER SEAM: neskor JEDEN request claim_daily — server hodi kocky, overi limit a vrati
+# sumy + novu penazenku (apply_wallet_snapshot). Klient sumy nikdy neposiela.
+func claim_daily_reward(rng: RandomNumberGenerator) -> Dictionary:
+	var gold := _roll_range(rng, DAILY_REWARD.gold_min, DAILY_REWARD.gold_max)
+	var crystals := _roll_range(rng, DAILY_REWARD.crystals_min, DAILY_REWARD.crystals_max)
+	var got := {CURRENCY_GOLD: gold, CURRENCY_CRYSTALS: crystals}
+	for currency in got:
+		_wallet[currency] = get_currency(currency) + got[currency]
+	save_profile()
+	for currency in got:
+		if got[currency] > 0:
+			_emit_wallet(currency, got[currency], "daily_reward")
+	return got
+
+# --- Ponuka kariet (mutacne API) ---
+
+# TESTER: zadarmo a bez limitu. TODO(economy): cena (REFRESH NOW 500 gold) + casovac
+func refresh_card_offers(rng: RandomNumberGenerator) -> void:
+	_roll_offers(rng)
+	offers_changed.emit()
+
+# SERVER SEAM: neskor request buy_offer(index); server overi cenu, strhne, prida kopie,
+# vrati novu penazenku + stav ponuky. Klient NIKDY neposiela cenu.
+func buy_card_offer(index: int) -> bool:
+	if index < 0 or index >= _offers.size() or _offers[index]["bought"]:
+		return false
+	var id: StringName = _offers[index]["id"]
+	var price := get_offer_price(id)
+	if price.is_empty():
+		return false
+	if not try_spend_currency(price["currency"], price["price"], "offer:%s" % id):
+		return false
+	var ids: Array[StringName] = []
+	for i in price["copies"]:
+		ids.append(id)
+	grant_cards(ids)
+	_offers[index]["bought"] = true
+	offers_changed.emit()
 	return true
 
 # SERVER SEAM: server diktuje zostatky (pri starte / po odpovedi na nakup).
@@ -367,6 +438,33 @@ func _emit_wallet(currency: StringName, delta: int, reason: String) -> void:
 	var balance := get_currency(currency)
 	DebugLog.info("wallet", "%s: %s %+d -> %d" % [reason, currency, delta, balance])
 	wallet_changed.emit(currency, balance)
+
+# Nova ponuka: vsetky karty z packov (kazdy panteon, vlastnene aj zamknute), bez bohov.
+func _roll_offers(rng: RandomNumberGenerator) -> void:
+	var pool: Dictionary = {}
+	var raw := CardDB.get_pack_pool(&"")
+	for rarity in raw:
+		if rarity == 4:
+			continue
+		var ids: Array = []
+		for id in raw[rarity]:
+			if CardDB.has_card(id):
+				ids.append(id)
+		if not ids.is_empty():
+			pool[rarity] = ids
+	_offers.clear()
+	for id in OfferRoller.roll(CARD_OFFER_CHART, rng, pool):
+		_offers.append({"id": id, "bought": false})
+
+# Nahodne cislo z <a, b>; zaporne -> 0, max < min sa prehodi.
+func _roll_range(rng: RandomNumberGenerator, a: int, b: int) -> int:
+	var lo := maxi(a, 0)
+	var hi := maxi(b, 0)
+	if hi < lo:
+		var tmp := lo
+		lo = hi
+		hi = tmp
+	return rng.randi_range(lo, hi)
 
 func _grant_one(target: Dictionary, id: StringName) -> void:
 	if target.has(id):

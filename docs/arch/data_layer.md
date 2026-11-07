@@ -39,7 +39,13 @@ data/
                                     description_template ({key} placeholders)
   packs/               PackData   — id, display_name, card_count, faction
                                     filter, rarity_weights (5), guaranteed_
-                                    min_rarity, price
+                                    min_rarity, price, currency,
+                                    chest_texture_path, shop_order
+  economy/             DailyRewardData (daily_reward.tres) — gold_min/max,
+                                    crystals_min/max
+                       CardOfferChart (card_offers.tres) — offer_count,
+                                    rarity_weights, currencies, prices,
+                                    copies (arrays indexed by rarity 0..3)
   progression/         LevelCurve — max_level, copies per level per rarity,
                                     stat multiplier per level, god attack-speed
                                     multiplier per level (one file, all tuning)
@@ -234,13 +240,18 @@ as `EnergySystem`):**
   carries the guarantee; an empty rarity falls to the nearest lower, then
   nearest higher, **never** to a rarity whose weight is 0 (so a 0 % pack can
   never give a god). Pool and RNG are arguments.
+- `OfferRoller.roll(chart, rng, pool)` (`scripts/offer_roller.gd`) — picks
+  `chart.offer_count` **distinct** card ids: weighted rarity among rarities that
+  still have ids and weight > 0, then a random id of that rarity. Gods
+  (rarity 4) are ignored; fewer cards than slots → returns what exists. Same
+  pool format as `PackRoller`; the input pool is not modified.
 - `DeckRules` — `card_tags()`, `is_card_allowed(god, card)` / `find_forbidden()`
   (god-against-card only, default allowed), `build_default_deck()`, the synergy
   trio `count_synergy_cards()` / `is_synergy_active()` /
   `is_synergy_beneficiary()`, and `describe_synergy(god)` (the one UI text for
   a rule).
 - `DebugLog.info(tag, text)` — static switch for the `[pack]` / `[profile]` /
-  `[synergy]` / `[spawn]` / `[skill]` (and UI `[menu]` / `[frame]`)
+    `[synergy]` / `[spawn]` / `[skill]` / `[wallet]` (and UI `[menu]` / `[frame]`)
   diagnostics, off by default.
 
 **Deck source.** There is exactly one: `PreMatchFlow` copies the active god,
@@ -283,15 +294,18 @@ the single source of truth for both `BattleManager.deploy_bounds` and
 
 - Autoload order: after `CardDB`, before `MapDB`/`MatchConfig`
 - **One 7-card deck per god** (`DECK_SIZE = 7`) plus the active god whose deck goes into the match
-- Saved to `user://profile.json`, `SAVE_VERSION = 2` (v1 single-deck saves migrate automatically); corrupt/incompatible save → starter grant (`STARTER_HERO = hero_zeus` + 7 `STARTER_CARDS`)
-- Read API: `owns_card`, `get_card_level`, `get_copies_to_next`, `can_upgrade`, `get_deck_hero`, `get_deck_cards`, `get_deck_for`, …
-- Each mutation saves and emits `profile_changed`. `set_deck()` validates via `DeckRules` and also makes that god active; `upgrade_card()` is the manual level up and spends copies
+- Saved to `user://profile.json`, `SAVE_VERSION = 3`. v1 (single deck) and v2 (no wallet) saves migrate automatically (`[profile] migrated save vN -> v3`) and get `STARTER_WALLET`. Corrupt/incompatible save → starter grant (`STARTER_HERO = hero_zeus` + 7 `STARTER_CARDS`) + starter wallet. Bad wallet values in a v3 save (missing, not a number, negative) clamp to 0 with a warning; the rest of the profile is kept
+- Read API: `owns_card`, `get_card_level`, `get_copies_to_next`, `can_upgrade`, `get_deck_hero`, `get_deck_cards`, `get_deck_for`, `get_currency`, `can_afford`, `get_card_offers`, `get_offer_price`, …
+- Each collection mutation saves and emits `profile_changed`. `set_deck()` validates via `DeckRules` and also makes that god active; `upgrade_card()` is the manual level up and spends copies (never currency)
+- **Wallet (Nov 2026).** Currencies `CURRENCY_GOLD` (`&"gold"`) and `CURRENCY_CRYSTALS` (`&"crystals"`), integers, never negative; `STARTER_WALLET` = 500 gold / 50 crystals (new profile, migration, `reset_profile()`). Mutations: `grant_currency(currency, amount, reason)`, `try_spend_currency(currency, amount, reason) -> bool` (amount ≤ 0 = free, succeeds without change; insufficient = false, nothing changes) and `apply_wallet_snapshot(snapshot)` — the **server seam**: replaces balances wholesale (known keys only, clamped ≥ 0, a missing key keeps its value). Each saves, logs `[wallet] <reason>: …` and emits **only** `wallet_changed(currency, amount)`, **not** `profile_changed` (Pantheon/Shop react to `profile_changed`, and a balance change must not rebuild them). At startup `load_profile()` passes the saved wallet through `_sync_wallet_at_start()` → `apply_wallet_snapshot()`; a server fetch later replaces only that function. Side effect today: one extra save per start. `_apply_starter()` never touches the wallet (it also repairs broken decks, which must not refill gold)
 
 ### Pure helpers (from CLAUDE.md)
 
 - `LevelCurve` — `stat_multiplier` per level applies to units: HP + damage; spells: damage only; gods: HP + damage. CC durations never scale
-- `PackData` (`scripts/pack_data.gd`) — `card_count`, `faction` filter, per-pack `rarity_weights`, `guaranteed_min_rarity` on the last slot, `price` (always 0 — no currency yet). Packs today: `greek_scroll_pack.tres`, `greek_cherished_pack.tres`; `data/progression/level_curve.tres` is the single `LevelCurve` used by both `PlayerProfile` and `BattleManager`
+- `PackData` (`scripts/pack_data.gd`) — `card_count`, `faction` filter, per-pack `rarity_weights`, `guaranteed_min_rarity` on the last slot (0 = none), `price` + `currency` (`&"free"` / `&"gold"` / `&"crystals"`), and Shop-only `chest_texture_path` (a String, so a pack loads before its art exists; missing file → placeholder) and `shop_order`. Packs today, in shop order: `greek_common_pack.tres` (3 cards, weights 80/17/3/0/0, no guarantee, 500 gold), `greek_scroll_pack.tres` (5 cards, Rare guaranteed, 1,200 crystals), `greek_cherished_pack.tres` (5 cards, Epic guaranteed, small god chance, 2,500 crystals). `data/progression/level_curve.tres` is the single `LevelCurve` used by both `PlayerProfile` and `BattleManager`
 - `CardDB.get_pack_pool(faction)` builds the drop pool from cards **and** gods with `obtain_source == 1`
+- **Daily reward (Nov 2026, tester faucet).** `DailyRewardData` (`scripts/daily_reward_data.gd`, `data/economy/daily_reward.tres`: gold 100–300, crystals 100–300), preloaded as `PlayerProfile.DAILY_REWARD`. `claim_daily_reward(rng) -> {gold, crystals}` rolls both amounts (max < min swapped, clamped ≥ 0), adds them with **one** save and emits `wallet_changed` per currency (`[wallet] daily_reward`). **No cooldown, no limit, nothing about claims is saved** — on purpose, so testers get currency on phones; it ships in release builds too and must get a limit before any public build
+- **Card offers (Nov 2026).** `CardOfferChart` (`scripts/card_offer_chart.gd`, `data/economy/card_offers.tres`) — `offer_count` 5, `rarity_weights` 50/30/15/5, and per rarity (index 0 Common … 3 Legendary) `currencies` gold/crystals/crystals/crystals, `prices` 300/300/600/1,500, `copies` 3/2/1/1; `currency_for()` / `price_for()` / `copies_for()` warn and fall back to the last index for an out-of-range rarity. Preloaded as `PlayerProfile.CARD_OFFER_CHART`. State `_offers` = `[{id, bought}]`, **session only** (not in `profile.json`; restart = new set; `reset_profile()` does not touch it). `get_card_offers()` rolls lazily on first call (no signal) and returns a deep copy; pool = `get_pack_pool(&"")` minus rarity 4 (any pantheon, owned or locked, no gods). `get_offer_price(id)` → `{currency, price, copies}` from the chart by the card's rarity, read **at buy time** (chart edits apply without a refresh). `refresh_card_offers(rng)` — free and unlimited (tester), emits `offers_changed`. `buy_card_offer(index) -> bool` — false for a bad index / already bought / can't afford (nothing changes); otherwise `try_spend_currency()` → one `grant_cards()` with the id repeated `copies` times → `bought = true` → `offers_changed`. The UI only ever passes an index, never a price
 - Card ids are named `card_greek_<name>` (e.g. `card_greek_hoplite`, `card_greek_storm`); gods are `hero_<name>`
 
 ### Match manifest & synergy (from CLAUDE.md)

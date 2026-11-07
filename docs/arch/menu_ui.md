@@ -33,10 +33,18 @@ draw-order pitfall in `conventions_pitfalls.md`):
   so exactly one is pressed and its `texture_pressed` marks the active tab (no
   extra art). `RewardsButton` is not a tab: it shows the coming-soon toast and
   the selected tab does not change.
-- `TopBar` (`HBoxContainer`, top edge) — `CurrencyGroup` (a `ColorRect` +
-  static `"0"` `Label`, placeholder), `MailButton`/`GiftButton` (same
-  flat-color placeholder pattern as the nav rail), `SettingsButton`
-  (`TextureButton`, opens `SettingOverlay`).
+- `TopBar` (`HBoxContainer`, top edge) — `TopBarSpacer` (expand; the **left side
+  stays empty** for a future player/level bar) | `CrystalCounter` |
+  `GoldCounter` | `MailButton` / `GiftButton` (flat-colour placeholders) |
+  `SettingsButton` (`TextureButton`, opens `SettingOverlay`). The counters are
+  instances of `scenes/menu/currency_counter.tscn` (`CurrencyCounter`,
+  `PanelContainer` dark pill: icon `assets/menu/crystal.png` /
+  `assets/menu/coin.png`, amount, "+" button). Exports `currency`, `icon`;
+  **self-subscribing** to `PlayerProfile.wallet_changed`, so nothing fills them.
+  Static `CurrencyCounter.format_amount(n)` → `"1,737"` (the Shop uses it for
+  prices too). "+" emits `add_pressed(currency)`; `main_menu.gd` answers with
+  the coming-soon toast (real-money purchases are not built). Debug **F12**:
+  +1,000 gold / +500 crystals.
 - `MainContent` (`Control`, Oct 2026 — was an `HBoxContainer`) — the page
   area between the rail and the right edge, below `TopBar` and above
   `FooterBar` (`offset_left = 166`, `offset_top = 50`, `offset_bottom = -30`),
@@ -79,8 +87,8 @@ draw-order pitfall in `conventions_pitfalls.md`):
   that closes Settings and emits `credits_requested`, which `main_menu.gd`
   answers by opening Credits — the two are never open at once. Settings and
   Credits are still wired with `[connection]` entries in `MainMenu.tscn`;
-  `CardDetail` is connected in code and opened by both the Pantheon and the
-  Deck tab's `card_detail_requested`. Known gap: in a match the HUD does not
+  `CardDetail` is connected in code and opened by the Pantheon, Deck and
+  Shop tabs' `card_detail_requested`. Known gap: in a match the HUD does not
   listen to `credits_requested`, so the Credits button there closes the pause
   screen without resuming — hide it in the arena or wire it.
 - **Tab pages** — `DeckOverlay`, `PantheonOverlay`, `ShopOverlay` (Oct 2026:
@@ -93,10 +101,46 @@ draw-order pitfall in `conventions_pitfalls.md`):
   dictionaries, `_request_tab(tab)` (button `pressed`) → `_switch_tab(tab)`
   (deactivate the old page, activate the new one; `HomeView` has no methods,
   so plain `visible`). Logs `[menu] tab: …`.
-  - `shop_overlay.gd` — lists `CardDB.list_pack_ids()`; opening a pack rolls
-    with `PackRoller`, grants through `PlayerProfile.grant_cards()` (one call
-    per pack) and shows a list reveal (NEW / +1 copy). `deactivate()` returns
-    to the pack list. Plain default-theme controls, no art yet.
+    - `shop_overlay.gd` — Shop tab (Nov 2026). Framed blocks like Pantheon/Deck
+    (`ScaledNinePatch`, margins 52/46, dark fill): **TopRow** = `DailyPanel`
+    (pouch, FREE GOLD & CRYSTALS with coin/crystal ranges from
+    `PlayerProfile.DAILY_REWARD`, CLAIM; `DailyTimer` kept but hidden) +
+    `NextRewardPanel` (4 "?" slots 2h/6h/12h/24h, still a stub);
+    **OffersPanel** (title, REFRESH, offer tiles; `OffersTimer` hidden);
+    **PacksPanel** (one framed tile per pack, sorted by `shop_order`: chest,
+    name, `N CARDS`, guarantee line, buy button). **CLAIM** calls
+    `PlayerProfile.claim_daily_reward()` and shows "+N gold   +M crystals"
+    (tester faucet, no limit). **Offers** come from
+    `PlayerProfile.get_card_offers()`; the row is rebuilt on `offers_changed`
+    (`_rebuild_offers()` — only `offers_row` / `_offer_tiles`, never the
+    reveal). Each tile: card, "×N" copies label, price button styled by the
+    chart currency (`format_amount` + coin/crystal icon, red when
+    unaffordable) → `buy_card_offer(index)` → "+N <Name>" or "Not enough …".
+    A bought offer is tinted `SOLD_TINT` (0.45 grey), its button disabled
+    "SOLD"; the card stays tappable. **REFRESH** (free style) →
+    `refresh_card_offers()`, free and unlimited (tester). The shop never
+    holds a price or calls `try_spend_currency` / `grant_cards` for offers.
+    Next-reward track is the only remaining stub.
+    Offer tiles are `DeckCardTile` (non-draggable, progress bar) in an
+    `AspectRatioContainer` whose ratio is recomputed on `resized` from the real
+    height via `width_for_height()` — not `height_for_width(1.0, …)`, because
+    `BAR_GAP` is in px, so a unit-width ratio is wrong by ~3×. **Buying:** the
+    button shows `format_amount(price)` + coin/crystal icon (`FREE` at 0),
+    price text red when `can_afford()` is false (refreshed on
+    `wallet_changed`, no rebuild). `_open_pack()` first calls
+    `try_spend_currency()`; on failure it shows "Not enough gold/crystals"
+    (`_show_shop_message`, fades after ~1.5 s) and stops; otherwise it rolls
+    with `PackRoller`, grants via `grant_cards()` (one call per pack) and swaps
+    `Layout` for the framed `RevealPanel` (NEW / +1 copy); OK or `deactivate()`
+    returns. **Taps:** offer tiles (`tapped`) and reveal entries (own tap check,
+    `TAP_MAX_DISTANCE` 10, so a swipe still scrolls; kind from
+    `has_card()`/`has_hero()`) emit `card_detail_requested(id, kind)`. On
+    `profile_changed` offer tiles only re-`setup()` (`_offer_tiles`) — **never
+    a rebuild**, since the pack grant fires `profile_changed` too and would
+    hide the reveal. Art from `res://assets/menu/shop/` (`pouch.png`, chests
+    via `PackData.chest_texture_path`, `btn_free/gold/diamond.png` by currency —
+    crystals use `btn_diamond.png`); a missing file gives a same-size
+    placeholder (magenta box with filename, or flat cyan/orange/blue button).
   - `pantheon_overlay.gd` (formerly `encyclopedia_overlay.gd`) — a faction tab
     per pantheon found in the data; sections Gods / Units / Spells of
     `DeckTile`s (locked ones tappable). Gods are listed regardless of
@@ -165,7 +209,8 @@ DeckOverlay
   the count is odd. Tile height = (scroll height − scrollbar space − row gap)
   / 2, width from `CARD_ASPECT` (0.82) via `DeckCardTile.width_for_height()`.
 - **Frames** — the two panels are framed by
-  `assets/menu/deck/frame_ninepatchrect.png` (152×127, transparent centre)
+  `assets/menu/frame_ninepatchrect.png` (152×127, transparent centre; moved
+  out of `deck/` in Nov 2026 — shared by Deck, Pantheon and Shop)
   through a `Frame` node (`ScaledNinePatch`, first child of each
   `PanelContainer`, panel stylebox `StyleBoxEmpty`), patch margins 52/46,
   `patch_scale = 0.7`, plus `fill_color` / `fill_inset` for the dark panel
@@ -286,6 +331,16 @@ text — `TextureButton` stays for icon-only buttons. Fonts: Oswald (static
 Bold / SemiBold / Medium / Regular) for card and stat UI;
 CinzelDecorative-Black for framed-screen titles and the end-of-match banner;
 Marcellus for older menus.
+**Large painted buttons** (e.g. shop buttons, 840×245 source): a
+`StyleBoxTexture` keeps `texture_margin` at full source size, so on a ~30 px
+button the top/bottom patches use up the height and only a squashed bevel
+strip shows. Instead the button's styleboxes are `StyleBoxEmpty` (content
+margins only) and the art is a `ScaledNinePatch` child
+(`show_behind_parent = true` so the text stays on top, `draw_center = true`,
+`patch_scale = 0` auto); disabled/pressed feedback via the child's
+`self_modulate`. Shop margins: `BUTTON_PATCH_X` 70 / `BUTTON_PATCH_Y` 60.
+9-slice `StyleBoxTexture` stays fine for small source art (`TabButton`,
+`GoldButton`).
 
 ### Card Detail (Oct 2026)
 
