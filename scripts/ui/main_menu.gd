@@ -16,6 +16,8 @@ extends Control
 @onready var version_label: Label = $Background/FooterBar/VersionLabel
 @onready var mail_button: TextureButton = $Background/TopBar/MailButton
 @onready var gift_button: TextureButton = $Background/TopBar/GiftButton
+@onready var crystal_counter: CurrencyCounter = $Background/TopBar/CrystalCounter
+@onready var gold_counter: CurrencyCounter = $Background/TopBar/GoldCounter
 @onready var coming_soon_toast: PanelContainer = $Background/ComingSoonToast
 @onready var coming_soon_label: Label = $Background/ComingSoonToast/ComingSoonLabel
 @onready var background: Panel = $Background
@@ -76,6 +78,9 @@ func _ready() -> void:
 	mail_button.pressed.connect(_show_coming_soon.bind("Mail"))
 	gift_button.pressed.connect(_show_coming_soon.bind("Gift"))
 	rewards_button.pressed.connect(_show_coming_soon.bind("Rewards"))
+	# Nakup meny za realne peniaze je mimo scope — zatial len toast
+	for counter in [crystal_counter, gold_counter]:
+		counter.add_pressed.connect(func(_currency: StringName): _show_coming_soon("Shop purchases"))
 	_tab_pages = {
 		Tab.HOME: home_view,
 		Tab.DECK: deck_overlay,
@@ -98,6 +103,7 @@ func _ready() -> void:
 	deck_overlay.leave_confirmed.connect(_on_deck_leave_confirmed)
 	pantheon_overlay.card_detail_requested.connect(_on_card_detail_requested)
 	deck_overlay.card_detail_requested.connect(_on_card_detail_requested)
+	shop_overlay.card_detail_requested.connect(_on_card_detail_requested)
 	card_detail.closed.connect(_on_card_detail_closed)
 	_switch_tab(Tab.HOME)
 	#setting_overlay.visible = false
@@ -252,6 +258,7 @@ func _on_exit_button_pressed() -> void:
 # F9  = reset profilu na starter
 # F10 = +1 kopia kazdej ziskatelnej karty a kazdeho boha
 # F11 = zapni/vypni DebugLog vypisy
+# F12 = +1000 zlata / +500 krystalov
 func _unhandled_key_input(event: InputEvent) -> void:
 	if not OS.is_debug_build():
 		return
@@ -272,3 +279,7 @@ func _unhandled_key_input(event: InputEvent) -> void:
 		KEY_F11:
 			DebugLog.enabled = not DebugLog.enabled
 			print("[debug] DebugLog %s" % ("ON" if DebugLog.enabled else "OFF"))
+		KEY_F12:
+			PlayerProfile.grant_currency(PlayerProfile.CURRENCY_GOLD, 1000, "debug")
+			PlayerProfile.grant_currency(PlayerProfile.CURRENCY_CRYSTALS, 500, "debug")
+			print("[debug] granted +1,000 gold / +500 crystals")

@@ -7,3 +7,7 @@ script = ExtResource("1_packdata")
 id = &"greek_scroll_pack"
 display_name = "Greek Scroll Pack"
 rarity_weights = PackedFloat32Array(70, 22, 6, 2, 0)
+price = 1200
+chest_texture_path = "res://assets/menu/shop/chest2.png"
+currency = &"crystals"
+shop_order = 1

@@ -15,5 +15,11 @@ class_name PackData
 @export var rarity_weights: PackedFloat32Array
 # POSLEDNY slot balicka ma zarucenu aspon tuto raritu. 0 = bez garancie.
 @export var guaranteed_min_rarity: int = 1
-# Cena — zatial vzdy 0, mena este neexistuje.
+# Cena v mene `currency`; <= 0 = zadarmo.
 @export var price: int = 0
+# Shop vizual — cesta k art truhlice; chyba subor -> placeholder
+@export var chest_texture_path: String = ""
+# Mena: &"free" / &"gold" / &"crystals" (urcuje aj ikonu a farbu tlacidla)
+@export var currency: StringName = &"free"
+# Poradie v shope (vzostupne)
+@export var shop_order: int = 0

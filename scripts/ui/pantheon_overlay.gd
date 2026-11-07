@@ -27,7 +27,7 @@ const TYPE_CHIPS := [
 	[TypeFilter.UNITS, "UNITS"],
 	[TypeFilter.SPELLS, "SPELLS"],
 ]
-const FRAME_TEX := preload("res://assets/menu/deck/frame_ninepatchrect.png")
+const FRAME_TEX := preload("res://assets/menu/frame_ninepatchrect.png")
 
 @export var columns: int = 6       # karty v riadku (zbaleny panteon = 1 riadok)
 

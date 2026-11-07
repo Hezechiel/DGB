@@ -1,65 +1,373 @@
 [gd_scene format=3 uid="uid://dpi30qnnldve4"]
 
 [ext_resource type="Script" uid="uid://d3goswuqbh0hc" path="res://scripts/ui/shop_overlay.gd" id="1_shop"]
+[ext_resource type="Script" uid="uid://c7kuqvyubxbjm" path="res://scripts/ui/scaled_nine_patch.gd" id="2_ninepatch"]
+[ext_resource type="Texture2D" uid="uid://c30imutueoe3n" path="res://assets/menu/frame_ninepatchrect.png" id="3_frame"]
 
-[node name="ShopOverlay" type="Control" unique_id=804787400]
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_panel"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+
+[node name="ShopOverlay" type="Control" unique_id=693896844]
+clip_contents = true
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
 script = ExtResource("1_shop")
 
-[node name="ShopPanel" type="Panel" parent="." unique_id=1038227744]
+[node name="Layout" type="VBoxContainer" parent="." unique_id=1141318481]
+unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
 
-[node name="Margin" type="MarginContainer" parent="ShopPanel" unique_id=104474361]
-layout_mode = 1
-anchors_preset = 15
-anchor_right = 1.0
-anchor_bottom = 1.0
-grow_horizontal = 2
-grow_vertical = 2
-theme_override_constants/margin_left = 24
-theme_override_constants/margin_top = 24
-theme_override_constants/margin_right = 24
-theme_override_constants/margin_bottom = 24
-
-[node name="Content" type="VBoxContainer" parent="ShopPanel/Margin" unique_id=2074062206]
+[node name="TopRow" type="HBoxContainer" parent="Layout" unique_id=1571258373]
 layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.9
+mouse_filter = 2
+theme_override_constants/separation = 6
 
-[node name="Header" type="HBoxContainer" parent="ShopPanel/Margin/Content" unique_id=923824510]
-layout_mode = 2
-
-[node name="TitleLabel" type="Label" parent="ShopPanel/Margin/Content/Header" unique_id=1129813305]
+[node name="DailyPanel" type="PanelContainer" parent="Layout/TopRow" unique_id=1091112498]
 layout_mode = 2
 size_flags_horizontal = 3
-text = "Shop"
+size_flags_stretch_ratio = 2.2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_panel")
 
-[node name="PackList" type="VBoxContainer" parent="ShopPanel/Margin/Content" unique_id=184915722]
+[node name="Frame" type="Control" parent="Layout/TopRow/DailyPanel" unique_id=1831194938]
+texture_filter = 2
 layout_mode = 2
+mouse_filter = 2
+script = ExtResource("2_ninepatch")
+texture = ExtResource("3_frame")
+patch_margin_left = 52
+patch_margin_top = 46
+patch_margin_right = 52
+patch_margin_bottom = 46
+patch_scale = 0.5
+fill_color = Color(0.05, 0.07, 0.12, 0.86)
+fill_inset = 3.0
 
-[node name="RevealBox" type="VBoxContainer" parent="ShopPanel/Margin/Content" unique_id=455828252]
+[node name="Margin" type="MarginContainer" parent="Layout/TopRow/DailyPanel" unique_id=1190277208]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="DailyBox" type="HBoxContainer" parent="Layout/TopRow/DailyPanel/Margin" unique_id=1939774815]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+
+[node name="PouchHolder" type="Control" parent="Layout/TopRow/DailyPanel/Margin/DailyBox" unique_id=1629909882]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(72, 72)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+
+[node name="DailyTexts" type="VBoxContainer" parent="Layout/TopRow/DailyPanel/Margin/DailyBox" unique_id=1189239396]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_constants/separation = -2
+alignment = 1
+
+[node name="DailyTitle" type="Label" parent="Layout/TopRow/DailyPanel/Margin/DailyBox/DailyTexts" unique_id=1998684285]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.05, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 16
+text = "DAILY FREE REWARD"
+text_overrun_behavior = 3
+
+[node name="DailyKind" type="Label" parent="Layout/TopRow/DailyPanel/Margin/DailyBox/DailyTexts" unique_id=714999234]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.05, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 20
+text = "FREE GOLD"
+text_overrun_behavior = 3
+
+[node name="DailyAmount" type="Label" parent="Layout/TopRow/DailyPanel/Margin/DailyBox/DailyTexts" unique_id=286145830]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 14
+text = "100 – 300"
+text_overrun_behavior = 3
+
+[node name="DailyClaim" type="VBoxContainer" parent="Layout/TopRow/DailyPanel/Margin/DailyBox" unique_id=2095365400]
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="DailyTimer" type="Label" parent="Layout/TopRow/DailyPanel/Margin/DailyBox/DailyClaim" unique_id=115643030]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 11
+text = "Refreshes in: --:--:--"
+horizontal_alignment = 1
+
+[node name="ClaimButton" type="Button" parent="Layout/TopRow/DailyPanel/Margin/DailyBox/DailyClaim" unique_id=1873393777]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 34)
+layout_mode = 2
+disabled = true
+text = "CLAIM"
+
+[node name="NextRewardPanel" type="PanelContainer" parent="Layout/TopRow" unique_id=1645427356]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_panel")
+
+[node name="Frame" type="Control" parent="Layout/TopRow/NextRewardPanel" unique_id=2065439626]
+texture_filter = 2
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("2_ninepatch")
+texture = ExtResource("3_frame")
+patch_margin_left = 52
+patch_margin_top = 46
+patch_margin_right = 52
+patch_margin_bottom = 46
+patch_scale = 0.5
+fill_color = Color(0.05, 0.07, 0.12, 0.86)
+fill_inset = 3.0
+
+[node name="Margin" type="MarginContainer" parent="Layout/TopRow/NextRewardPanel" unique_id=122321407]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="NextBox" type="VBoxContainer" parent="Layout/TopRow/NextRewardPanel/Margin" unique_id=100724029]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="NextTitle" type="Label" parent="Layout/TopRow/NextRewardPanel/Margin/NextBox" unique_id=1093591289]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.05, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 16
+text = "NEXT REWARD"
+text_overrun_behavior = 3
+
+[node name="NextSlots" type="HBoxContainer" parent="Layout/TopRow/NextRewardPanel/Margin/NextBox" unique_id=1932819057]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="OffersPanel" type="PanelContainer" parent="Layout" unique_id=987277605]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 1.6
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_panel")
+
+[node name="Frame" type="Control" parent="Layout/OffersPanel" unique_id=694988437]
+texture_filter = 2
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("2_ninepatch")
+texture = ExtResource("3_frame")
+patch_margin_left = 52
+patch_margin_top = 46
+patch_margin_right = 52
+patch_margin_bottom = 46
+patch_scale = 0.5
+fill_color = Color(0.05, 0.07, 0.12, 0.86)
+fill_inset = 3.0
+
+[node name="Margin" type="MarginContainer" parent="Layout/OffersPanel" unique_id=1617656201]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="OffersBox" type="VBoxContainer" parent="Layout/OffersPanel/Margin" unique_id=1211159310]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="OffersHeader" type="HBoxContainer" parent="Layout/OffersPanel/Margin/OffersBox" unique_id=1256578664]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 12
+
+[node name="OffersTitle" type="Label" parent="Layout/OffersPanel/Margin/OffersBox/OffersHeader" unique_id=961183772]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.05, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 18
+text = "CARD OFFERS"
+
+[node name="OffersTimer" type="Label" parent="Layout/OffersPanel/Margin/OffersBox/OffersHeader" unique_id=936257309]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 11
+text = "Refreshes in: --:--:--"
+vertical_alignment = 1
+
+[node name="OffersSpacer" type="Control" parent="Layout/OffersPanel/Margin/OffersBox/OffersHeader" unique_id=1996585850]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="RefreshButton" type="Button" parent="Layout/OffersPanel/Margin/OffersBox/OffersHeader" unique_id=1881757550]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 30)
+layout_mode = 2
+disabled = true
+text = "REFRESH"
+
+[node name="OffersRow" type="HBoxContainer" parent="Layout/OffersPanel/Margin/OffersBox" unique_id=14751916]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="PacksPanel" type="PanelContainer" parent="Layout" unique_id=407973653]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 1.8
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_panel")
+
+[node name="Frame" type="Control" parent="Layout/PacksPanel" unique_id=654350447]
+texture_filter = 2
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("2_ninepatch")
+texture = ExtResource("3_frame")
+patch_margin_left = 52
+patch_margin_top = 46
+patch_margin_right = 52
+patch_margin_bottom = 46
+patch_scale = 0.5
+fill_color = Color(0.05, 0.07, 0.12, 0.86)
+fill_inset = 3.0
+
+[node name="Margin" type="MarginContainer" parent="Layout/PacksPanel" unique_id=14775157]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="PacksBox" type="VBoxContainer" parent="Layout/PacksPanel/Margin" unique_id=1956024139]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="PacksTitle" type="Label" parent="Layout/PacksPanel/Margin/PacksBox" unique_id=1679287258]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.05, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 18
+text = "CARD PACKS"
+text_overrun_behavior = 3
+
+[node name="PacksRow" type="HBoxContainer" parent="Layout/PacksPanel/Margin/PacksBox" unique_id=1019229690]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="RevealPanel" type="PanelContainer" parent="." unique_id=922084121]
+unique_name_in_owner = true
 visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_panel")
+
+[node name="Frame" type="Control" parent="RevealPanel" unique_id=748576206]
+texture_filter = 2
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("2_ninepatch")
+texture = ExtResource("3_frame")
+patch_margin_left = 52
+patch_margin_top = 46
+patch_margin_right = 52
+patch_margin_bottom = 46
+patch_scale = 0.5
+fill_color = Color(0.05, 0.07, 0.12, 0.86)
+fill_inset = 3.0
+
+[node name="Margin" type="MarginContainer" parent="RevealPanel" unique_id=1451285792]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="RevealBox" type="VBoxContainer" parent="RevealPanel/Margin" unique_id=659739688]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="RevealTitle" type="Label" parent="RevealPanel/Margin/RevealBox" unique_id=1805094137]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.05, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+text_overrun_behavior = 3
+
+[node name="RevealScroll" type="ScrollContainer" parent="RevealPanel/Margin/RevealBox" unique_id=1293233919]
 layout_mode = 2
 size_flags_vertical = 3
+vertical_scroll_mode = 0
 
-[node name="RevealTitle" type="Label" parent="ShopPanel/Margin/Content/RevealBox" unique_id=122753025]
+[node name="RevealList" type="HBoxContainer" parent="RevealPanel/Margin/RevealBox/RevealScroll" unique_id=449593390]
+unique_name_in_owner = true
 layout_mode = 2
-
-[node name="RevealScroll" type="ScrollContainer" parent="ShopPanel/Margin/Content/RevealBox" unique_id=1837988263]
-layout_mode = 2
+size_flags_horizontal = 6
 size_flags_vertical = 3
+theme_override_constants/separation = 12
 
-[node name="RevealList" type="HBoxContainer" parent="ShopPanel/Margin/Content/RevealBox/RevealScroll" unique_id=1799258503]
+[node name="RevealOkButton" type="Button" parent="RevealPanel/Margin/RevealBox" unique_id=807303027]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 34)
 layout_mode = 2
-
-[node name="RevealOkButton" type="Button" parent="ShopPanel/Margin/Content/RevealBox" unique_id=374618066]
-layout_mode = 2
+size_flags_horizontal = 4
 text = "OK"

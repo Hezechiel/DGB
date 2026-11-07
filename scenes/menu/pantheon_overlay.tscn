@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://dt28cm03cgvtj" path="res://scripts/ui/pantheon_overlay.gd" id="1_vm7ul"]
 [ext_resource type="Script" uid="uid://c7kuqvyubxbjm" path="res://scripts/ui/scaled_nine_patch.gd" id="2_ninepatch"]
-[ext_resource type="Texture2D" uid="uid://c30imutueoe3n" path="res://assets/menu/deck/frame_ninepatchrect.png" id="3_frame"]
+[ext_resource type="Texture2D" uid="uid://c30imutueoe3n" path="res://assets/menu/frame_ninepatchrect.png" id="3_frame"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_panel"]
 content_margin_left = 0.0

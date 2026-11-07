@@ -5,7 +5,7 @@
 [ext_resource type="Texture2D" uid="uid://c4plb8sa3irt3" path="res://assets/menu/deck/tab_active.png" id="6_tab_active"]
 [ext_resource type="Texture2D" uid="uid://dwbbv8bcsprhg" path="res://assets/menu/deck/tab_inactive.png" id="7_tab_inactive"]
 [ext_resource type="Script" uid="uid://c7kuqvyubxbjm" path="res://scripts/ui/scaled_nine_patch.gd" id="8_ninepatch"]
-[ext_resource type="Texture2D" uid="uid://c30imutueoe3n" path="res://assets/menu/deck/frame_ninepatchrect.png" id="9_frame"]
+[ext_resource type="Texture2D" uid="uid://c30imutueoe3n" path="res://assets/menu/frame_ninepatchrect.png" id="9_frame"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_panel"]
 content_margin_left = 0.0

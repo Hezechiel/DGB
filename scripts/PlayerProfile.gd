@@ -4,15 +4,19 @@ extends Node
 # a balicky — JEDEN balicek (DECK_SIZE kariet) pre KAZDEHO boha + ktory boh
 # je aktivny (ide do zapasu). Uklada sa do user://profile.json.
 #
-# JEDINE mutacne API: grant_cards(), set_deck(), upgrade_card(), reset_profile(). Neskor sa
-# z nich stanu server volania — nikto iny NESMIE menit zbierku priamo.
+# JEDINE mutacne API: grant_cards(), set_deck(), upgrade_card(), reset_profile() a penazenka
+# grant_currency(), try_spend_currency(), apply_wallet_snapshot(). Neskor sa
+# z nich stanu server volania — nikto iny NESMIE menit zbierku ani zostatky priamo.
 # Lokalny save je cheatovatelny; pre testovanie je to v poriadku.
 # Ziadne sceny/nody — rovnaky kontrakt ako EnergySystem.
 
 signal profile_changed
+# Zmena zostatku — LEN tento signal, nie profile_changed (Pantheon/Shop sa na
+# profile_changed prestavuju, zmena zostatku ich nesmie spustit).
+signal wallet_changed(currency: StringName, amount: int)
 
 const SAVE_PATH := "user://profile.json"
-const SAVE_VERSION := 2
+const SAVE_VERSION := 3
 const DECK_SIZE := 7
 # Ladiace cisla progresie (kopie na level, nasobice). Rovnaky resource ako
 # BattleManager.LEVEL_CURVE — cisto data, ziadna scena.
@@ -26,6 +30,12 @@ const STARTER_CARDS: Array[StringName] = [
 	&"card_greek_storm", &"card_greek_stun",
 ]
 
+const CURRENCY_GOLD: StringName = &"gold"
+const CURRENCY_CRYSTALS: StringName = &"crystals"
+const CURRENCIES: Array[StringName] = [CURRENCY_GOLD, CURRENCY_CRYSTALS]
+# Startovacia penazenka — novy profil, reset aj migracia starych saveov
+const STARTER_WALLET := {&"gold": 500, &"crystals": 50}
+
 # id -> {"level": int, "copies": int}. copies = duplikaty NAD prvy kus.
 var _cards: Dictionary = {}
 var _heroes: Dictionary = {}
@@ -33,6 +43,8 @@ var _heroes: Dictionary = {}
 var _decks: Dictionary = {}
 # Boh, s ktorym sa ide do zapasu. Jeho balicek je "aktivny".
 var _active_hero: StringName = &""
+# currency -> int (nikdy zaporne)
+var _wallet: Dictionary = {}
 
 func _ready() -> void:
 	load_profile()
@@ -118,6 +130,13 @@ func get_deck_for(hero_id: StringName) -> Array[StringName]:
 	var pool := _card_datas(owned_ids)
 	return DeckRules.build_default_deck(CardDB.get_hero(hero_id), base, pool, DECK_SIZE)
 
+# Neznama mena -> 0.
+func get_currency(currency: StringName) -> int:
+	return _wallet.get(currency, 0)
+
+func can_afford(currency: StringName, amount: int) -> bool:
+	return get_currency(currency) >= amount
+
 # --- Mutacne API ---
 
 func grant_cards(ids: Array[StringName]) -> void:
@@ -161,8 +180,63 @@ func reset_profile() -> void:
 	_decks.clear()
 	_active_hero = &""
 	_apply_starter()
+	_wallet = STARTER_WALLET.duplicate()
 	save_profile()
 	profile_changed.emit()
+	for currency in CURRENCIES:
+		wallet_changed.emit(currency, get_currency(currency))
+
+# --- Penazenka (mutacne API) ---
+# Neskor sa z nich stanu server requesty, rovnako ako grant_cards().
+
+func grant_currency(currency: StringName, amount: int, reason: String) -> void:
+	if amount <= 0 or not CURRENCIES.has(currency):
+		push_warning("PlayerProfile: grant_currency neplatne '%s' %d (%s) — preskakujem" % [currency, amount, reason])
+		return
+	_wallet[currency] = get_currency(currency) + amount
+	save_profile()
+	_emit_wallet(currency, amount, reason)
+
+# false (a nic nezmeni) ak nestaci zostatok. amount <= 0 = zadarmo -> true.
+func try_spend_currency(currency: StringName, amount: int, reason: String) -> bool:
+	if amount <= 0:
+		return true
+	if not can_afford(currency, amount):
+		return false
+	_wallet[currency] = get_currency(currency) - amount
+	save_profile()
+	_emit_wallet(currency, -amount, reason)
+	return true
+
+# SERVER SEAM: server diktuje zostatky (pri starte / po odpovedi na nakup).
+# Nahradi zostatky naraz: citaju sa len CURRENCIES kluce (String aj StringName),
+# hodnoty int, zaporne/necislo -> 0. Chybajuci kluc necha sucasnu hodnotu.
+func apply_wallet_snapshot(snapshot: Dictionary) -> void:
+	var changed := false
+	for currency in CURRENCIES:
+		var raw: Variant = null
+		if snapshot.has(currency):
+			raw = snapshot[currency]
+		elif snapshot.has(String(currency)):
+			raw = snapshot[String(currency)]
+		else:
+			continue
+		var value := 0
+		if raw is int or raw is float:
+			value = int(raw)
+			if value < 0:
+				push_warning("PlayerProfile: zaporny zostatok %s=%d — nastavujem 0" % [currency, value])
+				value = 0
+		else:
+			push_warning("PlayerProfile: neplatny zostatok %s=%s — nastavujem 0" % [currency, raw])
+		var old := get_currency(currency)
+		if value == old and _wallet.has(currency):
+			continue
+		_wallet[currency] = value
+		changed = true
+		_emit_wallet(currency, value - old, "snapshot")
+	if changed:
+		save_profile()
 
 # --- Persistencia ---
 
@@ -179,12 +253,16 @@ func save_profile() -> void:
 		for id in _decks[hero_id]:
 			ids_out.append(String(id))
 		decks_out[String(hero_id)] = ids_out
+	var wallet_out := {}
+	for currency in CURRENCIES:
+		wallet_out[String(currency)] = get_currency(currency)
 	var data := {
 		"save_version": SAVE_VERSION,
 		"cards": cards_out,
 		"heroes": heroes_out,
 		"active_hero": String(_active_hero),
 		"decks": decks_out,
+		"wallet": wallet_out,
 	}
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file == null:
@@ -198,10 +276,15 @@ func load_profile() -> void:
 	_heroes.clear()
 	_decks.clear()
 	_active_hero = &""
+	# cisty zaklad, na ktory sa aplikuje snapshot zo savu
+	_wallet.clear()
+	for currency in CURRENCIES:
+		_wallet[currency] = 0
 
 	if not FileAccess.file_exists(SAVE_PATH):
 		# prvy start
 		_apply_starter()
+		_wallet = STARTER_WALLET.duplicate()
 		save_profile()
 		_check_content()
 		_print_summary()
@@ -210,9 +293,10 @@ func load_profile() -> void:
 	var text := FileAccess.get_file_as_string(SAVE_PATH)
 	var parsed: Variant = JSON.parse_string(text)
 	var version := int(parsed.get("save_version", -1)) if parsed is Dictionary else -1
-	if version != 1 and version != SAVE_VERSION:
+	if version != 1 and version != 2 and version != SAVE_VERSION:
 		push_warning("PlayerProfile: poskodeny alebo nekompatibilny save — obnovujem starter profil")
 		_apply_starter()
+		_wallet = STARTER_WALLET.duplicate()
 		save_profile()
 		_check_content()
 		_print_summary()
@@ -252,12 +336,37 @@ func load_profile() -> void:
 		_apply_starter(true)
 		needs_save = true
 
+	# Penazenka: v1/v2 ju nemali -> starter. Zle hodnoty orezava apply_wallet_snapshot,
+	# profil sa kvoli zlej penazenke NEresetuje.
+	var saved_wallet: Dictionary = {}
+	if version < 3:
+		saved_wallet = STARTER_WALLET.duplicate()
+		DebugLog.info("profile", "migrated save v%d -> v3" % version)
+		needs_save = true
+	else:
+		var wallet_raw: Variant = parsed.get("wallet")
+		if wallet_raw is Dictionary:
+			saved_wallet = wallet_raw
+		else:
+			push_warning("PlayerProfile: save nema platnu penazenku — zostatky 0")
+	_sync_wallet_at_start(saved_wallet)
+
 	if needs_save:
 		save_profile()
 	_check_content()
 	_print_summary()
 
+# TODO(server): pri starte server posle penazenku; zatial je "server" lokalny save.
+# Sietovy fetch nahradi len tuto funkciu.
+func _sync_wallet_at_start(saved_wallet: Dictionary) -> void:
+	apply_wallet_snapshot(saved_wallet)
+
 # --- Interne ---
+
+func _emit_wallet(currency: StringName, delta: int, reason: String) -> void:
+	var balance := get_currency(currency)
+	DebugLog.info("wallet", "%s: %s %+d -> %d" % [reason, currency, delta, balance])
+	wallet_changed.emit(currency, balance)
 
 func _grant_one(target: Dictionary, id: StringName) -> void:
 	if target.has(id):
@@ -343,3 +452,5 @@ func _read_owned(raw: Variant, target: Dictionary, is_card: bool) -> void:
 func _print_summary() -> void:
 	DebugLog.info("profile", "active_hero=%s deck=%s saved_decks=%d owned_cards=%d owned_heroes=%d" % [
 		_active_hero, get_deck_cards(), _decks.size(), _cards.size(), _heroes.size()])
+	DebugLog.info("profile", "wallet gold=%d crystals=%d" % [
+		get_currency(CURRENCY_GOLD), get_currency(CURRENCY_CRYSTALS)])

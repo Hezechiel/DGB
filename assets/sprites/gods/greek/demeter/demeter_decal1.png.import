@@ -2,9 +2,9 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c30imutueoe3n"
-path.s3tc="res://.godot/imported/frame_ninepatchrect.png-bb8e2c2756ebbd4d612ec8804975dd64.s3tc.ctex"
-path.etc2="res://.godot/imported/frame_ninepatchrect.png-bb8e2c2756ebbd4d612ec8804975dd64.etc2.ctex"
+uid="uid://dr4013x5wk14m"
+path.s3tc="res://.godot/imported/demeter_decal1.png-2808eae10ecb8e571d925277827ea7a4.s3tc.ctex"
+path.etc2="res://.godot/imported/demeter_decal1.png-2808eae10ecb8e571d925277827ea7a4.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://assets/menu/deck/frame_ninepatchrect.png"
-dest_files=["res://.godot/imported/frame_ninepatchrect.png-bb8e2c2756ebbd4d612ec8804975dd64.s3tc.ctex", "res://.godot/imported/frame_ninepatchrect.png-bb8e2c2756ebbd4d612ec8804975dd64.etc2.ctex"]
+source_file="res://assets/sprites/gods/greek/demeter/demeter_decal1.png"
+dest_files=["res://.godot/imported/demeter_decal1.png-2808eae10ecb8e571d925277827ea7a4.s3tc.ctex", "res://.godot/imported/demeter_decal1.png-2808eae10ecb8e571d925277827ea7a4.etc2.ctex"]
 
 [params]
 
