@@ -23,7 +23,7 @@ grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_shop")
 
-[node name="Layout" type="VBoxContainer" parent="." unique_id=1141318481]
+[node name="ShopScroll" type="ScrollContainer" parent="." unique_id=1300000001]
 unique_name_in_owner = true
 layout_mode = 1
 anchors_preset = 15
@@ -31,24 +31,31 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-mouse_filter = 2
-theme_override_constants/separation = 6
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 3
+scroll_deadzone = 8
 
-[node name="TopRow" type="HBoxContainer" parent="Layout" unique_id=1571258373]
+[node name="Layout" type="VBoxContainer" parent="ShopScroll" unique_id=1141318481]
+unique_name_in_owner = true
 layout_mode = 2
-size_flags_vertical = 3
-size_flags_stretch_ratio = 0.9
+size_flags_horizontal = 3
 mouse_filter = 2
 theme_override_constants/separation = 6
 
-[node name="DailyPanel" type="PanelContainer" parent="Layout/TopRow" unique_id=1091112498]
+[node name="TopRow" type="HBoxContainer" parent="ShopScroll/Layout" unique_id=1571258373]
+custom_minimum_size = Vector2(0, 100)
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="DailyPanel" type="PanelContainer" parent="ShopScroll/Layout/TopRow" unique_id=1091112498]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_stretch_ratio = 2.2
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_panel")
 
-[node name="Frame" type="Control" parent="Layout/TopRow/DailyPanel" unique_id=1831194938]
+[node name="Frame" type="Control" parent="ShopScroll/Layout/TopRow/DailyPanel" unique_id=1831194938]
 texture_filter = 2
 layout_mode = 2
 mouse_filter = 2
@@ -62,7 +69,7 @@ patch_scale = 0.5
 fill_color = Color(0.05, 0.07, 0.12, 0.86)
 fill_inset = 3.0
 
-[node name="Margin" type="MarginContainer" parent="Layout/TopRow/DailyPanel" unique_id=1190277208]
+[node name="Margin" type="MarginContainer" parent="ShopScroll/Layout/TopRow/DailyPanel" unique_id=1190277208]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/margin_left = 12
@@ -70,26 +77,26 @@ theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 12
 theme_override_constants/margin_bottom = 8
 
-[node name="DailyBox" type="HBoxContainer" parent="Layout/TopRow/DailyPanel/Margin" unique_id=1939774815]
+[node name="DailyBox" type="HBoxContainer" parent="ShopScroll/Layout/TopRow/DailyPanel/Margin" unique_id=1939774815]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 12
 
-[node name="PouchHolder" type="Control" parent="Layout/TopRow/DailyPanel/Margin/DailyBox" unique_id=1629909882]
+[node name="PouchHolder" type="Control" parent="ShopScroll/Layout/TopRow/DailyPanel/Margin/DailyBox" unique_id=1629909882]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(72, 72)
 layout_mode = 2
 size_flags_vertical = 4
 mouse_filter = 2
 
-[node name="DailyTexts" type="VBoxContainer" parent="Layout/TopRow/DailyPanel/Margin/DailyBox" unique_id=1189239396]
+[node name="DailyTexts" type="VBoxContainer" parent="ShopScroll/Layout/TopRow/DailyPanel/Margin/DailyBox" unique_id=1189239396]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 theme_override_constants/separation = -2
 alignment = 1
 
-[node name="DailyTitle" type="Label" parent="Layout/TopRow/DailyPanel/Margin/DailyBox/DailyTexts" unique_id=1998684285]
+[node name="DailyTitle" type="Label" parent="ShopScroll/Layout/TopRow/DailyPanel/Margin/DailyBox/DailyTexts" unique_id=1998684285]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.8, 0.35, 1)
 theme_override_colors/font_outline_color = Color(0.1, 0.05, 0, 1)
@@ -98,7 +105,7 @@ theme_override_font_sizes/font_size = 16
 text = "DAILY FREE REWARD"
 text_overrun_behavior = 3
 
-[node name="DailyKind" type="Label" parent="Layout/TopRow/DailyPanel/Margin/DailyBox/DailyTexts" unique_id=714999234]
+[node name="DailyKind" type="Label" parent="ShopScroll/Layout/TopRow/DailyPanel/Margin/DailyBox/DailyTexts" unique_id=714999234]
 unique_name_in_owner = true
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.8, 0.35, 1)
@@ -108,17 +115,17 @@ theme_override_font_sizes/font_size = 20
 text = "FREE GOLD & CRYSTALS"
 text_overrun_behavior = 3
 
-[node name="DailyAmounts" type="VBoxContainer" parent="Layout/TopRow/DailyPanel/Margin/DailyBox/DailyTexts" unique_id=286145830]
+[node name="DailyAmounts" type="VBoxContainer" parent="ShopScroll/Layout/TopRow/DailyPanel/Margin/DailyBox/DailyTexts" unique_id=286145830]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 0
 
-[node name="GoldRow" type="HBoxContainer" parent="Layout/TopRow/DailyPanel/Margin/DailyBox/DailyTexts/DailyAmounts" unique_id=1402736591]
+[node name="GoldRow" type="HBoxContainer" parent="ShopScroll/Layout/TopRow/DailyPanel/Margin/DailyBox/DailyTexts/DailyAmounts" unique_id=1402736591]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 4
 
-[node name="GoldIcon" type="TextureRect" parent="Layout/TopRow/DailyPanel/Margin/DailyBox/DailyTexts/DailyAmounts/GoldRow" unique_id=1517390246]
+[node name="GoldIcon" type="TextureRect" parent="ShopScroll/Layout/TopRow/DailyPanel/Margin/DailyBox/DailyTexts/DailyAmounts/GoldRow" unique_id=1517390246]
 texture_filter = 4
 custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
@@ -127,7 +134,7 @@ texture = ExtResource("4_coin")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="GoldRange" type="Label" parent="Layout/TopRow/DailyPanel/Margin/DailyBox/DailyTexts/DailyAmounts/GoldRow" unique_id=1628403917]
+[node name="GoldRange" type="Label" parent="ShopScroll/Layout/TopRow/DailyPanel/Margin/DailyBox/DailyTexts/DailyAmounts/GoldRow" unique_id=1628403917]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -136,12 +143,12 @@ theme_override_font_sizes/font_size = 14
 text = "100 – 300"
 text_overrun_behavior = 3
 
-[node name="CrystalRow" type="HBoxContainer" parent="Layout/TopRow/DailyPanel/Margin/DailyBox/DailyTexts/DailyAmounts" unique_id=1739514028]
+[node name="CrystalRow" type="HBoxContainer" parent="ShopScroll/Layout/TopRow/DailyPanel/Margin/DailyBox/DailyTexts/DailyAmounts" unique_id=1739514028]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 4
 
-[node name="CrystalIcon" type="TextureRect" parent="Layout/TopRow/DailyPanel/Margin/DailyBox/DailyTexts/DailyAmounts/CrystalRow" unique_id=1840625139]
+[node name="CrystalIcon" type="TextureRect" parent="ShopScroll/Layout/TopRow/DailyPanel/Margin/DailyBox/DailyTexts/DailyAmounts/CrystalRow" unique_id=1840625139]
 texture_filter = 4
 custom_minimum_size = Vector2(18, 18)
 layout_mode = 2
@@ -150,7 +157,7 @@ texture = ExtResource("5_crystal")
 expand_mode = 1
 stretch_mode = 5
 
-[node name="CrystalRange" type="Label" parent="Layout/TopRow/DailyPanel/Margin/DailyBox/DailyTexts/DailyAmounts/CrystalRow" unique_id=1951736240]
+[node name="CrystalRange" type="Label" parent="ShopScroll/Layout/TopRow/DailyPanel/Margin/DailyBox/DailyTexts/DailyAmounts/CrystalRow" unique_id=1951736240]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 3
@@ -159,13 +166,13 @@ theme_override_font_sizes/font_size = 14
 text = "100 – 300"
 text_overrun_behavior = 3
 
-[node name="DailyClaim" type="VBoxContainer" parent="Layout/TopRow/DailyPanel/Margin/DailyBox" unique_id=2095365400]
+[node name="DailyClaim" type="VBoxContainer" parent="ShopScroll/Layout/TopRow/DailyPanel/Margin/DailyBox" unique_id=2095365400]
 layout_mode = 2
 size_flags_vertical = 4
 mouse_filter = 2
 theme_override_constants/separation = 4
 
-[node name="DailyTimer" type="Label" parent="Layout/TopRow/DailyPanel/Margin/DailyBox/DailyClaim" unique_id=115643030]
+[node name="DailyTimer" type="Label" parent="ShopScroll/Layout/TopRow/DailyPanel/Margin/DailyBox/DailyClaim" unique_id=115643030]
 visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.85, 0.85, 0.9, 1)
@@ -173,19 +180,19 @@ theme_override_font_sizes/font_size = 11
 text = "Refreshes in: --:--:--"
 horizontal_alignment = 1
 
-[node name="ClaimButton" type="Button" parent="Layout/TopRow/DailyPanel/Margin/DailyBox/DailyClaim" unique_id=1873393777]
+[node name="ClaimButton" type="Button" parent="ShopScroll/Layout/TopRow/DailyPanel/Margin/DailyBox/DailyClaim" unique_id=1873393777]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(110, 34)
 layout_mode = 2
 text = "CLAIM"
 
-[node name="NextRewardPanel" type="PanelContainer" parent="Layout/TopRow" unique_id=1645427356]
+[node name="NextRewardPanel" type="PanelContainer" parent="ShopScroll/Layout/TopRow" unique_id=1645427356]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_panel")
 
-[node name="Frame" type="Control" parent="Layout/TopRow/NextRewardPanel" unique_id=2065439626]
+[node name="Frame" type="Control" parent="ShopScroll/Layout/TopRow/NextRewardPanel" unique_id=2065439626]
 texture_filter = 2
 layout_mode = 2
 mouse_filter = 2
@@ -199,7 +206,7 @@ patch_scale = 0.5
 fill_color = Color(0.05, 0.07, 0.12, 0.86)
 fill_inset = 3.0
 
-[node name="Margin" type="MarginContainer" parent="Layout/TopRow/NextRewardPanel" unique_id=122321407]
+[node name="Margin" type="MarginContainer" parent="ShopScroll/Layout/TopRow/NextRewardPanel" unique_id=122321407]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/margin_left = 12
@@ -207,12 +214,12 @@ theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 12
 theme_override_constants/margin_bottom = 8
 
-[node name="NextBox" type="VBoxContainer" parent="Layout/TopRow/NextRewardPanel/Margin" unique_id=100724029]
+[node name="NextBox" type="VBoxContainer" parent="ShopScroll/Layout/TopRow/NextRewardPanel/Margin" unique_id=100724029]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 4
 
-[node name="NextTitle" type="Label" parent="Layout/TopRow/NextRewardPanel/Margin/NextBox" unique_id=1093591289]
+[node name="NextTitle" type="Label" parent="ShopScroll/Layout/TopRow/NextRewardPanel/Margin/NextBox" unique_id=1093591289]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.8, 0.35, 1)
 theme_override_colors/font_outline_color = Color(0.1, 0.05, 0, 1)
@@ -221,21 +228,20 @@ theme_override_font_sizes/font_size = 16
 text = "NEXT REWARD"
 text_overrun_behavior = 3
 
-[node name="NextSlots" type="HBoxContainer" parent="Layout/TopRow/NextRewardPanel/Margin/NextBox" unique_id=1932819057]
+[node name="NextSlots" type="HBoxContainer" parent="ShopScroll/Layout/TopRow/NextRewardPanel/Margin/NextBox" unique_id=1932819057]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 2
 theme_override_constants/separation = 6
 
-[node name="OffersPanel" type="PanelContainer" parent="Layout" unique_id=987277605]
+[node name="OffersPanel" type="PanelContainer" parent="ShopScroll/Layout" unique_id=987277605]
+custom_minimum_size = Vector2(0, 300)
 layout_mode = 2
-size_flags_vertical = 3
-size_flags_stretch_ratio = 1.6
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_panel")
 
-[node name="Frame" type="Control" parent="Layout/OffersPanel" unique_id=694988437]
+[node name="Frame" type="Control" parent="ShopScroll/Layout/OffersPanel" unique_id=694988437]
 texture_filter = 2
 layout_mode = 2
 mouse_filter = 2
@@ -249,7 +255,7 @@ patch_scale = 0.5
 fill_color = Color(0.05, 0.07, 0.12, 0.86)
 fill_inset = 3.0
 
-[node name="Margin" type="MarginContainer" parent="Layout/OffersPanel" unique_id=1617656201]
+[node name="Margin" type="MarginContainer" parent="ShopScroll/Layout/OffersPanel" unique_id=1617656201]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/margin_left = 12
@@ -257,17 +263,17 @@ theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 12
 theme_override_constants/margin_bottom = 8
 
-[node name="OffersBox" type="VBoxContainer" parent="Layout/OffersPanel/Margin" unique_id=1211159310]
+[node name="OffersBox" type="VBoxContainer" parent="ShopScroll/Layout/OffersPanel/Margin" unique_id=1211159310]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 4
 
-[node name="OffersHeader" type="HBoxContainer" parent="Layout/OffersPanel/Margin/OffersBox" unique_id=1256578664]
+[node name="OffersHeader" type="HBoxContainer" parent="ShopScroll/Layout/OffersPanel/Margin/OffersBox" unique_id=1256578664]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 12
 
-[node name="OffersTitle" type="Label" parent="Layout/OffersPanel/Margin/OffersBox/OffersHeader" unique_id=961183772]
+[node name="OffersTitle" type="Label" parent="ShopScroll/Layout/OffersPanel/Margin/OffersBox/OffersHeader" unique_id=961183772]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.8, 0.35, 1)
 theme_override_colors/font_outline_color = Color(0.1, 0.05, 0, 1)
@@ -275,7 +281,7 @@ theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 18
 text = "CARD OFFERS"
 
-[node name="OffersTimer" type="Label" parent="Layout/OffersPanel/Margin/OffersBox/OffersHeader" unique_id=936257309]
+[node name="OffersTimer" type="Label" parent="ShopScroll/Layout/OffersPanel/Margin/OffersBox/OffersHeader" unique_id=936257309]
 visible = false
 layout_mode = 2
 theme_override_colors/font_color = Color(0.85, 0.85, 0.9, 1)
@@ -283,32 +289,31 @@ theme_override_font_sizes/font_size = 11
 text = "Refreshes in: --:--:--"
 vertical_alignment = 1
 
-[node name="OffersSpacer" type="Control" parent="Layout/OffersPanel/Margin/OffersBox/OffersHeader" unique_id=1996585850]
+[node name="OffersSpacer" type="Control" parent="ShopScroll/Layout/OffersPanel/Margin/OffersBox/OffersHeader" unique_id=1996585850]
 layout_mode = 2
 size_flags_horizontal = 3
 mouse_filter = 2
 
-[node name="RefreshButton" type="Button" parent="Layout/OffersPanel/Margin/OffersBox/OffersHeader" unique_id=1881757550]
+[node name="RefreshButton" type="Button" parent="ShopScroll/Layout/OffersPanel/Margin/OffersBox/OffersHeader" unique_id=1881757550]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(110, 30)
 layout_mode = 2
 text = "REFRESH"
 
-[node name="OffersRow" type="HBoxContainer" parent="Layout/OffersPanel/Margin/OffersBox" unique_id=14751916]
+[node name="OffersRow" type="HBoxContainer" parent="ShopScroll/Layout/OffersPanel/Margin/OffersBox" unique_id=14751916]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
 mouse_filter = 2
 theme_override_constants/separation = 6
 
-[node name="PacksPanel" type="PanelContainer" parent="Layout" unique_id=407973653]
+[node name="PacksPanel" type="PanelContainer" parent="ShopScroll/Layout" unique_id=407973653]
+custom_minimum_size = Vector2(0, 185)
 layout_mode = 2
-size_flags_vertical = 3
-size_flags_stretch_ratio = 1.8
 mouse_filter = 2
 theme_override_styles/panel = SubResource("StyleBoxEmpty_panel")
 
-[node name="Frame" type="Control" parent="Layout/PacksPanel" unique_id=654350447]
+[node name="Frame" type="Control" parent="ShopScroll/Layout/PacksPanel" unique_id=654350447]
 texture_filter = 2
 layout_mode = 2
 mouse_filter = 2
@@ -322,7 +327,7 @@ patch_scale = 0.5
 fill_color = Color(0.05, 0.07, 0.12, 0.86)
 fill_inset = 3.0
 
-[node name="Margin" type="MarginContainer" parent="Layout/PacksPanel" unique_id=14775157]
+[node name="Margin" type="MarginContainer" parent="ShopScroll/Layout/PacksPanel" unique_id=14775157]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/margin_left = 12
@@ -330,12 +335,12 @@ theme_override_constants/margin_top = 8
 theme_override_constants/margin_right = 12
 theme_override_constants/margin_bottom = 8
 
-[node name="PacksBox" type="VBoxContainer" parent="Layout/PacksPanel/Margin" unique_id=1956024139]
+[node name="PacksBox" type="VBoxContainer" parent="ShopScroll/Layout/PacksPanel/Margin" unique_id=1956024139]
 layout_mode = 2
 mouse_filter = 2
 theme_override_constants/separation = 4
 
-[node name="PacksTitle" type="Label" parent="Layout/PacksPanel/Margin/PacksBox" unique_id=1679287258]
+[node name="PacksTitle" type="Label" parent="ShopScroll/Layout/PacksPanel/Margin/PacksBox" unique_id=1679287258]
 layout_mode = 2
 theme_override_colors/font_color = Color(1, 0.8, 0.35, 1)
 theme_override_colors/font_outline_color = Color(0.1, 0.05, 0, 1)
@@ -344,7 +349,7 @@ theme_override_font_sizes/font_size = 18
 text = "CARD PACKS"
 text_overrun_behavior = 3
 
-[node name="PacksRow" type="HBoxContainer" parent="Layout/PacksPanel/Margin/PacksBox" unique_id=1019229690]
+[node name="PacksRow" type="HBoxContainer" parent="ShopScroll/Layout/PacksPanel/Margin/PacksBox" unique_id=1019229690]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3

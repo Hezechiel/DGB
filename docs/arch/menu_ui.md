@@ -102,7 +102,23 @@ draw-order pitfall in `conventions_pitfalls.md`):
   (deactivate the old page, activate the new one; `HomeView` has no methods,
   so plain `visible`). Logs `[menu] tab: …`.
     - `shop_overlay.gd` — Shop tab (Nov 2026). Framed blocks like Pantheon/Deck
-    (`ScaledNinePatch`, margins 52/46, dark fill): **TopRow** = `DailyPanel`
+    (`ScaledNinePatch`, margins 52/46, dark fill). **Scrolling (Nov 2026):**
+    the whole content scrolls vertically by drag — `ShopScroll`
+    (ScrollContainer, full rect, horizontal off, `vertical_scroll_mode = 3`
+    SHOW_NEVER, `scroll_deadzone = 8` like Pantheon's `SectionsScroll`) holds
+    `Layout`; `RevealPanel` stays outside it. Panels have fixed heights set in
+    the scene (editable in the editor), not stretch ratios: `TopRow` 100,
+    `OffersPanel` 300, `PacksPanel` 185 px (~600 px vs ~460 visible).
+    `activate()` resets `scroll_vertical = 0`. Pack view ↔ reveal toggles
+    `shop_scroll.visible` (not `layout.visible`). **Drag guard:** every Button
+    in the scroll (CLAIM, REFRESH, offer price, pack buy) goes through
+    `_style_shop_button()` → `mouse_filter = PASS` (a drag that starts on a
+    button still scrolls) + `button_down` → `_on_shop_button_down()` stores
+    `scroll_vertical`; `_on_claim_pressed`, `_on_refresh_pressed`,
+    `_on_offer_buy_pressed` and `_open_pack` start with
+    `if _scrolled_since_press(): return` (scroll moved > `TAP_MAX_DISTANCE`
+    between down and pressed → not a tap, nothing bought).
+    **TopRow** = `DailyPanel`
     (pouch, FREE GOLD & CRYSTALS with coin/crystal ranges from
     `PlayerProfile.DAILY_REWARD`, CLAIM; `DailyTimer` kept but hidden) +
     `NextRewardPanel` (4 "?" slots 2h/6h/12h/24h, still a stub);
@@ -122,16 +138,18 @@ draw-order pitfall in `conventions_pitfalls.md`):
     holds a price or calls `try_spend_currency` / `grant_cards` for offers.
     Next-reward track is the only remaining stub.
     Offer tiles are `DeckCardTile` (non-draggable, progress bar) in an
-    `AspectRatioContainer` whose ratio is recomputed on `resized` from the real
-    height via `width_for_height()` — not `height_for_width(1.0, …)`, because
-    `BAR_GAP` is in px, so a unit-width ratio is wrong by ~3×. **Buying:** the
+    `AspectRatioContainer` with a fixed `ratio = CARD_ASPECT` (0.82) — the tile
+    is the card only, the progress bar is drawn inside it (Nov 2026; the old
+    `resized`-driven ratio and the `BAR_GAP` workaround are gone). **Buying:** the
     button shows `format_amount(price)` + coin/crystal icon (`FREE` at 0),
     price text red when `can_afford()` is false (refreshed on
     `wallet_changed`, no rebuild). `_open_pack()` first calls
     `try_spend_currency()`; on failure it shows "Not enough gold/crystals"
-    (`_show_shop_message`, fades after ~1.5 s) and stops; otherwise it rolls
+    (`_show_shop_message`, fades after ~1.5 s, centred on the visible shop
+    area — `get_global_rect()` — since the packs may be scrolled out of view
+    and ShopOverlay clips) and stops; otherwise it rolls
     with `PackRoller`, grants via `grant_cards()` (one call per pack) and swaps
-    `Layout` for the framed `RevealPanel` (NEW / +1 copy); OK or `deactivate()`
+    `ShopScroll` for the framed `RevealPanel` (NEW / +1 copy); OK or `deactivate()`
     returns. **Taps:** offer tiles (`tapped`) and reveal entries (own tap check,
     `TAP_MAX_DISTANCE` 10, so a swipe still scrolls; kind from
     `has_card()`/`has_hero()`) emit `card_detail_requested(id, kind)`. On
@@ -169,7 +187,7 @@ pixels):
 ```
 DeckOverlay
 └── Layout (VBoxContainer)
-    ├── GodShowcase      god idle animation (GodSprite) or card_art (GodArt) — view mode only
+    ├── GodShowcase      god idle animation (GodSprite, zoomed to the top third) or card_art (GodArt) — view mode only
     ├── DeckPanel        Frame + Margin/DeckBox/{Header, SlotGrid}
     └── CollectionPanel  Frame + Margin/CollectionBox/{CollectionHeader (the bar), PoolScroll/PoolGrid}
 ```
@@ -193,6 +211,25 @@ DeckOverlay
     (export, 1.2), edit `CollectionPanel : DeckPanel =
     edit_collection_ratio : 1` (export, 1.3); in view mode
     `CollectionPanel` drops `EXPAND` so it collapses to the bar.
+- **God showcase zoom (Nov 2026)** — `_layout_showcase()` (rerun on
+  `GodShowcase.resized` and from `_update_showcase()`) no longer fits the
+  whole idle frame: scale = showcase height / (frame height ×
+  `showcase_visible_fraction`), so by default (0.33) the **top third** of the
+  frame (head + chest) fills the showcase, the frame's top edge sits at the
+  showcase top, and the rest of the body extends down **behind** `DeckPanel`
+  / `CollectionPanel` (later siblings in `Layout`, so they draw on top; no
+  `clip_contents` on `GodShowcase`) — the legs may run past the screen
+  bottom. Exports on DeckOverlay: `showcase_visible_fraction` (0.1–1.0;
+  1.0 = whole god fits again), `showcase_top_crop` (fraction of the frame
+  height cut from the top for transparent air above the head, default 0),
+  `showcase_x` (horizontal centre, 0.5). The math reads the sprite's real
+  top edge / centre from `centered` and `offset`, and the frame size from
+  frame 0 of the current animation. `GodSprite` uses `texture_filter =
+  LINEAR` (scaled ~1.5× up; the Nearest project default gave uneven pixels).
+  The tuning is global, not per god; the `GodArt` (`card_art`) fallback still
+  uses the plain fit. Panel fills are 0.86 alpha, so the body shows faintly
+  through the panels and in the 6 px gaps; ticking `clip_contents` on
+  `GodShowcase` crops it at the showcase edge instead.
 - **Collection** — `PoolGrid` (`GridContainer`) inside a horizontal-only
   `PoolScroll`, **two rows** (`POOL_ROWS`), filled **column by column** so the
   sort order (gods first under ALL, then owned → cost → id, locked last)
@@ -216,15 +253,31 @@ DeckOverlay
   `patch_scale = 0.7`, plus `fill_color` / `fill_inset` for the dark panel
   fill under the frame (inset in source px, scaled like the patches). Cards
   have **their own painted frame** in the art: `DeckCardTile` draws the art
-  whole (`KEEP_ASPECT_CENTERED`, no crop) and only overlays the cost badge
-  (top-left), the pantheon logo, `Lv. N`, the status (LOCKED / FORBIDDEN)
-  and, in the collection, the copies progress bar. The **logo** sits in the
-  bottom-right corner, large (`LOGO_SIZE` 0.5 of card width) and partly past
-  the card edge (`LOGO_OVERHANG` 0.25), cropped at the card's outer edge by a
-  `clip_contents` `_logo_clip` the size of the card (so it never covers the
-  progress bar). `Lv. N` is drawn **over** the logo with an outline of
-  `LEVEL_OUTLINE_RATIO` (0.45) × font size. A dedicated painted corner asset
-  can replace the code crop later if needed.
+  whole (`KEEP_ASPECT_CENTERED`, no crop); **the tile is the card only**
+  (Nov 2026 redesign, shared by Deck, Pantheon and Shop). Every overlay is
+  anchored to `_card_rect()` — the rect the texture really occupies after the
+  aspect fit (whole tile when there is no art) — so nothing sticks out past
+  the painted frame; `_art_clip` / `_art` still span the whole tile (the drag
+  preview relies on it). Overlays, sizes as fractions of card width:
+  **cost badge** top-left and **pantheon logo** top-right, same square size
+  (`BADGE_SIZE` 0.3) and inset (`BADGE_INSET` 0.03), logo kept to its aspect,
+  no overhang/clip any more (`logo_for()` / `LOGO_PATH` unchanged).
+  Bottom overlay, inset `SIDE_INSET` 0.04 / `BOTTOM_INSET` 0.03:
+  **InfoStrip** at the very bottom (`STRIP_H` 0.13, dark `OVERLAY_BG`) —
+  `Lv N` at the left (no dot; hidden when locked), then `UpgradeArrow` (inner
+  class, green arrow drawn with `draw_colored_polygon`, no asset; visible only
+  with `show_progress` when `copies >= need`, not MAX, not locked), and the
+  copies bar + `5 / 4` in the remaining part (`LV_SEGMENT` 0.42 is the Lv
+  share); **NameBanner** right above it (`BANNER_H` 0.17) — upper-case
+  `display_name` (card or god) in Oswald Bold, gold border, trimmed with an
+  ellipsis. Bar states: locked → empty + `—`, MAX → full gold + `MAX`,
+  upgradable → `BAR_READY` green, else `BAR_NORMAL` blue. Without
+  `show_progress` (deck slots) the strip shows only an empty bar and `Lv N`
+  — same geometry everywhere. `show_progress` is on in the Deck collection
+  (`in_pool`), Pantheon and Shop. The status label (LOCKED / FORBIDDEN /
+  IN DECK) stays mid-card. `width_for_height()` / `height_for_width()` keep
+  their signatures but ignore `with_progress` (plain `card_aspect` math);
+  `BAR_RATIO` / `BAR_GAP` / `LOGO_SIZE` / `LOGO_OVERHANG` were removed.
 - **Input (both modes):** **tap** on any tile (deck slot or collection;
   owned, locked or forbidden) emits `card_detail_requested(id, kind)`, which
   `main_menu.gd` answers with the same fullscreen `CardDetail` overlay the

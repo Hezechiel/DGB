@@ -400,6 +400,19 @@
 - **A tap inside a scrolling list needs a distance check.** `DeckTile` only
   counts a release within 10 px of the press; otherwise a finger that scrolled
   the pool selects whatever tile it lifts off.
+- **A `Button` inside a `ScrollContainer` needs `mouse_filter = PASS` plus a
+  scroll-delta guard.** With the default STOP a drag that starts on the
+  button never reaches the scroll; with PASS it scrolls, but the button can
+  still fire `pressed` when the finger lifts over it. The Shop stores
+  `scroll_vertical` on `button_down` and every pressed handler returns early
+  when it moved by more than `TAP_MAX_DISTANCE` (`_scrolled_since_press()`).
+  Custom tiles (`DeckTile`, `FilterChip`, reveal entries) use the distance
+  check above instead.
+- **Overlays on art drawn with `KEEP_ASPECT_CENTERED` anchor to the drawn
+  rect, not the control rect.** When the card art's aspect differs from the
+  tile, the control rect includes empty bands; `DeckCardTile._card_rect()`
+  computes the fitted rect from the texture size so badges, banner and strip
+  stay inside the painted frame.
 - **`self_modulate` to tint a control without tinting its children.**
   `SynergyIcon` greys the circle and count but leaves its tooltip readable;
   Card Detail's close button darkens itself on press the same way.

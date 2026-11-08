@@ -62,7 +62,7 @@ const POUCH_SLOT := Vector2(72, 72)
 const NEXT_REWARD_HOURS := [2, 6, 12, 24]
 const TAP_MAX_DISTANCE := 10.0     # rovnako ako DeckCardTile / Pantheon
 
-@onready var layout: VBoxContainer = %Layout
+@onready var shop_scroll: ScrollContainer = %ShopScroll   # cely obsah shopu (Layout) scrolluje tahom
 @onready var pouch_holder: Control = %PouchHolder
 @onready var claim_button: Button = %ClaimButton
 @onready var daily_kind: Label = %DailyKind
@@ -83,6 +83,7 @@ var _buy_buttons: Dictionary = {}   # Button -> PackData
 var _offer_buttons: Dictionary = {} # Button -> {currency, price} (len nekupene ponuky)
 var _message_label: Label
 var _message_tween: Tween
+var _press_scroll_y: int = 0   # scroll pri stlaceni tlacidla
 
 func _ready() -> void:
 	visible = false
@@ -117,6 +118,7 @@ func activate() -> void:
 		packs_row.add_child(_build_pack_tile(pack))
 
 	_show_pack_view()
+	shop_scroll.scroll_vertical = 0   # shop sa otvara navrchu
 	visible = true
 
 func deactivate() -> void:
@@ -124,8 +126,23 @@ func deactivate() -> void:
 	visible = false
 
 func _show_pack_view() -> void:
-	layout.visible = true
+	shop_scroll.visible = true
 	reveal_panel.visible = false
+
+# --- Drag guard (tlacidla v ShopScroll) ---
+
+# PASS: tah zacaty na tlacidle stale scrolluje ShopScroll
+func _guard_shop_button(button: Button) -> void:
+	button.mouse_filter = Control.MOUSE_FILTER_PASS
+	if not button.button_down.is_connected(_on_shop_button_down):
+		button.button_down.connect(_on_shop_button_down)
+
+func _on_shop_button_down() -> void:
+	_press_scroll_y = shop_scroll.scroll_vertical
+
+# true = medzi down a pressed sa scrollovalo -> nie je to tap
+func _scrolled_since_press() -> bool:
+	return absi(shop_scroll.scroll_vertical - _press_scroll_y) > int(TAP_MAX_DISTANCE)
 
 # --- Denna odmena ---
 
@@ -141,6 +158,7 @@ func _range_text(lo: int, hi: int) -> String:
 
 # Zostatky v top bare a farby cien sa obnovia samy cez wallet_changed.
 func _on_claim_pressed() -> void:
+	if _scrolled_since_press(): return
 	var rng := RandomNumberGenerator.new()
 	rng.randomize()
 	var got := PlayerProfile.claim_daily_reward(rng)
@@ -160,12 +178,14 @@ func _rebuild_offers() -> void:
 		offers_row.add_child(_build_offer_tile(offers[i], i))
 
 func _on_refresh_pressed() -> void:
+	if _scrolled_since_press(): return
 	var rng := RandomNumberGenerator.new()
 	rng.randomize()
 	PlayerProfile.refresh_card_offers(rng)
 
 # Ceny/kopie pozna len PlayerProfile — shop iba zobrazuje a posiela index.
 func _on_offer_buy_pressed(index: int) -> void:
+	if _scrolled_since_press(): return
 	var offers := PlayerProfile.get_card_offers()
 	if index < 0 or index >= offers.size() or offers[index]["bought"]:
 		return
@@ -229,7 +249,7 @@ func _build_offer_tile(offer: Dictionary, index: int) -> Control:
 	var aspect := AspectRatioContainer.new()
 	aspect.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	aspect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	aspect.resized.connect(_on_offer_aspect_resized.bind(aspect))
+	aspect.ratio = CARD_ASPECT   # dlazdica = len karta (progres je v nej)
 	box.add_child(aspect)
 
 	var tile := DeckCardTile.new()
@@ -279,13 +299,6 @@ func _on_profile_changed() -> void:
 	for tile in _offer_tiles:
 		if is_instance_valid(tile):
 			tile.setup(tile.item_id, tile.kind, -1)
-
-func _on_offer_aspect_resized(aspect: AspectRatioContainer) -> void:
-	# pomer z realnej vysky — BAR_GAP je v px, pri sirke 1.0 by pomer ulietol
-	var h := aspect.size.y
-	if h <= 0.0:
-		return
-	aspect.ratio = DeckCardTile.width_for_height(h, CARD_ASPECT, true) / h
 
 func _build_pack_tile(pack: PackData) -> Control:
 	var hbox := HBoxContainer.new()
@@ -347,6 +360,7 @@ func _make_guarantee_label(min_rarity: int) -> Control:
 # --- Reveal / otvorenie balicka ---
 
 func _open_pack(pack_id: StringName) -> void:
+	if _scrolled_since_press(): return
 	var pack := CardDB.get_pack(pack_id)
 	if pack == null:
 		return
@@ -377,7 +391,7 @@ func _open_pack(pack_id: StringName) -> void:
 		reveal_list.add_child(_build_reveal_entry(rolled[i], is_new[i]))
 
 	reveal_title.text = pack.display_name if not rolled.is_empty() else "Nothing to reveal"
-	layout.visible = false
+	shop_scroll.visible = false
 	reveal_panel.visible = true
 
 func _build_reveal_entry(id: StringName, is_new: bool) -> Control:
@@ -473,7 +487,8 @@ func _apply_price_color(button: Button, affordable: bool) -> void:
 	for key in ["font_color", "font_hover_color", "font_pressed_color"]:
 		button.add_theme_color_override(key, color)
 
-# Kratka sprava nad radom balickov; opakovane volanie ju restartuje.
+# Kratka sprava v strede viditelnej plochy shopu (balicky mozu byt odscrollovane);
+# opakovane volanie ju restartuje.
 func _show_shop_message(text: String) -> void:
 	if _message_label == null:
 		_message_label = _make_label("", 18, GOLD, 4)
@@ -494,7 +509,7 @@ func _show_shop_message(text: String) -> void:
 		add_child(_message_label)
 	_message_label.text = text
 	_message_label.reset_size()
-	_message_label.global_position = packs_row.get_global_rect().get_center() - _message_label.size / 2
+	_message_label.global_position = get_global_rect().get_center() - _message_label.size / 2
 	_message_label.modulate.a = 1.0
 	_message_label.visible = true
 	if _message_tween != null:
@@ -538,6 +553,7 @@ func _art_or_placeholder(path: String, min_size: Vector2) -> Control:
 func _style_shop_button(button: Button, currency: StringName) -> void:
 	var path: String = BUTTON_PATHS.get(currency, BUTTON_PATHS[&"free"])
 	var tex := _texture_or_null(path)
+	_guard_shop_button(button)
 	button.add_theme_font_override("font", BOLD_FONT)
 	button.add_theme_font_size_override("font_size", 16)
 	button.add_theme_color_override("font_color", Color(1.0, 0.96, 0.85))

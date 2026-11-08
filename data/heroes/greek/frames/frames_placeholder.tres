@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" format=3]
+[gd_resource type="SpriteFrames" format=3 uid="uid://bgkjechkte5i4"]
 
 [ext_resource type="Texture2D" uid="uid://bexim5k216bdq" path="res://assets/sprites/gods/attack.png" id="1_wuu07"]
 [ext_resource type="Texture2D" uid="uid://damj0bt3ra1m1" path="res://assets/sprites/gods/iddle.png" id="1_x6ls8"]

@@ -54,6 +54,12 @@ const SHOWCASE_ANIMS: Array[StringName] = [&"iddle_left", &"idle_left"]
 @export var hold_to_drag_time: float = 1.0
 # Idle animacie su "_left" — true otoci boha smerom ku kartam.
 @export var showcase_flip_h: bool = false
+# Kolko z vysky idle framu vyplni vysku GodShowcase (0.33 = horna tretina).
+@export_range(0.1, 1.0, 0.01) var showcase_visible_fraction: float = 0.33
+# Podiel vysky framu odrezany zhora (priehladny vzduch nad hlavou v sheete).
+@export_range(0.0, 0.5, 0.01) var showcase_top_crop: float = 0.0
+# Horizontalna pozicia stredu postavy v GodShowcase (0.5 = stred).
+@export_range(0.0, 1.0, 0.01) var showcase_x: float = 0.5
 # View mod: pomer vysky DeckPanel voci avataru boha (GodShowcase = 1.0).
 @export var view_deck_ratio: float = 1.2
 # Edit mod: pomer vysky CollectionPanel voci DeckPanel (DeckPanel = 1.0).
@@ -417,7 +423,8 @@ func _find_idle_anim(frames: SpriteFrames) -> StringName:
 			return anim
 	return &""
 
-# Node2D v Control sa neprisposobuje sam — vycentrujeme a zmensime rucne.
+# Node2D v Control sa neprisposobuje sam — zoom na hornu cast framu, kotva hore.
+# Zvysok tela ide dole ZA DeckPanel / CollectionPanel (neskorsi surodenci v Layout).
 func _layout_showcase() -> void:
 	var area := god_showcase.size
 	god_sprite.position = area * 0.5
@@ -427,8 +434,13 @@ func _layout_showcase() -> void:
 	if tex == null or area.x <= 0.0 or area.y <= 0.0:
 		return
 	var fs := tex.get_size()
-	var s := minf(area.x / fs.x, area.y / fs.y)
+	var s := area.y / (fs.y * showcase_visible_fraction)
 	god_sprite.scale = Vector2(s, s)
+	# lokalna horna hrana a stred framu (centered / offset — rata aj s nedefaultnym)
+	var top_local := god_sprite.offset.y - (fs.y * 0.5 if god_sprite.centered else 0.0)
+	var mid_x_local := god_sprite.offset.x + (0.0 if god_sprite.centered else fs.x * 0.5)
+	god_sprite.position = Vector2(area.x * showcase_x - mid_x_local * s,
+		-top_local * s - fs.y * s * showcase_top_crop)
 
 # --- Poradie kolekcie ---
 

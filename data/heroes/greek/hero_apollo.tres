@@ -1,10 +1,10 @@
 [gd_resource type="Resource" script_class="HeroData" format=3 uid="uid://bqy6275wey3c3"]
 
+[ext_resource type="Texture2D" uid="uid://di7j7qbkpqcia" path="res://assets/sprites/gods/greek/apollo/apollo_decal1.png" id="1_3wnrw"]
 [ext_resource type="Script" uid="uid://dieg62n05urgy" path="res://scripts/arena/hero_data.gd" id="1_herodata"]
 [ext_resource type="PackedScene" uid="uid://dyxn10n333b4k" path="res://scenes/arena/projectiles/projectile.tscn" id="2_bolt"]
-[ext_resource type="SpriteFrames" path="res://data/heroes/greek/frames/frames_placeholder.tres" id="3_frames"]
-[ext_resource type="Texture2D" uid="uid://bkcer3j5iq8fd" path="res://assets/sprites/gods/card.png" id="4_cardart"]
-[ext_resource type="Resource" path="res://data/heroes/greek/skills/skill_apollo_solar_flare.tres" id="5_skill"]
+[ext_resource type="SpriteFrames" uid="uid://bgkjechkte5i4" path="res://data/heroes/greek/frames/frames_placeholder.tres" id="3_frames"]
+[ext_resource type="Resource" uid="uid://ddvy42e2tov21" path="res://data/heroes/greek/skills/skill_apollo_solar_flare.tres" id="5_skill"]
 
 [resource]
 script = ExtResource("1_herodata")
@@ -13,8 +13,8 @@ display_name = "Apollo"
 attack_range = 110.0
 projectile_scene = ExtResource("2_bolt")
 sprite_frames = ExtResource("3_frames")
-domain = &"olympus"
 obtain_source = 1
+domain = &"olympus"
 description = "God of the sun and master of the bow, Apollo strikes from farther away than any other. His radiant arrows burn through enemy ranks in a single blazing line, sparing no one in their path."
-card_art = ExtResource("4_cardart")
+card_art = ExtResource("1_3wnrw")
 skill = ExtResource("5_skill")

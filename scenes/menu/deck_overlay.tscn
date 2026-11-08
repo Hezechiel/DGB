@@ -22,6 +22,7 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 script = ExtResource("1_deck")
+showcase_visible_fraction = 0.53
 
 [node name="Layout" type="VBoxContainer" parent="." unique_id=423946139]
 layout_mode = 1
@@ -55,6 +56,7 @@ stretch_mode = 5
 
 [node name="GodSprite" type="AnimatedSprite2D" parent="Layout/GodShowcase" unique_id=203694312]
 unique_name_in_owner = true
+texture_filter = 2
 
 [node name="DeckPanel" type="PanelContainer" parent="Layout" unique_id=1863673106]
 unique_name_in_owner = true
@@ -337,4 +339,3 @@ size_flags_vertical = 0
 mouse_filter = 2
 theme_override_constants/h_separation = 8
 theme_override_constants/v_separation = 6
-columns = 1

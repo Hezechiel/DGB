@@ -414,14 +414,23 @@ are mock data (`MatchConfig`).
     blue free, orange gold, dark blue crystals).
   Prices turn red when you can't afford them and a tap then says "Not enough
   gold/crystals". The pack reveal lists each scroll as NEW or +1 copy; tapping
-  an offer card or a revealed card opens its card detail.
+  an offer card or a revealed card opens its card detail. The whole shop
+  scrolls up and down by dragging, so the card offers can be shown large; a
+  drag that starts on a price button only scrolls and never buys.
+- **Card look in menus** (Deck, Pantheon, Shop — one design everywhere): the
+  card art with its painted frame, energy cost top-left, pantheon emblem
+  top-right, and over the bottom of the card the card's name and a strip with
+  its level ("Lv 2") and copies progress ("5 / 4"). A green up-arrow next to
+  the level means the card can be upgraded; a maxed card shows "MAX". Deck
+  slots show the name and level only, without the progress.
 - **Pantheon** (rail tab): every god and card of a pantheon, owned and locked.
   Tapping one opens its **card detail** — art, level, copies progress,
   description, battle stats with a "current > next level" preview, skill text
     for gods — and the level-up button lives there. The card detail opens from
   the Pantheon, Deck and Shop tabs; still missing in the match HUD.
 - **Deck screen** (rail tab): two modes. **View** shows the god's avatar on
-  top and the deck below it — the god plus seven scrolls in one row, with the
+  top — zoomed in on the upper body, the rest of the figure standing behind
+  the deck panels — and the deck below it — the god plus seven scrolls in one row, with the
   synergy count and average energy cost — and a short bar with an **Edit**
   button. **Edit** hides the avatar, moves the deck up and opens the **card
   collection** in two scrolling rows with ALL / UNITS / SPELLS filters. The

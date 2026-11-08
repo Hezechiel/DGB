@@ -1,13 +1,17 @@
 extends Control
 class_name DeckCardTile
 
-# DeckCardTile — karta v Deck obrazovke (sloty balicka aj Card Collection).
-# Art karty ma vlastny namalovany ram — zobrazi sa CELY (keep aspect, bez
-# orezu). Dlazdica cez neho len kresli overlay: cost badge vlavo hore, velke
-# logo panteonu v pravom dolnom rohu (cast vytrca cez okraj karty a je
-# orezana), nad nim "Lv. N" vpravo dole, status (IN DECK / LOCKED /
-# FORBIDDEN) a volitelne progres kopii pod kartou (len v kolekcii). Vsetky rozmery sa pocitaju
-# z aktualnej velkosti — kartu len natiahne/zmensi rodicovsky kontajner.
+# DeckCardTile — karta v Deck obrazovke (sloty balicka aj Card Collection),
+# v Pantheon encyklopedii a v ponuke Shopu. Art karty ma vlastny namalovany
+# ram — zobrazi sa CELY (keep aspect, bez orezu); dlazdica = len karta.
+# Vsetky overlaye sa kotvia k realne vykreslenemu artu (_card_rect), takze nic
+# netrci cez namalovany ram:
+#   cost badge vlavo hore, logo panteonu vpravo hore (rovnako velke ako badge),
+#   dole cez kartu NameBanner (meno) a pod nim InfoStrip: "Lv N" vlavo,
+#   zelena sipka (da sa vylepsit), progres kopii "5 / 4" (len show_progress;
+#   bez neho len prazdny bar + "Lv N"). Status (IN DECK / LOCKED / FORBIDDEN)
+#   v strede. Vsetky rozmery sa pocitaju z aktualnej velkosti — kartu len
+#   natiahne/zmensi rodicovsky kontajner.
 #
 # Vstup (gesta):
 #   tap      — kazda karta (aj locked / forbidden) -> signal tapped (Card Detail)
@@ -34,20 +38,44 @@ const LOGO_PATH := "res://assets/menu/logos/logo_%s.png"
 const TAP_MAX_DISTANCE := 10.0
 # Kym neubehne tento cas, drzanie sa vizualne neprejavuje (bezny tap neblika).
 const HOLD_FEEDBACK_DELAY := 0.15
-# Podiel vysky dlazdice pre progres bar (len show_progress).
-const BAR_RATIO := 0.14
-const BAR_GAP := 3.0
-# Logo panteonu v pravom dolnom rohu — vacsie, cast vytrca cez okraj karty
-# a je orezana (_logo_clip). Ladit podla artu.
-const LOGO_SIZE := 0.5        # sirka loga ako podiel sirky karty
-const LOGO_OVERHANG := 0.25   # podiel loga, ktory vytrca vpravo aj dole (orezane)
-# Hrubka obrysu "Lv. N" ako podiel velkosti fontu — citatelne aj nad logom.
+# Badge (cost vlavo, logo vpravo) a jeho odsadenie od okraja — podiel sirky karty.
+const BADGE_SIZE := 0.3
+const BADGE_INSET := 0.03
+# Spodny overlay (podiel sirky karty). Ladit podla artu.
+const STRIP_H := 0.13        # InfoStrip: Lv + sipka + progres
+const BANNER_H := 0.17       # NameBanner nad stripom
+const SIDE_INSET := 0.04
+const BOTTOM_INSET := 0.03
+const LV_SEGMENT := 0.42     # podiel stripu pre "Lv N" + sipku; zvysok je bar
+# Hrubka obrysu "Lv N" ako podiel velkosti fontu.
 const LEVEL_OUTLINE_RATIO := 0.45
 
 const GOLD := Color(1.0, 0.82, 0.35)
 const DIM := Color(0.42, 0.42, 0.42)
 const BAR_READY := Color(0.28, 0.72, 0.22)
 const BAR_NORMAL := Color(0.2, 0.5, 0.9)
+const OVERLAY_BG := Color(0.03, 0.04, 0.08, 0.78)
+const BANNER_BORDER := Color(0.85, 0.68, 0.3, 0.9)
+const NAME_FONT := preload("res://assets/fonts/Oswald/static/Oswald-Bold.ttf")
+
+# Zelena sipka "da sa vylepsit" — kreslena v kode, ziadny asset.
+class UpgradeArrow extends Control:
+	const COLOR := Color(0.45, 1.0, 0.35)
+
+	func _notification(what: int) -> void:
+		if what == NOTIFICATION_RESIZED:
+			queue_redraw()
+
+	func _draw() -> void:
+		var s := size
+		var pts := PackedVector2Array([
+			Vector2(0.5, 0.0) * s, Vector2(1.0, 0.55) * s, Vector2(0.68, 0.55) * s,
+			Vector2(0.68, 1.0) * s, Vector2(0.32, 1.0) * s, Vector2(0.32, 0.55) * s,
+			Vector2(0.0, 0.55) * s])
+		draw_colored_polygon(pts, COLOR)
+		var outline := pts.duplicate()
+		outline.append(pts[0])
+		draw_polyline(outline, Color.BLACK, 1.0, true)
 
 static var _logo_cache: Dictionary = {}
 
@@ -67,9 +95,12 @@ var _art_clip: Control
 var _art: TextureRect
 var _cost_badge: Panel
 var _cost_label: Label
-var _logo_clip: Control
 var _logo: TextureRect
+var _name_label: Label
+var _name_sb: StyleBoxFlat
+var _strip_bg: Panel
 var _level_label: Label
+var _arrow: UpgradeArrow
 var _status_label: Label
 var _bar: ProgressBar
 var _bar_fill: StyleBoxFlat
@@ -88,6 +119,8 @@ func _init() -> void:
 	texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	set_process(false)
 
+	# Poradie add_child = poradie kreslenia: glow (pod kartou) -> art -> logo ->
+	# cost badge -> banner -> strip -> sipka -> status -> obrys.
 	_glow = Panel.new()
 	_glow.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	var glow_sb := StyleBoxFlat.new()
@@ -111,37 +144,12 @@ func _init() -> void:
 	_art.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	_art_clip.add_child(_art)
 
-	# Logo hned nad artom (pod level labelom); clip ho oreze na okraji karty.
-	_logo_clip = Control.new()
-	_logo_clip.clip_contents = true
-	_logo_clip.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(_logo_clip)
+	# Logo vpravo hore — stvorec velkosti badge, logo v nom drzi pomer stran.
 	_logo = TextureRect.new()
 	_logo.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 	_logo.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 	_logo.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	_logo_clip.add_child(_logo)
-
-	# Obrys NAD artom — glow pod kartou v kolekcii orezava scroll, obrys nie.
-	_outline = Panel.new()
-	_outline.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var outline_sb := StyleBoxFlat.new()
-	outline_sb.draw_center = false
-	outline_sb.border_color = GOLD
-	outline_sb.set_border_width_all(3)
-	outline_sb.set_corner_radius_all(6)
-	_outline.add_theme_stylebox_override("panel", outline_sb)
-	_outline.visible = false
-	add_child(_outline)
-
-	_status_label = _make_label(4)
-	var status_sb := StyleBoxFlat.new()
-	status_sb.bg_color = Color(0, 0, 0, 0.6)
-	status_sb.set_corner_radius_all(3)
-	_status_label.add_theme_stylebox_override("normal", status_sb)
-
-	_level_label = _make_label(4)
-	_level_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	add_child(_logo)
 
 	_cost_badge = Panel.new()
 	_cost_badge.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -153,6 +161,25 @@ func _init() -> void:
 	_cost_badge.add_theme_stylebox_override("panel", cost_sb)
 	add_child(_cost_badge)
 	_cost_label = _make_label(4)
+
+	# NameBanner — tmavy pas s tenkym zlatym okrajom hore, meno VELKYMI.
+	_name_label = _make_label(3)
+	_name_label.text_overrun_behavior = TextServer.OVERRUN_TRIM_ELLIPSIS
+	_name_label.add_theme_font_override("font", NAME_FONT)
+	_name_label.add_theme_color_override("font_color", GOLD)
+	_name_sb = StyleBoxFlat.new()
+	_name_sb.bg_color = OVERLAY_BG
+	_name_sb.border_color = BANNER_BORDER
+	_name_sb.border_width_top = 1
+	_name_label.add_theme_stylebox_override("normal", _name_sb)
+
+	# InfoStrip — podklad cez celu sirku, vlavo "Lv N" + sipka, vpravo bar.
+	_strip_bg = Panel.new()
+	_strip_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var strip_sb := StyleBoxFlat.new()
+	strip_sb.bg_color = OVERLAY_BG
+	_strip_bg.add_theme_stylebox_override("panel", strip_sb)
+	add_child(_strip_bg)
 
 	_bar = ProgressBar.new()
 	_bar.show_percentage = false
@@ -167,10 +194,35 @@ func _init() -> void:
 	_bar_fill.bg_color = BAR_NORMAL
 	_bar_fill.set_corner_radius_all(3)
 	_bar.add_theme_stylebox_override("fill", _bar_fill)
-	_bar.visible = false
 	add_child(_bar)
+
+	_level_label = _make_label(4)
+	_level_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_LEFT
 	_bar_label = _make_label(3)
 	_bar_label.visible = false
+
+	_arrow = UpgradeArrow.new()
+	_arrow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_arrow.visible = false
+	add_child(_arrow)
+
+	_status_label = _make_label(4)
+	var status_sb := StyleBoxFlat.new()
+	status_sb.bg_color = Color(0, 0, 0, 0.6)
+	status_sb.set_corner_radius_all(3)
+	_status_label.add_theme_stylebox_override("normal", status_sb)
+
+	# Obrys NAD vsetkym — glow pod kartou v kolekcii orezava scroll, obrys nie.
+	_outline = Panel.new()
+	_outline.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var outline_sb := StyleBoxFlat.new()
+	outline_sb.draw_center = false
+	outline_sb.border_color = GOLD
+	outline_sb.set_border_width_all(3)
+	outline_sb.set_corner_radius_all(6)
+	_outline.add_theme_stylebox_override("panel", outline_sb)
+	_outline.visible = false
+	add_child(_outline)
 
 func _make_label(outline: int) -> Label:
 	var label := Label.new()
@@ -194,19 +246,14 @@ static func logo_for(faction: StringName) -> Texture2D:
 	return tex
 
 # Sirka dlazdice pre danu vysku (kolekcia ma vysku danu scrollom).
-static func width_for_height(height: float, card_aspect: float, with_progress: bool) -> float:
-	var card_h := height
-	if with_progress:
-		card_h = height * (1.0 - BAR_RATIO) - BAR_GAP
-	return maxf(1.0, card_h * card_aspect)
+# Progres je uz v karte -> _with_progress sa ignoruje (signatura ostava).
+static func width_for_height(height: float, card_aspect: float, _with_progress: bool) -> float:
+	return maxf(1.0, height * card_aspect)
 
 # Vyska dlazdice pre danu sirku — inverzia width_for_height (WrapCardGrid
 # v encyklopedii ma sirku danu stlpcami).
-static func height_for_width(width: float, card_aspect: float, with_progress: bool) -> float:
-	var card_h := width / card_aspect
-	if with_progress:
-		return maxf(1.0, (card_h + BAR_GAP) / (1.0 - BAR_RATIO))
-	return maxf(1.0, card_h)
+static func height_for_width(width: float, card_aspect: float, _with_progress: bool) -> float:
+	return maxf(1.0, width / card_aspect)
 
 func setup(id: StringName, tile_kind: StringName, slot: int) -> void:
 	item_id = id
@@ -217,6 +264,7 @@ func setup(id: StringName, tile_kind: StringName, slot: int) -> void:
 	var cost := -1
 	var level := 0
 	var copies := 0
+	var display_name := String(id)
 	tooltip_text = String(id)
 
 	if kind == DeckTile.KIND_HERO:
@@ -225,6 +273,7 @@ func setup(id: StringName, tile_kind: StringName, slot: int) -> void:
 		if hero != null:
 			tex = _hero_texture(hero)
 			faction = hero.faction
+			display_name = hero.display_name
 			tooltip_text = hero.display_name
 		level = PlayerProfile.get_hero_level(id)
 		copies = PlayerProfile.get_hero_copies(id)
@@ -235,6 +284,7 @@ func setup(id: StringName, tile_kind: StringName, slot: int) -> void:
 			tex = card.scroll_texture
 			faction = card.faction
 			cost = card.cost
+			display_name = card.display_name
 			tooltip_text = card.display_name
 		level = PlayerProfile.get_card_level(id)
 		copies = PlayerProfile.get_card_copies(id)
@@ -245,19 +295,21 @@ func setup(id: StringName, tile_kind: StringName, slot: int) -> void:
 	_cost_label.text = str(cost)
 	_logo.texture = logo_for(faction)
 	_logo.visible = _logo.texture != null
-	_logo_clip.visible = _logo.texture != null
-	_level_label.text = "" if locked else "Lv. %d" % level
+	_name_label.text = display_name.to_upper()
+	_level_label.text = "Lv %d" % level
+	_level_label.visible = not locked
 
-	_bar.visible = show_progress
+	# Bez show_progress: prazdny bar (bez vyplne a poctu) + len "Lv N".
+	_bar.max_value = 1
+	_bar.value = 0
+	_bar_fill.bg_color = BAR_NORMAL
 	_bar_label.visible = show_progress
+	_arrow.visible = false
 	if show_progress:
 		var need := PlayerProfile.get_copies_to_next(id)
 		if locked:
-			_bar.max_value = 1
-			_bar.value = 0
 			_bar_label.text = "—"
 		elif need < 0:
-			_bar.max_value = 1
 			_bar.value = 1
 			_bar_fill.bg_color = GOLD.darkened(0.2)
 			_bar_label.text = "MAX"
@@ -266,6 +318,7 @@ func setup(id: StringName, tile_kind: StringName, slot: int) -> void:
 			_bar.value = mini(copies, need)
 			_bar_fill.bg_color = BAR_READY if copies >= need else BAR_NORMAL
 			_bar_label.text = "%d / %d" % [copies, need]
+			_arrow.visible = copies >= need
 	_apply_state()
 	_layout()
 
@@ -317,47 +370,80 @@ func _notification(what: int) -> void:
 				_dragging = false
 				_apply_state()
 
+# Plocha, ktoru art realne zabera (KEEP_ASPECT_CENTERED fit); bez artu cela dlazdica.
+func _card_rect() -> Rect2:
+	var rect := Rect2(Vector2.ZERO, size)
+	if _art.texture == null:
+		return rect
+	var tex := _art.texture.get_size()
+	if tex.x <= 0.0 or tex.y <= 0.0:
+		return rect
+	var s := minf(size.x / tex.x, size.y / tex.y)
+	var drawn := tex * s
+	return Rect2((size - drawn) * 0.5, drawn)
+
 func _layout() -> void:
 	if _art_clip == null or size.x <= 0.0 or size.y <= 0.0:
 		return
-	var card := Rect2(Vector2.ZERO, size)
-	if show_progress:
-		card.size.y = size.y * (1.0 - BAR_RATIO) - BAR_GAP
-		var bar_rect := Rect2(0.0, card.end.y + BAR_GAP, size.x, size.y - card.end.y - BAR_GAP)
-		_set_rect(_bar, bar_rect)
-		_set_rect(_bar_label, bar_rect)
-		_bar_label.add_theme_font_size_override("font_size", maxi(8, int(bar_rect.size.y * 0.75)))
+	# art_clip/art ostavaju cez celu dlazdicu (drag preview s tym pocita)
+	_set_rect(_art_clip, Rect2(Vector2.ZERO, size))
+	_set_rect(_art, Rect2(Vector2.ZERO, size))
 
-	var art_rect := card
-	_set_rect(_art_clip, art_rect)
-	_set_rect(_art, Rect2(Vector2.ZERO, art_rect.size))
-	_set_rect(_glow, card.grow(card.size.x * 0.02))
+	var card := _card_rect()
+	var w := card.size.x
+	_set_rect(_glow, card.grow(w * 0.02))
 	_set_rect(_outline, card.grow(1.0))
 
-	var w := card.size.x
-	var badge := w * 0.3
-	var badge_rect := Rect2(card.position + Vector2(w * 0.03, w * 0.03), Vector2(badge, badge))
+	# Badge vlavo hore (cost) a vpravo hore (logo) — rovnaka velkost a odsadenie.
+	var badge := w * BADGE_SIZE
+	var inset := w * BADGE_INSET
+	var badge_rect := Rect2(card.position + Vector2(inset, inset), Vector2(badge, badge))
 	_set_rect(_cost_badge, badge_rect)
 	_set_rect(_cost_label, badge_rect)
 	_cost_label.add_theme_font_size_override("font_size", maxi(8, int(badge * 0.62)))
+	_set_rect(_logo, Rect2(Vector2(card.end.x - inset - badge, card.position.y + inset), Vector2(badge, badge)))
 
-	# Clip = len plocha karty (progres bar pod nou logo nikdy neprekryje).
-	_set_rect(_logo_clip, card)
-	var logo_w := card.size.x * LOGO_SIZE
-	var logo_h := logo_w
-	if _logo.texture != null:
-		var tex := _logo.texture.get_size()
-		logo_h = logo_w * tex.y / tex.x
-	_set_rect(_logo, Rect2(Vector2(card.size.x - logo_w * (1.0 - LOGO_OVERHANG),
-		card.size.y - logo_h * (1.0 - LOGO_OVERHANG)), Vector2(logo_w, logo_h)))
+	# Spodny overlay: InfoStrip uplne dole, NameBanner nad nim.
+	var side := w * SIDE_INSET
+	var strip_h := w * STRIP_H
+	var strip := Rect2(card.position.x + side, card.end.y - w * BOTTOM_INSET - strip_h, w - 2.0 * side, strip_h)
+	_set_rect(_strip_bg, strip)
 
-	var font := maxi(8, int(w * 0.13))
-	var line_h := font * 1.4
-	_level_label.add_theme_font_size_override("font_size", font)
-	_level_label.add_theme_constant_override("outline_size", maxi(4, int(font * LEVEL_OUTLINE_RATIO)))
-	_set_rect(_level_label, Rect2(art_rect.position.x, art_rect.end.y - line_h - w * 0.03, art_rect.size.x - w * 0.06, line_h))
-	_status_label.add_theme_font_size_override("font_size", maxi(7, int(w * 0.1)))
-	_set_rect(_status_label, Rect2(art_rect.position.x, art_rect.position.y + art_rect.size.y * 0.45, art_rect.size.x, font * 1.3))
+	var banner_h := w * BANNER_H
+	var banner := Rect2(strip.position.x, strip.position.y - banner_h, strip.size.x, banner_h)
+	# font ~ w*0.12, ale tak, aby vyska riadku nevytlacila label z bannera
+	var name_font := maxi(8, int(minf(w * 0.12, banner_h / 1.5)))
+	_name_label.add_theme_font_size_override("font_size", name_font)
+	_name_label.add_theme_constant_override("outline_size", maxi(2, int(name_font * 0.3)))
+	_name_sb.content_margin_left = side * 0.5
+	_name_sb.content_margin_right = side * 0.5
+	_name_sb.content_margin_top = 0
+	_name_sb.content_margin_bottom = 0
+	_set_rect(_name_label, banner)
+
+	var strip_font := maxi(7, int(strip_h / 1.45))
+	var pad := strip_h * 0.2
+	var segment := strip.size.x * LV_SEGMENT
+	_level_label.add_theme_font_size_override("font_size", strip_font)
+	_level_label.add_theme_constant_override("outline_size", maxi(2, int(strip_font * LEVEL_OUTLINE_RATIO)))
+	_set_rect(_level_label, Rect2(strip.position.x + pad, strip.position.y, segment - pad, strip_h))
+
+	# Sipka hned za textom "Lv N"
+	var text_w := _level_label.get_theme_font("font").get_string_size(
+		_level_label.text, HORIZONTAL_ALIGNMENT_LEFT, -1, strip_font).x
+	var arrow_s := strip_h * 0.8
+	_set_rect(_arrow, Rect2(strip.position.x + pad + text_w + pad * 0.5,
+		strip.position.y + (strip_h - arrow_s) * 0.5, arrow_s, arrow_s))
+
+	var bar_x := strip.position.x + segment
+	var bar_rect := Rect2(bar_x, strip.position.y + strip_h * 0.18, strip.end.x - pad - bar_x, strip_h * 0.64)
+	_set_rect(_bar, bar_rect)
+	_set_rect(_bar_label, Rect2(bar_rect.position.x, strip.position.y, bar_rect.size.x, strip_h))
+	_bar_label.add_theme_font_size_override("font_size", strip_font)
+
+	var status_font := maxi(7, int(w * 0.1))
+	_status_label.add_theme_font_size_override("font_size", status_font)
+	_set_rect(_status_label, Rect2(card.position.x, card.position.y + card.size.y * 0.45, w, status_font * 1.3))
 
 func _set_rect(c: Control, rect: Rect2) -> void:
 	c.position = rect.position
