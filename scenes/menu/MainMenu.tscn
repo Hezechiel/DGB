@@ -24,6 +24,7 @@
 [ext_resource type="PackedScene" uid="uid://b0n1h2gbg7xrx" path="res://scenes/menu/currency_counter.tscn" id="25_currencycounter"]
 [ext_resource type="Texture2D" uid="uid://bnm6pd76srp5f" path="res://assets/menu/coin.png" id="26_coin"]
 [ext_resource type="Texture2D" uid="uid://bmf716td7choi" path="res://assets/menu/crystal.png" id="27_crystal"]
+[ext_resource type="PackedScene" path="res://scenes/menu/rewards_overlay.tscn" id="28_rewardsoverlay"]
 
 [sub_resource type="StyleBoxTexture" id="StyleBoxTexture_mgsx5"]
 texture = ExtResource("2_y6vun")
@@ -230,6 +231,10 @@ visible = false
 layout_mode = 1
 
 [node name="ShopOverlay" parent="Background/MainContent" unique_id=26192059 instance=ExtResource("20_shopoverlay")]
+visible = false
+layout_mode = 1
+
+[node name="RewardsOverlay" parent="Background/MainContent" unique_id=1610000099 instance=ExtResource("28_rewardsoverlay")]
 visible = false
 layout_mode = 1
 

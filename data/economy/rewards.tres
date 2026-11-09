@@ -1,0 +1,12 @@
+[gd_resource type="Resource" script_class="RewardsConfig" format=3]
+
+[ext_resource type="Script" path="res://scripts/rewards_config.gd" id="1_rewards"]
+
+[resource]
+script = ExtResource("1_rewards")
+free_pack_id = &"greek_free_reliquary"
+free_interval_hours = 4.0
+free_max_stock = 2
+play_pack_id = &"greek_play_reliquary"
+play_goal = 5
+victory_pack_id = &"greek_victory_reliquary"

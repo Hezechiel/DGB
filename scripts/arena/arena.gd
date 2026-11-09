@@ -138,6 +138,7 @@ func _on_deploy_preview_ended() -> void:
 
 func _on_match_ended(winner: String) -> void:
 	_match_over = true
+	PlayerProfile.record_match_result(winner)
 	EnergySystem.stop()
 	if winner == "draw":
 		# ziadna budova nepadla — nie je co ukazat, rovno na vysledok

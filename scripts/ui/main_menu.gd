@@ -28,9 +28,10 @@ extends Control
 @onready var shop_overlay: ShopOverlay = $Background/MainContent/ShopOverlay
 @onready var deck_overlay: DeckOverlay = $Background/MainContent/DeckOverlay
 @onready var pantheon_overlay: PantheonOverlay = $Background/MainContent/PantheonOverlay
+@onready var rewards_overlay: RewardsOverlay = $Background/MainContent/RewardsOverlay
 
 # NavRail taby — kazdy prepina stranku v MainContent (rail, TopBar a FooterBar ostavaju).
-enum Tab { HOME, DECK, PANTHEON, SHOP }
+enum Tab { HOME, DECK, PANTHEON, SHOP, REWARDS }
 
 # Idle klip boha v showcase — obaja sucasni bohovia maju preklep "iddle_left",
 # "idle_left" je spravny nazov pre buducich. / Idle clip names, typo first.
@@ -77,7 +78,6 @@ func _ready() -> void:
 	exit_button.pressed.connect(_on_exit_button_pressed)
 	mail_button.pressed.connect(_show_coming_soon.bind("Mail"))
 	gift_button.pressed.connect(_show_coming_soon.bind("Gift"))
-	rewards_button.pressed.connect(_show_coming_soon.bind("Rewards"))
 	# Nakup meny za realne peniaze je mimo scope — zatial len toast
 	for counter in [crystal_counter, gold_counter]:
 		counter.add_pressed.connect(func(_currency: StringName): _show_coming_soon("Shop purchases"))
@@ -86,12 +86,14 @@ func _ready() -> void:
 		Tab.DECK: deck_overlay,
 		Tab.PANTHEON: pantheon_overlay,
 		Tab.SHOP: shop_overlay,
+		Tab.REWARDS: rewards_overlay,
 	}
 	_tab_buttons = {
 		Tab.HOME: battles_button,
 		Tab.DECK: deck_button,
 		Tab.PANTHEON: pantheon_button,
 		Tab.SHOP: shop_button,
+		Tab.REWARDS: rewards_button,
 	}
 	# ButtonGroup: vzdy presne jeden stlaceny — texture_pressed ukazuje aktivny tab.
 	var group := ButtonGroup.new()
@@ -104,6 +106,8 @@ func _ready() -> void:
 	pantheon_overlay.card_detail_requested.connect(_on_card_detail_requested)
 	deck_overlay.card_detail_requested.connect(_on_card_detail_requested)
 	shop_overlay.card_detail_requested.connect(_on_card_detail_requested)
+	rewards_overlay.card_detail_requested.connect(_on_card_detail_requested)
+	rewards_overlay.shop_requested.connect(_on_rewards_shop_requested)
 	card_detail.closed.connect(_on_card_detail_closed)
 	_switch_tab(Tab.HOME)
 	#setting_overlay.visible = false
@@ -127,8 +131,8 @@ func _apply_menu_background() -> void:
 	background.add_theme_stylebox_override("panel", sb)
 	DebugLog.info("menu", "background: %s" % path)
 
-# Docasny "Coming soon" toast pre placeholder tlacidla (Mail/Gift/Rewards —
-# Rewards nie je tab, vybrany tab sa nemeni). _toast_token zaruci ze rychle po sebe idúce
+# Docasny "Coming soon" toast pre placeholder tlacidla (Mail/Gift —
+# nie su taby, vybrany tab sa nemeni). _toast_token zaruci ze rychle po sebe idúce
 # tapnutia (napr. Mail hned po Gift) predlzia zobrazenie namiesto toho aby ho
 # predcasne schovali — kazdy show() zrusi platnost predchadzajuceho timeoutu.
 func _show_coming_soon(feature_name: String) -> void:
@@ -213,6 +217,13 @@ func _switch_tab(tab: int) -> void:
 	_current_tab = tab
 	DebugLog.info("menu", "tab: %s" % Tab.keys()[tab])
 
+# Rewards "reklama" balicka -> Shop tab, rovno na balicky (activate() ho da navrch,
+# scroll_to_packs() az potom).
+func _on_rewards_shop_requested() -> void:
+	_request_tab(Tab.SHOP)
+	if _current_tab == Tab.SHOP:
+		shop_overlay.scroll_to_packs()
+
 # Rail + obsah sa skryju pod fullscreen overlay (Settings/Credits/CardDetail).
 # Stranka aktivneho tabu ostava nedotknuta, takze po zatvoreni je tab rovnaky.
 func _set_menu_chrome_visible(v: bool) -> void:
@@ -265,6 +276,13 @@ func _unhandled_key_input(event: InputEvent) -> void:
 	if not (event is InputEventKey) or not event.pressed or event.echo:
 		return
 	match event.keycode:
+		KEY_F7:
+			# simulovana vyhra
+			var added: Array[StringName] = PlayerProfile.record_match_result("player")
+			print("[debug] simulated win -> +%s, play=%s" % [added, PlayerProfile.get_play_progress()])
+		KEY_F8:
+			PlayerProfile.grant_reliquary(PlayerProfile.REWARDS.free_pack_id)
+			print("[debug] queue=%s" % [PlayerProfile.get_reliquary_queue()])
 		KEY_F9:
 			PlayerProfile.reset_profile()
 			print("[debug] profile reset to starter")

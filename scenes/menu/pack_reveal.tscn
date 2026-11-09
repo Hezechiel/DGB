@@ -1,0 +1,79 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/pack_reveal.gd" id="1_reveal"]
+[ext_resource type="Script" uid="uid://c7kuqvyubxbjm" path="res://scripts/ui/scaled_nine_patch.gd" id="2_ninepatch"]
+[ext_resource type="Texture2D" uid="uid://c30imutueoe3n" path="res://assets/menu/frame_ninepatchrect.png" id="3_frame"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_panel"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+
+[node name="PackReveal" type="PanelContainer" unique_id=1922084121]
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_panel")
+script = ExtResource("1_reveal")
+
+[node name="Frame" type="Control" parent="." unique_id=748576206]
+texture_filter = 2
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("2_ninepatch")
+texture = ExtResource("3_frame")
+patch_margin_left = 52
+patch_margin_top = 46
+patch_margin_right = 52
+patch_margin_bottom = 46
+patch_scale = 0.5
+fill_color = Color(0.05, 0.07, 0.12, 0.86)
+fill_inset = 3.0
+
+[node name="Margin" type="MarginContainer" parent="." unique_id=1451285792]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="RevealBox" type="VBoxContainer" parent="Margin" unique_id=659739688]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="RevealTitle" type="Label" parent="Margin/RevealBox" unique_id=1805094137]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.05, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
+text_overrun_behavior = 3
+
+[node name="RevealScroll" type="ScrollContainer" parent="Margin/RevealBox" unique_id=1293233919]
+layout_mode = 2
+size_flags_vertical = 3
+vertical_scroll_mode = 0
+
+[node name="RevealList" type="HBoxContainer" parent="Margin/RevealBox/RevealScroll" unique_id=449593390]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 6
+size_flags_vertical = 3
+theme_override_constants/separation = 12
+
+[node name="RevealOkButton" type="Button" parent="Margin/RevealBox" unique_id=807303027]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(140, 34)
+layout_mode = 2
+size_flags_horizontal = 4
+text = "OK"

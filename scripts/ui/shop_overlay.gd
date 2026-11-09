@@ -72,13 +72,9 @@ const TAP_MAX_DISTANCE := 10.0     # rovnako ako DeckCardTile / Pantheon
 @onready var refresh_button: Button = %RefreshButton
 @onready var offers_row: HBoxContainer = %OffersRow
 @onready var packs_row: HBoxContainer = %PacksRow
-@onready var reveal_panel: PanelContainer = %RevealPanel
-@onready var reveal_title: Label = %RevealTitle
-@onready var reveal_list: HBoxContainer = %RevealList
-@onready var reveal_ok_button: Button = %RevealOkButton
+@onready var reveal: PackReveal = %RevealPanel   # instancia pack_reveal.tscn
 
 var _offer_tiles: Array[DeckCardTile] = []
-var _reveal_press: Dictionary = {}  # reveal entry -> pozicia stlacenia
 var _buy_buttons: Dictionary = {}   # Button -> PackData
 var _offer_buttons: Dictionary = {} # Button -> {currency, price} (len nekupene ponuky)
 var _message_label: Label
@@ -87,7 +83,8 @@ var _press_scroll_y: int = 0   # scroll pri stlaceni tlacidla
 
 func _ready() -> void:
 	visible = false
-	reveal_ok_button.pressed.connect(_show_pack_view)
+	reveal.closed.connect(_show_pack_view)
+	reveal.card_detail_requested.connect(func(id: StringName, kind: StringName): card_detail_requested.emit(id, kind))
 	PlayerProfile.profile_changed.connect(_on_profile_changed)
 	# zmena zostatku -> len prefarbi ceny, ziadna prestavba
 	PlayerProfile.wallet_changed.connect(func(_currency: StringName, _amount: int): _refresh_price_colors())
@@ -125,9 +122,14 @@ func deactivate() -> void:
 	_show_pack_view()
 	visible = false
 
+# Rewards "reklama" -> Shop tab rovno na balicky. Vola sa PO activate() (ten scrollne navrch).
+func scroll_to_packs() -> void:
+	await get_tree().process_frame   # ShopScroll musi mat prepocitany rozsah po activate()
+	shop_scroll.ensure_control_visible(packs_row)
+
 func _show_pack_view() -> void:
 	shop_scroll.visible = true
-	reveal_panel.visible = false
+	reveal.hide_reveal()
 
 # --- Drag guard (tlacidla v ShopScroll) ---
 
@@ -204,7 +206,7 @@ func _sorted_packs() -> Array[PackData]:
 	var packs: Array[PackData] = []
 	for pack_id in CardDB.list_pack_ids():
 		var pack := CardDB.get_pack(pack_id)
-		if pack != null:
+		if pack != null and pack.shop_visible:
 			packs.append(pack)
 	packs.sort_custom(func(a: PackData, b: PackData) -> bool:
 		if a.shop_order != b.shop_order:
@@ -384,78 +386,8 @@ func _open_pack(pack_id: StringName) -> void:
 	PlayerProfile.grant_cards(rolled)
 	DebugLog.info("pack", "%s -> %s" % [pack_id, rolled])
 
-	for child in reveal_list.get_children():
-		child.queue_free()
-	_reveal_press.clear()
-	for i in rolled.size():
-		reveal_list.add_child(_build_reveal_entry(rolled[i], is_new[i]))
-
-	reveal_title.text = pack.display_name if not rolled.is_empty() else "Nothing to reveal"
+	reveal.show_result(pack.display_name, rolled, is_new)
 	shop_scroll.visible = false
-	reveal_panel.visible = true
-
-func _build_reveal_entry(id: StringName, is_new: bool) -> Control:
-	var display_name := String(id)
-	var rarity := 0
-	var texture: Texture2D = null
-	var kind := &""
-	if CardDB.has_card(id):
-		var card := CardDB.get_card(id)
-		display_name = card.display_name
-		rarity = card.rarity
-		texture = card.scroll_texture
-		kind = DeckTile.KIND_CARD
-	elif CardDB.has_hero(id):
-		# bohovia zatial nemaju scroll art — obrazok ostane prazdny
-		var hero := CardDB.get_hero(id)
-		display_name = hero.display_name
-		rarity = hero.rarity
-		kind = DeckTile.KIND_HERO
-
-	var entry := VBoxContainer.new()
-	# PASS: swipe po entry stale scrolluje RevealScroll; tap riesi _on_reveal_entry_input
-	entry.mouse_filter = Control.MOUSE_FILTER_PASS
-	if kind != &"":
-		entry.gui_input.connect(_on_reveal_entry_input.bind(id, kind, entry))
-	var picture := TextureRect.new()
-	picture.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	picture.custom_minimum_size = Vector2(120, 144)
-	picture.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	picture.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-	picture.texture = texture
-	entry.add_child(picture)
-
-	var name_label := Label.new()
-	name_label.text = display_name
-	entry.add_child(name_label)
-
-	var rarity_label := Label.new()
-	rarity_label.text = RARITY_NAMES[rarity] if rarity >= 0 and rarity < RARITY_NAMES.size() else "?"
-	entry.add_child(rarity_label)
-
-	var status_label := Label.new()
-	status_label.text = "NEW" if is_new else "+1 copy"
-	entry.add_child(status_label)
-	return entry
-
-# Vlastna detekcia tapu (rovnake pravidlo ako Pantheon hlavicka) — Button v scrolle
-# by zjedol swipe alebo sa spustil po nom. Len mouse eventy, nie ScreenTouch.
-func _on_reveal_entry_input(event: InputEvent, id: StringName, kind: StringName, entry: Control) -> void:
-	if event is InputEventMouseMotion:
-		if _reveal_press.has(entry) and event.position.distance_to(_reveal_press[entry]) > TAP_MAX_DISTANCE:
-			_reveal_press.erase(entry)
-		return
-	if not (event is InputEventMouseButton) or event.button_index != MOUSE_BUTTON_LEFT:
-		return
-	if event.pressed:
-		_reveal_press[entry] = event.position
-		return
-	if not _reveal_press.has(entry):
-		return
-	var is_tap: bool = event.position.distance_to(_reveal_press[entry]) <= TAP_MAX_DISTANCE
-	_reveal_press.erase(entry)
-	if is_tap:
-		card_detail_requested.emit(id, kind)
 
 # --- Ceny + sprava ---
 

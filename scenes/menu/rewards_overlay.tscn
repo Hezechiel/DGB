@@ -1,0 +1,360 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/rewards_overlay.gd" id="1_rewards"]
+[ext_resource type="Script" uid="uid://c7kuqvyubxbjm" path="res://scripts/ui/scaled_nine_patch.gd" id="2_ninepatch"]
+[ext_resource type="Texture2D" uid="uid://c30imutueoe3n" path="res://assets/menu/frame_ninepatchrect.png" id="3_frame"]
+[ext_resource type="Texture2D" uid="uid://cggogqge8tdps" path="res://assets/menu/rewards/reward_title.png" id="4_title"]
+[ext_resource type="Texture2D" uid="uid://cumb6jv6vb1sd" path="res://assets/menu/rewards/reward_open_button.png" id="5_open"]
+[ext_resource type="FontFile" uid="uid://cu44owi4ana21" path="res://assets/fonts/Oswald/static/Oswald-Bold.ttf" id="6_bold"]
+[ext_resource type="PackedScene" path="res://scenes/menu/pack_reveal.tscn" id="7_reveal"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_panel"]
+content_margin_left = 0.0
+content_margin_top = 0.0
+content_margin_right = 0.0
+content_margin_bottom = 0.0
+
+[node name="RewardsOverlay" type="Control" unique_id=1610000001]
+clip_contents = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_rewards")
+
+[node name="Layout" type="VBoxContainer" parent="." unique_id=1610000002]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="TopRow" type="HBoxContainer" parent="Layout" unique_id=1610000003]
+custom_minimum_size = Vector2(0, 300)
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="Stage" type="VBoxContainer" parent="Layout/TopRow" unique_id=1610000004]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 1.6
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="TitlePlate" type="TextureRect" parent="Layout/TopRow/Stage" unique_id=1610000005]
+texture_filter = 4
+custom_minimum_size = Vector2(0, 80)
+layout_mode = 2
+mouse_filter = 2
+texture = ExtResource("4_title")
+expand_mode = 1
+stretch_mode = 5
+
+[node name="TitleText" type="VBoxContainer" parent="Layout/TopRow/Stage/TitlePlate" unique_id=1610000006]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_constants/separation = -4
+alignment = 1
+
+[node name="TitleLabel" type="Label" parent="Layout/TopRow/Stage/TitlePlate/TitleText" unique_id=1610000007]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.05, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_fonts/font = ExtResource("6_bold")
+theme_override_font_sizes/font_size = 22
+text = "DIVINE REWARDS"
+horizontal_alignment = 1
+
+[node name="SubtitleLabel" type="Label" parent="Layout/TopRow/Stage/TitlePlate/TitleText" unique_id=1610000008]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.9, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.05, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_font_sizes/font_size = 10
+text = "A relic sealed with the power of the pantheons"
+horizontal_alignment = 1
+
+[node name="ChestArt" type="TextureRect" parent="Layout/TopRow/Stage" unique_id=1610000009]
+unique_name_in_owner = true
+texture_filter = 4
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ChestName" type="Label" parent="Layout/TopRow/Stage" unique_id=1610000010]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.05, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 16
+horizontal_alignment = 1
+text_overrun_behavior = 3
+
+[node name="ChestSource" type="Label" parent="Layout/TopRow/Stage" unique_id=1610000011]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 11
+horizontal_alignment = 1
+text_overrun_behavior = 3
+
+[node name="OpenButton" type="TextureButton" parent="Layout/TopRow/Stage" unique_id=1610000012]
+unique_name_in_owner = true
+texture_filter = 4
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+texture_normal = ExtResource("5_open")
+ignore_texture_size = true
+stretch_mode = 5
+
+[node name="OpenLabel" type="Label" parent="Layout/TopRow/Stage/OpenButton" unique_id=1610000013]
+unique_name_in_owner = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.05, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_fonts/font = ExtResource("6_bold")
+theme_override_font_sizes/font_size = 18
+text = "OPEN RELIQUARY"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="InfoPanel" type="PanelContainer" parent="Layout/TopRow" unique_id=1610000014]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_panel")
+
+[node name="Frame" type="Control" parent="Layout/TopRow/InfoPanel" unique_id=1610000015]
+texture_filter = 2
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("2_ninepatch")
+texture = ExtResource("3_frame")
+patch_margin_left = 52
+patch_margin_top = 46
+patch_margin_right = 52
+patch_margin_bottom = 46
+patch_scale = 0.5
+fill_color = Color(0.05, 0.07, 0.12, 0.86)
+fill_inset = 3.0
+
+[node name="Margin" type="MarginContainer" parent="Layout/TopRow/InfoPanel" unique_id=1610000016]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="InfoBox" type="VBoxContainer" parent="Layout/TopRow/InfoPanel/Margin" unique_id=1610000017]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="PlaySection" type="HBoxContainer" parent="Layout/TopRow/InfoPanel/Margin/InfoBox" unique_id=1610000018]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="PlayTexts" type="VBoxContainer" parent="Layout/TopRow/InfoPanel/Margin/InfoBox/PlaySection" unique_id=1610000019]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="PlayTitle" type="Label" parent="Layout/TopRow/InfoPanel/Margin/InfoBox/PlaySection/PlayTexts" unique_id=1610000020]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.05, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 16
+text = "DAILY PLAY RELIQUARY"
+text_overrun_behavior = 3
+
+[node name="PlayText" type="Label" parent="Layout/TopRow/InfoPanel/Margin/InfoBox/PlaySection/PlayTexts" unique_id=1610000021]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 11
+autowrap_mode = 3
+
+[node name="PlayProgress" type="HBoxContainer" parent="Layout/TopRow/InfoPanel/Margin/InfoBox/PlaySection/PlayTexts" unique_id=1610000022]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="PlayCount" type="Label" parent="Layout/TopRow/InfoPanel/Margin/InfoBox/PlaySection/PlayTexts/PlayProgress" unique_id=1610000023]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.05, 0, 1)
+theme_override_constants/outline_size = 3
+theme_override_fonts/font = ExtResource("6_bold")
+theme_override_font_sizes/font_size = 14
+
+[node name="PlayPips" type="Control" parent="Layout/TopRow/InfoPanel/Margin/InfoBox/PlaySection/PlayTexts/PlayProgress" unique_id=1610000024]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 14)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+
+[node name="PlayThumb" type="TextureRect" parent="Layout/TopRow/InfoPanel/Margin/InfoBox/PlaySection" unique_id=1610000025]
+unique_name_in_owner = true
+texture_filter = 4
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="SectionGap" type="Control" parent="Layout/TopRow/InfoPanel/Margin/InfoBox" unique_id=1610000026]
+custom_minimum_size = Vector2(0, 4)
+layout_mode = 2
+mouse_filter = 2
+
+[node name="FreeSection" type="HBoxContainer" parent="Layout/TopRow/InfoPanel/Margin/InfoBox" unique_id=1610000027]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+theme_override_constants/separation = 8
+
+[node name="FreeTexts" type="VBoxContainer" parent="Layout/TopRow/InfoPanel/Margin/InfoBox/FreeSection" unique_id=1610000028]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+theme_override_constants/separation = 4
+alignment = 1
+
+[node name="FreeTitle" type="Label" parent="Layout/TopRow/InfoPanel/Margin/InfoBox/FreeSection/FreeTexts" unique_id=1610000029]
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.05, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 16
+text = "FREE RELIQUARY"
+text_overrun_behavior = 3
+
+[node name="FreeText" type="Label" parent="Layout/TopRow/InfoPanel/Margin/InfoBox/FreeSection/FreeTexts" unique_id=1610000030]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.85, 0.85, 0.9, 1)
+theme_override_font_sizes/font_size = 11
+text = "Next free reliquary in:"
+
+[node name="FreeTimer" type="Label" parent="Layout/TopRow/InfoPanel/Margin/InfoBox/FreeSection/FreeTexts" unique_id=1610000031]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(1, 0.8, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0.1, 0.05, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_fonts/font = ExtResource("6_bold")
+theme_override_font_sizes/font_size = 20
+
+[node name="FreeThumb" type="TextureRect" parent="Layout/TopRow/InfoPanel/Margin/InfoBox/FreeSection" unique_id=1610000032]
+unique_name_in_owner = true
+texture_filter = 4
+custom_minimum_size = Vector2(56, 56)
+layout_mode = 2
+size_flags_vertical = 4
+mouse_filter = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="BottomRow" type="PanelContainer" parent="Layout" unique_id=1610000033]
+custom_minimum_size = Vector2(0, 150)
+layout_mode = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxEmpty_panel")
+
+[node name="Frame" type="Control" parent="Layout/BottomRow" unique_id=1610000034]
+texture_filter = 2
+layout_mode = 2
+mouse_filter = 2
+script = ExtResource("2_ninepatch")
+texture = ExtResource("3_frame")
+patch_margin_left = 52
+patch_margin_top = 46
+patch_margin_right = 52
+patch_margin_bottom = 46
+patch_scale = 0.5
+fill_color = Color(0.05, 0.07, 0.12, 0.86)
+fill_inset = 3.0
+
+[node name="Margin" type="MarginContainer" parent="Layout/BottomRow" unique_id=1610000035]
+layout_mode = 2
+mouse_filter = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 8
+
+[node name="QueueScroll" type="ScrollContainer" parent="Layout/BottomRow/Margin" unique_id=1610000036]
+unique_name_in_owner = true
+layout_mode = 2
+horizontal_scroll_mode = 3
+vertical_scroll_mode = 0
+scroll_deadzone = 8
+
+[node name="QueueList" type="HBoxContainer" parent="Layout/BottomRow/Margin/QueueScroll" unique_id=1610000037]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="AdScroll" type="ScrollContainer" parent="Layout/BottomRow/Margin" unique_id=1610000038]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+horizontal_scroll_mode = 3
+vertical_scroll_mode = 0
+scroll_deadzone = 8
+
+[node name="AdList" type="HBoxContainer" parent="Layout/BottomRow/Margin/AdScroll" unique_id=1610000039]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+mouse_filter = 2
+theme_override_constants/separation = 6
+
+[node name="Reveal" parent="." unique_id=1610000040 instance=ExtResource("7_reveal")]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2

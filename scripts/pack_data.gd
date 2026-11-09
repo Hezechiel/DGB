@@ -23,3 +23,5 @@ class_name PackData
 @export var currency: StringName = &"free"
 # Poradie v shope (vzostupne)
 @export var shop_order: int = 0
+# false = relikviar (Rewards), nezobrazuje sa v Shope
+@export var shop_visible: bool = true

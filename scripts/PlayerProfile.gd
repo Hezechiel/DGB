@@ -6,7 +6,8 @@ extends Node
 #
 # JEDINE mutacne API: grant_cards(), set_deck(), upgrade_card(), reset_profile() a penazenka
 # grant_currency(), try_spend_currency(), claim_daily_reward(), apply_wallet_snapshot()
-# a ponuka kariet refresh_card_offers(), buy_card_offer(). Neskor sa
+# a ponuka kariet refresh_card_offers(), buy_card_offer() a relikviare (Rewards)
+# update_reward_timers(), record_match_result(), grant_reliquary(), open_reliquary(). Neskor sa
 # z nich stanu server volania — nikto iny NESMIE menit zbierku ani zostatky priamo.
 # Lokalny save je cheatovatelny; pre testovanie je to v poriadku.
 # Ziadne sceny/nody — rovnaky kontrakt ako EnergySystem.
@@ -17,9 +18,12 @@ signal profile_changed
 signal wallet_changed(currency: StringName, amount: int)
 # Zmena ponuky kariet v Shope (refresh / kupa).
 signal offers_changed
+# Relikviare: fronta / free casovac / denny play progres. NIE profile_changed
+# (grant_cards() pri otvoreni ho emituje sam ako doteraz).
+signal rewards_changed
 
 const SAVE_PATH := "user://profile.json"
-const SAVE_VERSION := 3
+const SAVE_VERSION := 4
 const DECK_SIZE := 7
 # Ladiace cisla progresie (kopie na level, nasobice). Rovnaky resource ako
 # BattleManager.LEVEL_CURVE — cisto data, ziadna scena.
@@ -28,6 +32,8 @@ const LEVEL_CURVE: LevelCurve = preload("res://data/progression/level_curve.tres
 const DAILY_REWARD: DailyRewardData = preload("res://data/economy/daily_reward.tres")
 # Ponuka kariet: pocet, vahy rarit, ceny — cisto data.
 const CARD_OFFER_CHART: CardOfferChart = preload("res://data/economy/card_offers.tres")
+# Zdroje relikviarov (FREE casovac, DAILY PLAY, VICTORY) — cisto data.
+const REWARDS: RewardsConfig = preload("res://data/economy/rewards.tres")
 
 # Starter grant — prvy start (alebo poskodeny/nekompatibilny save).
 const STARTER_HERO: StringName = &"hero_zeus"
@@ -55,6 +61,12 @@ var _wallet: Dictionary = {}
 # Ponuka kariet — LEN v pamati (session). Restart = nova ponuka. TODO(server): server drzi
 # sadu aj kupene a vracia ju pri starte.
 var _offers: Array = []   # [{ "id": StringName, "bought": bool }]
+# Relikviare (Rewards)
+var _reliquaries: Array[StringName] = []   # fronta pack id, FIFO
+var _free_next_at: int = 0                 # unix s; 0 = pozastavene (zasoba plna)
+var _play_day: String = ""                 # lokalny datum "YYYY-MM-DD"
+var _play_count: int = 0
+var _play_claimed: bool = false
 
 func _ready() -> void:
 	load_profile()
@@ -167,6 +179,29 @@ func get_offer_price(card_id: StringName) -> Dictionary:
 		"copies": CARD_OFFER_CHART.copies_for(rarity),
 	}
 
+# Fronta relikviarov (kopia), index 0 = najstarsi.
+func get_reliquary_queue() -> Array[StringName]:
+	return _reliquaries.duplicate()
+
+# Sekundy do dalsieho free relikviara; -1 = pozastavene (zasoba plna).
+func get_free_reliquary_seconds_left() -> int:
+	if _free_next_at == 0:
+		return -1
+	return maxi(_free_next_at - _now(), 0)
+
+# Kolko free relikviarov je vo fronte.
+func get_free_reliquary_stock() -> int:
+	return _reliquaries.count(REWARDS.free_pack_id)
+
+# {count, goal, claimed}. Uvazuje novy den, ale NIC nemeni (to robi update_reward_timers).
+func get_play_progress() -> Dictionary:
+	var same_day := _play_day == Time.get_date_string_from_system()
+	return {
+		"count": _play_count if same_day else 0,
+		"goal": REWARDS.play_goal,
+		"claimed": _play_claimed if same_day else false,
+	}
+
 # --- Mutacne API ---
 
 func grant_cards(ids: Array[StringName]) -> void:
@@ -211,10 +246,13 @@ func reset_profile() -> void:
 	_active_hero = &""
 	_apply_starter()
 	_wallet = STARTER_WALLET.duplicate()
+	_reset_rewards_state()
 	save_profile()
 	profile_changed.emit()
 	for currency in CURRENCIES:
 		wallet_changed.emit(currency, get_currency(currency))
+	# prvy free relikviar hned (tester friendly) + rewards_changed
+	update_reward_timers()
 
 # --- Penazenka (mutacne API) ---
 # Neskor sa z nich stanu server requesty, rovnako ako grant_cards().
@@ -309,6 +347,112 @@ func apply_wallet_snapshot(snapshot: Dictionary) -> void:
 	if changed:
 		save_profile()
 
+# --- Relikviare (mutacne API) ---
+
+# Dobehne FREE casovac (dobehnute intervaly sa doplnia az po zasobu) a novy den
+# pre DAILY PLAY. Vola sa pri starte, pred kazdou rewards mutaciou a z UI (Rewards tab).
+# SERVER SEAM: neskor stav casovaca a denneho progresu drzi server (jeho hodiny),
+# klient len zobrazuje snapshot.
+func update_reward_timers() -> void:
+	var now := _now()
+	var interval := _free_interval_s()
+	var changed := false
+	# hodiny posunute dozadu -> casovac znova od teraz
+	if _free_next_at > 0 and _free_next_at - now > interval:
+		_free_next_at = now + interval
+		changed = true
+	while get_free_reliquary_stock() < REWARDS.free_max_stock and _free_next_at > 0 and now >= _free_next_at:
+		_enqueue(REWARDS.free_pack_id, "free_timer")
+		_free_next_at += interval
+		changed = true
+	if get_free_reliquary_stock() >= REWARDS.free_max_stock:
+		if _free_next_at != 0:
+			_free_next_at = 0
+			changed = true
+	elif _free_next_at == 0:
+		# samooprava: zasoba nie je plna, ale casovac stoji (rucne upraveny save)
+		_free_next_at = now + interval
+		changed = true
+	var today := Time.get_date_string_from_system()
+	if _play_day != today:
+		_play_day = today
+		_play_count = 0
+		_play_claimed = false
+		changed = true
+	if changed:
+		save_profile()
+		rewards_changed.emit()
+
+# Zapocita dohrany zapas (vyhra/prehra/remiza = +1 DAILY PLAY), vyhra prida VICTORY.
+# Vrati pridane relikviare.
+# SERVER SEAM: neskor server zapise vysledok sam z autoritativneho zapasu — klient
+# vysledok NIKDY neposiela; toto len prijme zoznam pridanych relikviarov.
+func record_match_result(winner: String) -> Array[StringName]:
+	update_reward_timers()
+	var added: Array[StringName] = []
+	_play_count = mini(_play_count + 1, REWARDS.play_goal)
+	if _play_count >= REWARDS.play_goal and not _play_claimed:
+		_enqueue(REWARDS.play_pack_id, "daily_play")
+		added.append(REWARDS.play_pack_id)
+		_play_claimed = true
+	if winner == "player":
+		_enqueue(REWARDS.victory_pack_id, "victory")
+		added.append(REWARDS.victory_pack_id)
+	DebugLog.info("rewards", "match %s -> play %d/%d" % [winner, _play_count, REWARDS.play_goal])
+	save_profile()
+	rewards_changed.emit()
+	return added
+
+# Prida relikviar do fronty (eventy / mail neskor; debug). Len shop_visible == false packy.
+# SERVER SEAM: neskor ho prida len server (event/mail), klient dostane novu frontu.
+func grant_reliquary(pack_id: StringName) -> void:
+	if not _is_known_pack(pack_id):
+		push_error("PlayerProfile: grant_reliquary neznamy pack '%s'" % pack_id)
+		return
+	if CardDB.get_pack(pack_id).shop_visible:
+		push_error("PlayerProfile: grant_reliquary '%s' nie je relikviar (shop_visible)" % pack_id)
+		return
+	update_reward_timers()
+	_enqueue(pack_id, "grant")
+	save_profile()
+	rewards_changed.emit()
+
+# Otvori relikviar na indexe fronty: vyberie ho, zrolluje a pripise karty.
+# Vrati {"pack_id": StringName, "cards": Array[StringName], "is_new": Array[bool]};
+# neplatny index -> {}.
+# SERVER SEAM: neskor request open_reliquary(index) — server overi frontu, zrolluje
+# a vrati karty + novu frontu. Klient nikdy neposiela vysledok hodu.
+func open_reliquary(index: int, rng: RandomNumberGenerator) -> Dictionary:
+	update_reward_timers()
+	if index < 0 or index >= _reliquaries.size():
+		return {}
+	var pack_id: StringName = _reliquaries[index]
+	_reliquaries.remove_at(index)
+	if pack_id == REWARDS.free_pack_id and _free_next_at == 0:
+		# zasoba uz nie je plna -> casovac znova bezi
+		_free_next_at = _now() + _free_interval_s()
+	if not _is_known_pack(pack_id):
+		push_warning("PlayerProfile: relikviar '%s' uz neexistuje — zahadzujem" % pack_id)
+		save_profile()
+		rewards_changed.emit()
+		return {}
+	var pack := CardDB.get_pack(pack_id)
+	var rolled := PackRoller.roll(pack, rng, CardDB.get_pack_pool(pack.faction))
+
+	# NEW sa urcuje PRED grantom; id padnute 2x v jednom balicku je NEW len prvy raz
+	var is_new: Array[bool] = []
+	var seen := {}
+	for id in rolled:
+		var owned := owns_card(id) or owns_hero(id)
+		is_new.append(not owned and not seen.has(id))
+		seen[id] = true
+
+	grant_cards(rolled)
+	DebugLog.info("rewards", "open %s -> %s, queue=%s" % [pack_id, rolled, _reliquaries])
+	save_profile()
+	rewards_changed.emit()
+	return {"pack_id": pack_id, "cards": rolled, "is_new": is_new}
+
 # --- Persistencia ---
 
 func save_profile() -> void:
@@ -327,6 +471,16 @@ func save_profile() -> void:
 	var wallet_out := {}
 	for currency in CURRENCIES:
 		wallet_out[String(currency)] = get_currency(currency)
+	var queue_out: Array[String] = []
+	for id in _reliquaries:
+		queue_out.append(String(id))
+	var rewards_out := {
+		"queue": queue_out,
+		"free_next_at": _free_next_at,
+		"play_day": _play_day,
+		"play_count": _play_count,
+		"play_claimed": _play_claimed,
+	}
 	var data := {
 		"save_version": SAVE_VERSION,
 		"cards": cards_out,
@@ -334,6 +488,7 @@ func save_profile() -> void:
 		"active_hero": String(_active_hero),
 		"decks": decks_out,
 		"wallet": wallet_out,
+		"rewards": rewards_out,
 	}
 	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
 	if file == null:
@@ -351,12 +506,14 @@ func load_profile() -> void:
 	_wallet.clear()
 	for currency in CURRENCIES:
 		_wallet[currency] = 0
+	_reset_rewards_state()
 
 	if not FileAccess.file_exists(SAVE_PATH):
 		# prvy start
 		_apply_starter()
 		_wallet = STARTER_WALLET.duplicate()
 		save_profile()
+		update_reward_timers()
 		_check_content()
 		_print_summary()
 		return
@@ -364,11 +521,12 @@ func load_profile() -> void:
 	var text := FileAccess.get_file_as_string(SAVE_PATH)
 	var parsed: Variant = JSON.parse_string(text)
 	var version := int(parsed.get("save_version", -1)) if parsed is Dictionary else -1
-	if version != 1 and version != 2 and version != SAVE_VERSION:
+	if version < 1 or version > SAVE_VERSION:
 		push_warning("PlayerProfile: poskodeny alebo nekompatibilny save — obnovujem starter profil")
 		_apply_starter()
 		_wallet = STARTER_WALLET.duplicate()
 		save_profile()
+		update_reward_timers()
 		_check_content()
 		_print_summary()
 		return
@@ -422,10 +580,42 @@ func load_profile() -> void:
 			push_warning("PlayerProfile: save nema platnu penazenku — zostatky 0")
 	_sync_wallet_at_start(saved_wallet)
 
+	# Relikviare: v1..v3 ich nemali -> prazdna fronta, prvy free hned (_reset_rewards_state hore).
+	if version < 4:
+		DebugLog.info("profile", "migrated save v%d -> v4" % version)
+		needs_save = true
+	else:
+		_read_rewards(parsed.get("rewards"))
+
 	if needs_save:
 		save_profile()
+	update_reward_timers()
 	_check_content()
 	_print_summary()
+
+# v4 "rewards" blok. Zle typy -> predvolene hodnoty; nezname pack id z fronty von.
+func _read_rewards(raw: Variant) -> void:
+	if not (raw is Dictionary):
+		push_warning("PlayerProfile: save nema platny rewards blok — predvolene hodnoty")
+		return
+	_reliquaries.clear()
+	for pack_id in _read_id_list(raw.get("queue")):
+		if _is_known_pack(pack_id):
+			_reliquaries.append(pack_id)
+		else:
+			push_warning("PlayerProfile: neznamy relikviar '%s' v save — zahadzujem" % pack_id)
+	var next_raw: Variant = raw.get("free_next_at")
+	if next_raw is int or next_raw is float:
+		_free_next_at = maxi(int(next_raw), 0)
+	var day_raw: Variant = raw.get("play_day")
+	if day_raw is String:
+		_play_day = day_raw
+	var count_raw: Variant = raw.get("play_count")
+	if count_raw is int or count_raw is float:
+		_play_count = clampi(int(count_raw), 0, REWARDS.play_goal)
+	var claimed_raw: Variant = raw.get("play_claimed")
+	if claimed_raw is bool:
+		_play_claimed = claimed_raw
 
 # TODO(server): pri starte server posle penazenku; zatial je "server" lokalny save.
 # Sietovy fetch nahradi len tuto funkciu.
@@ -433,6 +623,29 @@ func _sync_wallet_at_start(saved_wallet: Dictionary) -> void:
 	apply_wallet_snapshot(saved_wallet)
 
 # --- Interne ---
+
+func _now() -> int:
+	return int(Time.get_unix_time_from_system())
+
+func _free_interval_s() -> int:
+	return maxi(int(REWARDS.free_interval_hours * 3600.0), 1)
+
+# CardDB nema has_pack a get_pack() na nezname id hlasi push_error.
+func _is_known_pack(pack_id: StringName) -> bool:
+	return CardDB.list_pack_ids().has(pack_id)
+
+func _enqueue(pack_id: StringName, reason: String) -> void:
+	_reliquaries.append(pack_id)
+	DebugLog.info("rewards", "%s +%s -> queue=%s" % [reason, pack_id, _reliquaries])
+
+# Prazdna fronta, prvy free relikviar hned (_free_next_at = teraz), play progres od nuly.
+# Novy profil, reset, poskodeny save aj migracia v1..v3.
+func _reset_rewards_state() -> void:
+	_reliquaries.clear()
+	_free_next_at = _now()
+	_play_day = ""
+	_play_count = 0
+	_play_claimed = false
 
 func _emit_wallet(currency: StringName, delta: int, reason: String) -> void:
 	var balance := get_currency(currency)
@@ -552,3 +765,5 @@ func _print_summary() -> void:
 		_active_hero, get_deck_cards(), _decks.size(), _cards.size(), _heroes.size()])
 	DebugLog.info("profile", "wallet gold=%d crystals=%d" % [
 		get_currency(CURRENCY_GOLD), get_currency(CURRENCY_CRYSTALS)])
+	DebugLog.info("rewards", "queue=%s free_in=%ds play=%s" % [
+		_reliquaries, get_free_reliquary_seconds_left(), get_play_progress()])

@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="PackData" format=3]
+
+[ext_resource type="Script" uid="uid://cw8lgfvw42ch3" path="res://scripts/pack_data.gd" id="1_packdata"]
+
+[resource]
+script = ExtResource("1_packdata")
+id = &"greek_victory_reliquary"
+display_name = "Victory Reliquary"
+card_count = 3
+rarity_weights = PackedFloat32Array(70, 22, 6, 2, 0)
+guaranteed_min_rarity = 0
+price = 0
+chest_texture_path = "res://assets/menu/shop/chest2.png"
+currency = &"free"
+shop_visible = false
