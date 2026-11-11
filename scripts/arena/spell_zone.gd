@@ -38,6 +38,24 @@ var _tick_left: float = 0.0
 # SpellData resource sa nikdy nemeni. CC trvania sa neskaluju.
 var _damage: int = 0
 
+# Skupina zon (add_to_group nizsie) — AI hrdina (hero_dummy.gd) cita zony cez gettery
+# nizsie, aby vedel uhnut. Len citanie, ziadna zmena spravania zony.
+func _ready() -> void:
+	add_to_group("spell_zones")
+
+func get_caster_team() -> String:
+	return caster_team
+
+func get_radius() -> float:
+	return spell.radius if spell != null else 0.0
+
+# Hrozba = varovny cast ALEBO zona, ktora este tika. Instantny spell po
+# dopade / zona prehravajuca uz len dobeh animacie = ziadna hrozba.
+func is_threat() -> bool:
+	if spell == null:
+		return false
+	return _phase == PHASE_CAST or (_phase == PHASE_ZONE and _zone_left > 0.0)
+
 # Volane PRED add_child() (spawn flow: instantiate → configure →
 # add_child), rovnaky kontrakt ako unit.configure()/hero.configure().
 func configure(data: SpellData, team: String, pos: Vector2, damage_mult: float = 1.0) -> void:

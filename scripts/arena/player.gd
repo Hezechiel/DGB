@@ -17,6 +17,7 @@ var slow_left: float = 0.0
 var slow_multiplier: float = 1.0
 
 func apply_stun(duration: float) -> void:
+	_end_dash()  # stun prerusi beziaci dash
 	stun_left = maxf(stun_left, duration)
 	if is_attacking:
 		_cancel_attack_windup()
@@ -35,6 +36,7 @@ var knockback_left: float = 0.0
 var knockback_velocity: Vector2 = Vector2.ZERO
 
 func apply_knockback(direction: Vector2, distance: float, duration: float) -> void:
+	_end_dash()  # knockback prerusi beziaci dash
 	if is_dead or distance <= 0.0:
 		return
 	# povinne: zamknuty windup vypina _physics_process — bez cancelu by sa posun nikdy nespustil
@@ -43,6 +45,54 @@ func apply_knockback(direction: Vector2, distance: float, duration: float) -> vo
 	knockback_velocity = direction.normalized() * (distance / duration)
 	knockback_left = duration
 	_nav_goal = Vector2.INF  # stara cesta po posune neplati
+
+# === DASH === kratky rychly vynuteny pohyb platenym z DashMeter (cista logika).
+# Ignoruje slow; stun a knockback ho PRERUSIA, root nie (0.15 s dobehne).
+# Pocas dashu hrdina prechadza cez jednotky (docasne vypnuty mask bit 2
+# unit_body), prekazky/struktury ho stale zastavia. Ziadne i-frames.
+# Tap-to-move ciel prezije — po dashi hrdina pokracuje k InputR.move_target.
+var dash_meter: DashMeter = DashMeter.new()  # default pre F6 bez HeroData
+var dash_left: float = 0.0
+var dash_velocity: Vector2 = Vector2.ZERO
+var _dash_restore_unit_mask: bool = false
+var _is_spawning: bool = false
+var last_dash_distance: float = 0.0  # dlzka posledneho spusteneho dashu (px)
+
+func try_dash(world_pos: Vector2) -> bool:
+	if is_dead or _is_spawning or BattleManager.is_match_over():
+		return false
+	if stun_left > 0.0 or root_left > 0.0 or knockback_left > 0.0 or dash_left > 0.0:
+		return false
+	if global_position.distance_squared_to(world_pos) < 1.0:
+		return false
+	var amount := dash_meter.consume()
+	if amount <= 0.0:
+		return false
+	last_dash_distance = DashMeter.FULL_DISTANCE * amount
+	# zrusi windup a zaroven zapne physics_process spat (zamknuty windup ho vypina)
+	_cancel_attack_windup()
+	var dir := (world_pos - global_position).normalized()
+	dash_velocity = dir * DashMeter.SPEED
+	dash_left = DashMeter.FULL_DISTANCE * amount / DashMeter.SPEED
+	last_direction = dir
+	_dash_restore_unit_mask = get_collision_mask_value(2)
+	if _dash_restore_unit_mask:
+		set_collision_mask_value(2, false)
+	return true
+
+# Bezpecne aj ked ziaden dash nebezi (no-op).
+func _end_dash() -> void:
+	if dash_left <= 0.0 and not _dash_restore_unit_mask:
+		return
+	dash_left = 0.0
+	velocity = Vector2.ZERO
+	if _dash_restore_unit_mask:
+		set_collision_mask_value(2, true)
+		_dash_restore_unit_mask = false
+	_nav_goal = Vector2.INF  # stara cesta po posune neplati (ako knockback)
+
+func get_dash_meter() -> DashMeter:
+	return dash_meter
 
 # === SKILL BOHA === cooldown + try_cast — ZAMERNA duplikacia s hero_dummy.gd
 # (rovnako ako status efekty). Samotny efekt je v SkillEffects (jedno miesto).
@@ -55,6 +105,10 @@ func _process(delta: float) -> void:
 	# netika pocas smrti, tika aj pocas stunu
 	if not is_dead and skill_cd_left > 0.0:
 		skill_cd_left = maxf(skill_cd_left - delta, 0.0)
+	# dash meter — rovnake pravidlo ako skill cooldown (netika v smrti, tika v stune)
+	if not is_dead:
+		dash_meter.tick(delta)
+		health_bar.set_dash(dash_meter.value)  # early-out ked sa nezmenil
 
 func _reset_skill_cooldown() -> void:
 	skill_cd_left = skill.cooldown if skill != null else 0.0
@@ -153,6 +207,7 @@ func configure(data: HeroData, _new_team: String, stat_mods: Dictionary = {}) ->
 	attack_type = data.attack_type
 	can_move_while_attacking = data.can_move_while_attacking
 	skill = data.skill
+	dash_meter = DashMeter.new(data.dash_charges, data.dash_recharge_time)
 	if data.sprite_frames != null:
 		$AnimatedSprite2D.sprite_frames = data.sprite_frames
 
@@ -160,6 +215,7 @@ func _ready() -> void:
 	health_points = max_hp
 	_reset_skill_cooldown()
 	health_bar.init(max_hp, "player")
+	health_bar.init_dash(dash_meter.max_charges)
 	add_to_group("team_player")
 	add_to_group("heroes")
 	BattleManager.register(self, "player")
@@ -189,6 +245,16 @@ func _physics_process(delta):
 		update_idle_animation()
 		if knockback_left <= 0.0:
 			velocity = Vector2.ZERO
+		return
+
+	# dash — rovnaky tvar ako knockback; bez utokov, ignoruje slow, walk klip
+	if dash_left > 0.0:
+		dash_left = maxf(dash_left - delta, 0.0)
+		velocity = dash_velocity
+		move_and_slide()
+		update_animation(dash_velocity)
+		if dash_left <= 0.0:
+			_end_dash()
 		return
 
 	# stun = tvrde CC — ziadny pohyb ani strelba; cooldowny (invuln/fire)
@@ -463,6 +529,7 @@ func die() -> void:
 	if is_dead:
 		return
 	is_dead = true
+	_end_dash()
 	if hero_data != null:
 		AudioManager.play_sfx(hero_data.death_sfx, global_position)
 
@@ -516,6 +583,8 @@ func revive() -> void:
 	BattleManager.register(self, "player")
 	invuln_left = 1.0
 	knockback_left = 0.0  # zvysok posunu zo smrti nesmie odtlacit hrdinu zo spawnu
+	_end_dash()
+	dash_meter.refill()  # po respawne plny meter
 	_reset_skill_cooldown()
 	await play_spawn_animation()
 
@@ -675,6 +744,7 @@ func update_idle_animation() -> void:
 func play_spawn_animation() -> void:
 	if hero_data != null:
 		AudioManager.play_voice(hero_data.spawn_voice)  # &"" = ticho, play_voice to osetri
+	_is_spawning = true  # try_dash odmietne — inak by dash "cakal" na zapnutie physics
 	set_physics_process(false)
 	velocity = Vector2.ZERO
 	var frames := sprite.sprite_frames
@@ -686,6 +756,8 @@ func play_spawn_animation() -> void:
 		if fc > 0 and spd > 0.0:
 			await get_tree().create_timer(fc / spd).timeout
 	if is_dead:
+		_is_spawning = false
 		return  # zomrel pocas spawn klipu — die() uz prebehol, nekriesime physics
+	_is_spawning = false
 	set_physics_process(true)
 	update_idle_animation()

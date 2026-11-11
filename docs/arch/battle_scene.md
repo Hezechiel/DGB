@@ -13,6 +13,14 @@
   navmesh (`BattleManager.snap_to_navigation()`) before handing it to
   `InputR.set_move_target()` and `MoveMarker.show_at()`, so the marker
   always shows the point the hero will actually reach (`combat_movement.md` Navigation).
+  **Double-tap dash (Nov 2026):** after the move command, the same release
+  goes to `InputR.register_ground_tap(event.position)` (screen space); a
+  closed pair calls `player.try_dash(world_pos)` with the snapped point. If
+  the tap was closer than `player.last_dash_distance`, the hero would
+  overshoot and walk back, so `InputR.clear_move_target()` +
+  `move_marker.hide_marker()` stop it at the dash end. A suppressed release
+  (tap on an enemy, card tap/drag) calls `InputR.reset_double_tap()` before
+  returning, so it never forms half of a pair.
 - `scenes/arena/maps/<Name>Map.tscn` (e.g. `GreekPlateauMap.tscn`,
   `NordPlainsMap.tscn`) — one per map, instantiated into `arena.tscn`'s
   `MapRoot` at runtime. Holds that map's two horizontal lanes; per team:
@@ -310,6 +318,7 @@ Implemented in `BattleManager.gd`: `on_hero_died(hero, team)` starts the respawn
 - Screen-edge pan during card drag-to-deploy overrides follow mode while a card drag is active, so the player can always reach any map position while deploying
 - `recenter_on_player(duration := 0.4)` tweens back to the player (`EASE_OUT`/`TRANS_QUART`), wired to HUD's `PlayerCharacter` button
 - **No zoom** — the camera is fixed-zoom; there is no pinch/scroll handling anywhere in this script
+- A finished drag-pan (release while `_is_dragging`) consumes the release and calls `InputR.reset_double_tap()` — tap → pan → tap never dashes (Nov 2026)
 
 ### Card hand & drag-to-deploy (from CLAUDE.md)
 
@@ -350,10 +359,11 @@ Implemented in `BattleManager.gd`: `on_hero_died(hero, team)` starts the respawn
 - `set_health(new_hp: int)` — call after every HP change; tweens bar value (0.12s)
 - Team colors: `"player"` → green, `"enemy"` → red, `"coop"` → blue (reserved)
 - `always_visible: bool` export — `true` for hero characters and Command Posts/bases; `false` for units and turrets
+- **Dash strip (Nov 2026):** `init_dash(max_charges)` / `set_dash(value)` — thin yellow segmented strip 1 px under `Bar` (2 px tall, 1 px gaps; bright = full segment, dim = charging), drawn in `_draw()`, no extra nodes. Disabled (`_dash_max = 0`) unless `init_dash` is called — only `player.gd` calls it, so the enemy hero, units and turrets (same shared scene) never show it. `set_dash` early-outs when the value is unchanged. Hides with the Control (dead hero)
 
 ### Move marker (from CLAUDE.md)
 
-`scenes/arena/MoveMarker.tscn` / `scripts/arena/move_marker.gd` — `show_at(pos)` pattern: moves to world position, plays animation, auto-hides on `animation_finished`.
+`scenes/arena/MoveMarker.tscn` / `scripts/arena/move_marker.gd` — `show_at(pos)` pattern: moves to world position, plays animation, auto-hides on `animation_finished`. `hide_marker()` hides it immediately — used when a close double-tap stops the hero at the dash end (Nov 2026).
 
 ### Sprite sizes (from CLAUDE.md Display & Scale Standards)
 

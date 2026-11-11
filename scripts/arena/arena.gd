@@ -109,12 +109,22 @@ func _unhandled_input(event: InputEvent) -> void:
 	if event is InputEventScreenTouch and not event.pressed:
 		# release tapnutia ktoreho press bol pouzity na vyber primary_target sa ignoruje
 		if InputR.is_release_suppressed(event.index):
+			# tap na enemy/kartu nikdy netvori polovicu double-tapu
+			InputR.reset_double_tap()
 			return
 		var world_pos: Vector2 = get_canvas_transform().affine_inverse() * event.position
 		world_pos = BattleManager.snap_to_navigation(world_pos) # prisun tap mimo navmesh (prekazka/hranica) na najblizsi platny bod
 		InputR.set_move_target(world_pos)
 		player.on_new_move_command() # novy tap-to-move zrusi manualny lock na cieli
 		move_marker.show_at(world_pos)
+		# double-tap na zem = dash k druhemu tapu (oba tapy ostavaju aj tap-to-move)
+		if InputR.register_ground_tap(event.position):
+			var from := player.global_position
+			if player.try_dash(world_pos):
+				# tap blizsie ako dlzka dashu → hrdina by preletel a vracal sa; zastav ho na konci dashu
+				if from.distance_squared_to(world_pos) <= player.last_dash_distance * player.last_dash_distance:
+					InputR.clear_move_target()
+				move_marker.hide_marker()
 
 func _on_hud_exit_requested() -> void:
 	get_tree().change_scene_to_file(MAIN_MENU_SCENE)
@@ -192,3 +202,9 @@ func _input(event: InputEvent) -> void:
 			for _i in 10:
 				AudioManager.play_sfx(&"sword_hit", player.global_position)
 			print("[audio] 10x sword_hit spam")
+		# --- DEBUG dash (len debug build) — dash smerom ku kurzoru mysi ---
+		if event.keycode == KEY_K:
+			var world := get_canvas_transform().affine_inverse() * get_viewport().get_mouse_position()
+			var ok: bool = player.try_dash(world)
+			var m: DashMeter = player.get_dash_meter()
+			print("[dash] try_dash -> %s | meter=%.2f/%d" % [ok, m.value, m.max_charges])

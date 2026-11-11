@@ -5,10 +5,10 @@
 [ext_resource type="PackedScene" uid="uid://bx5ubwkcebqbx" path="res://scenes/arena/MoveMarker.tscn" id="8_mvmrk"]
 [ext_resource type="PackedScene" uid="uid://dghostscn0001" path="res://scenes/arena/DeployGhost.tscn" id="9_ghost"]
 [ext_resource type="Script" uid="uid://dpoqc2pl2x3x4" path="res://scripts/arena/arena_camera.gd" id="12_cam"]
-[ext_resource type="PackedScene" path="res://scenes/arena/maps/DenialZoneOverlay.tscn" id="15_denialzone"]
+[ext_resource type="PackedScene" uid="uid://bbake6o0851pb" path="res://scenes/arena/maps/DenialZoneOverlay.tscn" id="15_denialzone"]
 [ext_resource type="Script" uid="uid://dhupbpnth48b" path="res://scripts/arena/desaturate_overlay.gd" id="16_desatscript"]
 [ext_resource type="Shader" uid="uid://dwntbccsgplut" path="res://scenes/arena/ui/shaders/desaturate.gdshader" id="17_desatshader"]
-[ext_resource type="PackedScene" path="res://scenes/arena/ui/MatchResultBanner.tscn" id="18_banner"]
+[ext_resource type="PackedScene" uid="uid://bi1anx2rjuvge" path="res://scenes/arena/ui/MatchResultBanner.tscn" id="18_banner"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_desat"]
 shader = ExtResource("17_desatshader")

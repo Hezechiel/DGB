@@ -112,6 +112,24 @@ are mock data (`MatchConfig`).
   % of the god's Attack Power, so it scales with god level. The AI god uses
   its skill too. Built so far: Zeus (Chain Lightning) and Poseidon (Tidal
   Wave). Designs and shared rules: `heroes_greek.md`.
+- **Dash (Nov 2026).** Double-tap on the map dashes the hero toward the
+  second tap; both taps are still normal tap-to-move. A double-tap on an
+  enemy does not dash. Charge meter per god: 1 charge by default (Hermes
+  planned at 3 — stores more, never refills faster), 2.5 s per charge,
+  segments fill one after another. A dash spends min(meter, 1 charge) and is
+  refused below 0.25; distance scales with the spend (full 48 px, half ≈
+  24 px) at a fixed 320 px/s, so a partial dash is shorter, never slower —
+  well-timed partial dashes allow zig-zagging. Purpose: dodging spell
+  telegraphs and chasing. Walking out of a telegraph from near its center
+  takes ~0.35–0.5 s plus reaction time; a full dash covers 48 px in 0.15 s,
+  enough to clear Stun (24 px) and Net (36 px) from anywhere inside and Storm
+  (50 px) from anywhere but its very center. No i-frames; ignores slow; refused while stunned, rooted
+  or knocked back; stun and knockback interrupt a running dash (root
+  doesn't). Shown as a thin yellow segmented strip under the local hero's
+  HP bar (SWFA-style: bright = ready, dim = charging); the enemy's meter is
+  hidden. Double-tap on a hand card is reserved for a future "smart cast"
+  (attack spells → nearest enemy, units → near the hero), so double-tap
+  intentionally has two meanings: map = dash, hand = cast.
 ### 3.4 Death & respawn
 - Per-team respawn penalty: first death **3 s**, +1 s per subsequent death,
   capped at **10 s**. Counters are fully independent per team and persist for the
@@ -216,8 +234,9 @@ are mock data (`MatchConfig`).
   state — mirrors the local player hero's own auto-target-without-chase
   fallback, so the bot's baseline aggression matches what an unfocused
   local player already does, not a separately-tuned difficulty.
-- Explicitly deferred: difficulty tiers, reaction delay, deliberate
-  mistake injection, chasing beyond attack range.
+- Explicitly deferred: difficulty tiers, reaction delay (the dash dodge has
+  one, see Dash below), deliberate mistake injection, chasing beyond attack
+  range.
 
 **Wave 2 — card plays**
 - The AI side holds **its own hand on the player's exact rules**: a mirror of
@@ -251,6 +270,22 @@ are mock data (`MatchConfig`).
 - Explicitly deferred: which card answers what, where to place it, when to hold
   energy for a bigger play, varying the tick rate, and any reaction to the player
   (§6).
+
+**Dash (Nov 2026)** — training-AI quality on purpose (PvP is the main mode)
+- **Dodge:** when the AI stands inside an enemy spell zone (telegraph or a
+  still-ticking zone), it dashes straight away from the zone's center after a
+  random 0.25–0.75 s reaction delay — so it often gets hit anyway.
+  Short-cast spells like Stun (0.4 s) are rarely dodged; Storm almost always.
+  Its own team's spells never trigger a dodge. No prediction before a cast.
+- **Escape:** at `LOW_HP`, while retreating and with an enemy in attack
+  range, it dashes along its retreat path, then keeps retreating to a pod or
+  its spawn as usual.
+- **Chase:** at `NORMAL`, when the player hero is below 20 % HP and just
+  outside the AI's attack range (within one full dash of it), it dashes at
+  the player.
+- Escape and chase need a full charge; dodge takes any usable charge. At
+  least 0.6 s between AI dashes, at most one attempt per frame.
+- Known limitation: after a chase dash the AI keeps its normal targeting.
 ### 3.11 Spells
 - Spell cards are `CardData` with `spell_data` instead of `unit_data` — same
   hand, same draw cycle, same energy gate, same drag-to-play flow as unit
@@ -567,8 +602,8 @@ are mock data (`MatchConfig`).
   for this kind of single-use mechanic) have a stub spawn entry point
   (`BattleManager.spawn_healing_pod`) but no hero ability wired to it yet —
   which hero(s) get this, and when, is undecided.
-  - Enemy AI difficulty tuning (reaction delay, mistake injection, chase
-  behavior beyond attack range) is deferred — current bot behavior is a
+  - Enemy AI difficulty tuning (reaction delay — the dash dodge has one,
+  §3.10 — mistake injection, chase behavior beyond attack range) is deferred — current bot behavior is a
   single fixed baseline, not yet a "practice mode difficulty" concept.
 - Enemy AI card-play **tactics** (which card answers what, where to place it,
   whether to bank energy for a bigger play, whether the decision interval should
@@ -622,3 +657,11 @@ are mock data (`MatchConfig`).
   tap opens it in the Pantheon tab and in both Deck modes; deck changes are
   hold-and-drag only. Still open: a "Use" shortcut from the card detail.
 - Thematic name for the level-up button; description texts for cards and gods.
+- Dash i-frames: none today (§3.3). Should a dash grant a short
+  invulnerability window, or stay a pure movement tool?
+- Dash input: if double-tap misfires on device (280 ms / 40 px window), is a
+  swipe or a dedicated button the alternative?
+- Hermes' 3 dash charges: a 144 px burst (3 × 48 px) on top of Swift Theft —
+  balance unverified.
+- Double-tap smart cast on hand cards (attack spells → nearest enemy, units →
+  near the hero) — designed, not built.

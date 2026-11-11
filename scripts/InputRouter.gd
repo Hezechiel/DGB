@@ -35,3 +35,26 @@ func is_release_suppressed(touch_index: int) -> bool:
 		suppress_release_index = -1
 		return true
 	return false
+
+# === DOUBLE-TAP (dash) ===
+# Gesture state: dva rychle tapy na zem blizko seba = dash. Cisty stav,
+# ziadne scene referencie ani ine autoloady. Pozicia v SCREEN space (viewport
+# px), nie world — tolerancia prsta nezavisi od kamery.
+const DOUBLE_TAP_WINDOW_MS := 280
+const DOUBLE_TAP_MAX_DIST := 40.0   # viewport px (screen space, NIE world)
+var _last_tap_ms: int = -1
+var _last_tap_pos: Vector2 = Vector2.ZERO
+
+# true = tento tap uzavrel double-tap. Inak si ho zapamata ako prvy tap paru.
+func register_ground_tap(screen_pos: Vector2) -> bool:
+	var now := Time.get_ticks_msec()
+	if _last_tap_ms >= 0 and now - _last_tap_ms <= DOUBLE_TAP_WINDOW_MS \
+			and screen_pos.distance_squared_to(_last_tap_pos) <= DOUBLE_TAP_MAX_DIST * DOUBLE_TAP_MAX_DIST:
+		_last_tap_ms = -1   # reset po zasahu — triple tap = jeden dash, 3. tap zacne novy par
+		return true
+	_last_tap_ms = now
+	_last_tap_pos = screen_pos
+	return false
+
+func reset_double_tap() -> void:
+	_last_tap_ms = -1

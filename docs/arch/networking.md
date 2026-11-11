@@ -68,6 +68,10 @@ No transport exists. The prepared seams:
   sides must agree on, the same as the card database. Under a
   server-authoritative model the server runs the agents and clients only
   render positions.
+- **Dash is a goal too (Nov 2026).** The message is `{team, target_position}`;
+  the simulation validates it through its own `DashMeter` (charge, refusal
+  rules) and computes the distance itself — clients never send distance or
+  charge. The double-tap gesture (`InputR`) stays client-side input.
 - **The match manifest is the deck message.** Today `MatchConfig` is filled
   locally; with networking, both sides exchange `{hero_id, hero_level,
   card_levels}` once before the match and a server validates it against the

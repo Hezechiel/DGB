@@ -80,3 +80,46 @@ func _apply_team_color(team_name: String) -> void:
 	fill_style.corner_radius_bottom_left  = 2
 	fill_style.corner_radius_bottom_right = 2
 	bar.add_theme_stylebox_override("fill", fill_style)
+
+
+# === DASH STRIP ===
+# Tenky zlty segmentovany pas pod HP barom — LEN lokalny hrdina (player.gd
+# vola init_dash). HealthBar.tscn je zdielany s enemy hrdinom, jednotkami aj
+# vezami: tie init_dash nevolaju → _dash_max = 0 → nic sa nekresli.
+# Kreslene v kode (_draw), ziadne nove nody. Segmenty = DashMeter.value
+# rozlozene cez max_charges (dalsi segment sa plni az po naplneni predosleho).
+# Skryva sa spolu s Controlom (mrtvy hrdina → visible = false).
+const DASH_STRIP_GAP_Y := 1.0     # px pod Bar
+const DASH_STRIP_HEIGHT := 2.0
+const DASH_SEG_GAP := 1.0
+const DASH_COLOR_READY := Color(0.95, 0.8, 0.15)
+const DASH_COLOR_CHARGING := Color(0.95, 0.8, 0.15, 0.45)
+const DASH_COLOR_EMPTY := Color(0.12, 0.12, 0.12, 0.85)  # rovnaka ako pozadie Baru
+
+var _dash_max: int = 0   # 0 = strip vypnuty (default pre vsetkych okrem hraca)
+var _dash_value: float = 0.0
+
+func init_dash(max_charges: int) -> void:
+	_dash_max = maxi(max_charges, 0)
+	_dash_value = float(_dash_max)
+	queue_redraw()
+
+func set_dash(value: float) -> void:
+	if _dash_max == 0 or is_equal_approx(value, _dash_value):
+		return
+	_dash_value = value
+	queue_redraw()
+
+func _draw() -> void:
+	if _dash_max == 0:
+		return
+	var width := bar.size.x
+	var y := bar.position.y + bar.size.y + DASH_STRIP_GAP_Y
+	var seg_w := (width - DASH_SEG_GAP * (_dash_max - 1)) / _dash_max
+	for i in _dash_max:
+		var x := i * (seg_w + DASH_SEG_GAP)
+		draw_rect(Rect2(x, y, seg_w, DASH_STRIP_HEIGHT), DASH_COLOR_EMPTY)
+		var fill := clampf(_dash_value - i, 0.0, 1.0)
+		if fill > 0.0:
+			draw_rect(Rect2(x, y, seg_w * fill, DASH_STRIP_HEIGHT),
+					DASH_COLOR_READY if fill >= 1.0 else DASH_COLOR_CHARGING)

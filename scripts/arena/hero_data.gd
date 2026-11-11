@@ -75,3 +75,8 @@ enum AttackType { RANGED, MELEE }
 # Aktivny skill boha (data/heroes/<pantheon>/skills/). null = boh skill nema.
 # God's active skill; all its tuning values live in the SkillData file.
 @export var skill: SkillData
+# Dash meter (DashMeter): pocet segmentov a cas naplnenia JEDNEHO segmentu.
+# Segmenty sa plnia jeden po druhom (Hermes = 3). Vzdialenost/rychlost su
+# zatial globalne konstanty v DashMeter, nie per-god.
+@export var dash_charges: int = 1
+@export var dash_recharge_time: float = 2.5

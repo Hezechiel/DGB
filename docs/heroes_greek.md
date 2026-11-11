@@ -71,6 +71,11 @@ mirrors SWFA: name, Cooldown Time, effect in % of Attack Power.
   windup or animation). The other ten skills are data only until their
   effect is written; each lists under *Needs* the new mechanics it requires,
   so the cost is visible before one is picked.
+- **Basic dash (Nov 2026):** every god has the same basic dash, 48 px
+  (`game_design.md` §3.3). Skill movement stays the bigger move (Artemis'
+  hop ~60 px, Hermes' Swift Theft ~150 px; Nike's swipe distance not set
+  yet). Charges are per god: `HeroData.dash_charges` in the god's `.tres`
+  (default 1, 2.5 s per charge).
 
 ---
 
@@ -237,6 +242,8 @@ mirrors SWFA: name, Cooldown Time, effect in % of Attack Power.
 - Dashes to the target enemy on winged sandals (~150 px), dealing 180% of Attack Power and stealing 1 scroll energy from the enemy team.
 - *Balance:* An assassin's gap-closer with an economic edge. The steal is a hard cap of 1 energy per cast. The dash lands Hermes inside the enemy, so he needs Ram or a quick retreat. Can't target structures.
 - *Needs:* Targeted dash; an `EnergySystem` transfer (spend from one team, add to the other). Note: energy is server-authority material (`architecture.md` §7), so this is the first skill that touches the economy.
+
+**Dash charges:** 3 (planned; 2.5 s each, no faster refill — not set yet, `hero_hermes.tres` still uses the default 1).
  
 ---
  

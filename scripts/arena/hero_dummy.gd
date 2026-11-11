@@ -40,6 +40,7 @@ var slow_left: float = 0.0
 var slow_multiplier: float = 1.0
 
 func apply_stun(duration: float) -> void:
+	_end_dash()  # stun prerusi beziaci dash
 	stun_left = maxf(stun_left, duration)
 	if is_attacking:
 		_cancel_attack_windup()
@@ -58,6 +59,7 @@ var knockback_left: float = 0.0
 var knockback_velocity: Vector2 = Vector2.ZERO
 
 func apply_knockback(direction: Vector2, distance: float, duration: float) -> void:
+	_end_dash()  # knockback prerusi beziaci dash
 	if is_dead or distance <= 0.0:
 		return
 	# povinne: zamknuty windup vypina _physics_process — bez cancelu by sa posun nikdy nespustil
@@ -66,6 +68,143 @@ func apply_knockback(direction: Vector2, distance: float, duration: float) -> vo
 	knockback_velocity = direction.normalized() * (distance / duration)
 	knockback_left = duration
 	_nav_goal = Vector2.INF  # stara cesta po posune neplati
+
+# === DASH === ZAMERNA duplikacia s player.gd (rovnako ako status efekty /
+# knockback, ziadna zdielana base class). Kratky rychly vynuteny pohyb platenym
+# z DashMeter. Ignoruje slow; stun a knockback ho PRERUSIA, root nie. Pocas
+# dashu docasne vypnuty mask bit 2 (unit_body). Ziadne i-frames.
+# Enemy dash strip sa NEZOBRAZUJE (rozhodnute) — health bar sa tu nevola.
+var dash_meter: DashMeter = DashMeter.new()  # default pre F6 bez HeroData
+var dash_left: float = 0.0
+var dash_velocity: Vector2 = Vector2.ZERO
+var _dash_restore_unit_mask: bool = false
+var _is_spawning: bool = false
+var last_dash_distance: float = 0.0  # dlzka posledneho spusteneho dashu (px)
+
+func try_dash(world_pos: Vector2) -> bool:
+	if is_dead or _is_spawning or BattleManager.is_match_over():
+		return false
+	if stun_left > 0.0 or root_left > 0.0 or knockback_left > 0.0 or dash_left > 0.0:
+		return false
+	if global_position.distance_squared_to(world_pos) < 1.0:
+		return false
+	var amount := dash_meter.consume()
+	if amount <= 0.0:
+		return false
+	last_dash_distance = DashMeter.FULL_DISTANCE * amount
+	# zrusi windup a zaroven zapne physics_process spat (zamknuty windup ho vypina)
+	_cancel_attack_windup()
+	var dir := (world_pos - global_position).normalized()
+	dash_velocity = dir * DashMeter.SPEED
+	dash_left = DashMeter.FULL_DISTANCE * amount / DashMeter.SPEED
+	last_direction = dir
+	_dash_restore_unit_mask = get_collision_mask_value(2)
+	if _dash_restore_unit_mask:
+		set_collision_mask_value(2, false)
+	return true
+
+# Bezpecne aj ked ziaden dash nebezi (no-op).
+func _end_dash() -> void:
+	if dash_left <= 0.0 and not _dash_restore_unit_mask:
+		return
+	dash_left = 0.0
+	velocity = Vector2.ZERO
+	if _dash_restore_unit_mask:
+		set_collision_mask_value(2, true)
+		_dash_restore_unit_mask = false
+	_nav_goal = Vector2.INF  # stara cesta po posune neplati (ako knockback)
+
+func get_dash_meter() -> DashMeter:
+	return dash_meter
+
+# === AI DASH === rozhodovanie KEDY dashnut. Zije TU (potrebuje pozicie zon,
+# hrdinov, spawnu), NIE v HeroAI — HeroAI ostava cisty, bez pozicii.
+# Treningove AI: zamerne jednoduche a omylne (reakcny cas, ziadna predikcia).
+# Priorita (max jeden pokus za frame): 1) DODGE spell zony, 2) ESCAPE pri
+# LOW_HP v boji, 3) CHASE nizkeho-HP nepriatelskeho hrdinu.
+const AI_DODGE_DELAY_MIN := 0.25   # reakcny cas — AI nie je neomylne
+const AI_DODGE_DELAY_MAX := 0.75
+const AI_DASH_MIN_GAP := 0.6       # min. pauza medzi AI dashmi (Hermes nevystreli 3 naraz)
+const AI_DASH_FULL_FILL := 1.0     # escape/chase len s plnym nabojom
+var _rng := RandomNumberGenerator.new()
+var _ai_dash_gap_left: float = 0.0
+var _dodge_zone: Node2D = null
+var _dodge_delay_left: float = 0.0
+
+# smrt/respawn — ziadny visiaci dodge ani gap zo starej zony
+func _reset_ai_dash() -> void:
+	_dodge_zone = null
+	_dodge_delay_left = 0.0
+	_ai_dash_gap_left = 0.0
+
+# hp_state je int (HeroAI.State hodnota) — autoload nema class_name, viz _prev_hp_state.
+# steer_dir = smer march/retreat steeringu z tohto framu, zachyteny PRED strelbou
+# (sebaobrana _try_fire prepise last_direction smerom K nepriatelovi).
+func _update_ai_dash(delta: float, hp_state: int, is_marching_or_retreating: bool, steer_dir: Vector2) -> void:
+	_ai_dash_gap_left = maxf(_ai_dash_gap_left - delta, 0.0)
+	if _ai_dash_gap_left > 0.0 or dash_left > 0.0:
+		return
+
+	# 1) DODGE — nepriatelska zona, v ktorej PRAVE stojim (center-to-center,
+	#    rovnako ako BattleManager.get_targets_in_radius)
+	var threat: Node2D = null
+	for z in get_tree().get_nodes_in_group("spell_zones"):
+		if not is_instance_valid(z) or not z.is_threat() or z.get_caster_team() == team:
+			continue
+		var r: float = z.get_radius()
+		if global_position.distance_squared_to(z.global_position) <= r * r:
+			threat = z as Node2D
+			break
+	if threat == null:
+		_dodge_zone = null
+	else:
+		if threat != _dodge_zone:
+			_dodge_zone = threat
+			_dodge_delay_left = _rng.randf_range(AI_DODGE_DELAY_MIN, AI_DODGE_DELAY_MAX)
+		_dodge_delay_left -= delta
+		if _dodge_delay_left <= 0.0:
+			var away := global_position - threat.global_position
+			if away.length_squared() < 1.0:
+				# presne v strede — uhni smerom k vlastnemu spawnu
+				var spawn: Vector2 = BattleManager.snap_to_navigation(
+						BattleManager.hero_spawn_positions.get(team, global_position))
+				away = spawn - global_position
+			# odmietnuty pokus (malo naboja) skusi znova dalsi frame, kym som vnutri
+			if away.length_squared() >= 1.0 and try_dash(global_position + away.normalized() * DashMeter.FULL_DISTANCE):
+				_ai_dash_gap_left = AI_DASH_MIN_GAP
+				DebugLog.info("dash", "%s AI dodge (delay hotovy) meter=%.2f" % [team, dash_meter.value])
+		return  # v hrozbe (aj cakajuci dodge) — escape/chase sa preskocia
+
+	# 2) ESCAPE — LOW_HP (rovnaky prah ako heal-seek), ustupujem a som v boji
+	if hp_state == HeroAI.State.LOW_HP:
+		if is_marching_or_retreating and find_nearest_enemy() != null \
+				and dash_meter.value >= AI_DASH_FULL_FILL and steer_dir != Vector2.ZERO:
+			if try_dash(global_position + steer_dir.normalized() * DashMeter.FULL_DISTANCE):
+				_ai_dash_gap_left = AI_DASH_MIN_GAP
+				DebugLog.info("dash", "%s AI escape meter=%.2f" % [team, dash_meter.value])
+		return
+
+	# 3) CHASE — nepriatelsky hrdina pod LOW_HP_PCT tesne za mojim dosahom
+	if dash_meter.value < AI_DASH_FULL_FILL:
+		return
+	var enemy_team := SkillEffects.enemy_team_of(team)
+	# validacia PRED typovanim — freed instancia do typovanej premennej = runtime error
+	var opp_v: Variant = BattleManager.heroes.get(enemy_team)
+	if opp_v == null or not is_instance_valid(opp_v) or BattleManager.is_hero_dead(enemy_team):
+		return
+	var opp := opp_v as Node2D
+	if opp == null:
+		return
+	var opp_hp: float = float(opp.health_points) if "health_points" in opp else float(opp.hp)
+	var opp_max: float = maxf(float(opp.max_hp), 1.0)
+	if opp_hp / opp_max >= HeroAI.LOW_HP_PCT:
+		return
+	var d2 := global_position.distance_squared_to(opp.global_position)
+	var reach := attack_range + DashMeter.FULL_DISTANCE
+	if d2 > attack_range * attack_range and d2 <= reach * reach:
+		if try_dash(opp.global_position):
+			_ai_dash_gap_left = AI_DASH_MIN_GAP
+			DebugLog.info("dash", "%s AI chase meter=%.2f" % [team, dash_meter.value])
 
 # === SKILL BOHA === cooldown + try_cast — ZAMERNA duplikacia s player.gd
 # (rovnako ako status efekty). Samotny efekt je v SkillEffects (jedno miesto).
@@ -78,6 +217,9 @@ func _process(delta: float) -> void:
 	# netika pocas smrti, tika aj pocas stunu
 	if not is_dead and skill_cd_left > 0.0:
 		skill_cd_left = maxf(skill_cd_left - delta, 0.0)
+	# dash meter — rovnake pravidlo ako skill cooldown (netika v smrti, tika v stune)
+	if not is_dead:
+		dash_meter.tick(delta)
 
 func _reset_skill_cooldown() -> void:
 	skill_cd_left = skill.cooldown if skill != null else 0.0
@@ -156,6 +298,7 @@ func configure(data: HeroData, new_team: String, stat_mods: Dictionary = {}) -> 
 	attack_type = data.attack_type
 	can_move_while_attacking = data.can_move_while_attacking
 	skill = data.skill
+	dash_meter = DashMeter.new(data.dash_charges, data.dash_recharge_time)
 	if data.sprite_frames != null:
 		$AnimatedSprite2D.sprite_frames = data.sprite_frames
 
@@ -187,6 +330,8 @@ func _ready() -> void:
 	# hero_dummy.tscn to nema, tak ho skryjeme tu
 	target_marker.visible = false
 
+	_rng.randomize()  # AI dash reakcny cas
+
 	await play_spawn_animation()
 
 func _apply_hurtbox_layer() -> void:
@@ -211,6 +356,16 @@ func _physics_process(delta: float) -> void:
 		update_idle_animation()
 		if knockback_left <= 0.0:
 			velocity = Vector2.ZERO
+		return
+
+	# dash — rovnaky tvar ako knockback; bez AI/utokov, ignoruje slow, walk klip
+	if dash_left > 0.0:
+		dash_left = maxf(dash_left - delta, 0.0)
+		velocity = dash_velocity
+		move_and_slide()
+		update_animation(dash_velocity)
+		if dash_left <= 0.0:
+			_end_dash()
 		return
 
 	# stun = tvrde CC — ziadny pohyb ani strelba; fire_left pocas stunu
@@ -271,6 +426,9 @@ func _physics_process(delta: float) -> void:
 		else:
 			_stand_idle()
 
+	# smer steeringu PRED strelbou — _try_fire nizsie prepise last_direction k cielu
+	var steer_dir := last_direction
+
 	# strelba: volne ked hrdina stoji (idle), inak len sebaobrana ked je
 	# nepriatel velmi blizko (SELF_DEFENSE_RANGE_RATIO) — march/retreat ma
 	# prioritu, aby ustup skutocne znamenal ustup, ale hrdina sa nema
@@ -289,6 +447,9 @@ func _physics_process(delta: float) -> void:
 	# ziadne cluster skore ani reaction delay
 	if can_cast_skill():
 		try_cast_skill()
+
+	# AI dash — posledny krok framu (dodge / escape / chase)
+	_update_ai_dash(delta, hp_state, is_marching_or_retreating, steer_dir)
 
 # Prekontroluje/refreshne march ciel v pravidelnom intervale (unit.gd pattern).
 # Ak je aktualny ciel stale ziva platna struktura, ponecha ho.
@@ -545,6 +706,7 @@ func update_idle_animation() -> void:
 # nie `await animation_finished` — spawn_left moze byt loop=1 (architecture.md
 # §6, vzor spell_zone.gd "cast").
 func play_spawn_animation() -> void:
+	_is_spawning = true  # try_dash odmietne — inak by dash "cakal" na zapnutie physics
 	set_physics_process(false)
 	velocity = Vector2.ZERO
 	var frames: SpriteFrames = $AnimatedSprite2D.sprite_frames
@@ -556,7 +718,9 @@ func play_spawn_animation() -> void:
 		if fc > 0 and spd > 0.0:
 			await get_tree().create_timer(fc / spd).timeout
 	if is_dead:
+		_is_spawning = false
 		return  # zomrel pocas spawn klipu — die() uz prebehol, nekriesime physics
+	_is_spawning = false
 	set_physics_process(true)
 	update_idle_animation()
 
@@ -610,6 +774,8 @@ func die() -> void:
 	if is_dead:
 		return
 	is_dead = true
+	_end_dash()
+	_reset_ai_dash()
 	if hero_data != null:
 		AudioManager.play_sfx(hero_data.death_sfx, global_position)
 	_nav_goal = Vector2.INF
@@ -661,6 +827,9 @@ func revive() -> void:
 	heal_target = null
 	_nav_goal = Vector2.INF
 	knockback_left = 0.0  # zvysok posunu zo smrti nesmie odtlacit hrdinu zo spawnu
+	_end_dash()
+	dash_meter.refill()  # po respawne plny meter
+	_reset_ai_dash()
 	_reset_skill_cooldown()
 	await play_spawn_animation()
 

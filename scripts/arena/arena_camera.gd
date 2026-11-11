@@ -138,6 +138,8 @@ func _unhandled_input(event: InputEvent) -> void:
 			if _is_dragging:
 				# drag prave skoncil — spotrebuj event aby arena.gd nespustil tap-to-move
 				get_viewport().set_input_as_handled()
+				# pan rozbije double-tap par (tap → pan → tap nesmie dashnut)
+				InputR.reset_double_tap()
 			_touch_id = -1
 			_is_dragging = false
 

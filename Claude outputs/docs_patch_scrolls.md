@@ -258,34 +258,34 @@ Match state owner: team registries, structures, spawn entry points, the per-team
 ```
 data/
   cards/<pantheon>/    CardData   — id (card_<pantheon>_<name>), display_name,
-                                    cost, scroll_texture, unit_data XOR
-                                    spell_data, unit_count, formation_radius,
-                                    + collection fields: rarity (int 0–3),
-                                    obtain_source (int), faction (pantheon),
-                                    domain, tags, description
+									cost, scroll_texture, unit_data XOR
+									spell_data, unit_count, formation_radius,
+									+ collection fields: rarity (int 0–3),
+									obtain_source (int), faction (pantheon),
+									domain, tags, description
   units/<pantheon>/    UnitData   — id, archetype_scene, max_hp, damage,
-                                    attack_cooldown, speed, target_filter,
-                                    sprite_frames, attack_type, attack_range,
-                                    projectile_scene, damage_point_ratio,
-                                    attack_sfx / death_sfx
-    frames/            SpriteFrames
+									attack_cooldown, speed, target_filter,
+									sprite_frames, attack_type, attack_range,
+									projectile_scene, damage_point_ratio,
+									attack_sfx / death_sfx
+	frames/            SpriteFrames
   heroes/<pantheon>/   HeroData   — id, stats, projectile_scene, sprite_frames,
-                                    sounds, + collection fields: rarity (4 =
-                                    UNIQUE), obtain_source, faction, domain,
-                                    description, forbidden_tags, synergy_tag,
-                                    synergy_count, synergy_bonuses
-    frames/            SpriteFrames
+									sounds, + collection fields: rarity (4 =
+									UNIQUE), obtain_source, faction, domain,
+									description, forbidden_tags, synergy_tag,
+									synergy_count, synergy_bonuses
+	frames/            SpriteFrames
   spells/<pantheon>/   SpellData  — id, display_name, spell_type (int),
-                                    radius, cast_time, zone_duration,
-                                    effect_duration, damage, tick_interval,
-                                    slow_multiplier, sprite_frames
-    frames/            SpriteFrames
+									radius, cast_time, zone_duration,
+									effect_duration, damage, tick_interval,
+									slow_multiplier, sprite_frames
+	frames/            SpriteFrames
   packs/               PackData   — id, display_name, card_count, faction
-                                    filter, rarity_weights (5), guaranteed_
-                                    min_rarity, price
+									filter, rarity_weights (5), guaranteed_
+									min_rarity, price
   progression/         LevelCurve — max_level, copies per level per rarity,
-                                    stat multiplier per level, god attack-speed
-                                    multiplier per level (one file, all tuning)
+									stat multiplier per level, god attack-speed
+									multiplier per level (one file, all tuning)
   maps/                MapData    — (unchanged)
   sounds/              SoundData  — (unchanged)
 ```
@@ -451,16 +451,16 @@ gods; animation and windup are untouched (rework postponed).
     per pack) and shows a list reveal (NEW / +1 copy).
   - `deck_overlay.gd` + `deck_tile.gd` (`DeckTile`, built in code) — 8 slots
     (god + 7) and, in edit mode, the pool. Works on a draft; one `_place()`
-    function serves both Godot's Control drag-and-drop and tap-then-tap. Only
-    Save writes (`PlayerProfile.set_deck()`, which also makes that god active).
-    Switching god loads `get_deck_for(god)`; unsaved card edits raise a
-    Discard / Cancel dialog. Cards the draft god refuses are greyed
-    ("Forbidden"). A live synergy line sits under the slots.
+	function serves both Godot's Control drag-and-drop and tap-then-tap. Only
+	Save writes (`PlayerProfile.set_deck()`, which also makes that god active).
+	Switching god loads `get_deck_for(god)`; unsaved card edits raise a
+	Discard / Cancel dialog. Cards the draft god refuses are greyed
+	("Forbidden"). A live synergy line sits under the slots.
   - `encyclopedia_overlay.gd` — a tab per pantheon found in the data; sections
-    Gods / Units / Spells of `DeckTile`s (locked ones tappable). Hosts
-    `card_flashcard.tscn` (`CardFlashcard`): the detail panel with the stat
-    preview and the level-up button (`PlayerProfile.upgrade_card()`). The
-    overlay rebuilds on `PlayerProfile.profile_changed`.
+	Gods / Units / Spells of `DeckTile`s (locked ones tappable). Hosts
+	`card_flashcard.tscn` (`CardFlashcard`): the detail panel with the stat
+	preview and the level-up button (`PlayerProfile.upgrade_card()`). The
+	overlay rebuilds on `PlayerProfile.profile_changed`.
 - Debug keys in the main menu (debug builds only): **F9** reset profile,
   **F10** +1 copy of everything obtainable, **F11** toggle `DebugLog`.
 ```
@@ -550,19 +550,19 @@ and the line starting `- [ ] Decide whether spells count against the deck's card
 - [x] Open Question 1 (synergy type) — resolved, §2
 - [ ] Open Question 2 — deck size resolved (god + 7); sidekick still open
 - [x] First stat pass on all 20 Greek units (values in
-      `claude/scrolls_decisions.md`); cards exist for the eight human units.
-      Balance pass still to do.
+	  `claude/scrolls_decisions.md`); cards exist for the eight human units.
+	  Balance pass still to do.
 - [x] Card rarity, leveling and collection — built (`game_design.md` §3.14);
-      per-card rarities are still placeholders
+	  per-card rarities are still placeholders
 - [x] Spells take normal deck slots
 - [ ] Domain cards: Pegasus, Talos (Olympus); Hippocampus Rider,
-      Nereid, Ketos (Sea); Shades, Spartoi, Erinyes (Underworld) — unit data
-      exists with placeholder sprites, no cards yet
+	  Nereid, Ketos (Sea); Shades, Spartoi, Erinyes (Underworld) — unit data
+	  exists with placeholder sprites, no cards yet
 - [ ] Tag vocabulary (holy, undead, beast…) and which gods refuse what
 - [ ] Synergy rule for every god beyond Zeus and Poseidon
 - [ ] Mechanics the unit data cannot express yet: healing (Priestess, Nereid),
-      charge bonus (Hippeus), formation armor (Phalanx), flying (Harpy,
-      Pegasus), Cyclops boulder throw
+	  charge bonus (Hippeus), formation armor (Phalanx), flying (Harpy,
+	  Pegasus), Cyclops boulder throw
 ```
 
 ---

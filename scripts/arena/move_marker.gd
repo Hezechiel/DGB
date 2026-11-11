@@ -13,5 +13,11 @@ func show_at(pos: Vector2) -> void:
 	sprite.frame = 0
 	sprite.play("play")
 
+# Okamzite skry (napr. blizky double-tap — hrdina zastane na konci dashu,
+# marker nesmie ukazovat na miesto, kam nedojde)
+func hide_marker() -> void:
+	sprite.stop()
+	sprite.visible = false
+
 func _on_animation_finished() -> void:
 	sprite.visible = false

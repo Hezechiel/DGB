@@ -8,4 +8,4 @@ script = ExtResource("1_mapdata")
 id = &"map_greek_plateau"
 display_name = "Greek Plateau"
 map_scene = ExtResource("2_mapscene")
-bounds = Rect2(-410, -180, 820, 360)
+bounds = Rect2(-420, -240, 840, 480)

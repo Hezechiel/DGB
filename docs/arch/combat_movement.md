@@ -178,6 +178,54 @@
   range on landing, so a pushed unit would still hit from 60 px away).
   `revive()` clears any leftover knockback. Turrets and bases have no
   `apply_knockback()` and are never moved.
+- **Dash (Nov 2026)** — a short forced move paid from a charge meter, heroes
+  only (design: `game_design.md` §3.3 / §3.10).
+  - *`DashMeter`* (`scripts/arena/dash_meter.gd`, `RefCounted`): pure state +
+    math, no nodes, no autoload calls, no signals — the future server runs it
+    unchanged. Consts `FULL_DISTANCE = 48`, `SPEED = 320`, `MIN_FILL = 0.25`.
+    One continuous `value` in `[0, max_charges]`; `tick(delta)` adds
+    `delta / recharge_time` (so segments fill one after another — more
+    charges never refill faster); `consume()` spends `min(value, 1.0)` and
+    returns it, or returns 0.0 and changes nothing below `MIN_FILL`;
+    `refill()` fills it. Built from `HeroData.dash_charges` (default 1) /
+    `dash_recharge_time` (default 2.5 s).
+  - *Mechanics* are **intentionally duplicated** in `player.gd` and
+    `hero_dummy.gd` (`=== DASH ===` blocks, same pattern as status effects);
+    each owns a `DashMeter` rebuilt in `configure()` and ticked in
+    `_process` while alive (also during stun, like the skill cooldown).
+    `try_dash(world_pos)` refuses while dead, during the spawn clip
+    (`_is_spawning` — physics is off then, so an accepted dash would fire
+    late), stunned, rooted, knocked back, already dashing, after match end,
+    or for a target closer than 1 px. On success it cancels the attack
+    windup (`_cancel_attack_windup()`, which also re-enables a locked
+    `_physics_process`), sets `dash_velocity` / `dash_left = distance /
+    SPEED` and `last_direction`, and stores `last_dash_distance`.
+  - In `_physics_process` the order is **knockback > dash > stun**: the dash
+    branch moves with `move_and_slide()` (obstacles/structures stop it),
+    ignores slow, plays the walk clip, skips all combat (no attacks
+    mid-dash), and calls `_end_dash()` when done. `_end_dash()` zeroes
+    velocity and resets `_nav_goal` (stale path, as with knockback); it is a
+    no-op when no dash runs. `apply_stun()` and `apply_knockback()` call it
+    (they interrupt a dash), root doesn't (a 0.15 s dash finishes). `die()`
+    ends the dash; `revive()` ends it and refills the meter. No i-frames —
+    `invuln_left` is untouched.
+  - *Unit pass-through:* `try_dash()` saves and clears `collision_mask` bit 2
+    (`unit_body`) and `_end_dash()` restores it — a **no-op today**, since
+    both hero scenes already use `collision_mask = 4`. Kept as a guard in case
+    heroes ever collide with units. No depenetration logic.
+  - *AI decisions* (`hero_dummy.gd` `=== AI DASH ===`, `_update_ai_dash()`,
+    last step of `_physics_process`) live in the node script because they
+    need positions; `HeroAI` stays position-free and only supplies the
+    `NORMAL`/`LOW_HP` state. Dodge reads zones through the `"spell_zones"`
+    group (`spell_zone.gd` joins it in `_ready()`) and three read-only
+    getters: `get_caster_team()`, `get_radius()`, `is_threat()` (cast phase,
+    or zone phase while `_zone_left > 0`). The "am I inside" test mirrors
+    `get_targets_in_radius()` — center distance ≤ radius — so inside means
+    exactly "would be hit". Escape dashes along `steer_dir`, the retreat
+    direction captured **before** the fire step, because self-defense
+    `_try_fire()` turns `last_direction` toward the attacker (dashing along
+    it would launch the low-HP AI into the enemy); a zero `steer_dir` skips
+    the escape.
 - Hero death: hide + disable (collision & hurtbox zeroed deferred → attackers get
   `area_exited` and disengage), unregister, respawn via BattleManager countdown.
 - Range checks use `distance_squared_to()`.
@@ -243,6 +291,7 @@ already cover.
 - `take_damage(amount)` with invulnerability window (`invuln_time`), sprite flash feedback
 - Stats come from `HeroData` via `configure(data, team, stat_mods := {})` — `stat_mods` are `BattleManager._hero_stat_mods()` multipliers (`max_hp`/`damage`/`attack_speed` from the god's level; synergy never buffs the god): `max_hp`, `speed`, `attack_range`, `recovery_time` (post-cast-point cooldown remainder — cast-point itself is derived live from the `attack_left` animation, so retuning its fps/frame count never requires touching cooldown data), `projectile_damage`, `attack_type`, `can_move_while_attacking`, `attack_sound`
 - Spawn/death animations (`spawn_left`, `death_left`) freeze movement for their duration
+- Dash (`try_dash()`, `DashMeter`): see the **Dash (Nov 2026)** bullet above
 - Mirrored by `scripts/arena/hero_dummy.gd` (`scenes/arena/hero_dummy.tscn`) for AI-controlled enemy heroes — same cast-point/attack logic, own march/retreat/heal-seek movement; the "am I in trouble" decision is delegated to `HeroAI` (`architecture.md` §2)
 
 ### Auto-attack priority (from CLAUDE.md)
